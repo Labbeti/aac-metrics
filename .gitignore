@@ -130,3 +130,5 @@ dmypy.json
 
 # VSCode dir
 .vscode/
+
+tests/caption-evaluation-tools

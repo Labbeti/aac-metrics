@@ -43,12 +43,7 @@ def _get_main_evaluate_args() -> Namespace:
         ),
         help="The column names of the candidates in the CSV file.",
     )
-    parser.add_argument(
-        "--verbose",
-        type=int,
-        default=0,
-        help="Verbose level."
-    )
+    parser.add_argument("--verbose", type=int, default=0, help="Verbose level.")
 
     args = parser.parse_args()
     return args

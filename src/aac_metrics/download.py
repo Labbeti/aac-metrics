@@ -97,20 +97,17 @@ def download(
 
 
 def _get_main_download_args() -> Namespace:
-    parser = ArgumentParser(description="Download models and external code to evaluate captions.")
+    parser = ArgumentParser(
+        description="Download models and external code to evaluate captions."
+    )
 
     parser.add_argument(
         "--cache_path",
         type=str,
         default="$HOME/aac-metrics-cache",
-        help="Cache directory."
+        help="Cache directory.",
     )
-    parser.add_argument(
-        "--verbose",
-        type=int,
-        default=0,
-        help="Verbose level."
-    )
+    parser.add_argument("--verbose", type=int, default=0, help="Verbose level.")
 
     args = parser.parse_args()
     return args

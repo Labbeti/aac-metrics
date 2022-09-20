@@ -16,7 +16,9 @@ exclude =
     # This contains builds of flake8 that we don't want to check
     dist,
     # Ignore notebook checkpoints
-    .ipynb_checkpoints
+    .ipynb_checkpoints,
+    # Ignore submodule caption-evaluation-tools
+    tests/caption-evaluation-tools
 per-file-ignores =
     # imported but unused
     __init__.py: F401

@@ -5,11 +5,11 @@ from typing import Any, Optional
 
 from torch import Tensor
 
+from aac_metrics.experimental.mult_cands import mult_cands_wrapper
 from aac_metrics.functional.coco_spider import coco_spider
-from aac_metrics.functional.mult_cands import mult_cands_wrapper
 
 
-def coco_spider_max(
+def spider_max(
     mult_candidates: list[list[str]],
     mult_references: list[list[str]],
     cider_kwargs: Optional[dict[str, Any]] = None,

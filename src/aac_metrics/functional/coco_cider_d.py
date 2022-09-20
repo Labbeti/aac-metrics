@@ -32,7 +32,7 @@ def coco_cider_d(
 
     if len(candidates) <= 1:
         raise ValueError(
-            f"CIDEr metric does not support less than 2 candidates with 2 lists of mult_references. (found {len(candidates)=}, but expected > 1)"
+            f"CIDEr metric does not support less than 2 candidates with 2 references. (found {len(candidates)=}, but expected > 1)"
         )
 
     cooked_mrefs = [
