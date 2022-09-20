@@ -12,7 +12,7 @@ from aac_metrics.functional.coco_spice import coco_spice
 def coco_spider(
     candidates: list[str],
     mult_references: list[list[str]],
-    return_all_scores: bool = False,
+    return_all_scores: bool = True,
     # CIDEr args
     n: int = 4,
     sigma: float = 6.0,

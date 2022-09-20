@@ -33,7 +33,7 @@ METEOR_JAR_FNAME = osp.join("meteor", "meteor-1.5.jar")
 def coco_meteor(
     candidates: list[str],
     mult_references: list[list[str]],
-    return_all_scores: bool = False,
+    return_all_scores: bool = True,
     java_path: str = "java",
     cache_path: str = "$HOME/aac-metrics-cache",
     java_max_memory: str = "2G",

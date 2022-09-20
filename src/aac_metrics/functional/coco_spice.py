@@ -30,7 +30,7 @@ CACHE_DNAME = "spice_cache"
 def coco_spice(
     candidates: list[str],
     mult_references: list[list[str]],
-    return_all_scores: bool = False,
+    return_all_scores: bool = True,
     java_path: str = "java",
     tmp_path: str = "/tmp",
     cache_path: str = "$HOME/aac-metrics-cache",

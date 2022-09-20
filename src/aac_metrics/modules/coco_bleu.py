@@ -14,9 +14,12 @@ class CocoBLEU(Metric):
     higher_is_better = True
     is_differentiable = False
 
+    min_value = 0.0
+    max_value = 1.0
+
     def __init__(
         self,
-        return_all_scores: bool = False,
+        return_all_scores: bool = True,
         n: int = 4,
         option: str = "closest",
         verbose: int = 0,

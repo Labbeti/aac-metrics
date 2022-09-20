@@ -14,9 +14,12 @@ class CocoRougeL(Metric):
     higher_is_better = True
     is_differentiable = False
 
+    min_value = 0.0
+    max_value = 1.0
+
     def __init__(
         self,
-        return_all_scores: bool = False,
+        return_all_scores: bool = True,
         beta: float = 1.2,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:

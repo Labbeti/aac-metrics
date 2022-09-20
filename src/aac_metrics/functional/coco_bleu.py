@@ -17,7 +17,7 @@ BLEU_COCO_OPTIONS = ("shortest", "average", "closest")
 def coco_bleu(
     candidates: list[str],
     mult_references: list[list[str]],
-    return_all_scores: bool = False,
+    return_all_scores: bool = True,
     n: int = 4,
     option: str = "closest",
     verbose: int = 0,
@@ -142,10 +142,9 @@ def _cook_candidate(
         result["reflen"] = reflen
 
     result["testlen"] = testlen
-
     result["guess"] = [max(0, testlen - k + 1) for k in range(1, n + 1)]
-
     result["correct"] = [0] * n
+
     for (ngram, count) in counts.items():
         result["correct"][len(ngram) - 1] += min(refmaxcounts.get(ngram, 0), count)
 
