@@ -1,0 +1,4 @@
+[submodule "caption-evaluation-tools"]
+	path = tests/caption-evaluation-tools
+	url = https://github.com/audio-captioning/caption-evaluation-tools
+    branch = master
