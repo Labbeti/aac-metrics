@@ -20,7 +20,9 @@ class TestCompare(TestCase):
     def init_caption_evaluation_tools(self) -> None:
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
 
-        standford_fpath = osp.join(cet_path, "coco_caption", "tokenizer", "stanford-corenlp-3.4.1.jar")
+        standford_fpath = osp.join(
+            cet_path, "coco_caption", "tokenizer", "stanford-corenlp-3.4.1.jar"
+        )
         if not osp.isfile(standford_fpath):
             command = "bash get_stanford_models.sh"
             subprocess.check_call(

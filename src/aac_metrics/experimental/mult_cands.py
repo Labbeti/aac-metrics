@@ -13,8 +13,6 @@ def mult_cands_wrapper(
     mult_candidates: list[list[str]],
     mult_references: list[list[str]],
     reduction: Union[str, Callable[[Tensor], Tensor]] = "max",
-    metric_prefix: str = "mcands.",
-    metric_suffix: str = ".max",
     *args,
     **kwargs,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
@@ -66,10 +64,6 @@ def mult_cands_wrapper(
         for k in keys
     }
     local_scores = {k: reduction(scores) for k, scores in all_local_scores.items()}
-    local_scores = {
-        f"{metric_prefix}{k}{metric_suffix}": scores
-        for k, scores in local_scores.items()
-    }
     global_scores = {k: scores.mean() for k, scores in local_scores.items()}
     return local_scores, global_scores
 
