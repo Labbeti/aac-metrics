@@ -20,10 +20,10 @@ class TestCompare(TestCase):
     def init_caption_evaluation_tools(self) -> None:
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
 
-        standford_fpath = osp.join(
+        stanford_fpath = osp.join(
             cet_path, "coco_caption", "tokenizer", "stanford-corenlp-3.4.1.jar"
         )
-        if not osp.isfile(standford_fpath):
+        if not osp.isfile(stanford_fpath):
             command = "bash get_stanford_models.sh"
             subprocess.check_call(
                 command.split(),
@@ -38,14 +38,23 @@ class TestCompare(TestCase):
     ]:
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
         self.init_caption_evaluation_tools()
+        # Append cet_path to allow imports of "coco_caption" in eval_metrics.py.
         sys.path.append(cet_path)
-        module = importlib.import_module("eval_metrics")
-        evaluate_metrics_from_lists = module.evaluate_metrics_from_lists
+        # Override cache and tmp dir to avoid outputs in source code.
+        spice_module = importlib.import_module("coco_caption.pycocoevalcap.spice.spice")
+        spice_module.CACHE_DIR = "/tmp"
+        spice_module.TEMP_DIR = "/tmp"
+        eval_metrics_module = importlib.import_module("eval_metrics")
+        evaluate_metrics_from_lists = eval_metrics_module.evaluate_metrics_from_lists
         return evaluate_metrics_from_lists
 
     def test_compare_results(self) -> None:
         evaluate_metrics_from_lists = self.get_eval_function()
-        cands = ["a man is speaking", "birds chirping"]
+        cands = [
+            "a man is speaking",
+            "birds chirping",
+            "rain is falling in the background",
+        ]
         mrefs = [
             [
                 "man speaks",
@@ -55,6 +64,7 @@ class TestCompare(TestCase):
                 "someone is talking",
             ],
             ["a bird is chirping"] * 5,
+            ["heavy rain noise"] * 5,
         ]
 
         global_scores, _ = evaluate(cands, mrefs)
@@ -68,9 +78,9 @@ class TestCompare(TestCase):
         self.assertIsInstance(global_scores, dict)
         self.assertIsInstance(cet_global_scores, dict)
         self.assertListEqual(list(global_scores.keys()), list(cet_global_scores.keys()))
-        for k, v1 in global_scores.items():
-            v2 = cet_global_scores[k]
-            self.assertEqual(v1, v2)
+        for metric_name, v1 in global_scores.items():
+            v2 = cet_global_scores[metric_name]
+            self.assertEqual(v1.item(), v2, f"{metric_name=}")
         self.assertDictEqual(global_scores, cet_global_scores)
 
 

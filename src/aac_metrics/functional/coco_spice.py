@@ -140,10 +140,10 @@ def coco_spice(
 
     spice_scores = np.array(spice_scores)
     # Note: use numpy to compute mean because np.mean and torch.mean can give very small differences
-    spice_score = spice_scores.mean().item()
+    spice_score = spice_scores.mean()
 
     spice_scores = torch.from_numpy(spice_scores)
-    spice_score = torch.as_tensor(spice_score)
+    spice_score = torch.as_tensor(spice_score, dtype=torch.float64)
 
     if return_all_scores:
         global_scores = {
