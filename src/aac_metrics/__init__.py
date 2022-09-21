@@ -13,3 +13,12 @@ __version__ = "0.1.0"
 
 
 from .evaluate import evaluate
+from .classes import (
+    CocoBLEU,
+    CocoCIDErD,
+    CocoMETEOR,
+    CocoRougeL,
+    CocoSPICE,
+    SPIDEr,
+    DiversityRatio,
+)

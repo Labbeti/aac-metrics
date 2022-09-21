@@ -5,8 +5,12 @@ from typing import Callable, Union
 
 from torch import Tensor
 
-from aac_metrics.functional.coco_bleu import coco_bleu, BLEU_COCO_OPTIONS
-from aac_metrics.modules.base import Metric
+from aac_metrics.functional.coco_bleu import (
+    BLEU_COCO_OPTIONS,
+    _coco_bleu_compute,
+    _coco_bleu_update,
+)
+from aac_metrics.classes.base import Metric
 
 
 class CocoBLEU(Metric):
@@ -31,29 +35,28 @@ class CocoBLEU(Metric):
             )
 
         super().__init__()
-        self.return_all_scores = return_all_scores
-        self.n = n
-        self.option = option
-        self.verbose = verbose
-        self.tokenizer = tokenizer
+        self._return_all_scores = return_all_scores
+        self._n = n
+        self._option = option
+        self._verbose = verbose
+        self._tokenizer = tokenizer
 
-        self.candidates = []
-        self.mult_references = []
+        self._cooked_cands = []
+        self._cooked_mrefs = []
 
     def compute(self) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
-        return coco_bleu(
-            self.candidates,
-            self.mult_references,
-            self.return_all_scores,
-            self.n,
-            self.option,
-            self.verbose,
-            self.tokenizer,
+        return _coco_bleu_compute(
+            self._cooked_cands,
+            self._cooked_mrefs,
+            self._return_all_scores,
+            self._n,
+            self._option,
+            self._verbose,
         )
 
     def reset(self) -> None:
-        self.candidates = []
-        self.mult_references = []
+        self._cooked_cands = []
+        self._cooked_mrefs = []
         return super().reset()
 
     def update(
@@ -61,10 +64,11 @@ class CocoBLEU(Metric):
         candidates: list[str],
         mult_references: list[list[str]],
     ) -> None:
-        if len(candidates) != len(mult_references):
-            raise ValueError(
-                f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
-            )
-
-        self.candidates += candidates
-        self.mult_references += mult_references
+        self._cooked_cands, self._cooked_mrefs = _coco_bleu_update(
+            candidates,
+            mult_references,
+            self._n,
+            self._tokenizer,
+            self._cooked_cands,
+            self._cooked_mrefs,
+        )

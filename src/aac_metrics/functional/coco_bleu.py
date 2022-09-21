@@ -24,23 +24,63 @@ def coco_bleu(
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
 ) -> Union[Tensor, Tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    cooked_cands, cooked_mrefs = _coco_bleu_update(
+        candidates,
+        mult_references,
+        n,
+        tokenizer,
+        [],
+        [],
+    )
+    return _coco_bleu_compute(
+        cooked_cands,
+        cooked_mrefs,
+        return_all_scores,
+        n,
+        option,
+        verbose,
+        return_1_to_n,
+    )
+
+
+def _coco_bleu_update(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    n: int,
+    tokenizer: Callable[[str], list[str]],
+    prev_cooked_cands: list,
+    prev_cooked_mrefs: list,
+) -> tuple[list, list[tuple]]:
     if len(candidates) != len(mult_references):
         raise ValueError(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
+    new_cooked_mrefs = [
+        _cook_references(refs, n=n, tokenizer=tokenizer) for refs in mult_references
+    ]
+    new_cooked_cands = [
+        _cook_candidate(cand, cooked_mrefs_i, n=n, tokenizer=tokenizer)
+        for cand, cooked_mrefs_i in zip(candidates, new_cooked_mrefs)
+    ]
+    prev_cooked_cands += new_cooked_cands
+    prev_cooked_mrefs += new_cooked_mrefs
+    return prev_cooked_cands, prev_cooked_mrefs
 
+
+def _coco_bleu_compute(
+    cooked_cands: list,
+    cooked_mrefs: list,
+    return_all_scores: bool = True,
+    n: int = 4,
+    option: str = "closest",
+    verbose: int = 0,
+    return_1_to_n: bool = False,
+) -> Union[Tensor, Tuple[dict[str, Tensor], dict[str, Tensor]]]:
     if option not in BLEU_COCO_OPTIONS:
         raise ValueError(
             f"Invalid option {option=}. (expected one of {BLEU_COCO_OPTIONS})"
         )
 
-    cooked_mrefs = [
-        _cook_references(refs, n=n, tokenizer=tokenizer) for refs in mult_references
-    ]
-    cooked_cands = [
-        _cook_candidate(cand, cooked_mrefs_i, n=n, tokenizer=tokenizer)
-        for cand, cooked_mrefs_i in zip(candidates, cooked_mrefs)
-    ]
     score_1_to_n, scores_1_to_n = _compute_score(
         cooked_cands,
         cooked_mrefs,
@@ -155,11 +195,11 @@ def _compute_score(
     cooked_cands: list,
     cooked_mrefs: list,
     n: int,
-    option: Optional[str] = None,
+    option: Optional[str] = "closest",
     verbose: int = 0,
 ) -> tuple[list[float], list[list[float]]]:
-    small = 1e-9
-    tiny = 1e-15  # so that if guess is 0 still return 0
+    SMALL = 1e-9
+    TINY = 1e-15  # so that if guess is 0 still return 0
     bleu_list = [[] for _ in range(n)]
 
     if option is None:
@@ -185,11 +225,13 @@ def _compute_score(
         # append per audio bleu score
         bleu = 1.0
         for k in range(n):
-            bleu *= (float(comps["correct"][k]) + tiny) / (
-                float(comps["guess"][k]) + small
+            bleu *= (float(comps["correct"][k]) + TINY) / (
+                float(comps["guess"][k]) + SMALL
             )
             bleu_list[k].append(bleu ** (1.0 / (k + 1)))
-        ratio = (testlen + tiny) / (reflen + small)  # N.B.: avoid zero division
+
+        # N.B.: avoid zero division
+        ratio = (testlen + TINY) / (reflen + SMALL)
         if ratio < 1:
             for k in range(n):
                 bleu_list[k][-1] *= math.exp(1 - 1 / ratio)
@@ -203,12 +245,12 @@ def _compute_score(
     bleus = []
     bleu = 1.0
     for k in range(n):
-        bleu *= float(totalcomps["correct"][k] + tiny) / (
-            totalcomps["guess"][k] + small
+        bleu *= float(totalcomps["correct"][k] + TINY) / (
+            totalcomps["guess"][k] + SMALL
         )
         bleus.append(bleu ** (1.0 / (k + 1)))
-    ratio = (global_cands_len + tiny) / (
-        global_mrefs_len + small
+    ratio = (global_cands_len + TINY) / (
+        global_mrefs_len + SMALL
     )  # N.B.: avoid zero division
     if ratio < 1:
         for k in range(n):

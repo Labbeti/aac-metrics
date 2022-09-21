@@ -13,9 +13,6 @@ from unittest import TestCase
 from aac_metrics.evaluate import evaluate
 
 
-GIT_LINK = "https://github.com/audio-captioning/caption-evaluation-tools/"
-
-
 class TestCompare(TestCase):
     def init_caption_evaluation_tools(self) -> None:
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
@@ -42,8 +39,8 @@ class TestCompare(TestCase):
         sys.path.append(cet_path)
         # Override cache and tmp dir to avoid outputs in source code.
         spice_module = importlib.import_module("coco_caption.pycocoevalcap.spice.spice")
-        spice_module.CACHE_DIR = "/tmp"
-        spice_module.TEMP_DIR = "/tmp"
+        spice_module.CACHE_DIR = "/tmp"  # type: ignore
+        spice_module.TEMP_DIR = "/tmp"  # type: ignore
         eval_metrics_module = importlib.import_module("eval_metrics")
         evaluate_metrics_from_lists = eval_metrics_module.evaluate_metrics_from_lists
         return evaluate_metrics_from_lists

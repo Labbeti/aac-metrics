@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
 from torch import Tensor
 
 from aac_metrics.experimental.mult_cands import mult_cands_wrapper
-from aac_metrics.functional.coco_spider import coco_spider
+from aac_metrics.functional.spider import spider
 
 
 def spider_max(
     mult_candidates: list[list[str]],
     mult_references: list[list[str]],
+    return_all_scores: bool = True,
     # CIDEr args
     n: int = 4,
     sigma: float = 6.0,
@@ -24,12 +25,14 @@ def spider_max(
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     verbose: int = 0,
-) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
+) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
     return mult_cands_wrapper(
-        coco_spider,
+        spider,
+        "spider",
         mult_candidates,
         mult_references,
-        reduction="max",
+        return_all_scores,
+        "max",
         # CIDEr args
         n=n,
         sigma=sigma,

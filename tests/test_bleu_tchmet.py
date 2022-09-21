@@ -7,7 +7,7 @@ from unittest import TestCase
 
 from torchmetrics.text.bleu import BLEUScore
 
-from aac_metrics.modules.coco_bleu import CocoBLEU
+from aac_metrics.classes.coco_bleu import CocoBLEU
 
 
 class TestBleu(TestCase):

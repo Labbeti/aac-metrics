@@ -9,11 +9,11 @@ The results of BLEU, ROUGE-L, METEOR, CIDEr, SPICE and SPIDEr are consistents wi
 pip install https://github.com/Labbeti/aac-metrics
 ```
 
-## Why using this package?
+<!-- ## Why using this package?
 - Easy installation with pip
-- Consistent with COCO caption metrics
+- Consistent with audio caption metrics https://github.com/audio-captioning/caption-evaluation-tools
 - Removes code boilerplate inherited from python 2
-- Provides functions and classes to compute metrics separately
+- Provides functions and classes to compute metrics separately -->
 
 ## Usage
 
@@ -44,5 +44,19 @@ print(local_scores)
 # {"cider_d": tensor([0.9, ...])}
 ```
 
-## References
-TODO
+### SPIDEr-max
+```python
+from aac_metrics.experimental.spider_max import spider_max
+
+mult_candidates = [[...], ...]
+mult_references = [[...], ...]
+
+global_scores, local_scores = spider_max(mult_candidates, mult_references)
+print(global_scores)
+# {"spider": tensor(0.1)}
+print(local_scores)
+# {"spider": tensor([0.9, ...])}
+```
+
+<!-- ## References
+TODO -->

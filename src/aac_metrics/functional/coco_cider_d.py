@@ -25,23 +25,59 @@ def coco_cider_d(
     :param n: set cider to sum over 1 to 4-grams
     :param sigma: set the standard deviation parameter for gaussian penalty
     """
+    cooked_cands, cooked_mrefs = _coco_cider_d_update(
+        candidates,
+        mult_references,
+        n,
+        tokenizer,
+        [],
+        [],
+    )
+    return _coco_cider_d_compute(
+        cooked_cands,
+        cooked_mrefs,
+        return_all_scores,
+        n,
+        sigma,
+        return_tfidf,
+    )
+
+
+def _coco_cider_d_update(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    n: int,
+    tokenizer: Callable[[str], list[str]],
+    prev_cooked_cands: list,
+    prev_cooked_mrefs: list,
+) -> tuple[list, list]:
     if len(candidates) != len(mult_references):
         raise ValueError(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
-
-    if len(candidates) <= 1:
-        raise ValueError(
-            f"CIDEr metric does not support less than 2 candidates with 2 references. (found {len(candidates)=}, but expected > 1)"
-        )
-
-    cooked_mrefs = [
+    new_cooked_mrefs = [
         _cook_references(refs, n=n, tokenizer=tokenizer) for refs in mult_references
     ]
-    cooked_cands = [
+    new_cooked_cands = [
         _cook_candidate(cand, n=n, tokenizer=tokenizer) for cand in candidates
     ]
+    prev_cooked_cands += new_cooked_cands
+    prev_cooked_mrefs += new_cooked_mrefs
+    return prev_cooked_cands, prev_cooked_mrefs
 
+
+def _coco_cider_d_compute(
+    cooked_cands: list,
+    cooked_mrefs: list,
+    return_all_scores: bool = False,
+    n: int = 4,
+    sigma: float = 6.0,
+    return_tfidf: bool = False,
+) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Any]]]:
+    if len(cooked_cands) <= 1:
+        raise ValueError(
+            f"CIDEr metric does not support less than 2 candidates with 2 references. (found {len(cooked_cands)} candidates, but expected > 1)"
+        )
     # compute idf
     document_frequency = _compute_doc_freq(cooked_mrefs)
     # compute log reference length
@@ -145,7 +181,10 @@ def _compute_doc_freq(cooked_mrefs: list[list[Counter]]) -> Counter[tuple]:
 
 
 def _counter_to_vec(
-    counters: dict[tuple, int], log_ref_len: float, n: int, document_frequency: Counter
+    counters: dict[tuple, int],
+    log_ref_len: float,
+    n: int,
+    document_frequency: Counter[tuple],
 ) -> tuple[list[defaultdict], np.ndarray, int]:
     """
     Function maps counts of ngram to vector of tfidf weights.

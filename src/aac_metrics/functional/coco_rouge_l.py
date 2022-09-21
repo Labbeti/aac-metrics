@@ -31,38 +31,57 @@ def coco_rouge_l(
     beta: float = 1.2,
     tokenizer: Callable[[str], list[str]] = str.split,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    rouge_l_scores = _coco_rouge_l_update(
+        candidates, mult_references, beta, tokenizer, []
+    )
+    return _coco_rouge_l_compute(rouge_l_scores, return_all_scores)
 
+
+def _coco_rouge_l_update(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    beta: float,
+    tokenizer: Callable[[str], list[str]],
+    prev_rouge_l_scores: list[float],
+) -> list[float]:
     if len(candidates) != len(mult_references):
         raise ValueError(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
-
-    rouge_l_scores = [
-        _calc_score([cand], refs, beta, tokenizer)
+    new_rouge_l_scores = [
+        _calc_score(cand, refs, beta, tokenizer)
         for cand, refs in zip(candidates, mult_references)
     ]
-    rouge_l_scores = np.array(rouge_l_scores)
-    # Note: use numpy to compute mean because np.mean and torch.mean can give very small differences
-    rouge_l_score = rouge_l_scores.mean()
+    prev_rouge_l_scores += new_rouge_l_scores
+    return prev_rouge_l_scores
 
-    rouge_l_score = torch.as_tensor(rouge_l_score)
-    rouge_l_scores = torch.from_numpy(rouge_l_scores)
+
+def _coco_rouge_l_compute(
+    rouge_l_scores: list[float],
+    return_all_scores: bool,
+) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    # Note: use numpy to compute mean because np.mean and torch.mean can give very small differences
+    rouge_l_scores_np = np.array(rouge_l_scores)
+    rouge_l_score_np = rouge_l_scores_np.mean()
+
+    rouge_l_score_pt = torch.as_tensor(rouge_l_score_np)
+    rouge_l_scores_pt = torch.from_numpy(rouge_l_scores_np)
 
     if return_all_scores:
         global_scores = {
-            "rouge_l": rouge_l_score,
+            "rouge_l": rouge_l_score_pt,
         }
         local_scores = {
-            "rouge_l": rouge_l_scores,
+            "rouge_l": rouge_l_scores_pt,
         }
         return global_scores, local_scores
     else:
-        return rouge_l_score
+        return rouge_l_score_pt
 
 
 def _calc_score(
-    candidate: list[str],
-    refs: list[str],
+    candidate: str,
+    references: list[str],
     beta: float,
     tokenizer: Callable[[str], list[str]] = str.split,
 ) -> float:
@@ -71,19 +90,18 @@ def _calc_score(
     :param refs: list of str : COCO reference sentences for the particular audio to be evaluated
     :returns score: int (ROUGE-L score for the candidate evaluated against mult_references)
     """
-    assert len(candidate) == 1
-    assert len(refs) > 0
+    assert len(references) > 0
     prec = []
     rec = []
 
     # split into tokens
-    token_c = tokenizer(candidate[0])
+    token_c = tokenizer(candidate)
 
     # Add Labbeti: returns 0 when candidate is empty.
     if len(token_c) == 0:
         return 0.0
 
-    for reference in refs:
+    for reference in references:
         # split into tokens
         token_r = tokenizer(reference)
         # compute the longest common subsequence

@@ -5,11 +5,11 @@ from typing import Callable, Iterable, Union
 
 from torch import Tensor
 
-from aac_metrics.modules.base import Metric
-from aac_metrics.modules.coco_bleu import CocoBLEU
-from aac_metrics.modules.coco_meteor import CocoMETEOR
-from aac_metrics.modules.coco_rouge_l import CocoRougeL
-from aac_metrics.modules.coco_spider import CocoSPIDEr
+from aac_metrics.classes.base import Metric
+from aac_metrics.classes.coco_bleu import CocoBLEU
+from aac_metrics.classes.coco_meteor import CocoMETEOR
+from aac_metrics.classes.coco_rouge_l import CocoRougeL
+from aac_metrics.classes.spider import SPIDEr
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
 
@@ -125,7 +125,7 @@ def _get_metrics_factory(
             return_all_scores=True,
         ),
         # Note: cider_d and spice and computed inside spider metric
-        "spider": lambda: CocoSPIDEr(
+        "spider": lambda: SPIDEr(
             return_all_scores=True,
             java_path=java_path,
             tmp_path=tmp_path,

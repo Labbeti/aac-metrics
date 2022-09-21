@@ -6,7 +6,10 @@ from typing import Callable, Union
 from torch import Tensor
 from torchmetrics import Metric
 
-from aac_metrics.functional.coco_rouge_l import coco_rouge_l
+from aac_metrics.functional.coco_rouge_l import (
+    _coco_rouge_l_compute,
+    _coco_rouge_l_update,
+)
 
 
 class CocoRougeL(Metric):
@@ -24,25 +27,20 @@ class CocoRougeL(Metric):
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
         super().__init__()
-        self.return_all_scores = return_all_scores
-        self.beta = beta
-        self.tokenizer = tokenizer
+        self._return_all_scores = return_all_scores
+        self._beta = beta
+        self._tokenizer = tokenizer
 
-        self.candidates = []
-        self.mult_references = []
+        self._rouge_l_scores = []
 
     def compute(self) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
-        return coco_rouge_l(
-            self.candidates,
-            self.mult_references,
-            self.return_all_scores,
-            self.beta,
-            self.tokenizer,
+        return _coco_rouge_l_compute(
+            self._rouge_l_scores,
+            self._return_all_scores,
         )
 
     def reset(self) -> None:
-        self.candidates = []
-        self.mult_references = []
+        self._rouge_l_scores = []
         return super().reset()
 
     def update(
@@ -50,5 +48,10 @@ class CocoRougeL(Metric):
         candidates: list[str],
         mult_references: list[list[str]],
     ) -> None:
-        self.candidates += candidates
-        self.mult_references += mult_references
+        self._rouge_l_scores = _coco_rouge_l_update(
+            candidates,
+            mult_references,
+            self._beta,
+            self._tokenizer,
+            self._rouge_l_scores,
+        )

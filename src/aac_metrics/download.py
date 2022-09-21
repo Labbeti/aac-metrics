@@ -5,6 +5,7 @@ import logging
 import os
 import os.path as osp
 import subprocess
+import sys
 
 from argparse import ArgumentParser, Namespace
 
@@ -35,7 +36,7 @@ JAR_URLS = {
 
 
 def download(
-    cache_path: str,
+    cache_path: str = "$HOME/aac-metrics-cache",
     verbose: int = 0,
 ) -> None:
     cache_path = osp.expandvars(cache_path)
@@ -54,6 +55,9 @@ def download(
                 f"Downloading jar source for '{name}' in directory {stanford_nlp_dpath}."
             )
         download_url_to_file(url, fpath, progress=verbose >= 1)
+    else:
+        if verbose >= 1:
+            logger.info(f"Stanford model file '{name}' is already downloaded.")
 
     meteor_dpath = osp.join(cache_path, "meteor")
     os.makedirs(meteor_dpath, exist_ok=True)
@@ -72,11 +76,15 @@ def download(
                 )
             if subdir not in ("", "."):
                 os.makedirs(osp.join(meteor_dpath, subdir), exist_ok=True)
+
             download_url_to_file(
                 url,
                 fpath,
                 progress=verbose >= 1,
             )
+        else:
+            if verbose >= 1:
+                logger.info(f"Meteor file '{name}' is already downloaded.")
 
     script = osp.join(osp.dirname(__file__), "..", "..", "install_spice.sh")
     if not osp.isfile(script):
@@ -107,15 +115,25 @@ def _get_main_download_args() -> Namespace:
         default="$HOME/aac-metrics-cache",
         help="Cache directory.",
     )
-    parser.add_argument("--verbose", type=int, default=0, help="Verbose level.")
+    parser.add_argument("--verbose", type=int, default=1, help="Verbose level.")
 
     args = parser.parse_args()
     return args
 
 
 def _main_download() -> None:
+    format_ = "[%(asctime)s][%(name)s][%(levelname)s] - %(message)s"
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter(format_))
+    pkg_logger = logging.getLogger("aac_metrics")
+    pkg_logger.addHandler(handler)
+
     args = _get_main_download_args()
-    print(args)
+
+    level = logging.INFO if args.verbose <= 1 else logging.DEBUG
+    pkg_logger.setLevel(level)
+
+    download(args.cache_path, args.verbose)
 
 
 if __name__ == "__main__":

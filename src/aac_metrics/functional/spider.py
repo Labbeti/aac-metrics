@@ -9,7 +9,7 @@ from aac_metrics.functional.coco_cider_d import coco_cider_d
 from aac_metrics.functional.coco_spice import coco_spice
 
 
-def coco_spider(
+def spider(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,

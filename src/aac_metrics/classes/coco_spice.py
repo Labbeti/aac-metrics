@@ -33,33 +33,33 @@ class CocoSPICE(Metric):
         verbose: int = 0,
     ) -> None:
         super().__init__()
-        self.return_all_scores = return_all_scores
-        self.java_path = java_path
-        self.tmp_path = tmp_path
-        self.cache_path = cache_path
-        self.n_threads = n_threads
-        self.java_max_memory = java_max_memory
-        self.verbose = verbose
+        self._return_all_scores = return_all_scores
+        self._java_path = java_path
+        self._tmp_path = tmp_path
+        self._cache_path = cache_path
+        self._n_threads = n_threads
+        self._java_max_memory = java_max_memory
+        self._verbose = verbose
 
-        self.candidates = []
-        self.mult_references = []
+        self._candidates = []
+        self._mult_references = []
 
     def compute(self) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
         return coco_spice(
-            self.candidates,
-            self.mult_references,
-            self.return_all_scores,
-            self.java_path,
-            self.tmp_path,
-            self.cache_path,
-            self.n_threads,
-            self.java_max_memory,
-            self.verbose,
+            self._candidates,
+            self._mult_references,
+            self._return_all_scores,
+            self._java_path,
+            self._tmp_path,
+            self._cache_path,
+            self._n_threads,
+            self._java_max_memory,
+            self._verbose,
         )
 
     def reset(self) -> None:
-        self.candidates = []
-        self.mult_references = []
+        self._candidates = []
+        self._mult_references = []
         return super().reset()
 
     def update(
@@ -67,5 +67,5 @@ class CocoSPICE(Metric):
         candidates: list[str],
         mult_references: list[list[str]],
     ) -> None:
-        self.candidates += candidates
-        self.mult_references += mult_references
+        self._candidates += candidates
+        self._mult_references += mult_references
