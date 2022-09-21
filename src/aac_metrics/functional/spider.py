@@ -55,20 +55,22 @@ def spider(
     if return_all_scores:
         assert isinstance(cider_d_out, tuple)
         assert isinstance(spice_out, tuple)
-        cider_d_global_outs, cider_d_local_outs = cider_d_out
-        spice_global_outs, spice_local_outs = spice_out
-        spider_agg_outs = {
-            "cider_d": cider_d_global_outs["cider_d"],
-            "spice": spice_global_outs["spice"],
-            "spider": (cider_d_global_outs["cider_d"] + spice_global_outs["spice"])
+        cider_d_global_scores, cider_d_local_scores = cider_d_out
+        spice_global_scores, spice_local_scores = spice_out
+
+        spider_global_scores = {
+            "cider_d": cider_d_global_scores["cider_d"],
+            "spice": spice_global_scores["spice"],
+            "spider": (cider_d_global_scores["cider_d"] + spice_global_scores["spice"])
             / 2.0,
         }
-        spider_loc_outs = {
-            "cider_d": cider_d_local_outs["cider_d"],
-            "spice": spice_local_outs["spice"],
-            "spider": (cider_d_local_outs["cider_d"] + spice_local_outs["spice"]) / 2.0,
+        spider_local_scores = {
+            "cider_d": cider_d_local_scores["cider_d"],
+            "spice": spice_local_scores["spice"],
+            "spider": (cider_d_local_scores["cider_d"] + spice_local_scores["spice"])
+            / 2.0,
         }
-        return spider_agg_outs, spider_loc_outs
+        return spider_global_scores, spider_local_scores
     else:
         assert isinstance(cider_d_out, Tensor)
         assert isinstance(spice_out, Tensor)

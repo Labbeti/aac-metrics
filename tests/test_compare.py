@@ -10,7 +10,7 @@ import unittest
 from typing import Callable, Dict, List, Tuple
 from unittest import TestCase
 
-from aac_metrics.evaluate import evaluate
+from aac_metrics.evaluate import aac_evaluate
 
 
 class TestCompare(TestCase):
@@ -64,7 +64,7 @@ class TestCompare(TestCase):
             ["heavy rain noise"] * 5,
         ]
 
-        global_scores, _ = evaluate(cands, mrefs)
+        global_scores, _ = aac_evaluate(cands, mrefs)
         cet_global_scores, _cet_local_scores = evaluate_metrics_from_lists(cands, mrefs)
 
         cet_global_scores = {k.lower(): v for k, v in cet_global_scores.items()}

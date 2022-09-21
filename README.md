@@ -19,12 +19,12 @@ pip install https://github.com/Labbeti/aac-metrics
 
 ### Evaluate all metrics
 ```python
-from aac_metrics import evaluate
+from aac_metrics import aac_evaluate
 
 candidates = ["a man is speaking", ...]
 mult_references = [["a man speaks.", "someone speaks.", "a man is speaking while a bird is chirping in the background"], ...]
 
-global_scores, _ = evaluate(candidates, mult_references)
+global_scores, _ = aac_evaluate(candidates, mult_references)
 print(global_scores)
 # dict containing the score of each metric: "bleu_1", "bleu_2", "bleu_3", "bleu_4", "rouge_l", "meteor", "cider_d", "spice", "spider"
 # {"bleu_1": tensor(0.7), "bleu_2": ..., ...}
@@ -32,7 +32,7 @@ print(global_scores)
 
 ### Evaluate specific metrics
 ```python
-from aac_metrics.functional.coco_cider_d import coco_cider_d
+from aac_metrics.functional import coco_cider_d
 
 candidates = [...]
 mult_references = [[...], ...]
@@ -44,7 +44,7 @@ print(local_scores)
 # {"cider_d": tensor([0.9, ...])}
 ```
 
-### SPIDEr-max
+### Experimental SPIDEr-max
 ```python
 from aac_metrics.experimental.spider_max import spider_max
 

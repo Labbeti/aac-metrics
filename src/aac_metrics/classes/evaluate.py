@@ -7,14 +7,14 @@ from typing import Callable, Iterable, Union
 
 from torch import Tensor
 
-from aac_metrics.functional.evaluate import evaluate, _get_metrics_set
+from aac_metrics.functional.evaluate import custom_evaluate, _get_metrics_list
 from aac_metrics.classes.base import Metric
 
 
 logger = logging.getLogger(__name__)
 
 
-class Evaluate(Metric, list[Metric]):
+class AACEvaluate(Metric, list[Metric]):
     full_state_update = False
     higher_is_better = True
     is_differentiable = False
@@ -29,7 +29,7 @@ class Evaluate(Metric, list[Metric]):
         metrics: Union[str, Iterable[Callable]] = "all",
     ) -> None:
         if isinstance(metrics, str):
-            metrics = _get_metrics_set(
+            metrics = _get_metrics_list(
                 metrics,
                 java_path=java_path,
                 tmp_path=tmp_path,
@@ -49,7 +49,7 @@ class Evaluate(Metric, list[Metric]):
         self._mult_references = []
 
     def compute(self) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
-        return evaluate(
+        return custom_evaluate(
             self._candidates,
             self._mult_references,
             self._use_ptb_tokenizer,
