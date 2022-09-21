@@ -1,5 +1,17 @@
+<!-- # -*- coding: utf-8 -*- -->
+
+<div align="center">
 
 # Audio Captioning metrics (aac-metrics)
+
+<a href="https://www.python.org/"><img alt="Python" src="https://img.shields.io/badge/-Python 3.9+-blue?style=for-the-badge&logo=python&logoColor=white"></a>
+<a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/-PyTorch 1.10.1-ee4c2c?style=for-the-badge&logo=pytorch&logoColor=white"></a>
+<a href="https://black.readthedocs.io/en/stable/"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-black.svg?style=for-the-badge&labelColor=gray"></a>
+<a href="https://github.com/Labbeti/aac-metrics/actions"><img alt="Build" src="https://img.shields.io/github/workflow/status/Labbeti/aac-metrics/Python%20package%20using%20Pip/main?style=for-the-badge&logo=github"></a>
+
+Audio Captioning Unofficial metrics source code, designed for Pytorch.
+
+</div>
 
 This package is a tool to evaluate sentences produced by automatic models to caption image or audio.
 The results of BLEU, ROUGE-L, METEOR, CIDEr, SPICE and SPIDEr are consistents with https://github.com/audio-captioning/caption-evaluation-tools.
