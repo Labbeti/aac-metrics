@@ -271,7 +271,7 @@ def _compute_cider(
         # compute vector for test captions
         vec, norm, length = _counter_to_vec(test, log_ref_len, n, document_frequency)
         # compute vector for ref captions
-        score = np.array([0.0 for _ in range(n)])
+        score = np.zeros((n,))
         vec_refs = []
         for ref in refs:
             vec_ref, norm_ref, length_ref = _counter_to_vec(
