@@ -20,6 +20,7 @@ class CocoBLEU(Metric):
 
     min_value = 0.0
     max_value = 1.0
+    is_linear = False
 
     def __init__(
         self,

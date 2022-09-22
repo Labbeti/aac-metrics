@@ -14,9 +14,9 @@ from aac_metrics.classes.base import Metric
 logger = logging.getLogger(__name__)
 
 
-class AACEvaluate(Metric, list[Metric]):
+class CustomEvaluate(Metric, list[Metric]):
     full_state_update = False
-    higher_is_better = True
+    higher_is_better = None
     is_differentiable = False
 
     def __init__(

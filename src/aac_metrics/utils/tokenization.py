@@ -155,18 +155,40 @@ def _ptb_tokenize(
     return outs
 
 
-def preprocess_mono_sents(sents: list[str]) -> list[str]:
-    tok_sents = _ptb_tokenize(sents)
+def preprocess_mono_sents(
+    sents: list[str],
+    java_path: str = "java",
+    cache_path: str = "$HOME/aac-metrics-cache",
+    tmp_path: str = "/tmp",
+    verbose: int = 0,
+) -> list[str]:
+    """Tokenize sentences using PTB Tokenizer then merge them by space.
+
+    Note: PTB tokenizer is a java program that takes a list[str] as input, so calling several times `preprocess_mono_sents` is slow on list[list[str]].
+    If you want to process multiple sentences (list[list[str]]), use `preprocess_mult_sents` instead.
+    """
+    tok_sents = _ptb_tokenize(sents, None, java_path, cache_path, tmp_path, verbose)
     sents = [" ".join(sent) for sent in tok_sents]
     return sents
 
 
-def preprocess_mult_sents(mult_sents: list[list[str]]) -> list[list[str]]:
+def preprocess_mult_sents(
+    mult_sents: list[list[str]],
+    java_path: str = "java",
+    cache_path: str = "$HOME/aac-metrics-cache",
+    tmp_path: str = "/tmp",
+    verbose: int = 0,
+) -> list[list[str]]:
+    """Tokenize sentences using PTB Tokenizer with only 1 call then merge them by space. """
+
+    # Flat list
     flatten_sents = [sent for sents in mult_sents for sent in sents]
     n_sents_per_item = [len(sents) for sents in mult_sents]
 
-    flatten_sents = preprocess_mono_sents(flatten_sents)
+    # Process
+    flatten_sents = preprocess_mono_sents(flatten_sents, java_path, cache_path, tmp_path, verbose)
 
+    # Unflat list in the same order
     mult_sents = []
     start = 0
     stop = 0

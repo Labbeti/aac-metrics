@@ -78,7 +78,10 @@ def custom_evaluate(
     mult_references: list[list[str]],
     use_ptb_tokenizer: bool = True,
     metrics: Union[str, Iterable[Metric]] = "aac",
-    **kwargs,
+    java_path: str = "java",
+    tmp_path: str = "/tmp",
+    cache_path: str = "$HOME/aac-metrics-cache",
+    verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Evaluate candidates with multiple references with custom metrics.
 
@@ -92,15 +95,18 @@ def custom_evaluate(
     if isinstance(metrics, str):
         metrics = _get_metrics_list(
             metrics,
-            **kwargs,
+            java_path=java_path,
+            tmp_path=tmp_path,
+            cache_path=cache_path,
+            verbose=verbose,
         )
 
     global_outs = {}
     local_outs = {}
 
     if use_ptb_tokenizer:
-        candidates = preprocess_mono_sents(candidates)
-        mult_references = preprocess_mult_sents(mult_references)
+        candidates = preprocess_mono_sents(candidates, java_path, cache_path, tmp_path, verbose)
+        mult_references = preprocess_mult_sents(mult_references, java_path, cache_path, tmp_path, verbose)
 
     for metric in metrics:
         global_outs_i, local_outs_i = metric(candidates, mult_references)

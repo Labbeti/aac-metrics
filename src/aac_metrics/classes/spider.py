@@ -21,6 +21,7 @@ class SPIDEr(Metric):
 
     min_value = 0.0
     max_value = 5.5
+    is_linear = False
 
     def __init__(
         self,

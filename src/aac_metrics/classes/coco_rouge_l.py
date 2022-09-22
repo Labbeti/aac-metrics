@@ -19,6 +19,7 @@ class CocoRougeL(Metric):
 
     min_value = 0.0
     max_value = 1.0
+    is_linear = True
 
     def __init__(
         self,

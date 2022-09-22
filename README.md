@@ -17,8 +17,14 @@ This package is a tool to evaluate sentences produced by automatic models to cap
 The results of BLEU, ROUGE-L, METEOR, CIDEr, SPICE and SPIDEr are consistents with https://github.com/audio-captioning/caption-evaluation-tools.
 
 ## Installation
+Install the pip package:
 ```
 pip install https://github.com/Labbeti/aac-metrics
+```
+
+Download the external code needed for METEOR, SPICE and PTBTokenizer:
+```
+aac-metrics-download
 ```
 
 <!-- ## Why using this package?
