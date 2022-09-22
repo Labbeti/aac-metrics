@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Automated Audio Captioning metrics.
+"""Audio Captioning metrics.
 """
 
 __name__ = "aac-metrics"
