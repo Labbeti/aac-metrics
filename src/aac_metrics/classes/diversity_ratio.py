@@ -8,7 +8,10 @@ from typing import Callable, Union
 from torch import Tensor
 
 from aac_metrics.classes.base import Metric
-from aac_metrics.functional.diversity_ratio import _diversity_ratio_compute, _diversity_ratio_update
+from aac_metrics.functional.diversity_ratio import (
+    _diversity_ratio_compute,
+    _diversity_ratio_update,
+)
 
 
 class DiversityRatio(Metric):

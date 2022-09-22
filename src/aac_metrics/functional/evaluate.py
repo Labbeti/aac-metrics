@@ -105,8 +105,12 @@ def custom_evaluate(
     local_outs = {}
 
     if use_ptb_tokenizer:
-        candidates = preprocess_mono_sents(candidates, java_path, cache_path, tmp_path, verbose)
-        mult_references = preprocess_mult_sents(mult_references, java_path, cache_path, tmp_path, verbose)
+        candidates = preprocess_mono_sents(
+            candidates, java_path, cache_path, tmp_path, verbose
+        )
+        mult_references = preprocess_mult_sents(
+            mult_references, java_path, cache_path, tmp_path, verbose
+        )
 
     for metric in metrics:
         global_outs_i, local_outs_i = metric(candidates, mult_references)

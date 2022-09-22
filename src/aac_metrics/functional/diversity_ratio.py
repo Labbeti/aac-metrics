@@ -14,7 +14,9 @@ def diversity_ratio(
     return_all_scores: bool = True,
     tokenizer: Callable[[str], list[str]] = str.split,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
-    tok_cands, tok_mrefs = _diversity_ratio_update(candidates, mult_references, tokenizer, [], [])
+    tok_cands, tok_mrefs = _diversity_ratio_update(
+        candidates, mult_references, tokenizer, [], []
+    )
     return _diversity_ratio_compute(tok_cands, tok_mrefs, return_all_scores)
 
 

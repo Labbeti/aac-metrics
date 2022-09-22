@@ -179,14 +179,16 @@ def preprocess_mult_sents(
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[list[str]]:
-    """Tokenize sentences using PTB Tokenizer with only 1 call then merge them by space. """
+    """Tokenize sentences using PTB Tokenizer with only 1 call then merge them by space."""
 
     # Flat list
     flatten_sents = [sent for sents in mult_sents for sent in sents]
     n_sents_per_item = [len(sents) for sents in mult_sents]
 
     # Process
-    flatten_sents = preprocess_mono_sents(flatten_sents, java_path, cache_path, tmp_path, verbose)
+    flatten_sents = preprocess_mono_sents(
+        flatten_sents, java_path, cache_path, tmp_path, verbose
+    )
 
     # Unflat list in the same order
     mult_sents = []
