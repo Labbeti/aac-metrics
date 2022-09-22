@@ -9,12 +9,13 @@
 <a href="https://black.readthedocs.io/en/stable/"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-black.svg?style=for-the-badge&labelColor=gray"></a>
 <a href="https://github.com/Labbeti/aac-metrics/actions"><img alt="Build" src="https://img.shields.io/github/workflow/status/Labbeti/aac-metrics/Python%20package%20using%20Pip/main?style=for-the-badge&logo=github"></a>
 
-Audio Captioning unofficial metrics source code, designed for Pytorch.
+Audio Captioning metrics source code, designed for Pytorch.
 
 </div>
 
 This package is a tool to evaluate sentences produced by automatic models to caption image or audio.
 The results of BLEU, ROUGE-L, METEOR, CIDEr, SPICE and SPIDEr are consistents with https://github.com/audio-captioning/caption-evaluation-tools.
+
 
 ## Installation
 Install the pip package:
@@ -48,7 +49,7 @@ print(global_scores)
 # {"bleu_1": tensor(0.7), "bleu_2": ..., ...}
 ```
 
-### Evaluate specific metrics
+### Evaluate a specific metric
 ```python
 from aac_metrics.functional import coco_cider_d
 
@@ -62,7 +63,7 @@ print(local_scores)
 # {"cider_d": tensor([0.9, ...])}
 ```
 
-### Experimental SPIDEr-max
+### Test SPIDEr-max
 ```python
 from aac_metrics.experimental.spider_max import spider_max
 
@@ -76,5 +77,19 @@ print(local_scores)
 # {"spider": tensor([0.9, ...])}
 ```
 
-<!-- ## References
-TODO -->
+## References
+<!-- TODO -->
+
+## Cite the aac-metrics package
+The associated paper has been accepted but it will be published after the DCASE2022 workshop.
+
+If you use this code, you can cite with the following **temporary** citation:
+<!-- TODO : update citation and create CITATION.cff file -->
+```
+@inproceedings{Etienne2022,
+    author = "Etienne Labbe, Thomas Pellegrini, Julien Pinquier",
+    title = "IS MY AUTOMATIC AUDIO CAPTIONING SYSTEM SO BAD? SPIDEr-max: A METRIC TO CONSIDER SEVERAL CAPTION CANDIDATES",
+    month = "November",
+    year = "2022",
+}
+```

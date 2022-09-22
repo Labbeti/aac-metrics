@@ -164,7 +164,7 @@ def _cook_candidate(
     return _precook(candidate, n, tokenizer)
 
 
-def _compute_doc_freq(cooked_mrefs: list[list[Counter]]) -> Counter[tuple]:
+def _compute_doc_freq(cooked_mrefs: list[list[Counter]]) -> Counter[tuple[str, ...]]:
     """
     Compute term frequency for reference data.
     This will be used to compute idf (inverse document frequency later)
@@ -173,10 +173,10 @@ def _compute_doc_freq(cooked_mrefs: list[list[Counter]]) -> Counter[tuple]:
     """
     document_frequency = Counter()
     for refs in cooked_mrefs:
-        # refs, k ref captions of one image
-        for ngram in set([ngram for ref in refs for ngram, count in ref.items()]):
+        all_refs_ngrams = set(ngram for ref in refs for ngram in ref.keys())
+        for ngram in all_refs_ngrams:
             document_frequency[ngram] += 1
-    # maxcounts[ngram] = max(maxcounts.get(ngram,0), count)
+
     return document_frequency
 
 
