@@ -33,7 +33,7 @@ aac-metrics-download
 - Removes code boilerplate inherited from python 2
 - Provides functions and classes to compute metrics separately -->
 
-## Usage
+## Examples
 
 ### Evaluate all metrics
 ```python

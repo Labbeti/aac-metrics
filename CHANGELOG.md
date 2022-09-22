@@ -6,3 +6,4 @@ All notable changes to this project will be documented in this file.
 ### Added
 - BLEU, METEOR, ROUGE-l, SPICE, CIDEr and SPIDEr metrics functions and modules.
 - SPIDEr-max experimental implementation.
+- Installation script in download.py.
