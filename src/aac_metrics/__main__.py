@@ -5,10 +5,10 @@
 def _print_usage() -> None:
     print(
         "Command line usage :\n"
-        "- Download models and external code               : aac-met-download ...\n"
-        "- Print scores from candidate and references file : aac-met-evaluate -i [FILEPATH]\n"
-        "- Print package version                           : aac-met-info\n"
-        "- Show this usage page                            : aac-met\n"
+        "- Download models and external code               : aac-metrics-download ...\n"
+        "- Print scores from candidate and references file : aac-metrics-evaluate -i [FILEPATH]\n"
+        "- Print package version                           : aac-metrics-info\n"
+        "- Show this usage page                            : aac-metrics\n"
     )
 
 
