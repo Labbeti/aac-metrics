@@ -36,11 +36,11 @@ def mult_cands_wrapper(
 
     if len(mult_candidates) <= 0:
         raise ValueError(
-            f"Cannot compute max metric without at least 1 hypothesis. (found {len(mult_candidates)=})"
+            f"Cannot compute max metric without at least 1 candidate. (found {len(mult_candidates)=})"
         )
     if len(mult_candidates) != len(mult_references):
         raise ValueError(
-            f"Number of hypothesis and mult_references are different ({len(mult_candidates)} != {len(mult_references)})."
+            f"Number of candidate and mult_references are different ({len(mult_candidates)} != {len(mult_references)})."
         )
 
     n_cands_per_audio = len(mult_candidates[0])

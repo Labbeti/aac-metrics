@@ -28,7 +28,7 @@ def spider(
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
     if len(candidates) != len(mult_references):
         raise ValueError(
-            f"Number of hypothesis and mult_references are different ({len(candidates)} != {len(mult_references)})."
+            f"Number of candidates and mult_references are different (found {len(candidates)} != {len(mult_references)})."
         )
 
     cider_d_out = coco_cider_d(
