@@ -27,7 +27,7 @@ jobs:
     - name: Set up Java 11
       uses: actions/setup-java@v2
       with:
-        distribution: 'temurin' # See 'Supported distributions' for available options
+        distribution: 'temurin'
         java-version: '11'
 
     - name: Load cache of pip dependencies
@@ -55,7 +55,7 @@ jobs:
       uses: actions/cache@master
       id: cache_external
       with:
-        path: ${{ env.home }}/aac-metrics-cache/*
+        path: /home/runner/aac-metrics-cache/*
         key: ${{ runner.os }}-${{ hashFiles('install_spice.sh') }}
         restore-keys: |
           ${{ runner.os }}-
