@@ -7,7 +7,7 @@ from typing import Any, Optional
 try:
     from torchmetrics import Metric  # type: ignore
 
-except ImportError:
+except ModuleNotFoundError:
 
     class Metric:
         full_state_update: Optional[bool] = False

@@ -6,8 +6,8 @@ import logging
 from typing import Optional, Union
 
 from torch import Tensor
-from torchmetrics import Metric
 
+from aac_metrics.classes.base import Metric
 from aac_metrics.functional.coco_spice import coco_spice
 
 

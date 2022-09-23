@@ -4,8 +4,8 @@
 from typing import Callable, Union
 
 from torch import Tensor
-from torchmetrics import Metric
 
+from aac_metrics.classes.base import Metric
 from aac_metrics.functional.coco_cider_d import (
     _coco_cider_d_compute,
     _coco_cider_d_update,

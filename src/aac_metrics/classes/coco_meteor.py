@@ -4,8 +4,8 @@
 from typing import Union
 
 from torch import Tensor
-from torchmetrics import Metric
 
+from aac_metrics.classes.base import Metric
 from aac_metrics.functional.coco_meteor import coco_meteor
 
 
