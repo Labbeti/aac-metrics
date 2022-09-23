@@ -100,7 +100,7 @@ Most of these functions can specify a java executable path with `java_path` argu
 ### Coco metrics
 | Metric | Origin | Range | Short description |
 |:---:|:---:|:---:|:---:|
-| BLEU [1] | machine translation [0, 1] | Precision of n-grams |
+| BLEU [1] | machine translation | [0, 1] | Precision of n-grams |
 | ROUGE-L [2] | machine translation | [0, 1] | Longest common subsequence |
 | METEOR [3] | machine translation | [0, 1] | Cosine-similarity of frequencies |
 | CIDEr [4] | image captioning | [0, 10] | Cosine-similarity of TF-IDF |
@@ -112,8 +112,6 @@ Most of these functions can specify a java executable path with `java_path` argu
 | Metric | Origin | Range | Short description |
 |:---:|:---:|:---:|:---:|
 | SPIDEr-max | audio captioning | [0, 5.5] | Max of multiples candidates SPIDEr scores |
-
-<sup>1</sup> Diversity of a sentence is the size of the vocabulary divided by the size of the sentence (also called Type-Token Ratio).
 
 ## References
 [1] K. Papineni, S. Roukos, T. Ward, and W.-J. Zhu, “BLEU: a

@@ -41,13 +41,13 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install pip dev dependencies + package if needed
-      if: steps.cache_requirements.outputs.cache-hit != 'true'
+      if: steps.cache_requirements.outputs.cache-hit == 'false'
       run: |
         python -m pip install --upgrade pip
         python -m pip install -e .[dev]
 
     - name: Install package if needed
-      if: steps.cache_requirements.outputs.cache-hit == 'false'
+      if: steps.cache_requirements.outputs.cache-hit == 'true'
       run: |
         python -m pip install -e . --no-dependencies
   
