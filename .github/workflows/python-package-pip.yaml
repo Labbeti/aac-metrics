@@ -30,7 +30,7 @@ jobs:
     - uses: actions/cache@master
       id: cache_requirements
       with:
-        path: ${{ env.pythonLocation }}/lib/python3.8/site-packages/*
+        path: ${{ env.pythonLocation }}/lib/python3.9/site-packages/*
         key: ${{ runner.os }}-pip-${{ hashFiles('setup.cfg') }}
         restore-keys: |
           ${{ runner.os }}-pip-
@@ -50,8 +50,17 @@ jobs:
     - name: Check format with Black
       run: |
         python -m black --check --diff src
+    # Load cache external code
+    - uses: actions/cache@master
+      id: cache_external
+      with:
+        path: ${{ HOME }}/aac-metrics-cache/*
+        key: ${{ runner.os }}-${{ hashFiles('install_spice.sh') }}
+        restore-keys: |
+          ${{ runner.os }}-
     # Download external code
     - name: Download external code
+      if: steps.cache_external.outputs.cache-hit != 'true'
       run: |
         aac-metrics-download
     # Print version
