@@ -8,6 +8,7 @@ import subprocess
 import sys
 
 from argparse import ArgumentParser, Namespace
+from subprocess import CalledProcessError
 
 from torch.hub import download_url_to_file
 
@@ -103,7 +104,7 @@ def download(
             stdout=None if verbose >= 2 else subprocess.DEVNULL,
             stderr=None if verbose >= 2 else subprocess.DEVNULL,
         )
-    except (subprocess.CalledProcessError, PermissionError) as err:
+    except (CalledProcessError, PermissionError) as err:
         logger.error(err)
 
 

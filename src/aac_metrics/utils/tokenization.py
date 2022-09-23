@@ -55,7 +55,9 @@ def _ptb_tokenize(
     :param verbose: The verbose level. defaults to 0.
     :returns: The sentences tokenized.
     """
+    java_path = osp.expandvars(java_path)
     cache_path = osp.expandvars(cache_path)
+    tmp_path = osp.expandvars(tmp_path)
 
     # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/coco_caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
     sentences = list(sentences)

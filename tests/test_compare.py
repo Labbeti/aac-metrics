@@ -46,7 +46,7 @@ class TestCompare(TestCase):
         evaluate_metrics_from_lists = eval_metrics_module.evaluate_metrics_from_lists
         return evaluate_metrics_from_lists
 
-    def test_compare_results(self) -> None:
+    def test_example_0(self) -> None:
         evaluate_metrics_from_lists = self.get_eval_function()
         cands = [
             "a man is speaking",
