@@ -47,7 +47,7 @@ def coco_meteor(
         Otherwise returns a scalar Tensor containing the global main score.
         defaults to False.
     :param java_path: The path to the java executable. defaults to "java".
-    :param cache_path: The path to the external code directory. defaults to "ext".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
     :param java_max_memory: The maximal java memory used. defaults to "2G".
     :param verbose: The verbose level. defaults to 0.
     :returns: The metric output as scalar tensor if return_all_scores=False or tuple of global scores and local scores if return_all_scores=True.

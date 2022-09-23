@@ -50,7 +50,7 @@ def _ptb_tokenize(
     :param sentences: The sentences to tokenize.
     :param audio_ids: The optional audio names. None will use the audio index as name. defaults to None.
     :param java_path: The path to the java executable. defaults to "java".
-    :param cache_path: The path to the external directory containing the JAR program. defaults to "ext".
+    :param cache_path: The path to the external directory containing the JAR program. defaults to "$HOME/aac-metrics-cache".
     :param tmp_path: The path to a temporary directory. defaults to "/tmp".
     :param verbose: The verbose level. defaults to 0.
     :returns: The sentences tokenized.
@@ -68,7 +68,7 @@ def _ptb_tokenize(
 
     # Sanity checks
     if not osp.isdir(cache_path):
-        raise RuntimeError(f"Cannot find ext directory at {cache_path=}.")
+        raise RuntimeError(f"Cannot find cache directory at {cache_path=}.")
     if not osp.isdir(tmp_path):
         raise RuntimeError(f"Cannot find tmp directory at {tmp_path=}.")
     if not osp.isfile(stanford_fpath):
