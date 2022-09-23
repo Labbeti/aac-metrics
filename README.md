@@ -90,8 +90,10 @@ tqdm >= 4.64.0
 
 ### External requirements
 
-Java 1.8+ is required to compute METEOR, SPICE and use the PTBTokenizer.
-Most of these methods can specify a java executable path with `java_path` argument.
+- `java` >= 1.8 is required to compute METEOR, SPICE and use the PTBTokenizer.
+Most of these functions can specify a java executable path with `java_path` argument.
+
+- `unzip` command to extract SPICE zipped files.
 
 ## Metrics
 

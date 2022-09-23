@@ -26,6 +26,10 @@ jobs:
       with:
         distribution: 'temurin' # See 'Supported distributions' for available options
         java-version: '11'
+    # Show submodule
+    - name: Lint with flake8
+      run: |
+        ls -lR tests
     # Load cache of pip dependencies
     - uses: actions/cache@master
       id: cache_requirements
