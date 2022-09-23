@@ -49,6 +49,15 @@ jobs:
     - name: Check format with Black
       run: |
         python -m black --check --diff src
-    - name: Test java
+    # Download external code
+    - name: Download external code
       run: |
-        java --version
+        aac-metrics-download
+    # Print version
+    - name: Print version
+      run: |
+        aac-metrics-info
+    # Run pytest
+    - name: Test with pytest
+      run: |
+        python -m pytest -v
