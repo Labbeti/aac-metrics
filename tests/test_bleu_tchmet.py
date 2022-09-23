@@ -7,6 +7,7 @@ from unittest import TestCase
 
 try:
     from torchmetrics.text.bleu import BLEUScore
+
     TORCHMETRICS_IS_INSTALLED = True
 except ModuleNotFoundError:
     TORCHMETRICS_IS_INSTALLED = False
