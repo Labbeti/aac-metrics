@@ -5,7 +5,7 @@ from typing import Callable, Optional, Union
 
 from torch import Tensor
 
-from aac_metrics.experimental.mult_cands import mult_cands_wrapper
+from aac_metrics.functional.mult_cands import mult_cands_wrapper
 from aac_metrics.functional.spider import spider
 
 

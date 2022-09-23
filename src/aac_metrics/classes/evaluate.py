@@ -72,3 +72,22 @@ class CustomEvaluate(Metric, list[Metric]):
     ) -> None:
         self._candidates += candidates
         self._mult_references += mult_references
+
+
+class AACEvaluate(CustomEvaluate):
+    def __init__(
+        self,
+        use_ptb_tokenizer: bool = True,
+        java_path: str = "java",
+        tmp_path: str = "/tmp",
+        cache_path: str = "$HOME/aac-metrics-cache",
+        verbose: int = 0,
+    ) -> None:
+        super().__init__(
+            use_ptb_tokenizer,
+            java_path,
+            tmp_path,
+            cache_path,
+            verbose,
+            "aac",
+        )

@@ -7,10 +7,11 @@ import subprocess
 import sys
 import unittest
 
+from pathlib import Path
 from typing import Callable, Dict, List, Tuple
 from unittest import TestCase
 
-from aac_metrics.evaluate import aac_evaluate
+from aac_metrics.evaluate import aac_evaluate, load_csv_file
 
 
 class TestCompare(TestCase):
@@ -79,6 +80,28 @@ class TestCompare(TestCase):
             v2 = cet_global_scores[metric_name]
             self.assertEqual(v1.item(), v2, f"{metric_name=}")
         self.assertDictEqual(global_scores, cet_global_scores)
+
+    def test_example_1(self) -> None:
+        evaluate_metrics_from_lists = self.get_eval_function()
+        fpath = Path(__file__).parent.parent.joinpath("examples", "example_1.csv")
+        candidates, mult_references = load_csv_file(fpath)
+
+        global_scores, _ = aac_evaluate(candidates, mult_references)
+        cet_global_scores, _cet_local_scores = evaluate_metrics_from_lists(
+            candidates, mult_references
+        )
+
+        cet_global_scores = {k.lower(): v for k, v in cet_global_scores.items()}
+        cet_global_scores = {
+            (k if k != "cider" else "cider_d"): v for k, v in cet_global_scores.items()
+        }
+
+        self.assertIsInstance(global_scores, dict)
+        self.assertIsInstance(cet_global_scores, dict)
+        self.assertListEqual(list(global_scores.keys()), list(cet_global_scores.keys()))
+        for metric_name, v1 in global_scores.items():
+            v2 = cet_global_scores[metric_name]
+            self.assertEqual(v1.item(), v2, f"{metric_name=}")
 
 
 if __name__ == "__main__":

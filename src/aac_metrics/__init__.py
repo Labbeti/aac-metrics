@@ -20,5 +20,4 @@ from .classes import (
     CocoRougeL,
     CocoSPICE,
     SPIDEr,
-    DiversityRatio,
 )

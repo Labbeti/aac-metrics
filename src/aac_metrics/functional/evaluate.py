@@ -9,7 +9,6 @@ from aac_metrics.classes.base import Metric
 from aac_metrics.classes.coco_bleu import CocoBLEU
 from aac_metrics.classes.coco_meteor import CocoMETEOR
 from aac_metrics.classes.coco_rouge_l import CocoRougeL
-from aac_metrics.classes.diversity_ratio import DiversityRatio
 from aac_metrics.classes.spider import SPIDEr
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
@@ -36,7 +35,6 @@ METRICS_SETS = {
         "cider_d",
         "spice",
         "spider",
-        "diversity_ratio",
     ),
 }
 
@@ -165,5 +163,4 @@ def _get_metrics_factory(
             cache_path=cache_path,
             verbose=verbose,
         ),
-        "diversity_ratio": DiversityRatio(True),
     }

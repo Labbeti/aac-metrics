@@ -14,7 +14,7 @@ Audio Captioning metrics source code, designed for Pytorch.
 </div>
 
 This package is a tool to evaluate sentences produced by automatic models to caption image or audio.
-The results of BLEU, ROUGE-L, METEOR, CIDEr, SPICE and SPIDEr are consistents with https://github.com/audio-captioning/caption-evaluation-tools.
+The results of BLEU [1], ROUGE-L [2], METEOR [3], CIDEr [4], SPICE [5] and SPIDEr [6] are consistents with https://github.com/audio-captioning/caption-evaluation-tools.
 
 
 ## Installation
@@ -65,7 +65,7 @@ print(local_scores)
 
 ### Test SPIDEr-max
 ```python
-from aac_metrics.experimental.spider_max import spider_max
+from aac_metrics.functional import spider_max
 
 mult_candidates = [[...], ...]
 mult_references = [[...], ...]
@@ -77,8 +77,73 @@ print(local_scores)
 # {"spider": tensor([0.9, ...])}
 ```
 
+## Requirements
+### Python packages
+
+The requirements are automatically installed when using `pip install` on this repository.
+```
+torch >= 1.10.1
+numpy >= 1.21.2
+pyyaml >= 6.0
+tqdm >= 4.64.0
+```
+
+### External requirements
+
+Java 1.8+ is required to compute METEOR, SPICE and use the PTBTokenizer.
+Most of these methods can specify a java executable path with `java_path` argument.
+
+## Metrics
+
+### Coco metrics
+| Metric | Origin | Range | Short description |
+|:---:|:---:|:---:|:---:|
+| BLEU [1] | machine translation [0, 1] | Precision of n-grams |
+| ROUGE-L [2] | machine translation | [0, 1] | Longest common subsequence |
+| METEOR [3] | machine translation | [0, 1] | Cosine-similarity of frequencies |
+| CIDEr [4] | image captioning | [0, 10] | Cosine-similarity of TF-IDF |
+| SPICE [5] | image captioning | [0, 1] | FScore of semantic graph |
+| SPIDEr [6] | image captioning | [0, 5.5] | Mean of CIDEr and SPICE |
+
+### Other metrics
+<!-- TODO : cite workshop paper for SPIDEr-max -->
+| Metric | Origin | Range | Short description |
+|:---:|:---:|:---:|:---:|
+| SPIDEr-max | audio captioning | [0, 5.5] | Max of multiples candidates SPIDEr scores |
+
+<sup>1</sup> Diversity of a sentence is the size of the vocabulary divided by the size of the sentence (also called Type-Token Ratio).
+
 ## References
-<!-- TODO -->
+[1] K. Papineni, S. Roukos, T. Ward, and W.-J. Zhu, “BLEU: a
+method for automatic evaluation of machine translation,” in Proceed-
+ings of the 40th Annual Meeting on Association for Computational
+Linguistics - ACL ’02. Philadelphia, Pennsylvania: Association
+for Computational Linguistics, 2001, p. 311. [Online]. Available:
+http://portal.acm.org/citation.cfm?doid=1073083.1073135
+
+[2] C.-Y. Lin, “ROUGE: A package for automatic evaluation of summaries,”
+in Text Summarization Branches Out. Barcelona, Spain: Association
+for Computational Linguistics, Jul. 2004, pp. 74–81. [Online]. Available:
+https://aclanthology.org/W04-1013
+
+[3] M. Denkowski and A. Lavie, “Meteor Universal: Language Specific
+Translation Evaluation for Any Target Language,” in Proceedings of the
+Ninth Workshop on Statistical Machine Translation. Baltimore, Maryland,
+USA: Association for Computational Linguistics, 2014, pp. 376–380.
+[Online]. Available: http://aclweb.org/anthology/W14-3348
+
+[4] R. Vedantam, C. L. Zitnick, and D. Parikh, “CIDEr: Consensus-based
+Image Description Evaluation,” arXiv:1411.5726 [cs], Jun. 2015, arXiv:
+1411.5726. [Online]. Available: http://arxiv.org/abs/1411.5726
+
+[5] P. Anderson, B. Fernando, M. Johnson, and S. Gould, “SPICE: Semantic
+Propositional Image Caption Evaluation,” arXiv:1607.08822 [cs], Jul. 2016,
+arXiv: 1607.08822. [Online]. Available: http://arxiv.org/abs/1607.08822
+
+[6] S. Liu, Z. Zhu, N. Ye, S. Guadarrama, and K. Murphy, “Improved Image
+Captioning via Policy Gradient optimization of SPIDEr,” 2017 IEEE Inter-
+national Conference on Computer Vision (ICCV), pp. 873–881, Oct. 2017,
+arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 
 ## Cite the aac-metrics package
 The associated paper has been accepted but it will be published after the DCASE2022 workshop.
