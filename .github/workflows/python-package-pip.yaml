@@ -40,11 +40,16 @@ jobs:
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
 
-    - name: Install pip dependencies if needed
+    - name: Install pip dev dependencies + package if needed
       if: steps.cache_requirements.outputs.cache-hit != 'true'
       run: |
         python -m pip install --upgrade pip
         python -m pip install -e .[dev]
+
+    - name: Install package if needed
+      if: steps.cache_requirements.outputs.cache-hit == 'false'
+      run: |
+        python -m pip install -e . --no-dependencies
   
     - name: Load cache of external code
       uses: actions/cache@master

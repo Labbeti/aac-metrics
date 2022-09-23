@@ -95,7 +95,7 @@ def download(
     os.makedirs(spice_dpath, exist_ok=True)
 
     if verbose >= 1:
-        logger.info("Downloading JAR sources for SPICE metric...")
+        logger.info(f"Downloading JAR sources for SPICE metric into '{spice_dpath}'...")
 
     command = ["bash", script, spice_dpath]
     try:
