@@ -93,6 +93,9 @@ def download(
     spice_dpath = osp.join(cache_path, "spice")
     os.makedirs(spice_dpath, exist_ok=True)
 
+    if verbose >= 1:
+        logger.info("Downloading JAR sources for SPICE metric...")
+
     command = ["bash", script, spice_dpath]
     try:
         subprocess.check_call(
