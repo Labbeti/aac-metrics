@@ -13,11 +13,9 @@ __version__ = "0.1.0"
 
 
 from .functional.evaluate import aac_evaluate
-from .classes import (
-    CocoBLEU,
-    CocoCIDErD,
-    CocoMETEOR,
-    CocoRougeL,
-    CocoSPICE,
-    SPIDEr,
-)
+from .classes.coco_bleu import CocoBLEU
+from .classes.coco_cider_d import CocoCIDErD
+from .classes.coco_meteor import CocoMETEOR
+from .classes.coco_rouge_l import CocoRougeL
+from .classes.coco_spice import CocoSPICE
+from .classes.spider import SPIDEr

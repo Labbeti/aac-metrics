@@ -34,22 +34,24 @@ def check_input(
     mult_references: Any,
 ) -> None:
     cands_is_list = isinstance(candidates, list)
-    mrefs_is_list = isinstance(mult_references, list)
+    cand_is_str = all(isinstance(cand, str) for cand in candidates)
+    if not all((cands_is_list, cand_is_str)):
+        raise ValueError("Invalid candidates type. (expected list[str])")
 
-    if not cands_is_list or not mrefs_is_list:
-        raise ValueError(
-            f"Invalid candidates or mult_references type. (found ({type(candidates)}, {type(mult_references)}) but expected (list, list))"
-        )
+    mrefs_is_list = isinstance(mult_references, list)
+    refs_is_list = all(isinstance(refs, list) for refs in mult_references)
+    ref_is_str = all(isinstance(ref, str) for refs in mult_references for ref in refs)
+    if not all((mrefs_is_list, refs_is_list, ref_is_str)):
+        raise ValueError("Invalid mult_references type. (expected list[list[str]])")
 
     same_len = len(candidates) == len(mult_references)
-    cand_is_str = all(isinstance(cand, str) for cand in candidates)
-    refs_is_list = all(isinstance(refs, list) for refs in mult_references)
-    at_least_1_ref_per_cand = all(len(refs) > 0 for refs in mult_references)
-    ref_is_str = all(isinstance(ref, str) for refs in mult_references for ref in refs)
-
-    if not all(
-        (same_len, cand_is_str, refs_is_list, at_least_1_ref_per_cand, ref_is_str)
-    ):
+    if not same_len:
         raise ValueError(
-            f"Invalid candidates or mult_references. (found {(same_len, cand_is_str, refs_is_list, at_least_1_ref_per_cand, ref_is_str)=})"
+            f"Invalid number of candidates ({len(candidates)}) with the number of references ({len(mult_references)})."
+        )
+
+    at_least_1_ref_per_cand = all(len(refs) > 0 for refs in mult_references)
+    if not at_least_1_ref_per_cand:
+        raise ValueError(
+            "Invalid number of references per candidate. (found at least 1 empty list of references)"
         )

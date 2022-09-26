@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def load_csv_file(
     fpath: Union[str, Path],
-    cand_columns: Iterable[str] = ("caption_predicted",),
+    cands_columns: Iterable[str] = ("caption_predicted",),
     mrefs_columns: Iterable[str] = (
         "caption_1",
         "caption_2",
@@ -28,8 +28,16 @@ def load_csv_file(
         "caption_4",
         "caption_5",
     ),
-) -> tuple[list[str], list[list[str]]]:
-    """Load candidates and mult_references from a CSV file."""
+    load_mult_cands: bool = False,
+) -> tuple[list, list[list[str]]]:
+    """Load candidates and mult_references from a CSV file.
+
+    :param fpath: The filepath to the CSV file.
+    :param cands_columns: The columns of the candidates. defaults to ("captions_predicted",).
+    :param mrefs_columns: The columns of the multiple references. defaults to ("caption_1", "caption_2", "caption_3", "caption_4", "caption_5").
+    :param load_mult_cands: If True, load multiple candidates from file. defaults to False.
+    :returns: A tuple of (candidates, mult_references) loaded from file.
+    """
 
     with open(fpath, "r") as file:
         reader = csv.DictReader(file)
@@ -39,50 +47,52 @@ def load_csv_file(
     if fieldnames is None:
         raise ValueError(f"Cannot read fieldnames in CSV file {fpath=}.")
 
-    file_cand_column = None
-    for column in cand_columns:
-        if column in fieldnames:
-            file_cand_column = column
-            break
-    if file_cand_column is None:
-        raise ValueError(
-            f"Cannot find candidate in file. ({cand_columns=} not found in {fieldnames=})"
-        )
+    file_cands_columns = [column for column in cands_columns if column in fieldnames]
+    file_mrefs_columns = [column for column in mrefs_columns if column in fieldnames]
 
-    file_mrefs_columns = []
-    for column in mrefs_columns:
-        if column in fieldnames:
-            file_mrefs_columns.append(column)
-    if len(file_mrefs_columns) == 0:
+    if (load_mult_cands and len(file_cands_columns) <= 0) or (
+        not load_mult_cands and len(file_cands_columns) != 1
+    ):
+        raise ValueError(
+            f"Cannot find candidate in file. ({cands_columns=} not found in {fieldnames=})"
+        )
+    if len(file_mrefs_columns) <= 0:
         raise ValueError(
             f"Cannot find candidate in file. ({mrefs_columns=} not found in {fieldnames=})"
         )
 
-    candidates = []
-    mult_references = []
+    if load_mult_cands:
+        mult_candidates = _load_columns(data, file_cands_columns)
+        mult_references = _load_columns(data, file_mrefs_columns)
+        return mult_candidates, mult_references
+    else:
+        file_cand_column = file_cands_columns[0]
+        candidates = [data_i[file_cand_column] for data_i in data]
+        mult_references = _load_columns(data, file_mrefs_columns)
+        return candidates, mult_references
 
+
+def _load_columns(data: list[dict[str, str]], columns: list[str]) -> list[list[str]]:
+    mult_sentences = []
     for data_i in data:
-        cand = data_i[file_cand_column]
-        raw_refs = [data_i[column] for column in file_mrefs_columns]
-        refs = []
-        for ref in raw_refs:
+        raw_sents = [data_i[column] for column in columns]
+        sents = []
+        for sent in raw_sents:
             # Refs columns can be list[str]
-            if "[" in ref and "]" in ref:
+            if "[" in sent and "]" in sent:
                 try:
-                    ref = eval(ref)
-                    assert isinstance(ref, list) and all(
-                        isinstance(ref_i, str) for ref_i in ref
+                    sent = eval(sent)
+                    assert isinstance(sent, list) and all(
+                        isinstance(ref_i, str) for ref_i in sent
                     )
-                    refs += ref
+                    sents += sent
                 except (SyntaxError, NameError):
-                    refs.append(ref)
+                    sents.append(sent)
             else:
-                refs.append(ref)
+                sents.append(sent)
 
-        candidates.append(cand)
-        mult_references.append(refs)
-
-    return candidates, mult_references
+        mult_sentences.append(sents)
+    return mult_sentences
 
 
 def _get_main_evaluate_args() -> Namespace:
@@ -149,7 +159,8 @@ def _main_evaluate() -> None:
     level = logging.INFO if args.verbose <= 1 else logging.DEBUG
     pkg_logger.setLevel(level)
 
-    logger.info(f"Load file {args.input_file}...")
+    if args.verbose >= 1:
+        logger.info(f"Load file {args.input_file}...")
 
     candidates, mult_references = load_csv_file(
         args.input_file, args.cand_columns, args.mrefs_columns
@@ -157,11 +168,12 @@ def _main_evaluate() -> None:
     check_input(candidates, mult_references)
 
     refs_lens = list(map(len, mult_references))
-    logger.info(
-        f"Found {len(candidates)} candidates and references and [{min(refs_lens)}, {max(refs_lens)}] references per candidate."
-    )
+    if args.verbose >= 1:
+        logger.info(
+            f"Found {len(candidates)} candidates, {len(mult_references)} references and [{min(refs_lens)}, {max(refs_lens)}] references per candidate."
+        )
 
-    global_score, _local_scores = aac_evaluate(
+    global_scores, _local_scores = aac_evaluate(
         candidates,
         mult_references,
         True,
@@ -170,12 +182,9 @@ def _main_evaluate() -> None:
         args.cache_path,
         args.verbose,
     )
-    from torch import Tensor
 
-    global_score = {
-        k: v.item() if isinstance(v, Tensor) else v for k, v in global_score.items()
-    }
-    logger.info(f"Global scores:\n{yaml.dump(global_score, sort_keys=False)}")
+    global_scores = {k: v.item() for k, v in global_scores.items()}
+    logger.info(f"Global scores:\n{yaml.dump(global_scores, sort_keys=False)}")
 
 
 if __name__ == "__main__":

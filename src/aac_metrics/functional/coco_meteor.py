@@ -76,7 +76,7 @@ def coco_meteor(
         )
     if not osp.isfile(meteor_jar_fpath):
         raise FileNotFoundError(
-            f"Cannot find JAR file '{METEOR_JAR_FNAME}' in directory '{cache_path}' for meteor metric."
+            f"Cannot find JAR file '{METEOR_JAR_FNAME}' in directory '{cache_path}' for meteor metric. Maybe run 'aac-metrics-download' before or specify a 'cache_path' directory."
         )
 
     if len(candidates) != len(mult_references):
@@ -89,9 +89,8 @@ def coco_meteor(
             f"Start METEOR process with command '{' '.join(meteor_command)}'..."
         )
 
-    meteor_process = subprocess.Popen(
+    meteor_process = Popen(
         meteor_command,
-        cwd=osp.dirname(osp.abspath(__file__)),
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -99,7 +98,7 @@ def coco_meteor(
 
     eval_line = "EVAL"
     for cand, refs in zip(candidates, mult_references):
-        stat = _stat(cand, refs, meteor_process)
+        stat = _write_line(cand, refs, meteor_process)
         eval_line += " ||| {}".format(stat)
 
     assert meteor_process.stdin is not None
@@ -111,8 +110,9 @@ def coco_meteor(
 
     # Read scores
     meteor_scores = []
-    for _ in range(0, len(candidates)):
-        meteor_scores.append(float(meteor_process.stdout.readline().strip()))
+    for _ in range(len(candidates)):
+        meteor_scores_i = float(meteor_process.stdout.readline().strip())
+        meteor_scores.append(meteor_scores_i)
     meteor_score = float(meteor_process.stdout.readline().strip())
 
     meteor_process.stdin.close()
@@ -124,22 +124,21 @@ def coco_meteor(
     meteor_scores = torch.as_tensor(meteor_scores, dtype=dtype)
 
     if return_all_scores:
-        return (
-            {
-                "meteor": meteor_score,
-            },
-            {
-                "meteor": meteor_scores,
-            },
-        )
+        global_scores = {
+            "meteor": meteor_score,
+        }
+        local_scores = {
+            "meteor": meteor_scores,
+        }
+        return global_scores, local_scores
     else:
         return meteor_score
 
 
-def _stat(hypothesis_str: str, reference_list: list[str], meteor_process: Popen) -> str:
+def _write_line(candidate: str, references: list[str], meteor_process: Popen) -> str:
     # SCORE ||| reference 1 words ||| reference n words ||| hypothesis words
-    hypothesis_str = hypothesis_str.replace("|||", "").replace("  ", " ")
-    score_line = " ||| ".join(("SCORE", " ||| ".join(reference_list), hypothesis_str))
+    candidate = candidate.replace("|||", "").replace("  ", " ")
+    score_line = " ||| ".join(("SCORE", " ||| ".join(references), candidate))
     assert meteor_process.stdin is not None
     meteor_process.stdin.write("{}\n".format(score_line).encode())
     meteor_process.stdin.flush()

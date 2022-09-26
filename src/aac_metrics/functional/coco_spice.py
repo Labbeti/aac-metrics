@@ -52,7 +52,7 @@ def coco_spice(
     spice_fpath = osp.join(cache_path, SPICE_JAR_FNAME)
     if not osp.isfile(spice_fpath):
         raise FileNotFoundError(
-            f"Cannot find JAR file '{SPICE_JAR_FNAME}' in directory '{cache_path}' for SPICE metric."
+            f"Cannot find JAR file '{SPICE_JAR_FNAME}' in directory '{cache_path}' for SPICE metric. Maybe run 'aac-metrics-download' before or specify a 'cache_path' directory."
         )
 
     if len(candidates) != len(mult_references):

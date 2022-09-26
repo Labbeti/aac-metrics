@@ -73,7 +73,7 @@ def _ptb_tokenize(
         raise RuntimeError(f"Cannot find tmp directory at {tmp_path=}.")
     if not osp.isfile(stanford_fpath):
         raise FileNotFoundError(
-            f"Cannot find jar file {STANFORD_CORENLP_3_4_1_JAR} in {cache_path=}."
+            f"Cannot find jar file {STANFORD_CORENLP_3_4_1_JAR} in {cache_path=}. Maybe run 'aac-metrics-download' before or specify a 'cache_path' directory."
         )
 
     start_time = time.perf_counter()
@@ -181,7 +181,7 @@ def preprocess_mult_sents(
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[list[str]]:
-    """Tokenize sentences using PTB Tokenizer with only 1 call then merge them by space."""
+    """Tokenize multiple sentences using PTB Tokenizer with only 1 call then merge them by space."""
 
     # Flat list
     flatten_sents = [sent for sents in mult_sents for sent in sents]

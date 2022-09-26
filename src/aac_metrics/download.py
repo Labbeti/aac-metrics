@@ -23,7 +23,7 @@ JAR_URLS = {
     },
     "meteor_data": {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/meteor/data/paraphrase-en.gz",
-        "fname": "data/paraphrase-en.gz",
+        "fname": osp.join("data", "paraphrase-en.gz"),
     },
     "spice": {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/spice/spice-1.0.jar",

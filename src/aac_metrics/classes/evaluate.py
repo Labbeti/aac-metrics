@@ -7,8 +7,8 @@ from typing import Callable, Iterable, Union
 
 from torch import Tensor
 
-from aac_metrics.functional.evaluate import custom_evaluate, _get_metrics_list
 from aac_metrics.classes.base import Metric
+from aac_metrics.functional.evaluate import custom_evaluate, _get_metrics_list
 
 
 logger = logging.getLogger(__name__)
