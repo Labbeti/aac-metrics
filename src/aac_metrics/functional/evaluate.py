@@ -136,9 +136,9 @@ def _get_metrics_list(metric_set_name: str, **kwargs) -> list[Metric]:
 
 
 def _get_metrics_factory(
-    java_path: str,
-    tmp_path: str,
-    cache_path: str,
+    java_path: str = "java",
+    tmp_path: str = "/tmp",
+    cache_path: str = "$HOME/aac-metrics-cache",
     verbose: int = 0,
 ) -> dict[str, Callable[[], Metric]]:
     return {

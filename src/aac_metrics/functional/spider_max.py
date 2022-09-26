@@ -5,7 +5,7 @@ from typing import Callable, Optional, Union
 
 from torch import Tensor
 
-from aac_metrics.functional.mult_cands import mult_cands_wrapper
+from aac_metrics.functional.mult_cands import mult_cands_metric
 from aac_metrics.functional.spider import spider
 
 
@@ -26,7 +26,7 @@ def spider_max(
     java_max_memory: str = "8G",
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
-    return mult_cands_wrapper(
+    return mult_cands_metric(
         spider,
         "spider",
         mult_candidates,

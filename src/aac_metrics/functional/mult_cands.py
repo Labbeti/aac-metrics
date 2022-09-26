@@ -8,7 +8,7 @@ import torch
 from torch import Tensor
 
 
-def mult_cands_wrapper(
+def mult_cands_metric(
     metric: Callable,
     metric_out_name: str,
     mult_candidates: list[list[str]],
