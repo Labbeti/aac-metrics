@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import math
-
 from collections import defaultdict, Counter
 from typing import Any, Callable, Union
 
@@ -208,18 +206,17 @@ def _similarity(
     # measure consine similarity
     val = np.zeros((n,))
 
-    for n in range(n):
+    for ni in range(n):
         # ngram
-        for (ngram, _count) in cand_vec[n].items():
+        for (ngram, count) in cand_vec[ni].items():
             # vrama91 : added clipping
-            val[n] += min(cand_vec[n][ngram], ref_vec[n][ngram]) * ref_vec[n][ngram]
+            val[ni] += min(count, ref_vec[ni][ngram]) * ref_vec[ni][ngram]
 
-        if (cand_norm[n] != 0) and (ref_norm[n] != 0):
-            val[n] /= cand_norm[n] * ref_norm[n]
+        if (cand_norm[ni] != 0) and (ref_norm[ni] != 0):
+            val[ni] /= cand_norm[ni] * ref_norm[ni]
 
-        assert not math.isnan(val[n])
         # vrama91: added a length based gaussian penalty
-        val[n] *= np.e ** (-(delta**2) / (2 * sigma**2))
+        val[ni] *= np.e ** (-(delta**2) / (2 * sigma**2))
 
     return val
 
@@ -231,6 +228,7 @@ def _compute_cider(
     log_ref_len: float,
     n: int,
     sigma: float,
+    scale: float = 10.0,
 ) -> tuple[np.ndarray, list[tuple]]:
 
     scores = np.empty((len(cooked_cands),))
@@ -240,22 +238,22 @@ def _compute_cider(
         # compute vector for test captions
         vec, norm, length = _counter_to_vec(test, log_ref_len, n, document_frequency)
         # compute vector for ref captions
-        score = np.zeros((n,))
+        ngrams_scores = np.zeros((n,))
         vec_refs = []
         for ref in refs:
             vec_ref, norm_ref, length_ref = _counter_to_vec(
                 ref, log_ref_len, n, document_frequency
             )
             vec_refs.append(vec_ref)
-            score += _similarity(
+            ngrams_scores += _similarity(
                 vec, vec_ref, norm, norm_ref, length, length_ref, n, sigma
             )
         # change by vrama91 - mean of ngram scores, instead of sum
-        score_avg = np.mean(score)
+        score_avg = np.mean(ngrams_scores)
         # divide by number of mult_references
         score_avg /= len(refs)
         # multiply score by 10
-        score_avg *= 10.0
+        score_avg *= scale
         # append score of an image to the score list
         scores[i] = score_avg
         tfidf_lst.append((vec, vec_refs))
