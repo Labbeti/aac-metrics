@@ -98,7 +98,7 @@ def coco_meteor(
 
     eval_line = "EVAL"
     for cand, refs in zip(candidates, mult_references):
-        stat = _write_line(cand, refs, meteor_process)
+        stat = __write_line(cand, refs, meteor_process)
         eval_line += " ||| {}".format(stat)
 
     assert meteor_process.stdin is not None
@@ -135,7 +135,7 @@ def coco_meteor(
         return meteor_score
 
 
-def _write_line(candidate: str, references: list[str], meteor_process: Popen) -> str:
+def __write_line(candidate: str, references: list[str], meteor_process: Popen) -> str:
     # SCORE ||| reference 1 words ||| reference n words ||| hypothesis words
     candidate = candidate.replace("|||", "").replace("  ", " ")
     score_line = " ||| ".join(("SCORE", " ||| ".join(references), candidate))

@@ -133,3 +133,4 @@ dmypy.json
 
 tests/caption-evaluation-tools
 tmp/
+tmp*/

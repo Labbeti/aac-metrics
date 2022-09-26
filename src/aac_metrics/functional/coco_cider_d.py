@@ -56,11 +56,9 @@ def _coco_cider_d_update(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
     new_cooked_mrefs = [
-        _cook_references(refs, n=n, tokenizer=tokenizer) for refs in mult_references
+        [_cook_sentence(ref, n, tokenizer) for ref in refs] for refs in mult_references
     ]
-    new_cooked_cands = [
-        _cook_candidate(cand, n=n, tokenizer=tokenizer) for cand in candidates
-    ]
+    new_cooked_cands = [_cook_sentence(cand, n, tokenizer) for cand in candidates]
     prev_cooked_cands += new_cooked_cands
     prev_cooked_mrefs += new_cooked_mrefs
     return prev_cooked_cands, prev_cooked_mrefs
@@ -113,10 +111,10 @@ def _coco_cider_d_compute(
         return cider_d_score
 
 
-def _precook(
+def _cook_sentence(
     sentence: str,
     n: int,
-    tokenizer: Callable[[str], list[str]] = str.split,
+    tokenizer: Callable[[str], list[str]],
 ) -> Counter[tuple[str, ...]]:
     """
     Takes a string as input and returns an object that can be given to
@@ -133,35 +131,6 @@ def _precook(
             ngram = tuple(words[i : i + k])
             counter[ngram] += 1
     return counter
-
-
-def _cook_references(
-    references: list[str],
-    n: int,
-    tokenizer: Callable[[str], list[str]] = str.split,
-) -> list[Counter[tuple[str, ...]]]:  # lhuang: oracle will call with 'average'
-    """Takes a list of reference sentences for a single segment
-    and returns an object that encapsulates everything that BLEU
-    needs to know about them.
-    :param refs: list of string : reference sentences for some image
-    :param n: int : number of ngrams for which (ngram) representation is calculated
-    :return: result (list of dict)
-    """
-    return [_precook(ref, n, tokenizer) for ref in references]
-
-
-def _cook_candidate(
-    candidate: str,
-    n: int,
-    tokenizer: Callable[[str], list[str]] = str.split,
-) -> Counter[tuple[str, ...]]:
-    """Takes a test sentence and returns an object that
-    encapsulates everything that BLEU needs to know about it.
-    :param test: list of string : hypothesis sentence for some image
-    :param n: int : number of ngrams for which (ngram) representation is calculated
-    :return: result (dict)
-    """
-    return _precook(candidate, n, tokenizer)
 
 
 def _compute_doc_freq(cooked_mrefs: list[list[Counter]]) -> Counter[tuple[str, ...]]:
