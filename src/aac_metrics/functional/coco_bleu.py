@@ -56,8 +56,7 @@ def _coco_bleu_update(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
     new_cooked_mrefs = [
-        __cook_references(refs, None, n, tokenizer)
-        for refs in mult_references
+        __cook_references(refs, None, n, tokenizer) for refs in mult_references
     ]
     new_cooked_cands = [
         __cook_candidate(cand, cooked_mrefs_i, None, n, tokenizer)
