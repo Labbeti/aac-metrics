@@ -3,13 +3,15 @@
 
 from typing import Any, Optional
 
+from torch import nn
+
 
 try:
     from torchmetrics import Metric  # type: ignore
 
 except ModuleNotFoundError:
 
-    class Metric:
+    class Metric(nn.Module):
         full_state_update: Optional[bool] = False
         higher_is_better: Optional[bool] = None
         is_differentiable: Optional[bool] = False
@@ -21,14 +23,14 @@ except ModuleNotFoundError:
         def compute(self) -> Any:
             return None
 
+        def forward(self, *args: Any, **kwargs: Any) -> Any:
+            self.update(*args, **kwargs)
+            outs = self.compute()
+            self.reset()
+            return outs
+
         def reset(self) -> None:
             pass
 
         def update(self, *args, **kwargs) -> None:
             pass
-
-        def __call__(self, *args: Any, **kwargs: Any) -> Any:
-            self.update(*args, **kwargs)
-            outs = self.compute()
-            self.reset()
-            return outs

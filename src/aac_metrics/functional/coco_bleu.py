@@ -56,10 +56,11 @@ def _coco_bleu_update(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
     new_cooked_mrefs = [
-        _cook_references(refs, n=n, tokenizer=tokenizer) for refs in mult_references
+        __cook_references(refs, None, n, tokenizer)
+        for refs in mult_references
     ]
     new_cooked_cands = [
-        _cook_candidate(cand, cooked_mrefs_i, n=n, tokenizer=tokenizer)
+        __cook_candidate(cand, cooked_mrefs_i, None, n, tokenizer)
         for cand, cooked_mrefs_i in zip(candidates, new_cooked_mrefs)
     ]
     prev_cooked_cands += new_cooked_cands
@@ -81,7 +82,7 @@ def _coco_bleu_compute(
             f"Invalid option {option=}. (expected one of {BLEU_COCO_OPTIONS})"
         )
 
-    score_1_to_n, scores_1_to_n = _compute_score(
+    score_1_to_n, scores_1_to_n = __compute_bleu_score(
         cooked_cands,
         cooked_mrefs,
         n,
@@ -113,7 +114,7 @@ def _coco_bleu_compute(
         return score_n
 
 
-def _precook(
+def __cook_sent(
     s: str,
     n: int = 4,
     tokenizer: Callable[[str], list[str]] = str.split,
@@ -127,14 +128,14 @@ def _precook(
         for i in range(len(words) - k + 1):
             ngram = tuple(words[i : i + k])
             counts[ngram] += 1
-    return (len(words), counts)
+    return len(words), counts
 
 
-def _cook_references(
+def __cook_references(
     refs: list[str],
-    eff: Optional[str] = None,
-    n: int = 4,
-    tokenizer: Callable[[str], list[str]] = str.split,
+    eff: Optional[str],
+    n: int,
+    tokenizer: Callable[[str], list[str]],
 ) -> tuple[Union[float, list], dict]:  # lhuang: oracle will call with "average"
     """Takes a list of reference sentences for a single segment
     and returns an object that encapsulates everything that BLEU
@@ -143,7 +144,7 @@ def _cook_references(
     reflen = []
     maxcounts = {}
     for ref in refs:
-        rl, counts = _precook(ref, n, tokenizer)
+        rl, counts = __cook_sent(ref, n, tokenizer)
         reflen.append(rl)
         for (ngram, count) in counts.items():
             maxcounts[ngram] = max(maxcounts.get(ngram, 0), count)
@@ -159,22 +160,20 @@ def _cook_references(
     return (reflen, maxcounts)
 
 
-def _cook_candidate(
+def __cook_candidate(
     test: str,
     reflen_refmaxcounts: tuple[Any, dict[tuple[str, ...], int]],
-    eff: Optional[None] = None,
-    n: int = 4,
-    tokenizer: Callable[[str], list[str]] = str.split,
+    eff: Optional[None],
+    n: int,
+    tokenizer: Callable[[str], list[str]],
 ) -> dict[str, Any]:
     """Takes a test sentence and returns an object that
     encapsulates everything that BLEU needs to know about it."""
 
-    testlen, counts = _precook(test, n, tokenizer)
-
-    result = {}
-
+    testlen, counts = __cook_sent(test, n, tokenizer)
     reflen, refmaxcounts = reflen_refmaxcounts  # Replaces the tuple unpacking
 
+    result = {}
     # Calculate effective reference sentence length.
     if eff == "closest":
         result["reflen"] = min((abs(len - testlen), len) for len in reflen)[1]
@@ -191,7 +190,7 @@ def _cook_candidate(
     return result
 
 
-def _compute_score(
+def __compute_bleu_score(
     cooked_cands: list,
     cooked_mrefs: list,
     n: int,
@@ -214,7 +213,7 @@ def _compute_score(
         testlen = comps["testlen"]
         global_cands_len += testlen
 
-        reflen = _single_reflen(comps["reflen"], option, testlen)
+        reflen = __single_reflen(comps["reflen"], option, testlen)
 
         global_mrefs_len += reflen
 
@@ -263,7 +262,7 @@ def _compute_score(
     return bleus, bleu_list
 
 
-def _single_reflen(
+def __single_reflen(
     reflens: list[int],
     option: Optional[str] = None,
     testlen: Optional[int] = None,
