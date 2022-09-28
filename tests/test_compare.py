@@ -19,7 +19,11 @@ class TestCompare(TestCase):
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
 
         stanford_fpath = osp.join(
-            cet_path, "coco_caption", "tokenizer", "stanford-corenlp-3.4.1.jar"
+            cet_path,
+            "coco_caption",
+            "pycocoevalcap",
+            "tokenizer",
+            "stanford-corenlp-3.4.1.jar",
         )
         if not osp.isfile(stanford_fpath):
             command = "bash get_stanford_models.sh"
@@ -84,6 +88,28 @@ class TestCompare(TestCase):
     def test_example_1(self) -> None:
         evaluate_metrics_from_lists = self.get_eval_function()
         fpath = Path(__file__).parent.parent.joinpath("examples", "example_1.csv")
+        candidates, mult_references = load_csv_file(fpath)
+
+        global_scores, _ = aac_evaluate(candidates, mult_references)
+        cet_global_scores, _cet_local_scores = evaluate_metrics_from_lists(
+            candidates, mult_references
+        )
+
+        cet_global_scores = {k.lower(): v for k, v in cet_global_scores.items()}
+        cet_global_scores = {
+            (k if k != "cider" else "cider_d"): v for k, v in cet_global_scores.items()
+        }
+
+        self.assertIsInstance(global_scores, dict)
+        self.assertIsInstance(cet_global_scores, dict)
+        self.assertListEqual(list(global_scores.keys()), list(cet_global_scores.keys()))
+        for metric_name, v1 in global_scores.items():
+            v2 = cet_global_scores[metric_name]
+            self.assertEqual(v1.item(), v2, f"{metric_name=}")
+
+    def test_example_2(self) -> None:
+        evaluate_metrics_from_lists = self.get_eval_function()
+        fpath = Path(__file__).parent.parent.joinpath("examples", "example_2.csv")
         candidates, mult_references = load_csv_file(fpath)
 
         global_scores, _ = aac_evaluate(candidates, mult_references)

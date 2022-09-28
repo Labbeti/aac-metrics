@@ -34,7 +34,7 @@ aac-metrics-download
 - Removes code boilerplate inherited from python 2
 - Provides functions and classes to compute metrics separately -->
 
-## Examples
+## Usage
 
 ### Evaluate all metrics
 ```python
@@ -51,7 +51,7 @@ print(global_scores)
 
 ### Evaluate a specific metric
 ```python
-from aac_metrics.functional import coco_cider_d
+from aac_metrics.functional.coco_cider_d import coco_cider_d
 
 candidates = [...]
 mult_references = [[...], ...]
@@ -63,9 +63,9 @@ print(local_scores)
 # {"cider_d": tensor([0.9, ...])}
 ```
 
-### Experimental SPIDEr-max metric
+### SPIDEr-max metric
 ```python
-from aac_metrics.functional import spider_max
+from aac_metrics.functional.spider_max import spider_max
 
 mult_candidates = [[...], ...]
 mult_references = [[...], ...]
