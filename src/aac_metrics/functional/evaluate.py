@@ -39,38 +39,6 @@ METRICS_SETS = {
 }
 
 
-def aac_evaluate(
-    candidates: list[str],
-    mult_references: list[list[str]],
-    use_ptb_tokenizer: bool = True,
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
-    cache_path: str = "$HOME/aac-metrics-cache",
-    verbose: int = 0,
-) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
-    """Evaluate candidates with multiple references with all Audio Captioing metrics.
-
-    :param candidates: The list of N sentences.
-    :param mult_references: The list of N lists of references.
-    :param use_ptb_tokenizer: If True, the candidates and references wiill be passed as input to the PTB stanford tokenizer before computing metrics. defaults to True.
-    :param java_path: The path to the java executable file. defaults to "java".
-    :param tmp_path: The path to the temp directory. defaults to "/tmp".
-    :param cache_path: The path to the aac-metrics cache directory. defaults to "$HOME/aac-metrics-cache".
-    :param verbose: The verbose level. defaults to 0.
-    :returns: A tuple of 2 dictionaries containing respectively the global and local scores.
-    """
-    return custom_evaluate(
-        candidates,
-        mult_references,
-        use_ptb_tokenizer,
-        metrics="aac",
-        java_path=java_path,
-        tmp_path=tmp_path,
-        cache_path=cache_path,
-        verbose=verbose,
-    )
-
-
 def custom_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
@@ -118,8 +86,46 @@ def custom_evaluate(
     return global_outs, local_outs
 
 
-def _get_metrics_list(metric_set_name: str, **kwargs) -> list[Metric]:
-    metrics_factory = _get_metrics_factory(**kwargs)
+def aac_evaluate(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    use_ptb_tokenizer: bool = True,
+    java_path: str = "java",
+    tmp_path: str = "/tmp",
+    cache_path: str = "$HOME/aac-metrics-cache",
+    verbose: int = 0,
+) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
+    """Evaluate candidates with multiple references with all Audio Captioing metrics.
+
+    :param candidates: The list of N sentences.
+    :param mult_references: The list of N lists of references.
+    :param use_ptb_tokenizer: If True, the candidates and references wiill be passed as input to the PTB stanford tokenizer before computing metrics. defaults to True.
+    :param java_path: The path to the java executable file. defaults to "java".
+    :param tmp_path: The path to the temp directory. defaults to "/tmp".
+    :param cache_path: The path to the aac-metrics cache directory. defaults to "$HOME/aac-metrics-cache".
+    :param verbose: The verbose level. defaults to 0.
+    :returns: A tuple of 2 dictionaries containing respectively the global and local scores.
+    """
+    return custom_evaluate(
+        candidates,
+        mult_references,
+        use_ptb_tokenizer,
+        metrics="aac",
+        java_path=java_path,
+        tmp_path=tmp_path,
+        cache_path=cache_path,
+        verbose=verbose,
+    )
+
+
+def _get_metrics_list(
+    metric_set_name: str,
+    java_path: str = "java",
+    tmp_path: str = "/tmp",
+    cache_path: str = "$HOME/aac-metrics-cache",
+    verbose: int = 0,
+) -> list[Metric]:
+    metrics_factory = _get_metrics_factory(java_path, tmp_path, cache_path, verbose)
 
     if metric_set_name in METRICS_SETS:
         metrics = [

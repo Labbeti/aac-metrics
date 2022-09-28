@@ -3,7 +3,7 @@
 
 import logging
 
-from typing import Callable, Iterable, Union
+from typing import Iterable, Union
 
 from torch import Tensor
 
@@ -26,7 +26,7 @@ class CustomEvaluate(Metric, list[Metric]):
         tmp_path: str = "/tmp",
         cache_path: str = "$HOME/aac-metrics-cache",
         verbose: int = 0,
-        metrics: Union[str, Iterable[Callable]] = "all",
+        metrics: Union[str, Iterable[Metric]] = "all",
     ) -> None:
         if isinstance(metrics, str):
             metrics = _get_metrics_list(
