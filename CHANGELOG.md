@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] UNRELEASED
+### Fixed
+- SPIDEr-max computation with correct global and local outputs.
+
 ## [0.1.0] 2022-09-28
 ### Added
 - BLEU, METEOR, ROUGE-l, SPICE, CIDEr and SPIDEr metrics functions and modules.
