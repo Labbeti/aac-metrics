@@ -45,7 +45,7 @@ mult_references = [["a man speaks.", "someone speaks.", "a man is speaking while
 
 global_scores, _ = aac_evaluate(candidates, mult_references)
 print(global_scores)
-# dict containing the score of each metric: "bleu_1", "bleu_2", "bleu_3", "bleu_4", "rouge_l", "meteor", "cider_d", "spice", "spider"
+# dict containing the score of each aac metric: "bleu_1", "bleu_2", "bleu_3", "bleu_4", "rouge_l", "meteor", "cider_d", "spice", "spider"
 # {"bleu_1": tensor(0.7), "bleu_2": ..., ...}
 ```
 
@@ -63,7 +63,7 @@ print(local_scores)
 # {"cider_d": tensor([0.9, ...])}
 ```
 
-### Test SPIDEr-max
+### Experimental SPIDEr-max metric
 ```python
 from aac_metrics.functional import spider_max
 
@@ -151,7 +151,7 @@ The associated paper has been accepted but it will be published after the DCASE2
 If you use this code, you can cite with the following **temporary** citation:
 <!-- TODO : update citation and create CITATION.cff file -->
 ```
-@inproceedings{Etienne2022,
+@inproceedings{Labbe2022,
     author = "Etienne Labbe, Thomas Pellegrini, Julien Pinquier",
     title = "IS MY AUTOMATIC AUDIO CAPTIONING SYSTEM SO BAD? SPIDEr-max: A METRIC TO CONSIDER SEVERAL CAPTION CANDIDATES",
     month = "November",
