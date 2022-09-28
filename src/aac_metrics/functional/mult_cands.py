@@ -72,11 +72,15 @@ def mult_cands_metric(
 
     if selection == "max":
         indexes = all_local_scores[metric_out_name].argmax(dim=0).unsqueeze(dim=0)
-        local_scores = {k: scores.gather(0, indexes) for k, scores in all_local_scores.items()}
+        local_scores = {
+            k: scores.gather(0, indexes) for k, scores in all_local_scores.items()
+        }
 
     elif selection == "min":
         indexes = all_local_scores[metric_out_name].argmin(dim=0).unsqueeze(dim=0)
-        local_scores = {k: scores.gather(0, indexes) for k, scores in all_local_scores.items()}
+        local_scores = {
+            k: scores.gather(0, indexes) for k, scores in all_local_scores.items()
+        }
 
     elif selection == "mean":
         selected_scores = all_local_scores[metric_out_name].mean(dim=0)
