@@ -88,6 +88,6 @@ def mult_cands_metric(
     global_scores = {k: reduction(scores) for k, scores in local_scores.items()}
 
     if return_all_scores:
-        return local_scores, global_scores
+        return global_scores, local_scores
     else:
         return global_scores[metric_out_name]
