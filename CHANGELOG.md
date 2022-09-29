@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.1.1] UNRELEASED
+### Added
+- A second larger example for unit testing.
+
+### Changed
+- Update README information, references and description.
+
 ### Fixed
 - SPIDEr-max computation with correct global and local outputs.
 
