@@ -11,7 +11,7 @@ from typing import Iterable, Union
 
 import yaml
 
-from aac_metrics.functional.common import check_input
+from aac_metrics.functional.common import check_input, check_java_path
 from aac_metrics.functional.evaluate import aac_evaluate
 
 
@@ -130,10 +130,16 @@ def _get_main_evaluate_args() -> Namespace:
         help="The column names of the candidates in the CSV file.",
     )
     parser.add_argument(
-        "--java_path", type=str, default="java", help="Java executable path."
+        "--java_path",
+        type=str,
+        default="java",
+        help="Java executable path.",
     )
     parser.add_argument(
-        "--tmp_path", type=str, default="/tmp", help="Temporary directory path."
+        "--tmp_path",
+        type=str,
+        default="/tmp",
+        help="Temporary directory path.",
     )
     parser.add_argument(
         "--cache_path",
@@ -155,6 +161,9 @@ def _main_evaluate() -> None:
     pkg_logger.addHandler(handler)
 
     args = _get_main_evaluate_args()
+
+    if not check_java_path(args.java_path):
+        raise RuntimeError(f"Invalid argument java_path={args.java_path}.")
 
     level = logging.INFO if args.verbose <= 1 else logging.DEBUG
     pkg_logger.setLevel(level)
