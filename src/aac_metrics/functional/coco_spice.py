@@ -58,9 +58,9 @@ def coco_spice(
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
 
+    cache_path = osp.expandvars(cache_path)
     java_path = osp.expandvars(java_path)
     tmp_path = osp.expandvars(tmp_path)
-    cache_path = osp.expandvars(cache_path)
 
     if not _check_java_path(java_path):
         raise ValueError(

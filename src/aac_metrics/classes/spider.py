@@ -36,9 +36,9 @@ class SPIDEr(Metric):
         n: int = 4,
         sigma: float = 6.0,
         # SPICE args
+        cache_path: str = "$HOME/aac-metrics-cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
-        cache_path: str = "$HOME/aac-metrics-cache",
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
         verbose: int = 0,
@@ -47,9 +47,9 @@ class SPIDEr(Metric):
         self._return_all_scores = return_all_scores
         self._n = n
         self._sigma = sigma
+        self._cache_path = cache_path
         self._java_path = java_path
         self._tmp_path = tmp_path
-        self._cache_path = cache_path
         self._n_threads = n_threads
         self._java_max_memory = java_max_memory
         self._verbose = verbose
@@ -64,9 +64,9 @@ class SPIDEr(Metric):
             self._return_all_scores,
             n=self._n,
             sigma=self._sigma,
+            cache_path=self._cache_path,
             java_path=self._java_path,
             tmp_path=self._tmp_path,
-            cache_path=self._cache_path,
             n_threads=self._n_threads,
             java_max_memory=self._java_max_memory,
             verbose=self._verbose,

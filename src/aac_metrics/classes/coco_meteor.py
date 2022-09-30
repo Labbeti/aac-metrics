@@ -47,8 +47,8 @@ class CocoMETEOR(Metric):
             self._candidates,
             self._mult_references,
             self._return_all_scores,
-            self._java_path,
             self._cache_path,
+            self._java_path,
             self._java_max_memory,
             self._verbose,
         )

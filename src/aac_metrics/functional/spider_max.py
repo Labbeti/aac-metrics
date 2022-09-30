@@ -42,9 +42,9 @@ def spider_max(
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
     :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the local_score output.
         defaults to False.
+    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
-    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
     :param java_max_memory: The maximal java memory used. defaults to "8G".
     :param n_threads: Number of threads used to compute SPICE.
         None value will use the default value of the java program.
