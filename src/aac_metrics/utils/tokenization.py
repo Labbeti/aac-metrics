@@ -40,8 +40,8 @@ PTB_PUNCTUATIONS = (
 def _ptb_tokenize(
     sentences: Iterable[str],
     audio_ids: Optional[Iterable[Hashable]] = None,
-    java_path: str = "java",
     cache_path: str = "$HOME/aac-metrics-cache",
+    java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[list[str]]:
@@ -49,14 +49,14 @@ def _ptb_tokenize(
 
     :param sentences: The sentences to tokenize.
     :param audio_ids: The optional audio names. None will use the audio index as name. defaults to None.
-    :param java_path: The path to the java executable. defaults to "java".
     :param cache_path: The path to the external directory containing the JAR program. defaults to "$HOME/aac-metrics-cache".
+    :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: The path to a temporary directory. defaults to "/tmp".
     :param verbose: The verbose level. defaults to 0.
     :returns: The sentences tokenized.
     """
-    java_path = osp.expandvars(java_path)
     cache_path = osp.expandvars(cache_path)
+    java_path = osp.expandvars(java_path)
     tmp_path = osp.expandvars(tmp_path)
 
     # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/coco_caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
@@ -158,9 +158,9 @@ def _ptb_tokenize(
 
 
 def preprocess_mono_sents(
-    sents: list[str],
-    java_path: str = "java",
+    sentences: list[str],
     cache_path: str = "$HOME/aac-metrics-cache",
+    java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[str]:
@@ -168,36 +168,49 @@ def preprocess_mono_sents(
 
     Note: PTB tokenizer is a java program that takes a list[str] as input, so calling several times `preprocess_mono_sents` is slow on list[list[str]].
     If you want to process multiple sentences (list[list[str]]), use `preprocess_mult_sents` instead.
+
+    :param sentences: The list of sentences to process.
+    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param java_path: The path to the java executable. defaults to "java".
+    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :returns: The sentences processed by the tokenizer.
     """
-    tok_sents = _ptb_tokenize(sents, None, java_path, cache_path, tmp_path, verbose)
-    sents = [" ".join(sent) for sent in tok_sents]
-    return sents
+    tok_sents = _ptb_tokenize(sentences, None, cache_path, java_path, tmp_path, verbose)
+    sentences = [" ".join(sent) for sent in tok_sents]
+    return sentences
 
 
 def preprocess_mult_sents(
-    mult_sents: list[list[str]],
-    java_path: str = "java",
+    mult_sentences: list[list[str]],
     cache_path: str = "$HOME/aac-metrics-cache",
+    java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[list[str]]:
-    """Tokenize multiple sentences using PTB Tokenizer with only 1 call then merge them by space."""
+    """Tokenize multiple sentences using PTB Tokenizer with only 1 call then merge them by space.
+
+    :param mult_sentences: The list of list of sentences to process.
+    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param java_path: The path to the java executable. defaults to "java".
+    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :returns: The multiple sentences processed by the tokenizer.
+    """
 
     # Flat list
-    flatten_sents = [sent for sents in mult_sents for sent in sents]
-    n_sents_per_item = [len(sents) for sents in mult_sents]
+    flatten_sents = [sent for sents in mult_sentences for sent in sents]
+    n_sents_per_item = [len(sents) for sents in mult_sentences]
 
     # Process
     flatten_sents = preprocess_mono_sents(
-        flatten_sents, java_path, cache_path, tmp_path, verbose
+        flatten_sents, cache_path, java_path, tmp_path, verbose
     )
 
     # Unflat list in the same order
-    mult_sents = []
+    mult_sentences = []
     start = 0
     stop = 0
     for count in n_sents_per_item:
         stop += count
-        mult_sents.append(flatten_sents[start:stop])
+        mult_sentences.append(flatten_sents[start:stop])
         start = stop
-    return mult_sents
+    return mult_sentences

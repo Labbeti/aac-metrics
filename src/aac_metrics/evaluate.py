@@ -11,7 +11,7 @@ from typing import Iterable, Union
 
 import yaml
 
-from aac_metrics.functional.common import check_input
+from aac_metrics.functional.common import _check_input, _check_java_path
 from aac_metrics.functional.evaluate import aac_evaluate
 
 
@@ -130,16 +130,22 @@ def _get_main_evaluate_args() -> Namespace:
         help="The column names of the candidates in the CSV file.",
     )
     parser.add_argument(
-        "--java_path", type=str, default="java", help="Java executable path."
-    )
-    parser.add_argument(
-        "--tmp_path", type=str, default="/tmp", help="Temporary directory path."
-    )
-    parser.add_argument(
         "--cache_path",
         type=str,
         default="$HOME/aac-metrics-cache",
         help="Cache directory path.",
+    )
+    parser.add_argument(
+        "--java_path",
+        type=str,
+        default="java",
+        help="Java executable path.",
+    )
+    parser.add_argument(
+        "--tmp_path",
+        type=str,
+        default="/tmp",
+        help="Temporary directory path.",
     )
     parser.add_argument("--verbose", type=int, default=0, help="Verbose level.")
 
@@ -156,6 +162,9 @@ def _main_evaluate() -> None:
 
     args = _get_main_evaluate_args()
 
+    if not _check_java_path(args.java_path):
+        raise RuntimeError(f"Invalid argument java_path={args.java_path}.")
+
     level = logging.INFO if args.verbose <= 1 else logging.DEBUG
     pkg_logger.setLevel(level)
 
@@ -165,7 +174,7 @@ def _main_evaluate() -> None:
     candidates, mult_references = load_csv_file(
         args.input_file, args.cand_columns, args.mrefs_columns
     )
-    check_input(candidates, mult_references)
+    _check_input(candidates, mult_references)
 
     refs_lens = list(map(len, mult_references))
     if args.verbose >= 1:
@@ -177,9 +186,9 @@ def _main_evaluate() -> None:
         candidates,
         mult_references,
         True,
+        args.cache_path,
         args.java_path,
         args.tmp_path,
-        args.cache_path,
         args.verbose,
     )
 

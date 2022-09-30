@@ -44,26 +44,29 @@ def custom_evaluate(
     mult_references: list[list[str]],
     use_ptb_tokenizer: bool = True,
     metrics: Union[str, Iterable[Metric]] = "aac",
+    cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
-    cache_path: str = "$HOME/aac-metrics-cache",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Evaluate candidates with multiple references with custom metrics.
 
-    :param candidates: The list of N sentences.
-    :param mult_references: The list of N lists of references.
+    :param candidates: The list of sentences to evaluate.
+    :param mult_references: The list of list of sentences used as target.
     :param use_ptb_tokenizer: If True, the candidates and references wiill be passed as input to the PTB stanford tokenizer before computing metrics. defaults to True.
     :param metrics: The name of the metric list or the explicit list of metrics to compute. defaults to "aac".
-    :param **kwargs: The keywords arguments passed to build the metrics.
-    :returns: A tuple of 2 dictionaries containing respectively the global and local scores.
+    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param java_path: The path to the java executable. defaults to "java".
+    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param verbose: The verbose level. defaults to 0.
+    :returns: A tuple of globals and locals scores.
     """
     if isinstance(metrics, str):
         metrics = _get_metrics_list(
             metrics,
+            cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
-            cache_path=cache_path,
             verbose=verbose,
         )
 
@@ -72,10 +75,10 @@ def custom_evaluate(
 
     if use_ptb_tokenizer:
         candidates = preprocess_mono_sents(
-            candidates, java_path, cache_path, tmp_path, verbose
+            candidates, cache_path, java_path, tmp_path, verbose
         )
         mult_references = preprocess_mult_sents(
-            mult_references, java_path, cache_path, tmp_path, verbose
+            mult_references, cache_path, java_path, tmp_path, verbose
         )
 
     for metric in metrics:
@@ -90,42 +93,43 @@ def aac_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     use_ptb_tokenizer: bool = True,
+    cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
-    cache_path: str = "$HOME/aac-metrics-cache",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
-    """Evaluate candidates with multiple references with all Audio Captioing metrics.
+    """Evaluate candidates with multiple references with all Audio Captioning metrics.
 
-    :param candidates: The list of N sentences.
-    :param mult_references: The list of N lists of references.
-    :param use_ptb_tokenizer: If True, the candidates and references wiill be passed as input to the PTB stanford tokenizer before computing metrics. defaults to True.
-    :param java_path: The path to the java executable file. defaults to "java".
-    :param tmp_path: The path to the temp directory. defaults to "/tmp".
-    :param cache_path: The path to the aac-metrics cache directory. defaults to "$HOME/aac-metrics-cache".
+    :param candidates: The list of sentences to evaluate.
+    :param mult_references: The list of list of sentences used as target.
+    :param use_ptb_tokenizer: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
+        defaults to True.
+    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param java_path: The path to the java executable. defaults to "java".
+    :param tmp_path: Temporary directory path. defaults to "/tmp".
     :param verbose: The verbose level. defaults to 0.
-    :returns: A tuple of 2 dictionaries containing respectively the global and local scores.
+    :returns: A tuple of globals and locals scores.
     """
     return custom_evaluate(
         candidates,
         mult_references,
         use_ptb_tokenizer,
         metrics="aac",
+        cache_path=cache_path,
         java_path=java_path,
         tmp_path=tmp_path,
-        cache_path=cache_path,
         verbose=verbose,
     )
 
 
 def _get_metrics_list(
     metric_set_name: str,
+    cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
-    cache_path: str = "$HOME/aac-metrics-cache",
     verbose: int = 0,
 ) -> list[Metric]:
-    metrics_factory = _get_metrics_factory(java_path, tmp_path, cache_path, verbose)
+    metrics_factory = _get_metrics_factory(cache_path, java_path, tmp_path, verbose)
 
     if metric_set_name in METRICS_SETS:
         metrics = [
@@ -142,9 +146,9 @@ def _get_metrics_list(
 
 
 def _get_metrics_factory(
+    cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
-    cache_path: str = "$HOME/aac-metrics-cache",
     verbose: int = 0,
 ) -> dict[str, Callable[[], Metric]]:
     return {
@@ -154,8 +158,8 @@ def _get_metrics_factory(
         "bleu_4": lambda: CocoBLEU(True, 4),
         "meteor": lambda: CocoMETEOR(
             return_all_scores=True,
-            java_path=java_path,
             cache_path=cache_path,
+            java_path=java_path,
             verbose=verbose,
         ),
         "rouge_l": lambda: CocoRougeL(
@@ -164,9 +168,9 @@ def _get_metrics_factory(
         # Note: cider_d and spice and computed inside spider metric
         "spider": lambda: SPIDEr(
             return_all_scores=True,
+            cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
-            cache_path=cache_path,
             verbose=verbose,
         ),
     }

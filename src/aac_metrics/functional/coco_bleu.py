@@ -4,7 +4,7 @@
 import math
 
 from collections import Counter
-from typing import Any, Callable, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Union
 
 import torch
 
@@ -23,7 +23,25 @@ def coco_bleu(
     verbose: int = 0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
-) -> Union[Tensor, Tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    """BiLingual Evaluation Understudy function.
+
+    Paper: https://www.aclweb.org/anthology/P02-1040.pdf
+
+    :param candidates: The list of sentences to evaluate.
+    :param mult_references: The list of list of sentences used as target.
+    :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
+        Otherwise returns a scalar tensor containing the main global score.
+        defaults to True.
+    :param n: Maximal number of n-grams taken into account. defaults to 4.
+    :param option: Corpus reference length mode. Can be "shortest", "average" or "closest". defaults to "closest".
+    :param verbose: The verbose level. defaults to 0.
+    :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
+    :param return_1_to_no: If True, returns the n-grams results from 1 to n.
+        Otherwise return the n-grams scores.
+        defauts to False.
+    :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
+    """
     cooked_cands, cooked_mrefs = _coco_bleu_update(
         candidates,
         mult_references,
@@ -75,7 +93,7 @@ def _coco_bleu_compute(
     option: str = "closest",
     verbose: int = 0,
     return_1_to_n: bool = False,
-) -> Union[Tensor, Tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
     if option not in BLEU_COCO_OPTIONS:
         raise ValueError(
             f"Invalid option {option=}. (expected one of {BLEU_COCO_OPTIONS})"

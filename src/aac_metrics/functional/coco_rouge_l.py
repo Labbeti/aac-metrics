@@ -30,7 +30,20 @@ def coco_rouge_l(
     return_all_scores: bool = False,
     beta: float = 1.2,
     tokenizer: Callable[[str], list[str]] = str.split,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    """Recall-Oriented Understudy for Gisting Evaluation function.
+
+    Paper: https://aclanthology.org/W04-1013.pdf
+
+    :param candidates: The list of sentences to evaluate.
+    :param mult_references: The list of list of sentences used as target.
+    :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
+        Otherwise returns a scalar tensor containing the main global score.
+        defaults to True.
+    :param beta: Determines the weight of recall in the combined f-score. defaults to 1.2.
+    :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
+    :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
+    """
     rouge_l_scores = _coco_rouge_l_update(
         candidates, mult_references, beta, tokenizer, []
     )
@@ -59,7 +72,7 @@ def _coco_rouge_l_update(
 def _coco_rouge_l_compute(
     rouge_l_scores: list[float],
     return_all_scores: bool,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     # Note: use numpy to compute mean because np.mean and torch.mean can give very small differences
     rouge_l_scores_np = np.array(rouge_l_scores)
     rouge_l_score_np = rouge_l_scores_np.mean()

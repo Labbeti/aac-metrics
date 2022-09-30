@@ -40,6 +40,11 @@ def download(
     cache_path: str = "$HOME/aac-metrics-cache",
     verbose: int = 0,
 ) -> None:
+    """Download the code needed for SPICE, METEOR and PTB Tokenizer.
+
+    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param verbose: The verbose level. defaults to 0.
+    """
     cache_path = osp.expandvars(cache_path)
 
     stanford_nlp_dpath = osp.join(cache_path, "stanford_nlp")

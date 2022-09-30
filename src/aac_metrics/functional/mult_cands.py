@@ -4,6 +4,7 @@
 from typing import Callable, Union
 
 import torch
+import tqdm
 
 from torch import Tensor
 
@@ -17,16 +18,17 @@ def mult_cands_metric(
     selection: str = "max",
     reduction: Callable[[Tensor], Tensor] = torch.mean,
     **kwargs,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Multiple candidates metric wrapper.
 
-    :param metric: Any Callable metric code.
-    :param metric_out_name: The name of the metric output.
-    :param mult_candidates: The candidates input. Currently only supports having the same number of multiple candidates.
+    :param metric: Any Callable metric code. Take (candidates, mult_references, return_all_scores) and return the global and local scores.
+    :param metric_out_name: The name of the metric output. Should be one of the keys of the local scores returned by the metric.
+    :param mult_candidates: The list of list of sentences to evaluate.
     :param mult_references: The references input.
     :param selection: The selection to apply. Can be "max", "min" or "mean". defaults to "max".
     :param reduction: The reduction function to apply to local scores. defaults to torch.mean.
     :param **kwargs: The keywords arguments given to the metric call.
+    :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     SELECTIONS = ("max", "min", "mean")
     if selection not in SELECTIONS:
@@ -50,8 +52,9 @@ def mult_cands_metric(
         )
 
     all_local_scores_lst: list[dict[str, Tensor]] = []
+    verbose = kwargs.get("verbose", 0)
 
-    for i in range(n_cands_per_audio):
+    for i in tqdm.trange(n_cands_per_audio, disable=verbose < 2):
         candidates_i = [cands[i] for cands in mult_candidates]
         _global_scores_i, local_scores_i = metric(
             candidates_i,
@@ -69,12 +72,16 @@ def mult_cands_metric(
     }
 
     if selection == "max":
-        indexes = all_local_scores[metric_out_name].argmax(dim=0)
-        local_scores = {}
+        indexes = all_local_scores[metric_out_name].argmax(dim=0).unsqueeze(dim=0)
+        local_scores = {
+            k: scores.gather(0, indexes) for k, scores in all_local_scores.items()
+        }
 
     elif selection == "min":
-        indexes = all_local_scores[metric_out_name].argmin(dim=0)
-        local_scores = {k: scores[indexes] for k, scores in all_local_scores.items()}
+        indexes = all_local_scores[metric_out_name].argmin(dim=0).unsqueeze(dim=0)
+        local_scores = {
+            k: scores.gather(0, indexes) for k, scores in all_local_scores.items()
+        }
 
     elif selection == "mean":
         selected_scores = all_local_scores[metric_out_name].mean(dim=0)
@@ -88,6 +95,6 @@ def mult_cands_metric(
     global_scores = {k: reduction(scores) for k, scores in local_scores.items()}
 
     if return_all_scores:
-        return local_scores, global_scores
+        return global_scores, local_scores
     else:
         return global_scores[metric_out_name]
