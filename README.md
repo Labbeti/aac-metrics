@@ -40,7 +40,7 @@ Note: The external code for SPICE, METEOR and PTBTokenizer is stored in the cach
 | Metric | Origin | Range | Short description |
 |:---:|:---:|:---:|:---:|
 | BLEU [1] | machine translation | [0, 1] | Precision of n-grams |
-| ROUGE-L [2] | machine translation | [0, 1] | Longest common subsequence |
+| ROUGE-L [2] | machine translation | [0, 1] | FScore of the longest common subsequence |
 | METEOR [3] | machine translation | [0, 1] | Cosine-similarity of frequencies |
 | CIDEr-D [4] | image captioning | [0, 10] | Cosine-similarity of TF-IDF |
 | SPICE [5] | image captioning | [0, 1] | FScore of semantic graph |

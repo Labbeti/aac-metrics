@@ -13,13 +13,19 @@ from aac_metrics.functional.coco_rouge_l import (
 
 
 class CocoRougeL(Metric):
+    """Recall-Oriented Understudy for Gisting Evaluation class.
+
+    Paper: https://aclanthology.org/W04-1013.pdf
+
+    For more information, see :func:`~aac_metrics.functional.coco_rouge_l.coco_rouge_l`.
+    """
+
     full_state_update = False
     higher_is_better = True
     is_differentiable = False
 
     min_value = 0.0
     max_value = 1.0
-    is_linear = True
 
     def __init__(
         self,
@@ -34,7 +40,7 @@ class CocoRougeL(Metric):
 
         self._rouge_l_scores = []
 
-    def compute(self) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return _coco_rouge_l_compute(
             self._rouge_l_scores,
             self._return_all_scores,

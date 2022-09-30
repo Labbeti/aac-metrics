@@ -19,9 +19,21 @@ def coco_cider_d(
     tokenizer: Callable[[str], list[str]] = str.split,
     return_tfidf: bool = False,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Any]]]:
-    """
-    :param n: set cider to sum over 1 to 4-grams
-    :param sigma: set the standard deviation parameter for gaussian penalty
+    """Consensus-based Image Description Evaluation function.
+
+    Paper: https://arxiv.org/pdf/1411.5726.pdf
+
+    :param candidates: The list of sentences to evaluate.
+    :param mult_references: The list of list of sentences used as target.
+    :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
+        Otherwise returns a scalar tensor containing the main global score.
+        defaults to True.
+    :param n: Maximal number of n-grams taken into account. defaults to 4.
+    :param sigma: Standard deviation parameter used for gaussian penalty. defaults to 6.0.
+    :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
+    :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the local_score output.
+        defaults to False.
+    :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     cooked_cands, cooked_mrefs = _coco_cider_d_update(
         candidates,

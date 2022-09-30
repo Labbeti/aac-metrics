@@ -14,13 +14,19 @@ from aac_metrics.classes.base import Metric
 
 
 class CocoBLEU(Metric):
+    """BiLingual Evaluation Understudy metric class.
+
+    Paper: https://www.aclweb.org/anthology/P02-1040.pdf
+
+    For more information, see :func:`~aac_metrics.functional.coco_bleu.coco_bleu`.
+    """
+
     full_state_update = False
     higher_is_better = True
     is_differentiable = False
 
     min_value = 0.0
     max_value = 1.0
-    is_linear = False
 
     def __init__(
         self,
@@ -45,7 +51,7 @@ class CocoBLEU(Metric):
         self._cooked_cands = []
         self._cooked_mrefs = []
 
-    def compute(self) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return _coco_bleu_compute(
             self._cooked_cands,
             self._cooked_mrefs,
@@ -54,6 +60,9 @@ class CocoBLEU(Metric):
             self._option,
             self._verbose,
         )
+
+    def extra_repr(self) -> str:
+        return f"n={self._n}"
 
     def reset(self) -> None:
         self._cooked_cands = []

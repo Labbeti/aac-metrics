@@ -17,7 +17,7 @@ import torch
 
 from torch import Tensor
 
-from aac_metrics.functional.common import check_java_path
+from aac_metrics.functional.common import _check_java_path
 
 
 logger = logging.getLogger(__name__)
@@ -31,20 +31,38 @@ def coco_spice(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
-    cache_path: str = "$HOME/aac-metrics-cache",
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     verbose: int = 0,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
-    """Compute SPICE metric score."""
+) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    """Semantic Propositional Image Caption Evaluation function.
+
+    Paper: https://arxiv.org/pdf/1607.08822.pdf
+
+    :param candidates: The list of sentences to evaluate.
+    :param mult_references: The list of list of sentences used as target.
+    :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
+        Otherwise returns a scalar tensor containing the main global score.
+        defaults to True.
+    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param java_path: The path to the java executable. defaults to "java".
+    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param java_max_memory: The maximal java memory used. defaults to "8G".
+    :param n_threads: Number of threads used to compute SPICE.
+        None value will use the default value of the java program.
+        defaults to None.
+    :param verbose: The verbose level. defaults to 0.
+    :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
+    """
 
     java_path = osp.expandvars(java_path)
     tmp_path = osp.expandvars(tmp_path)
     cache_path = osp.expandvars(cache_path)
 
-    if not check_java_path(java_path):
+    if not _check_java_path(java_path):
         raise ValueError(
             f"Cannot find java executable with {java_path=} for compute SPICE metric score."
         )

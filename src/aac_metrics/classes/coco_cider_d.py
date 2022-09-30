@@ -13,13 +13,19 @@ from aac_metrics.functional.coco_cider_d import (
 
 
 class CocoCIDErD(Metric):
+    """Consensus-based Image Description Evaluation metric class.
+
+    Paper: https://arxiv.org/pdf/1411.5726.pdf
+
+    For more information, see :func:`~aac_metrics.functional.coco_cider_d.coco_cider_d`.
+    """
+
     full_state_update = False
     higher_is_better = True
     is_differentiable = False
 
     min_value = 0.0
     max_value = 10.0
-    is_linear = False
 
     def __init__(
         self,
@@ -37,7 +43,7 @@ class CocoCIDErD(Metric):
         self._cooked_cands = []
         self._cooked_mrefs = []
 
-    def compute(self) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return _coco_cider_d_compute(
             self._cooked_cands,
             self._cooked_mrefs,

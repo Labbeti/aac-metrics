@@ -21,7 +21,7 @@ import torch
 
 from torch import Tensor
 
-from aac_metrics.functional.common import check_java_path
+from aac_metrics.functional.common import _check_java_path
 
 
 logger = logging.getLogger(__name__)
@@ -34,23 +34,25 @@ def coco_meteor(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    java_path: str = "java",
     cache_path: str = "$HOME/aac-metrics-cache",
+    java_path: str = "java",
     java_max_memory: str = "2G",
     verbose: int = 0,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
-    """Compute METEOR score.
+) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    """Metric for Evaluation of Translation with Explicit ORdering function.
 
-    :param candidates: The candidates sentences.
-    :param mult_references: The references sentences.
-    :param return_all_scores: if True, returns all the global and local scores as a tuple of dicts.
-        Otherwise returns a scalar Tensor containing the global main score.
-        defaults to False.
-    :param java_path: The path to the java executable. defaults to "java".
+    Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
+
+    :param candidates: The list of sentences to evaluate.
+    :param mult_references: The list of list of sentences used as target.
+    :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
+        Otherwise returns a scalar tensor containing the main global score.
+        defaults to True.
     :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param java_path: The path to the java executable. defaults to "java".
     :param java_max_memory: The maximal java memory used. defaults to "2G".
     :param verbose: The verbose level. defaults to 0.
-    :returns: The metric output as scalar tensor if return_all_scores=False or tuple of global scores and local scores if return_all_scores=True.
+    :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     java_path = osp.expandvars(java_path)
     cache_path = osp.expandvars(cache_path)
@@ -70,7 +72,7 @@ def coco_meteor(
         "-norm",
     ]
 
-    if not check_java_path(java_path):
+    if not _check_java_path(java_path):
         raise ValueError(
             f"Cannot find java executable with {java_path=} for compute meteor metric score."
         )

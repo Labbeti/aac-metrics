@@ -18,16 +18,17 @@ def mult_cands_metric(
     selection: str = "max",
     reduction: Callable[[Tensor], Tensor] = torch.mean,
     **kwargs,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Multiple candidates metric wrapper.
 
     :param metric: Any Callable metric code. Take (candidates, mult_references, return_all_scores) and return the global and local scores.
     :param metric_out_name: The name of the metric output. Should be one of the keys of the local scores returned by the metric.
-    :param mult_candidates: The candidates input. Currently only supports having the same number of multiple candidates.
+    :param mult_candidates: The list of list of sentences to evaluate.
     :param mult_references: The references input.
     :param selection: The selection to apply. Can be "max", "min" or "mean". defaults to "max".
     :param reduction: The reduction function to apply to local scores. defaults to torch.mean.
     :param **kwargs: The keywords arguments given to the metric call.
+    :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     SELECTIONS = ("max", "min", "mean")
     if selection not in SELECTIONS:

@@ -15,6 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 class CustomEvaluate(Metric, list[Metric]):
+    """Evaluate candidates with multiple references with custom metrics.
+
+    For more information, see :func:`~aac_metrics.functional.evaluate.custom_evaluate`.
+    """
+
     full_state_update = False
     higher_is_better = None
     is_differentiable = False
@@ -75,6 +80,11 @@ class CustomEvaluate(Metric, list[Metric]):
 
 
 class AACEvaluate(CustomEvaluate):
+    """Evaluate candidates with multiple references with all Audio Captioning metrics.
+
+    For more information, see :func:`~aac_metrics.functional.evaluate.aac_evaluate`.
+    """
+
     def __init__(
         self,
         use_ptb_tokenizer: bool = True,

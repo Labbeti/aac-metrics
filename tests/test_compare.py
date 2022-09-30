@@ -19,7 +19,7 @@ class TestCompare(TestCase):
 
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
-        self.evaluate_metrics_from_lists = self.get_eval_function()
+        self.evaluate_metrics_from_lists = self.import_cet_eval_func()
 
     def install_spice(self) -> None:
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
@@ -39,7 +39,7 @@ class TestCompare(TestCase):
                 cwd=osp.join(cet_path, "coco_caption"),
             )
 
-    def get_eval_function(
+    def import_cet_eval_func(
         self,
     ) -> Callable[
         [List[str], List[List[str]]],
@@ -57,7 +57,7 @@ class TestCompare(TestCase):
         evaluate_metrics_from_lists = eval_metrics_module.evaluate_metrics_from_lists
         return evaluate_metrics_from_lists
 
-    def test_example_0(self) -> None:
+    def get_example_0(self) -> tuple[list[str], list[list[str]]]:
         cands = [
             "a man is speaking",
             "birds chirping",
@@ -74,7 +74,10 @@ class TestCompare(TestCase):
             ["a bird is chirping"] * 5,
             ["heavy rain noise"] * 5,
         ]
+        return cands, mrefs
 
+    def test_example_0(self) -> None:
+        cands, mrefs = self.get_example_0()
         global_scores, _ = aac_evaluate(cands, mrefs)
         cet_global_scores, _cet_local_scores = self.evaluate_metrics_from_lists(
             cands, mrefs

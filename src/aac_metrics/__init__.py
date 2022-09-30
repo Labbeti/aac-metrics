@@ -9,7 +9,7 @@ __author__ = "Etienne Labbé (Labbeti)"
 __license__ = "MIT"
 __maintainer__ = "Etienne Labbé (Labbeti)"
 __status__ = "Development"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 from .functional.evaluate import aac_evaluate

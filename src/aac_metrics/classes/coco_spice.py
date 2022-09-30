@@ -15,13 +15,19 @@ logger = logging.getLogger(__name__)
 
 
 class CocoSPICE(Metric):
+    """Semantic Propositional Image Caption Evaluation class.
+
+    Paper: https://arxiv.org/pdf/1607.08822.pdf
+
+    For more information, see :func:`~aac_metrics.functional.coco_spice.coco_spice`.
+    """
+
     full_state_update = False
     higher_is_better = True
     is_differentiable = False
 
     min_value = 0.0
     max_value = 1.0
-    is_linear = None
 
     def __init__(
         self,
@@ -35,9 +41,9 @@ class CocoSPICE(Metric):
     ) -> None:
         super().__init__()
         self._return_all_scores = return_all_scores
+        self._cache_path = cache_path
         self._java_path = java_path
         self._tmp_path = tmp_path
-        self._cache_path = cache_path
         self._n_threads = n_threads
         self._java_max_memory = java_max_memory
         self._verbose = verbose
@@ -45,14 +51,14 @@ class CocoSPICE(Metric):
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return coco_spice(
             self._candidates,
             self._mult_references,
             self._return_all_scores,
+            self._cache_path,
             self._java_path,
             self._tmp_path,
-            self._cache_path,
             self._n_threads,
             self._java_max_memory,
             self._verbose,

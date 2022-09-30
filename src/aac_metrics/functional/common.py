@@ -7,13 +7,8 @@ from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Any, Union
 
-from torch import Tensor
 
-
-MetricOutput = Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]
-
-
-def check_java_path(java_path: Union[str, Path]) -> bool:
+def _check_java_path(java_path: Union[str, Path]) -> bool:
     """Returns True if the java path is valid."""
     if not isinstance(java_path, (str, Path)):
         return False
@@ -29,10 +24,11 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
     return exitcode == 0
 
 
-def check_input(
+def _check_input(
     candidates: Any,
     mult_references: Any,
 ) -> None:
+    """Returns True candidates and mult_references have a valid type and size."""
     cands_is_list = isinstance(candidates, list)
     cand_is_str = all(isinstance(cand, str) for cand in candidates)
     if not all((cands_is_list, cand_is_str)):

@@ -15,13 +15,19 @@ logger = logging.getLogger(__name__)
 
 
 class SPIDEr(Metric):
+    """SPIDEr class.
+
+    Paper: https://arxiv.org/pdf/1612.00370.pdf
+
+    For more information, see :func:`~aac_metrics.functional.spider.spider`.
+    """
+
     full_state_update = False
     higher_is_better = True
     is_differentiable = False
 
     min_value = 0.0
     max_value = 5.5
-    is_linear = False
 
     def __init__(
         self,
@@ -51,7 +57,7 @@ class SPIDEr(Metric):
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return spider(
             self._candidates,
             self._mult_references,

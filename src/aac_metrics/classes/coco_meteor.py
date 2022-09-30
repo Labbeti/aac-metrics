@@ -10,33 +10,39 @@ from aac_metrics.functional.coco_meteor import coco_meteor
 
 
 class CocoMETEOR(Metric):
+    """Metric for Evaluation of Translation with Explicit ORdering metric class.
+
+    Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
+
+    For more information, see :func:`~aac_metrics.functional.coco_meteor.coco_meteor`.
+    """
+
     full_state_update = False
     higher_is_better = True
     is_differentiable = False
 
     min_value = 0.0
     max_value = 1.0
-    is_linear = None
 
     def __init__(
         self,
         return_all_scores: bool = True,
-        java_path: str = "java",
         cache_path: str = "$HOME/aac-metrics-cache",
+        java_path: str = "java",
         java_max_memory: str = "2G",
         verbose: int = 0,
     ) -> None:
         super().__init__()
         self._return_all_scores = return_all_scores
-        self._java_path = java_path
         self._cache_path = cache_path
+        self._java_path = java_path
         self._java_max_memory = java_max_memory
         self._verbose = verbose
 
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return coco_meteor(
             self._candidates,
             self._mult_references,

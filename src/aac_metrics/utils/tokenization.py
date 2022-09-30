@@ -159,8 +159,8 @@ def _ptb_tokenize(
 
 def preprocess_mono_sents(
     sents: list[str],
-    java_path: str = "java",
     cache_path: str = "$HOME/aac-metrics-cache",
+    java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[str]:
@@ -168,6 +168,12 @@ def preprocess_mono_sents(
 
     Note: PTB tokenizer is a java program that takes a list[str] as input, so calling several times `preprocess_mono_sents` is slow on list[list[str]].
     If you want to process multiple sentences (list[list[str]]), use `preprocess_mult_sents` instead.
+
+    :param sents: The list of sentences to process.
+    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param java_path: The path to the java executable. defaults to "java".
+    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :returns: The sentences processed by the tokenizer.
     """
     tok_sents = _ptb_tokenize(sents, None, java_path, cache_path, tmp_path, verbose)
     sents = [" ".join(sent) for sent in tok_sents]
@@ -176,12 +182,19 @@ def preprocess_mono_sents(
 
 def preprocess_mult_sents(
     mult_sents: list[list[str]],
-    java_path: str = "java",
     cache_path: str = "$HOME/aac-metrics-cache",
+    java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[list[str]]:
-    """Tokenize multiple sentences using PTB Tokenizer with only 1 call then merge them by space."""
+    """Tokenize multiple sentences using PTB Tokenizer with only 1 call then merge them by space.
+
+    :param mult_sents: The list of list of sentences to process.
+    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param java_path: The path to the java executable. defaults to "java".
+    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :returns: The multiple sentences processed by the tokenizer.
+    """
 
     # Flat list
     flatten_sents = [sent for sents in mult_sents for sent in sents]
