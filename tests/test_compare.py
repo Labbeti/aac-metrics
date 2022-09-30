@@ -15,15 +15,22 @@ from aac_metrics.evaluate import aac_evaluate, load_csv_file
 
 
 class TestCompare(TestCase):
-    def init_caption_evaluation_tools(self) -> None:
+    # Note: "cet" is here an acronym for "caption evaluation tools"
+
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+        self.evaluate_metrics_from_lists = self.get_eval_function()
+
+    def install_spice(self) -> None:
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
 
         stanford_fpath = osp.join(
             cet_path,
             "coco_caption",
             "pycocoevalcap",
-            "tokenizer",
-            "stanford-corenlp-3.4.1.jar",
+            "spice",
+            "lib",
+            "stanford-corenlp-3.6.0.jar",
         )
         if not osp.isfile(stanford_fpath):
             command = "bash get_stanford_models.sh"
@@ -39,7 +46,7 @@ class TestCompare(TestCase):
         Tuple[Dict[str, float], Dict[int, Dict[str, float]]],
     ]:
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
-        self.init_caption_evaluation_tools()
+        self.install_spice()
         # Append cet_path to allow imports of "coco_caption" in eval_metrics.py.
         sys.path.append(cet_path)
         # Override cache and tmp dir to avoid outputs in source code.
@@ -51,7 +58,6 @@ class TestCompare(TestCase):
         return evaluate_metrics_from_lists
 
     def test_example_0(self) -> None:
-        evaluate_metrics_from_lists = self.get_eval_function()
         cands = [
             "a man is speaking",
             "birds chirping",
@@ -70,7 +76,9 @@ class TestCompare(TestCase):
         ]
 
         global_scores, _ = aac_evaluate(cands, mrefs)
-        cet_global_scores, _cet_local_scores = evaluate_metrics_from_lists(cands, mrefs)
+        cet_global_scores, _cet_local_scores = self.evaluate_metrics_from_lists(
+            cands, mrefs
+        )
 
         cet_global_scores = {k.lower(): v for k, v in cet_global_scores.items()}
         cet_global_scores = {
@@ -86,12 +94,11 @@ class TestCompare(TestCase):
         self.assertDictEqual(global_scores, cet_global_scores)
 
     def test_example_1(self) -> None:
-        evaluate_metrics_from_lists = self.get_eval_function()
         fpath = Path(__file__).parent.parent.joinpath("examples", "example_1.csv")
         candidates, mult_references = load_csv_file(fpath)
 
         global_scores, _ = aac_evaluate(candidates, mult_references)
-        cet_global_scores, _cet_local_scores = evaluate_metrics_from_lists(
+        cet_global_scores, _cet_local_scores = self.evaluate_metrics_from_lists(
             candidates, mult_references
         )
 
@@ -108,12 +115,11 @@ class TestCompare(TestCase):
             self.assertEqual(v1.item(), v2, f"{metric_name=}")
 
     def test_example_2(self) -> None:
-        evaluate_metrics_from_lists = self.get_eval_function()
         fpath = Path(__file__).parent.parent.joinpath("examples", "example_2.csv")
         candidates, mult_references = load_csv_file(fpath)
 
         global_scores, _ = aac_evaluate(candidates, mult_references)
-        cet_global_scores, _cet_local_scores = evaluate_metrics_from_lists(
+        cet_global_scores, _cet_local_scores = self.evaluate_metrics_from_lists(
             candidates, mult_references
         )
 
