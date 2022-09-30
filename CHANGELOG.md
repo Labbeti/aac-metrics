@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.1] 2022-09-30
 ### Added
+- Documentation for metric functions and classes.
 - A second larger example for unit testing.
 
 ### Changed
