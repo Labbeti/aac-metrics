@@ -12,6 +12,8 @@ try:
 except ModuleNotFoundError:
 
     class Metric(nn.Module):
+        """Base Metric module used when torchmetrics is not installed."""
+
         full_state_update: Optional[bool] = False
         higher_is_better: Optional[bool] = None
         is_differentiable: Optional[bool] = False
