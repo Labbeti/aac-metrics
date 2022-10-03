@@ -126,7 +126,7 @@ def _ptb_tokenize(
         cmd,
         cwd=tmp_path,
         stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL if verbose < 2 else None,
+        stderr=subprocess.DEVNULL if verbose <= 2 else None,
     )
     token_lines = p_tokenizer.communicate(input=sentences.rstrip().encode())[0]
     token_lines = token_lines.decode()
