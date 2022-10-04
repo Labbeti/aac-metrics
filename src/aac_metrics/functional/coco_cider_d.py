@@ -175,21 +175,23 @@ def _counter_to_vec(
     vec = [defaultdict(float) for _ in range(n)]
     length = 0
     norm = np.zeros((n,))
+
     for (ngram, term_freq) in counters.items():
         # give word count 1 if it doesn't appear in reference corpus
         log_df = np.log(max(1.0, document_frequency[ngram]))
 
         # ngram index
-        n = len(ngram) - 1
+        cur_n = len(ngram) - 1
 
         # tf (term_freq) * idf (precomputed idf) for n-grams
-        vec[n][ngram] = float(term_freq) * (log_ref_len - log_df)
+        vec[cur_n][ngram] = float(term_freq) * (log_ref_len - log_df)
 
         # compute norm for the vector.  the norm will be used for computing similarity
-        norm[n] += pow(vec[n][ngram], 2)
+        norm[cur_n] += pow(vec[cur_n][ngram], 2)
 
-        if n == 1:
+        if cur_n == 1:
             length += term_freq
+
     norm = np.sqrt(norm)
     return vec, norm, length
 
