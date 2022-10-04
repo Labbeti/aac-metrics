@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] UNRELEASED
+### Changed
+- Update default value in cider and rouge functions.
+
 ## [0.1.1] 2022-09-30
 ### Added
 - Documentation for metric functions and classes.
