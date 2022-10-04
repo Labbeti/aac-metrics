@@ -13,7 +13,7 @@ from torch import Tensor
 def coco_cider_d(
     candidates: list[str],
     mult_references: list[list[str]],
-    return_all_scores: bool = False,
+    return_all_scores: bool = True,
     n: int = 4,
     sigma: float = 6.0,
     tokenizer: Callable[[str], list[str]] = str.split,
@@ -77,10 +77,10 @@ def _coco_cider_d_update(
 def _coco_cider_d_compute(
     cooked_cands: list,
     cooked_mrefs: list,
-    return_all_scores: bool = False,
-    n: int = 4,
-    sigma: float = 6.0,
-    return_tfidf: bool = False,
+    return_all_scores: bool,
+    n: int,
+    sigma: float,
+    return_tfidf: bool,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Any]]]:
     if len(cooked_cands) <= 1:
         raise ValueError(

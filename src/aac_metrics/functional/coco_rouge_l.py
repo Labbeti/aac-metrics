@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 def coco_rouge_l(
     candidates: list[str],
     mult_references: list[list[str]],
-    return_all_scores: bool = False,
+    return_all_scores: bool = True,
     beta: float = 1.2,
     tokenizer: Callable[[str], list[str]] = str.split,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
