@@ -21,34 +21,35 @@ fi
 
 fname_zip="SPICE-1.0.zip"
 fpath_zip="$dpath_spice/$fname_zip"
+bn0=`basename $0`
 
-echo "[$0] Start installation of SPICE metric java code in directory \"$dpath_spice\"..."
+echo "[$bn0] Start installation of SPICE metric java code in directory \"$dpath_spice\"..."
 
 if [ ! -f "$fpath_zip" ]; then
-  echo "[$0] Zip file not found, downloading from https://panderson.me..."
+  echo "[$bn0] Zip file not found, downloading from https://panderson.me..."
   wget https://panderson.me/images/SPICE-1.0.zip -P "$dpath_spice"
 fi
 
 dpath_unzip="$dpath_spice/SPICE-1.0"
 if [ ! -d "$dpath_unzip" ]; then
-  echo "[$0] Unzipping file $dpath_zip..."
+  echo "[$bn0] Unzipping file $dpath_zip..."
   unzip $fpath_zip -d "$dpath_spice"
 
-  echo "[$0] Downloading Stanford models..."
+  echo "[$bn0] Downloading Stanford models..."
   bash $dpath_unzip/get_stanford_models.sh
 fi
 
 dpath_lib="$dpath_spice/lib"
 if [ ! -d "$dpath_lib" ]; then
-  echo "[$0] Moving lib directory to \"$dpath_spice\"..."
+  echo "[$bn0] Moving lib directory to \"$dpath_spice\"..."
   mv "$dpath_unzip/lib" "$dpath_spice"
 fi
 
 fpath_jar="$dpath_spice/spice-1.0.jar"
 if [ ! -f "$fpath_jar" ]; then
-  echo "[$0] Moving spice-1.0.jar file to \"$dpath_spice\"..."
+  echo "[$bn0] Moving spice-1.0.jar file to \"$dpath_spice\"..."
   mv "$dpath_unzip/spice-1.0.jar" "$dpath_spice"
 fi
 
-echo "[$0] SPICE metric Java code is installed."
+echo "[$bn0] SPICE metric Java code is installed."
 exit 0
