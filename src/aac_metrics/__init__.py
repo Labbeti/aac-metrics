@@ -6,6 +6,7 @@
 
 __name__ = "aac-metrics"
 __author__ = "Etienne Labbé (Labbeti)"
+__author_email__ = "labbeti.pub@gmail.com"
 __license__ = "MIT"
 __maintainer__ = "Etienne Labbé (Labbeti)"
 __status__ = "Development"
