@@ -10,6 +10,8 @@ import time
 
 from typing import Any, Hashable, Iterable, Optional
 
+from aac_metrics.utils.misc import _check_java_path
+
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +76,10 @@ def _ptb_tokenize(
     if not osp.isfile(stanford_fpath):
         raise FileNotFoundError(
             f"Cannot find jar file {STANFORD_CORENLP_3_4_1_JAR} in {cache_path=}. Maybe run 'aac-metrics-download' before or specify a 'cache_path' directory."
+        )
+    if not _check_java_path(java_path):
+        raise ValueError(
+            f"Cannot find java executable with {java_path=} to tokenize sentences."
         )
 
     start_time = time.perf_counter()
