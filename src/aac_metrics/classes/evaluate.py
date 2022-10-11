@@ -3,12 +3,16 @@
 
 import logging
 
-from typing import Iterable, Union
+from typing import Callable, Iterable, Union
 
 from torch import Tensor
 
 from aac_metrics.classes.base import Metric
-from aac_metrics.functional.evaluate import custom_evaluate, _get_metrics_list
+from aac_metrics.classes.coco_bleu import CocoBLEU
+from aac_metrics.classes.coco_meteor import CocoMETEOR
+from aac_metrics.classes.coco_rouge_l import CocoRougeL
+from aac_metrics.classes.spider import SPIDEr
+from aac_metrics.functional.evaluate import METRICS_SETS, custom_evaluate
 
 
 logger = logging.getLogger(__name__)
@@ -34,7 +38,7 @@ class CustomEvaluate(Metric, list[Metric]):
         metrics: Union[str, Iterable[Metric]] = "all",
     ) -> None:
         if isinstance(metrics, str):
-            metrics = _get_metrics_list(
+            metrics = _get_classes_metrics_list(
                 metrics,
                 cache_path=cache_path,
                 java_path=java_path,
@@ -101,3 +105,71 @@ class AACEvaluate(CustomEvaluate):
             verbose,
             "aac",
         )
+
+
+def _get_classes_metrics_list(
+    metric_set_name: str,
+    cache_path: str = "$HOME/aac-metrics-cache",
+    java_path: str = "java",
+    tmp_path: str = "/tmp",
+    verbose: int = 0,
+) -> list[Metric]:
+    metrics_factory = _get_classes_metrics_factory(
+        cache_path, java_path, tmp_path, verbose
+    )
+
+    if metric_set_name in METRICS_SETS:
+        metrics = [
+            factory()
+            for metric_name, factory in metrics_factory.items()
+            if metric_name in METRICS_SETS[metric_set_name]
+        ]
+    else:
+        raise ValueError(
+            f"Invalid argument {metric_set_name=}. (expected one of {tuple(METRICS_SETS.keys())})"
+        )
+
+    return metrics
+
+
+def _get_classes_metrics_factory(
+    cache_path: str = "$HOME/aac-metrics-cache",
+    java_path: str = "java",
+    tmp_path: str = "/tmp",
+    verbose: int = 0,
+) -> dict[str, Callable[[], Metric]]:
+    return {
+        "bleu_1": CocoBLEU(
+            return_all_scores=True,
+            n=1,
+        ),
+        "bleu_2": CocoBLEU(
+            return_all_scores=True,
+            n=2,
+        ),
+        "bleu_3": CocoBLEU(
+            return_all_scores=True,
+            n=3,
+        ),
+        "bleu_4": CocoBLEU(
+            return_all_scores=True,
+            n=4,
+        ),
+        "meteor": CocoMETEOR(
+            return_all_scores=True,
+            cache_path=cache_path,
+            java_path=java_path,
+            verbose=verbose,
+        ),
+        "rouge_l": CocoRougeL(
+            return_all_scores=True,
+        ),
+        # Note: cider_d and spice and computed inside spider metric
+        "spider": SPIDEr(
+            return_all_scores=True,
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
+            verbose=verbose,
+        ),
+    }
