@@ -214,21 +214,26 @@ Captioning via Policy Gradient optimization of SPIDEr,” 2017 IEEE Inter-
 national Conference on Computer Vision (ICCV), pp. 873–881, Oct. 2017,
 arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 
-<!-- TODO : update ref -->
-Note: the following reference is **temporary**:
-
-[7] E. Labbe, T. Pellegrini, J. Pinquier, "IS MY AUTOMATIC AUDIO CAPTIONING SYSTEM SO BAD? SPIDEr-max: A METRIC TO CONSIDER SEVERAL CAPTION CANDIDATES", DCASE2022 Workshop.
+[7] E. Labbé, T. Pellegrini, and J. Pinquier, “Is my automatic audio captioning system so bad? spider-max: a metric to consider several caption candidates,” Nov. 2022. [Online]. Available: https://hal.archives-ouvertes.fr/hal-03810396
 
 ## Cite the aac-metrics package
-The associated paper has been accepted but it will be published after the DCASE2022 workshop.
-
-If you use this code, you can cite with the following **temporary** citation:
-<!-- TODO : update citation and create CITATION.cff file -->
+If you use this code with SPIDEr-max, you can cite the following paper:
 ```
-@inproceedings{Labbe2022,
-    author = "Etienne Labbe, Thomas Pellegrini, Julien Pinquier",
-    title = "IS MY AUTOMATIC AUDIO CAPTIONING SYSTEM SO BAD? SPIDEr-max: A METRIC TO CONSIDER SEVERAL CAPTION CANDIDATES",
-    month = "November",
-    year = "2022",
+@inproceedings{labbe:hal-03810396,
+  TITLE = {{Is my automatic audio captioning system so bad? spider-max: a metric to consider several caption candidates}},
+  AUTHOR = {Labb{\'e}, Etienne and Pellegrini, Thomas and Pinquier, Julien},
+  URL = {https://hal.archives-ouvertes.fr/hal-03810396},
+  BOOKTITLE = {{Workshop DCASE}},
+  ADDRESS = {Nancy, France},
+  YEAR = {2022},
+  MONTH = Nov,
+  KEYWORDS = {audio captioning ; evaluation metric ; beam search ; multiple candidates},
+  PDF = {https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf},
+  HAL_ID = {hal-03810396},
+  HAL_VERSION = {v1},
 }
 ```
+
+## Contact
+Maintainer:
+- Etienne Labbé "Labbeti": labbeti.pub@gmail.com

@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.2] UNRELEASED
 ### Changed
-- Update default value in cider and rouge functions.
+- Update default value used for `return_all_scores` in cider and rouge functions.
+- Update metric factory with functions instead of classes to avoid cyclic dependency.
 
 ## [0.1.1] 2022-09-30
 ### Added
