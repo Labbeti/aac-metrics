@@ -14,42 +14,42 @@ Audio Captioning metrics source code, designed for Pytorch.
 </div>
 
 This package is a tool to evaluate sentences produced by automatic models to caption image or audio.
-The results of BLEU [1], ROUGE-L [2], METEOR [3], CIDEr [4], SPICE [5] and SPIDEr [6] are consistents with https://github.com/audio-captioning/caption-evaluation-tools.
+The results of BLEU [1], ROUGE-L [2], METEOR [3], CIDEr [4], SPICE [5] and SPIDEr [6] are consistents with [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools).
 
 ## Why using this package?
 - Easy installation with pip
-- Consistent with audio caption metrics code https://github.com/audio-captioning/caption-evaluation-tools
+- Consistent with [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools)
 - Provides functions and classes to compute metrics separately
-- Provides SPIDEr-max metric as described in the DCASE paper [7].
+- Provides SPIDEr-max metric as described in the DCASE paper [7]
 
 ## Installation
 Install the pip package:
-```
+```bash
 pip install aac-metrics
 ```
 
 Download the external code needed for METEOR, SPICE and PTBTokenizer:
-```
+```bash
 aac-metrics-download
 ```
 
 Note: The external code for SPICE, METEOR and PTBTokenizer is stored in the cache directory (default: `$HOME/aac-metrics-cache/`)
 
 ## Metrics
-### AAC metrics
-| Metric | Origin | Range | Short description |
-|:---:|:---:|:---:|:---:|
-| BLEU [1] | machine translation | [0, 1] | Precision of n-grams |
-| ROUGE-L [2] | machine translation | [0, 1] | FScore of the longest common subsequence |
-| METEOR [3] | machine translation | [0, 1] | Cosine-similarity of frequencies |
-| CIDEr-D [4] | image captioning | [0, 10] | Cosine-similarity of TF-IDF |
-| SPICE [5] | image captioning | [0, 1] | FScore of semantic graph |
-| SPIDEr [6] | image captioning | [0, 5.5] | Mean of CIDEr-D and SPICE |
+### Default AAC metrics
+| Metric | Python Class | Origin | Range | Short description |
+|:---|:---|:---|:---|:---|
+| BLEU [1] | `CocoBLEU` | machine translation | [0, 1] | Precision of n-grams |
+| ROUGE-L [2] | `CocoRougeL` | machine translation | [0, 1] | FScore of the longest common subsequence |
+| METEOR [3] | `CocoMETEOR` | machine translation | [0, 1] | Cosine-similarity of frequencies |
+| CIDEr-D [4] | `CocoCIDErD` | image captioning | [0, 10] | Cosine-similarity of TF-IDF |
+| SPICE [5] | `CocoSPICE` | image captioning | [0, 1] | FScore of semantic graph |
+| SPIDEr [6] | `SPIDEr` | image captioning | [0, 5.5] | Mean of CIDEr-D and SPICE |
 
 ### Other metrics
-| Metric | Origin | Range | Short description |
-|:---:|:---:|:---:|:---:|
-| SPIDEr-max [7] | audio captioning | [0, 5.5] | Max of SPIDEr scores for multiples candidates |
+| Metric | Python Class | Origin | Range | Short description |
+|:---|:---|:---|:---|:---|
+| SPIDEr-max [7] | `SPIDErMax` | audio captioning | [0, 5.5] | Max of SPIDEr scores for multiples candidates |
 
 ## Usage
 ### Evaluate AAC metrics
@@ -180,7 +180,7 @@ The CIDEr [4] metric differs from CIDEr-D because it apply a stemmer to each wor
 
 ### Is torchmetrics needed for this package ?
 No. But if torchmetrics is installed, all metrics classes will inherit from the base class `torchmetrics.Metric`.
-It is because most of the metrics does not use PyTorch tensors to compute scores and numpy or string cannot be added to states of `torchmetrics.Metric`.
+It is because most of the metrics does not use PyTorch tensors to compute scores and numpy and strings cannot be added to states of `torchmetrics.Metric`.
 
 ## References
 [1] K. Papineni, S. Roukos, T. Ward, and W.-J. Zhu, “BLEU: a
