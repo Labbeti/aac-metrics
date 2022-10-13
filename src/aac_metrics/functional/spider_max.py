@@ -31,7 +31,7 @@ def spider_max(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """SPIDEr-max function.
 
-    Paper: Not published yet.
+    Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
 
     Compute the maximal SPIDEr score accross multiple candidates.
 
@@ -57,7 +57,6 @@ def spider_max(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    # TODO : update doc when paper will be published.
     return mult_cands_metric(
         spider,
         "spider",
