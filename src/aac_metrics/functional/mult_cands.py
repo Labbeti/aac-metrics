@@ -15,6 +15,7 @@ def mult_cands_metric(
     mult_candidates: list[list[str]],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    return_all_cands_scores: bool = False,
     selection: str = "max",
     reduction: Callable[[Tensor], Tensor] = torch.mean,
     **kwargs,
@@ -70,17 +71,20 @@ def mult_cands_metric(
         k: torch.stack([local_scores_i[k] for local_scores_i in all_local_scores_lst])
         for k in keys
     }
+    # all_local_scores dict of tensor of shapes (n_cands_per_audio, n_items)
 
     if selection == "max":
         indexes = all_local_scores[metric_out_name].argmax(dim=0).unsqueeze(dim=0)
         local_scores = {
-            k: scores.gather(0, indexes) for k, scores in all_local_scores.items()
+            k: scores.gather(0, indexes).squeeze(dim=0)
+            for k, scores in all_local_scores.items()
         }
 
     elif selection == "min":
         indexes = all_local_scores[metric_out_name].argmin(dim=0).unsqueeze(dim=0)
         local_scores = {
-            k: scores.gather(0, indexes) for k, scores in all_local_scores.items()
+            k: scores.gather(0, indexes).squeeze(dim=0)
+            for k, scores in all_local_scores.items()
         }
 
     elif selection == "mean":
@@ -91,6 +95,11 @@ def mult_cands_metric(
         raise ValueError(
             f"Invalid argument {selection=}. (expected one of {SELECTIONS})"
         )
+
+    if return_all_cands_scores:
+        local_scores |= {
+            f"{k}_all": scores.transpose(0, 1) for k, scores in all_local_scores.items()
+        }
 
     global_scores = {k: reduction(scores) for k, scores in local_scores.items()}
 
