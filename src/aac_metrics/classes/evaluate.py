@@ -30,7 +30,7 @@ class CustomEvaluate(Metric, list[Metric]):
 
     def __init__(
         self,
-        use_ptb_tokenizer: bool = True,
+        preprocess: bool = True,
         cache_path: str = "$HOME/aac-metrics-cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
@@ -38,7 +38,7 @@ class CustomEvaluate(Metric, list[Metric]):
         metrics: Union[str, Iterable[Metric]] = "all",
     ) -> None:
         if isinstance(metrics, str):
-            metrics = _get_classes_metrics_list(
+            metrics = _get_metrics_classes_list(
                 metrics,
                 cache_path=cache_path,
                 java_path=java_path,
@@ -48,7 +48,7 @@ class CustomEvaluate(Metric, list[Metric]):
 
         Metric.__init__(self)
         list.__init__(self, metrics)
-        self._use_ptb_tokenizer = use_ptb_tokenizer
+        self._preprocess = preprocess
         self._cache_path = cache_path
         self._java_path = java_path
         self._tmp_path = tmp_path
@@ -61,7 +61,7 @@ class CustomEvaluate(Metric, list[Metric]):
         return custom_evaluate(
             self._candidates,
             self._mult_references,
-            self._use_ptb_tokenizer,
+            self._preprocess,
             self,
             cache_path=self._cache_path,
             java_path=self._java_path,
@@ -91,14 +91,14 @@ class AACEvaluate(CustomEvaluate):
 
     def __init__(
         self,
-        use_ptb_tokenizer: bool = True,
+        preprocess: bool = True,
         cache_path: str = "$HOME/aac-metrics-cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
         verbose: int = 0,
     ) -> None:
         super().__init__(
-            use_ptb_tokenizer,
+            preprocess,
             cache_path,
             java_path,
             tmp_path,
@@ -107,14 +107,14 @@ class AACEvaluate(CustomEvaluate):
         )
 
 
-def _get_classes_metrics_list(
+def _get_metrics_classes_list(
     metric_set_name: str,
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[Metric]:
-    metrics_factory = _get_classes_metrics_factory(
+    metrics_factory = _get_metrics_classes_factory(
         cache_path, java_path, tmp_path, verbose
     )
 
@@ -132,40 +132,40 @@ def _get_classes_metrics_list(
     return metrics
 
 
-def _get_classes_metrics_factory(
+def _get_metrics_classes_factory(
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> dict[str, Callable[[], Metric]]:
     return {
-        "bleu_1": CocoBLEU(
+        "bleu_1": lambda: CocoBLEU(
             return_all_scores=True,
             n=1,
         ),
-        "bleu_2": CocoBLEU(
+        "bleu_2": lambda: CocoBLEU(
             return_all_scores=True,
             n=2,
         ),
-        "bleu_3": CocoBLEU(
+        "bleu_3": lambda: CocoBLEU(
             return_all_scores=True,
             n=3,
         ),
-        "bleu_4": CocoBLEU(
+        "bleu_4": lambda: CocoBLEU(
             return_all_scores=True,
             n=4,
         ),
-        "meteor": CocoMETEOR(
+        "meteor": lambda: CocoMETEOR(
             return_all_scores=True,
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
         ),
-        "rouge_l": CocoRougeL(
+        "rouge_l": lambda: CocoRougeL(
             return_all_scores=True,
         ),
         # Note: cider_d and spice and computed inside spider metric
-        "spider": SPIDEr(
+        "spider": lambda: SPIDEr(
             return_all_scores=True,
             cache_path=cache_path,
             java_path=java_path,

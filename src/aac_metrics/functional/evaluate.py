@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from functools import partial
-from typing import Callable, Iterable, Union
+from typing import Any, Callable, Iterable, Union
 
 from torch import Tensor
 
@@ -42,7 +42,7 @@ METRICS_SETS = {
 def custom_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
-    use_ptb_tokenizer: bool = True,
+    preprocess: bool = True,
     metrics: Union[str, Iterable[Callable]] = "aac",
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
@@ -53,7 +53,7 @@ def custom_evaluate(
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
-    :param use_ptb_tokenizer: If True, the candidates and references wiill be passed as input to the PTB stanford tokenizer before computing metrics. defaults to True.
+    :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.defaults to True.
     :param metrics: The name of the metric list or the explicit list of metrics to compute. defaults to "aac".
     :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
     :param java_path: The path to the java executable. defaults to "java".
@@ -62,7 +62,7 @@ def custom_evaluate(
     :returns: A tuple of globals and locals scores.
     """
     if isinstance(metrics, str):
-        metrics = _get_functional_metrics_list(
+        metrics = _get_metrics_functions_list(
             metrics,
             cache_path=cache_path,
             java_path=java_path,
@@ -73,7 +73,7 @@ def custom_evaluate(
     global_outs = {}
     local_outs = {}
 
-    if use_ptb_tokenizer:
+    if preprocess:
         candidates = preprocess_mono_sents(
             candidates, cache_path, java_path, tmp_path, verbose
         )
@@ -92,7 +92,7 @@ def custom_evaluate(
 def aac_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
-    use_ptb_tokenizer: bool = True,
+    preprocess: bool = True,
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
@@ -102,7 +102,7 @@ def aac_evaluate(
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
-    :param use_ptb_tokenizer: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
+    :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
         defaults to True.
     :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
     :param java_path: The path to the java executable. defaults to "java".
@@ -113,7 +113,7 @@ def aac_evaluate(
     return custom_evaluate(
         candidates,
         mult_references,
-        use_ptb_tokenizer,
+        preprocess,
         metrics="aac",
         cache_path=cache_path,
         java_path=java_path,
@@ -122,20 +122,20 @@ def aac_evaluate(
     )
 
 
-def _get_functional_metrics_list(
+def _get_metrics_functions_list(
     metric_set_name: str,
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[Callable]:
-    metrics_factory = _get_functional_metrics_factory(
+    metrics_factory = _get_metrics_functions_factory(
         cache_path, java_path, tmp_path, verbose
     )
 
     if metric_set_name in METRICS_SETS:
         metrics = [
-            factory()
+            factory
             for metric_name, factory in metrics_factory.items()
             if metric_name in METRICS_SETS[metric_set_name]
         ]
@@ -147,12 +147,12 @@ def _get_functional_metrics_list(
     return metrics
 
 
-def _get_functional_metrics_factory(
+def _get_metrics_functions_factory(
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
-) -> dict[str, Callable]:
+) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
     return {
         "bleu_1": partial(
             coco_bleu,

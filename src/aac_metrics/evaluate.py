@@ -11,8 +11,9 @@ from typing import Iterable, Union
 
 import yaml
 
-from aac_metrics.functional.common import _check_input, _check_java_path
+from aac_metrics.functional.common import _check_input
 from aac_metrics.functional.evaluate import aac_evaluate
+from aac_metrics.utils.misc import _check_java_path
 
 
 logger = logging.getLogger(__name__)

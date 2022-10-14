@@ -3,9 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.1.2] UNRELEASED
+### Added
+- All candidates scores option `return_all_cands_scores` for SPIDEr-max.
+
 ### Changed
 - Update default value used for `return_all_scores` in cider and rouge functions.
-- Update metric factory with functions instead of classes to avoid cyclic dependency.
+- Update internal metric factory with functions instead of classes to avoid cyclic dependency.
+
+### Fixed
+- Fix SPIDEr-max local scores output shape.
 
 ## [0.1.1] 2022-09-30
 ### Added
