@@ -4,20 +4,29 @@
 from typing import Any
 
 
+def is_mono_sents(sents: Any) -> bool:
+    """Returns True if input is list[str]."""
+    return isinstance(sents, list) and all(isinstance(sent, str) for sent in sents)
+
+
+def is_mult_sents(mult_sents: Any) -> bool:
+    """Returns True if input is list[list[str]]."""
+    return (
+        isinstance(mult_sents, list)
+        and all(isinstance(sents, list) for sents in mult_sents)
+        and all(isinstance(sent, str) for sents in mult_sents for sent in sents)
+    )
+
+
 def _check_input(
     candidates: Any,
     mult_references: Any,
 ) -> None:
     """Returns True candidates and mult_references have a valid type and size."""
-    cands_is_list = isinstance(candidates, list)
-    cand_is_str = all(isinstance(cand, str) for cand in candidates)
-    if not all((cands_is_list, cand_is_str)):
+    if not is_mono_sents(candidates):
         raise ValueError("Invalid candidates type. (expected list[str])")
 
-    mrefs_is_list = isinstance(mult_references, list)
-    refs_is_list = all(isinstance(refs, list) for refs in mult_references)
-    ref_is_str = all(isinstance(ref, str) for refs in mult_references for ref in refs)
-    if not all((mrefs_is_list, refs_is_list, ref_is_str)):
+    if not is_mult_sents(mult_references):
         raise ValueError("Invalid mult_references type. (expected list[list[str]])")
 
     same_len = len(candidates) == len(mult_references)

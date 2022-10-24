@@ -8,12 +8,14 @@ import subprocess
 import tempfile
 import time
 
-from typing import Any, Hashable, Iterable, Optional
+from typing import Any, Hashable, Iterable, TypeVar, Optional
 
 from aac_metrics.utils.misc import _check_java_path
 
 
 logger = logging.getLogger(__name__)
+T = TypeVar("T")
+
 
 # Path to the stanford corenlp jar
 STANFORD_CORENLP_3_4_1_JAR = osp.join("stanford_nlp", "stanford-corenlp-3.4.1.jar")
@@ -203,20 +205,30 @@ def preprocess_mult_sents(
     """
 
     # Flat list
-    flatten_sents = [sent for sents in mult_sentences for sent in sents]
-    n_sents_per_item = [len(sents) for sents in mult_sentences]
-
-    # Process
+    flatten_sents, sizes = flat_list(mult_sentences)
     flatten_sents = preprocess_mono_sents(
-        flatten_sents, cache_path, java_path, tmp_path, verbose
+        flatten_sents,
+        cache_path,
+        java_path,
+        tmp_path,
+        verbose,
     )
+    mult_sentences = unflat_list(flatten_sents, sizes)
+    return mult_sentences
 
-    # Unflat list in the same order
-    mult_sentences = []
+
+def flat_list(lst: list[list[T]]) -> tuple[list[T], list[int]]:
+    flatten_lst = [element for sublst in lst for element in sublst]
+    sizes = [len(sents) for sents in lst]
+    return flatten_lst, sizes
+
+
+def unflat_list(flatten_lst: list[T], sizes: list[int]) -> list[list[T]]:
+    lst = []
     start = 0
     stop = 0
-    for count in n_sents_per_item:
+    for count in sizes:
         stop += count
-        mult_sentences.append(flatten_sents[start:stop])
+        lst.append(flatten_lst[start:stop])
         start = stop
-    return mult_sentences
+    return lst
