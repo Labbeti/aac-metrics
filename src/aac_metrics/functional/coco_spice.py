@@ -104,7 +104,7 @@ def coco_spice(
     )
     out_file.close()
 
-    if verbose >= 2:
+    if verbose >= 3:
         stdout = None
         stderr = None
     else:

@@ -176,11 +176,13 @@ Most of these functions can specify a java executable path with `java_path` argu
 
 ## Additional notes
 ### CIDEr or CIDEr-D ?
-The CIDEr [4] metric differs from CIDEr-D because it apply a stemmer to each words before computing the n-grams of the sentences. In AAC, only the CIDEr-D is reported and used for SPIDEr, but some papers called it "CIDEr".
+The CIDEr [4] metric differs from CIDEr-D because it applies a stemmer to each word before computing the n-grams of the sentences. In AAC, only the CIDEr-D is reported and used for SPIDEr, but some papers called it "CIDEr".
 
 ### Is torchmetrics needed for this package ?
 No. But if torchmetrics is installed, all metrics classes will inherit from the base class `torchmetrics.Metric`.
 It is because most of the metrics does not use PyTorch tensors to compute scores and numpy and strings cannot be added to states of `torchmetrics.Metric`.
+
+***Additional note*** : even when torchmetrics is installed, this package does not support multiple-gpu testing.
 
 ## References
 #### BLEU
