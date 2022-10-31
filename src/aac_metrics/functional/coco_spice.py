@@ -154,7 +154,7 @@ def coco_spice(
     spice_scores = []
     for item in results:
         imgId_to_scores[item["image_id"]] = item["scores"]
-        spice_scores.append(_float_convert(item["scores"]["All"]["f"]))
+        spice_scores.append(__float_convert(item["scores"]["All"]["f"]))
 
     spice_scores = np.array(spice_scores)
     # Note: use numpy to compute mean because np.mean and torch.mean can give very small differences
@@ -176,7 +176,7 @@ def coco_spice(
         return spice_score
 
 
-def _float_convert(obj: Any) -> float:
+def __float_convert(obj: Any) -> float:
     try:
         return float(obj)
     except (ValueError, TypeError):

@@ -5,12 +5,12 @@ from typing import Callable, Union
 
 from torch import Tensor
 
+from aac_metrics.classes.base import Metric
 from aac_metrics.functional.coco_bleu import (
     BLEU_COCO_OPTIONS,
     _coco_bleu_compute,
     _coco_bleu_update,
 )
-from aac_metrics.classes.base import Metric
 
 
 class CocoBLEU(Metric):

@@ -62,7 +62,7 @@ def _coco_rouge_l_update(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
     new_rouge_l_scores = [
-        _calc_score(cand, refs, beta, tokenizer)
+        __calc_score(cand, refs, beta, tokenizer)
         for cand, refs in zip(candidates, mult_references)
     ]
     prev_rouge_l_scores += new_rouge_l_scores
@@ -92,7 +92,7 @@ def _coco_rouge_l_compute(
         return rouge_l_score_pt
 
 
-def _calc_score(
+def __calc_score(
     candidate: str,
     references: list[str],
     beta: float,
@@ -118,7 +118,7 @@ def _calc_score(
         # split into tokens
         token_r = tokenizer(reference)
         # compute the longest common subsequence
-        lcs = _my_lcs(token_r, token_c)
+        lcs = __my_lcs(token_r, token_c)
         prec.append(lcs / float(len(token_c)))
         rec.append(lcs / float(len(token_r)))
 
@@ -134,7 +134,7 @@ def _calc_score(
     return score
 
 
-def _my_lcs(string: list[str], sub: list[str]) -> int:
+def __my_lcs(string: list[str], sub: list[str]) -> int:
     """
     Calculates longest common subsequence for a pair of tokenized strings
     :param string : list of str : tokens from a string split using whitespace

@@ -41,7 +41,7 @@ PTB_PUNCTUATIONS = (
 )
 
 
-def _ptb_tokenize(
+def ptb_tokenize_batch(
     sentences: Iterable[str],
     audio_ids: Optional[Iterable[Hashable]] = None,
     cache_path: str = "$HOME/aac-metrics-cache",
@@ -183,7 +183,9 @@ def preprocess_mono_sents(
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :returns: The sentences processed by the tokenizer.
     """
-    tok_sents = _ptb_tokenize(sentences, None, cache_path, java_path, tmp_path, verbose)
+    tok_sents = ptb_tokenize_batch(
+        sentences, None, cache_path, java_path, tmp_path, verbose
+    )
     sentences = [" ".join(sent) for sent in tok_sents]
     return sentences
 

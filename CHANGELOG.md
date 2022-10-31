@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.2] UNRELEASED
+## [0.1.2] 2022-10-31
 ### Added
 - All candidates scores option `return_all_cands_scores` for SPIDEr-max.
 - Functions `is_mono_sents` and `is_mult_sents` to detect `list[str]` sentences and `list[list[str]]` multiples sentences.

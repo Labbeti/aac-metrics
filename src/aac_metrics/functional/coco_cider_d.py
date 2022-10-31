@@ -66,9 +66,9 @@ def _coco_cider_d_update(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
     new_cooked_mrefs = [
-        [_cook_sentence(ref, n, tokenizer) for ref in refs] for refs in mult_references
+        [__cook_sentence(ref, n, tokenizer) for ref in refs] for refs in mult_references
     ]
-    new_cooked_cands = [_cook_sentence(cand, n, tokenizer) for cand in candidates]
+    new_cooked_cands = [__cook_sentence(cand, n, tokenizer) for cand in candidates]
     prev_cooked_cands += new_cooked_cands
     prev_cooked_mrefs += new_cooked_mrefs
     return prev_cooked_cands, prev_cooked_mrefs
@@ -87,13 +87,13 @@ def _coco_cider_d_compute(
             f"CIDEr metric does not support less than 2 candidates with 2 references. (found {len(cooked_cands)} candidates, but expected > 1)"
         )
     # compute idf
-    document_frequency = _compute_doc_freq(cooked_mrefs)
+    document_frequency = __compute_doc_freq(cooked_mrefs)
     # compute log reference length
     log_ref_len = np.log(float(len(cooked_mrefs)))
     # sanity check: assert to check document frequency
     assert len(cooked_cands) >= max(document_frequency.values())
     # compute cider score
-    cider_d_scores, tfidf_lst = _compute_cider(
+    cider_d_scores, tfidf_lst = __compute_cider(
         cooked_cands,
         cooked_mrefs,
         document_frequency,
@@ -121,7 +121,7 @@ def _coco_cider_d_compute(
         return cider_d_score
 
 
-def _cook_sentence(
+def __cook_sentence(
     sentence: str,
     n: int,
     tokenizer: Callable[[str], list[str]],
@@ -143,7 +143,7 @@ def _cook_sentence(
     return counter
 
 
-def _compute_doc_freq(cooked_mrefs: list[list[Counter]]) -> Counter[tuple[str, ...]]:
+def __compute_doc_freq(cooked_mrefs: list[list[Counter]]) -> Counter[tuple[str, ...]]:
     """
     Compute term frequency for reference data.
     This will be used to compute idf (inverse document frequency later)
@@ -159,7 +159,7 @@ def _compute_doc_freq(cooked_mrefs: list[list[Counter]]) -> Counter[tuple[str, .
     return document_frequency
 
 
-def _counter_to_vec(
+def __counter_to_vec(
     counters: dict[tuple, int],
     log_ref_len: float,
     n: int,
@@ -196,7 +196,7 @@ def _counter_to_vec(
     return vec, norm, length
 
 
-def _similarity(
+def __similarity(
     cand_vec: list[defaultdict],
     ref_vec: list[defaultdict],
     cand_norm: np.ndarray,
@@ -235,7 +235,7 @@ def _similarity(
     return val
 
 
-def _compute_cider(
+def __compute_cider(
     cooked_cands: list,
     cooked_mrefs: list,
     document_frequency: Counter,
@@ -243,23 +243,23 @@ def _compute_cider(
     n: int,
     sigma: float,
     scale: float = 10.0,
-) -> tuple[np.ndarray, list[tuple]]:
+) -> tuple[np.ndarray, list[tuple[list, list]]]:
 
     scores = np.empty((len(cooked_cands),))
     tfidf_lst = []
 
     for i, (test, refs) in enumerate(zip(cooked_cands, cooked_mrefs)):
         # compute vector for test captions
-        vec, norm, length = _counter_to_vec(test, log_ref_len, n, document_frequency)
+        vec, norm, length = __counter_to_vec(test, log_ref_len, n, document_frequency)
         # compute vector for ref captions
         ngrams_scores = np.zeros((n,))
         vec_refs = []
         for ref in refs:
-            vec_ref, norm_ref, length_ref = _counter_to_vec(
+            vec_ref, norm_ref, length_ref = __counter_to_vec(
                 ref, log_ref_len, n, document_frequency
             )
             vec_refs.append(vec_ref)
-            ngrams_scores += _similarity(
+            ngrams_scores += __similarity(
                 vec, vec_ref, norm, norm_ref, length, length_ref, n, sigma
             )
         # change by vrama91 - mean of ngram scores, instead of sum
