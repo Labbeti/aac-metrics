@@ -21,7 +21,7 @@ import torch
 
 from torch import Tensor
 
-from aac_metrics.functional.common import _check_java_path
+from aac_metrics.utils.misc import _check_java_path
 
 
 logger = logging.getLogger(__name__)
@@ -74,7 +74,7 @@ def coco_meteor(
 
     if not _check_java_path(java_path):
         raise ValueError(
-            f"Cannot find java executable with {java_path=} for compute meteor metric score."
+            f"Cannot find java executable with {java_path=} for compute METEOR metric score."
         )
     if not osp.isfile(meteor_jar_fpath):
         raise FileNotFoundError(

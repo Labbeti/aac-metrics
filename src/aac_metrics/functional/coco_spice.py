@@ -17,7 +17,7 @@ import torch
 
 from torch import Tensor
 
-from aac_metrics.functional.common import _check_java_path
+from aac_metrics.utils.misc import _check_java_path
 
 
 logger = logging.getLogger(__name__)
@@ -104,7 +104,7 @@ def coco_spice(
     )
     out_file.close()
 
-    if verbose >= 2:
+    if verbose >= 3:
         stdout = None
         stderr = None
     else:
@@ -154,7 +154,7 @@ def coco_spice(
     spice_scores = []
     for item in results:
         imgId_to_scores[item["image_id"]] = item["scores"]
-        spice_scores.append(_float_convert(item["scores"]["All"]["f"]))
+        spice_scores.append(__float_convert(item["scores"]["All"]["f"]))
 
     spice_scores = np.array(spice_scores)
     # Note: use numpy to compute mean because np.mean and torch.mean can give very small differences
@@ -176,7 +176,7 @@ def coco_spice(
         return spice_score
 
 
-def _float_convert(obj: Any) -> float:
+def __float_convert(obj: Any) -> float:
     try:
         return float(obj)
     except (ValueError, TypeError):

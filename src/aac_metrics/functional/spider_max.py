@@ -3,6 +3,8 @@
 
 from typing import Callable, Optional, Union
 
+import torch
+
 from torch import Tensor
 
 from aac_metrics.functional.mult_cands import mult_cands_metric
@@ -13,6 +15,7 @@ def spider_max(
     mult_candidates: list[list[str]],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    return_all_cands_scores: bool = False,
     # CIDEr args
     n: int = 4,
     sigma: float = 6.0,
@@ -28,7 +31,7 @@ def spider_max(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """SPIDEr-max function.
 
-    Paper: Not published yet.
+    Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
 
     Compute the maximal SPIDEr score accross multiple candidates.
 
@@ -37,6 +40,8 @@ def spider_max(
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
+    :param return_all_cands_scores: If True, returns all multiple candidates scores in local_scores outputs as tensor of shape (n_audoi, n_cands_per_audio).
+        defaults to False.
     :param n: Maximal number of n-grams taken into account. defaults to 4.
     :param sigma: Standard deviation parameter used for gaussian penalty. defaults to 6.0.
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
@@ -52,14 +57,15 @@ def spider_max(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    # TODO : update doc when paper will be published.
     return mult_cands_metric(
         spider,
         "spider",
         mult_candidates,
         mult_references,
         return_all_scores,
+        return_all_cands_scores,
         "max",
+        torch.mean,
         # CIDEr args
         n=n,
         sigma=sigma,

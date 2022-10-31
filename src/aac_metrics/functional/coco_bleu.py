@@ -131,7 +131,7 @@ def _coco_bleu_compute(
         return score_n
 
 
-def __cook_sent(
+def __cook_sentence(
     s: str,
     n: int = 4,
     tokenizer: Callable[[str], list[str]] = str.split,
@@ -161,7 +161,7 @@ def __cook_references(
     reflen = []
     maxcounts = {}
     for ref in refs:
-        rl, counts = __cook_sent(ref, n, tokenizer)
+        rl, counts = __cook_sentence(ref, n, tokenizer)
         reflen.append(rl)
         for (ngram, count) in counts.items():
             maxcounts[ngram] = max(maxcounts.get(ngram, 0), count)
@@ -187,7 +187,7 @@ def __cook_candidate(
     """Takes a test sentence and returns an object that
     encapsulates everything that BLEU needs to know about it."""
 
-    testlen, counts = __cook_sent(test, n, tokenizer)
+    testlen, counts = __cook_sentence(test, n, tokenizer)
     reflen, refmaxcounts = reflen_refmaxcounts  # Replaces the tuple unpacking
 
     result = {}

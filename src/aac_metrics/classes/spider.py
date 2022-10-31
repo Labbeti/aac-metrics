@@ -62,8 +62,10 @@ class SPIDEr(Metric):
             self._candidates,
             self._mult_references,
             self._return_all_scores,
+            # CIDEr args
             n=self._n,
             sigma=self._sigma,
+            # SPICE args
             cache_path=self._cache_path,
             java_path=self._java_path,
             tmp_path=self._tmp_path,

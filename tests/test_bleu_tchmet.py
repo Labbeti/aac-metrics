@@ -9,6 +9,7 @@ try:
     from torchmetrics.text.bleu import BLEUScore
 
     TORCHMETRICS_IS_INSTALLED = True
+
 except ModuleNotFoundError:
     TORCHMETRICS_IS_INSTALLED = False
 
@@ -32,15 +33,12 @@ class TestBleu(TestCase):
         ]
 
         n = 2
-        tokenizer = str.split
-        tok_cands = list(map(tokenizer, cands))
-        tok_mrefs = [list(map(tokenizer, refs)) for refs in mrefs]
 
         bleu_v1 = CocoBLEU(n=n, return_all_scores=False)
         score_v1 = bleu_v1(cands, mrefs)
 
         bleu_v2 = BLEUScore(n_gram=n, smooth=False)
-        score_v2 = bleu_v2(tok_mrefs, tok_cands)
+        score_v2 = bleu_v2(cands, mrefs)
 
         self.assertAlmostEqual(score_v1.item(), score_v2.item())
 

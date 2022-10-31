@@ -6,12 +6,12 @@ import unittest
 
 from unittest import TestCase
 
-from aac_metrics.functional.evaluate import _get_metrics_list
+from aac_metrics.classes.evaluate import _get_metrics_classes_list
 
 
 class TestCompare(TestCase):
     def test_pickle_dump(self) -> None:
-        metrics = _get_metrics_list("all")
+        metrics = _get_metrics_classes_list("all")
 
         for metric in metrics:
             try:

@@ -8,10 +8,14 @@ import subprocess
 import tempfile
 import time
 
-from typing import Any, Hashable, Iterable, Optional
+from typing import Any, Hashable, Iterable, TypeVar, Optional
+
+from aac_metrics.utils.misc import _check_java_path
 
 
 logger = logging.getLogger(__name__)
+T = TypeVar("T")
+
 
 # Path to the stanford corenlp jar
 STANFORD_CORENLP_3_4_1_JAR = osp.join("stanford_nlp", "stanford-corenlp-3.4.1.jar")
@@ -37,7 +41,7 @@ PTB_PUNCTUATIONS = (
 )
 
 
-def _ptb_tokenize(
+def ptb_tokenize_batch(
     sentences: Iterable[str],
     audio_ids: Optional[Iterable[Hashable]] = None,
     cache_path: str = "$HOME/aac-metrics-cache",
@@ -74,6 +78,10 @@ def _ptb_tokenize(
     if not osp.isfile(stanford_fpath):
         raise FileNotFoundError(
             f"Cannot find jar file {STANFORD_CORENLP_3_4_1_JAR} in {cache_path=}. Maybe run 'aac-metrics-download' before or specify a 'cache_path' directory."
+        )
+    if not _check_java_path(java_path):
+        raise ValueError(
+            f"Cannot find java executable with {java_path=} to tokenize sentences."
         )
 
     start_time = time.perf_counter()
@@ -126,7 +134,7 @@ def _ptb_tokenize(
         cmd,
         cwd=tmp_path,
         stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL if verbose < 2 else None,
+        stderr=subprocess.DEVNULL if verbose <= 2 else None,
     )
     token_lines = p_tokenizer.communicate(input=sentences.rstrip().encode())[0]
     token_lines = token_lines.decode()
@@ -175,7 +183,9 @@ def preprocess_mono_sents(
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :returns: The sentences processed by the tokenizer.
     """
-    tok_sents = _ptb_tokenize(sentences, None, cache_path, java_path, tmp_path, verbose)
+    tok_sents = ptb_tokenize_batch(
+        sentences, None, cache_path, java_path, tmp_path, verbose
+    )
     sentences = [" ".join(sent) for sent in tok_sents]
     return sentences
 
@@ -197,20 +207,30 @@ def preprocess_mult_sents(
     """
 
     # Flat list
-    flatten_sents = [sent for sents in mult_sentences for sent in sents]
-    n_sents_per_item = [len(sents) for sents in mult_sentences]
-
-    # Process
+    flatten_sents, sizes = flat_list(mult_sentences)
     flatten_sents = preprocess_mono_sents(
-        flatten_sents, cache_path, java_path, tmp_path, verbose
+        flatten_sents,
+        cache_path,
+        java_path,
+        tmp_path,
+        verbose,
     )
+    mult_sentences = unflat_list(flatten_sents, sizes)
+    return mult_sentences
 
-    # Unflat list in the same order
-    mult_sentences = []
+
+def flat_list(lst: list[list[T]]) -> tuple[list[T], list[int]]:
+    flatten_lst = [element for sublst in lst for element in sublst]
+    sizes = [len(sents) for sents in lst]
+    return flatten_lst, sizes
+
+
+def unflat_list(flatten_lst: list[T], sizes: list[int]) -> list[list[T]]:
+    lst = []
     start = 0
     stop = 0
-    for count in n_sents_per_item:
+    for count in sizes:
         stop += count
-        mult_sentences.append(flatten_sents[start:stop])
+        lst.append(flatten_lst[start:stop])
         start = stop
-    return mult_sentences
+    return lst

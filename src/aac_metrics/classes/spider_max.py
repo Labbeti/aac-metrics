@@ -17,12 +17,10 @@ logger = logging.getLogger(__name__)
 class SPIDErMax(Metric):
     """SPIDEr-max class.
 
-    Paper: Not published yet.
+    Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
 
     For more information, see :func:`~aac_metrics.functional.spider.spider`.
     """
-
-    # TODO : update doc when paper will be published.
 
     full_state_update = False
     higher_is_better = True
@@ -34,6 +32,7 @@ class SPIDErMax(Metric):
     def __init__(
         self,
         return_all_scores: bool = True,
+        return_all_cands_scores: bool = False,
         # CIDEr args
         n: int = 4,
         sigma: float = 6.0,
@@ -47,6 +46,7 @@ class SPIDErMax(Metric):
     ) -> None:
         super().__init__()
         self._return_all_scores = return_all_scores
+        self._return_all_cands_scores = return_all_cands_scores
         self._n = n
         self._sigma = sigma
         self._cache_path = cache_path
@@ -64,6 +64,7 @@ class SPIDErMax(Metric):
             self._mult_candidates,
             self._mult_references,
             self._return_all_scores,
+            self._return_all_cands_scores,
             n=self._n,
             sigma=self._sigma,
             cache_path=self._cache_path,

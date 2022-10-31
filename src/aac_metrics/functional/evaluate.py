@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Iterable, Union
+from functools import partial
+from typing import Any, Callable, Iterable, Union
 
 from torch import Tensor
 
-from aac_metrics.classes.base import Metric
-from aac_metrics.classes.coco_bleu import CocoBLEU
-from aac_metrics.classes.coco_meteor import CocoMETEOR
-from aac_metrics.classes.coco_rouge_l import CocoRougeL
-from aac_metrics.classes.spider import SPIDEr
+from aac_metrics.functional.coco_bleu import coco_bleu
+from aac_metrics.functional.coco_meteor import coco_meteor
+from aac_metrics.functional.coco_rouge_l import coco_rouge_l
+from aac_metrics.functional.spider import spider
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
 
@@ -42,8 +42,8 @@ METRICS_SETS = {
 def custom_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
-    use_ptb_tokenizer: bool = True,
-    metrics: Union[str, Iterable[Metric]] = "aac",
+    preprocess: bool = True,
+    metrics: Union[str, Iterable[Callable]] = "aac",
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
@@ -53,7 +53,7 @@ def custom_evaluate(
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
-    :param use_ptb_tokenizer: If True, the candidates and references wiill be passed as input to the PTB stanford tokenizer before computing metrics. defaults to True.
+    :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.defaults to True.
     :param metrics: The name of the metric list or the explicit list of metrics to compute. defaults to "aac".
     :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
     :param java_path: The path to the java executable. defaults to "java".
@@ -62,7 +62,7 @@ def custom_evaluate(
     :returns: A tuple of globals and locals scores.
     """
     if isinstance(metrics, str):
-        metrics = _get_metrics_list(
+        metrics = _get_metrics_functions_list(
             metrics,
             cache_path=cache_path,
             java_path=java_path,
@@ -73,7 +73,7 @@ def custom_evaluate(
     global_outs = {}
     local_outs = {}
 
-    if use_ptb_tokenizer:
+    if preprocess:
         candidates = preprocess_mono_sents(
             candidates, cache_path, java_path, tmp_path, verbose
         )
@@ -92,7 +92,7 @@ def custom_evaluate(
 def aac_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
-    use_ptb_tokenizer: bool = True,
+    preprocess: bool = True,
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
@@ -102,7 +102,7 @@ def aac_evaluate(
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
-    :param use_ptb_tokenizer: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
+    :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
         defaults to True.
     :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
     :param java_path: The path to the java executable. defaults to "java".
@@ -113,7 +113,7 @@ def aac_evaluate(
     return custom_evaluate(
         candidates,
         mult_references,
-        use_ptb_tokenizer,
+        preprocess,
         metrics="aac",
         cache_path=cache_path,
         java_path=java_path,
@@ -122,18 +122,20 @@ def aac_evaluate(
     )
 
 
-def _get_metrics_list(
+def _get_metrics_functions_list(
     metric_set_name: str,
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
-) -> list[Metric]:
-    metrics_factory = _get_metrics_factory(cache_path, java_path, tmp_path, verbose)
+) -> list[Callable]:
+    metrics_factory = _get_metrics_functions_factory(
+        cache_path, java_path, tmp_path, verbose
+    )
 
     if metric_set_name in METRICS_SETS:
         metrics = [
-            factory()
+            factory
             for metric_name, factory in metrics_factory.items()
             if metric_name in METRICS_SETS[metric_set_name]
         ]
@@ -145,28 +147,47 @@ def _get_metrics_list(
     return metrics
 
 
-def _get_metrics_factory(
+def _get_metrics_functions_factory(
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
-) -> dict[str, Callable[[], Metric]]:
+) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
     return {
-        "bleu_1": lambda: CocoBLEU(True, 1),
-        "bleu_2": lambda: CocoBLEU(True, 2),
-        "bleu_3": lambda: CocoBLEU(True, 3),
-        "bleu_4": lambda: CocoBLEU(True, 4),
-        "meteor": lambda: CocoMETEOR(
+        "bleu_1": partial(
+            coco_bleu,
+            return_all_scores=True,
+            n=1,
+        ),
+        "bleu_2": partial(
+            coco_bleu,
+            return_all_scores=True,
+            n=2,
+        ),
+        "bleu_3": partial(
+            coco_bleu,
+            return_all_scores=True,
+            n=3,
+        ),
+        "bleu_4": partial(
+            coco_bleu,
+            return_all_scores=True,
+            n=4,
+        ),
+        "meteor": partial(
+            coco_meteor,
             return_all_scores=True,
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
         ),
-        "rouge_l": lambda: CocoRougeL(
+        "rouge_l": partial(
+            coco_rouge_l,
             return_all_scores=True,
         ),
         # Note: cider_d and spice and computed inside spider metric
-        "spider": lambda: SPIDEr(
+        "spider": partial(
+            spider,
             return_all_scores=True,
             cache_path=cache_path,
             java_path=java_path,
