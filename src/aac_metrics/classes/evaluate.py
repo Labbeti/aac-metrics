@@ -11,6 +11,7 @@ from aac_metrics.classes.base import Metric
 from aac_metrics.classes.coco_bleu import CocoBLEU
 from aac_metrics.classes.coco_meteor import CocoMETEOR
 from aac_metrics.classes.coco_rouge_l import CocoRougeL
+from aac_metrics.classes.fense import FENSE
 from aac_metrics.classes.spider import SPIDEr
 from aac_metrics.functional.evaluate import METRICS_SETS, custom_evaluate
 
@@ -170,6 +171,10 @@ def _get_metrics_classes_factory(
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
+            verbose=verbose,
+        ),
+        "fense": lambda: FENSE(
+            return_all_scores=True,
             verbose=verbose,
         ),
     }

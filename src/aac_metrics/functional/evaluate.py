@@ -9,6 +9,7 @@ from torch import Tensor
 from aac_metrics.functional.coco_bleu import coco_bleu
 from aac_metrics.functional.coco_meteor import coco_meteor
 from aac_metrics.functional.coco_rouge_l import coco_rouge_l
+from aac_metrics.functional.fense import fense
 from aac_metrics.functional.spider import spider
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
@@ -35,6 +36,7 @@ METRICS_SETS = {
         "cider_d",
         "spice",
         "spider",
+        "fense",
     ),
 }
 
@@ -192,6 +194,11 @@ def _get_metrics_functions_factory(
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
+            verbose=verbose,
+        ),
+        "fense": partial(
+            fense,
+            return_all_scores=True,
             verbose=verbose,
         ),
     }

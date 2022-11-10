@@ -52,7 +52,7 @@ def fense(
     error_threshold: float = 0.9,
     penalty: float = 0.9,
     agg_score: str = "mean",
-    device: Union[torch.device, str, None] = "cuda",
+    device: Union[torch.device, str, None] = "cpu",
     batch_size: int = 32,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
@@ -159,7 +159,7 @@ def fense(
             error_rates = torch.from_numpy(has_error)
             error_rate = error_rates.mean()
             global_scores["fense_error_rate"] = error_rate
-            global_scores["fense_error_rate"] = error_rates
+            local_scores["fense_error_rate"] = error_rates
 
         return global_scores, local_scores
     else:

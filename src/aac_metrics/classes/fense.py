@@ -42,7 +42,7 @@ class FENSE(Metric):
         error_threshold: float = 0.9,
         penalty: float = 0.9,
         agg_score: str = "mean",
-        device: Union[torch.device, str, None] = "cuda",
+        device: Union[torch.device, str, None] = "cpu",
         batch_size: int = 32,
         verbose: int = 0,
     ) -> None:
