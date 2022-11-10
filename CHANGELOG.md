@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] UNRELEASED
+### Added
+- `FENSE` metric class, function and unittest with original source code `fense`.
+
 ## [0.1.2] 2022-10-31
 ### Added
 - All candidates scores option `return_all_cands_scores` for SPIDEr-max.

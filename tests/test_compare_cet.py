@@ -14,7 +14,7 @@ from unittest import TestCase
 from aac_metrics.evaluate import aac_evaluate, load_csv_file
 
 
-class TestCompare(TestCase):
+class TestCompareCaptionEvaluationTools(TestCase):
     # Note: "cet" is here an acronym for "caption evaluation tools"
 
     def __init__(self, methodName: str = ...) -> None:

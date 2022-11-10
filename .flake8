@@ -19,6 +19,8 @@ exclude =
     .ipynb_checkpoints,
     # Ignore submodule caption-evaluation-tools
     tests/caption-evaluation-tools
+    # Ignore submodule fense
+    tests/caption-evaluation-tools
 per-file-ignores =
     # imported but unused
     __init__.py: F401
