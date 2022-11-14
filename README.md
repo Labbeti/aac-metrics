@@ -13,14 +13,14 @@ Audio Captioning metrics source code, designed for Pytorch.
 
 </div>
 
-This package is a tool to evaluate sentences produced by automatic models to caption image or audio.
+This package is a tool to evaluate sentences produced by automated captioning systems.
 The results of BLEU [[1]](#bleu), ROUGE-L [[2]](#rouge-l), METEOR [[3]](#meteor), CIDEr-D [[4]](#cider), SPICE [[5]](#spice) and SPIDEr [[6]](#spider) are consistents with [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools).
 
 ## Why using this package?
 - Easy installation with pip
 - Consistent with [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools)
 - Provides functions and classes to compute metrics separately
-- Provides SPIDEr-max metric as described in the DCASE paper [[7]](#spider-max)
+- Provides SPIDEr-max [[7]](#spider-max) and FENSE [[8]](#fense) metrics
 
 ## Installation
 Install the pip package:
@@ -50,6 +50,7 @@ Note: The external code for SPICE, METEOR and PTBTokenizer is stored in the cach
 | Metric name | Python Class | Origin | Range | Short description |
 |:---|:---|:---|:---|:---|
 | SPIDEr-max [[7]](#spider-max) | `SPIDErMax` | audio captioning | [0, 5.5] | Max of SPIDEr scores for multiples candidates |
+| FENSE [[8]](#fense) | `FENSE` | audio captioning | [0, 1.0] | Cosine-similarity of Sentence-BERT embeddings combined with fluency error detector |
 
 ## Usage
 ### Evaluate AAC metrics
@@ -100,7 +101,7 @@ Here is few examples of candidates and references for 2 differents audios, with 
 | Candidates | SPIDEr |
 |:---|:---:|
 | heavy rain is falling on a roof | 0.562 |
-| heavy rain is falling on a **tin** roof | **0.930** |
+| heavy rain is falling on **a tin roof** | **0.930** |
 | a heavy rain is falling on a roof | 0.594 |
 | a heavy rain is falling on the ground | 0.335 |
 | a heavy rain is falling on the roof | 0.594 |
@@ -109,16 +110,16 @@ Here is few examples of candidates and references for 2 differents audios, with 
 |:---|
 | heavy rain falls loudly onto a structure with a thin roof |
 | heavy rainfall falling onto a thin structure with a thin roof |
-| it is raining hard and the rain hits a tin roof |
+| it is raining hard and the rain hits **a tin roof** |
 | rain that is pouring down very hard outside |
-| the hard rain is noisy as it hits a tin roof |
+| the hard rain is noisy as it hits **a tin roof** |
 
 (References for the Clotho development-testing file named "rain.wav")
 
 | Candidates | SPIDEr |
 |:---|:---:|
 | a woman speaks and a sheep bleats | 0.190 |
-| a woman speaks and a **goat** bleats | **1.259** |
+| a woman **speaks and a goat bleats** | **1.259** |
 | a man speaks and a sheep bleats | 0.344 |
 | an adult male speaks and a sheep bleats | 0.231 |
 | an adult male is speaking and a sheep bleats | 0.189 |
@@ -128,7 +129,7 @@ Here is few examples of candidates and references for 2 differents audios, with 
 | a man speaking and laughing followed by a goat bleat |
 | a man is speaking in high tone while a goat is bleating one time |
 | a man speaks followed by a goat bleat |
-| a person speaks and a goat bleats |
+| a person **speaks and a goat bleats** |
 | a man is talking and snickering followed by a goat bleating |
 
 (References for an AudioCaps testing file (id: "jid4t-FzUn0"))
@@ -224,6 +225,9 @@ arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 
 #### SPIDEr-max
 [7] E. Labbé, T. Pellegrini, and J. Pinquier, “Is my automatic audio captioning system so bad? spider-max: a metric to consider several caption candidates,” Nov. 2022. [Online]. Available: https://hal.archives-ouvertes.fr/hal-03810396
+
+#### FENSE
+[8] Z. Zhou, Z. Zhang, X. Xu, Z. Xie, M. Wu, and K. Q. Zhu, Can Audio Captions Be Evaluated with Image Caption Metrics? arXiv, 2022. [Online]. Available: http://arxiv.org/abs/2110.04684 
 
 ## Cite the aac-metrics package
 If you use this code with SPIDEr-max, you can cite the following paper:
