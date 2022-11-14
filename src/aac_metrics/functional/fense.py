@@ -20,8 +20,8 @@ from transformers.models.auto.tokenization_auto import AutoTokenizer
 from aac_metrics.functional._fense_utils import (
     BERTFlatClassifier,
     RemoteFileMetadata,
-    _check_download_resource,
-    _infer_preprocess,
+    check_download_resource,
+    infer_preprocess,
 )
 
 
@@ -136,23 +136,33 @@ def fense(
 
     # Aggregate and return
     if agg_score == "mean":
-        fense_score = fense_scores.mean()
+        reduction = np.mean
     elif agg_score == "max":
-        fense_score = fense_scores.max()
+        reduction = np.max
     elif agg_score == "sum":
-        fense_score = fense_scores.sum()
+        reduction = np.sum
     else:
-        raise ValueError(f"Invalid argument {agg_score=}.")
+        AGG_SCORES = ("mean", "max", "sum")
+        raise ValueError(
+            f"Invalid argument {agg_score=}. (expected one of {AGG_SCORES})"
+        )
 
+    sim_score = reduction(sim_scores)
+    fense_score = reduction(fense_scores)
+
+    sim_score = torch.as_tensor(sim_score)
     fense_score = torch.as_tensor(fense_score)
+    sim_scores = torch.from_numpy(sim_scores)
     fense_scores = torch.from_numpy(fense_scores)
 
     if return_all_scores:
         global_scores = {
-            "fense_score": fense_score,
+            "fense": fense_score,
+            "fense_sim": sim_score,
         }
         local_scores = {
-            "fense_score": fense_scores,
+            "fense": fense_scores,
+            "fense_sim": sim_scores,
         }
 
         if has_error is not None:
@@ -177,7 +187,7 @@ def _load_pretrain_echecker(
     remote = RemoteFileMetadata(
         filename=f"{echecker_model}.ckpt", url=url, checksum=checksum
     )
-    file_path = _check_download_resource(remote, use_proxy, proxies)
+    file_path = check_download_resource(remote, use_proxy, proxies)
     model_states = torch.load(file_path)
     echecker = BERTFlatClassifier(
         model_type=model_states["model_type"],
@@ -211,10 +221,11 @@ def _detect_error_sents(
     error_threshold: float,
     batch_size: int,
     device: Union[torch.device, str, None],
+    max_len: int = 64,
 ) -> tuple[np.ndarray, np.ndarray]:
 
     if len(sents) <= batch_size:
-        batch = _infer_preprocess(echecker_tokenizer, sents, max_len=64)
+        batch = infer_preprocess(echecker_tokenizer, sents, max_len=max_len)  # type: ignore
         for k, v in batch.items():
             batch[k] = v.to(device)
 
@@ -224,8 +235,10 @@ def _detect_error_sents(
     else:
         probs = []
         for i in range(0, len(sents), batch_size):
-            batch = _infer_preprocess(
-                echecker_tokenizer, sents[i : i + batch_size], max_len=64
+            batch = infer_preprocess(
+                echecker_tokenizer,  # type: ignore
+                sents[i : i + batch_size],
+                max_len=max_len,
             )
             for k, v in batch.items():
                 batch[k] = v.to(device)

@@ -12,6 +12,8 @@ from subprocess import CalledProcessError
 
 from torch.hub import download_url_to_file
 
+from aac_metrics.classes.fense import FENSE
+
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +113,10 @@ def download(
         )
     except (CalledProcessError, PermissionError) as err:
         logger.error(err)
+
+    if verbose >= 1:
+        logger.info("Downloading sBert and Bert error detector for FENSE metric...")
+    _ = FENSE(device="cpu")
 
 
 def _get_main_download_args() -> Namespace:
