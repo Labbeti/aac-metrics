@@ -183,6 +183,10 @@ def _load_pretrain_echecker(
     proxies: Optional[dict[str, str]] = None,
 ) -> BERTFlatClassifier:
     tfmers_logging.set_verbosity_error()  # suppress loading warnings
+    if echecker_model not in PRETRAIN_ECHECKERS_DICT:
+        raise ValueError(
+            f"Invalid argument {echecker_model=}. (expected one of {tuple(PRETRAIN_ECHECKERS_DICT.keys())})"
+        )
     url, checksum = PRETRAIN_ECHECKERS_DICT[echecker_model]
     remote = RemoteFileMetadata(
         filename=f"{echecker_model}.ckpt", url=url, checksum=checksum
