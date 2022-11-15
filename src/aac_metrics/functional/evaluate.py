@@ -66,6 +66,7 @@ def custom_evaluate(
     if isinstance(metrics, str):
         metrics = _get_metrics_functions_list(
             metrics,
+            return_all_scores=True,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
@@ -126,13 +127,14 @@ def aac_evaluate(
 
 def _get_metrics_functions_list(
     metric_set_name: str,
+    return_all_scores: bool = True,
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[Callable]:
     metrics_factory = _get_metrics_functions_factory(
-        cache_path, java_path, tmp_path, verbose
+        return_all_scores, cache_path, java_path, tmp_path, verbose
     )
 
     if metric_set_name in METRICS_SETS:
@@ -150,6 +152,7 @@ def _get_metrics_functions_list(
 
 
 def _get_metrics_functions_factory(
+    return_all_scores: bool = True,
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
@@ -158,39 +161,39 @@ def _get_metrics_functions_factory(
     return {
         "bleu_1": partial(
             coco_bleu,
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             n=1,
         ),
         "bleu_2": partial(
             coco_bleu,
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             n=2,
         ),
         "bleu_3": partial(
             coco_bleu,
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             n=3,
         ),
         "bleu_4": partial(
             coco_bleu,
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             n=4,
         ),
         "meteor": partial(
             coco_meteor,
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
         ),
         "rouge_l": partial(
             coco_rouge_l,
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
         ),
         # Note: cider_d and spice and computed inside spider metric
         "spider": partial(
             spider,
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
@@ -198,7 +201,7 @@ def _get_metrics_functions_factory(
         ),
         "fense": partial(
             fense,
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             verbose=verbose,
         ),
     }

@@ -113,11 +113,11 @@ def fense(
     emb_refs = _encode_sents_sbert(sbert_model, flat_references, batch_size, verbose)
 
     # Compute sBERT similarities
-    sim_scores = [
+    sbert_sim_scores = [
         (emb_cands[i] @ emb_refs[rng_ids[i] : rng_ids[i + 1]].T).mean().item()
         for i in range(len(candidates))
     ]
-    sim_scores = np.array(sim_scores)
+    sbert_sim_scores = np.array(sbert_sim_scores)
 
     # Compute fluency error detection penalty
     if echecker is not None and echecker_tokenizer is not None:
@@ -129,10 +129,10 @@ def fense(
             batch_size,
             device,
         )
-        fense_scores = sim_scores * (1.0 - penalty * has_error)
+        fense_scores = sbert_sim_scores * (1.0 - penalty * has_error)
     else:
         has_error = None
-        fense_scores = sim_scores
+        fense_scores = sbert_sim_scores
 
     # Aggregate and return
     if agg_score == "mean":
@@ -147,29 +147,29 @@ def fense(
             f"Invalid argument {agg_score=}. (expected one of {AGG_SCORES})"
         )
 
-    sim_score = reduction(sim_scores)
+    sbert_sim_score = reduction(sbert_sim_scores)
     fense_score = reduction(fense_scores)
 
-    sim_score = torch.as_tensor(sim_score)
+    sbert_sim_score = torch.as_tensor(sbert_sim_score)
     fense_score = torch.as_tensor(fense_score)
-    sim_scores = torch.from_numpy(sim_scores)
+    sbert_sim_scores = torch.from_numpy(sbert_sim_scores)
     fense_scores = torch.from_numpy(fense_scores)
 
     if return_all_scores:
         global_scores = {
             "fense": fense_score,
-            "fense_sim": sim_score,
+            "sbert_sim": sbert_sim_score,
         }
         local_scores = {
             "fense": fense_scores,
-            "fense_sim": sim_scores,
+            "sbert_sim": sbert_sim_scores,
         }
 
         if has_error is not None:
             error_rates = torch.from_numpy(has_error)
             error_rate = error_rates.mean()
-            global_scores["fense_error_rate"] = error_rate
-            local_scores["fense_error_rate"] = error_rates
+            global_scores["fluency_error"] = error_rate
+            local_scores["fluency_error"] = error_rates
 
         return global_scores, local_scores
     else:

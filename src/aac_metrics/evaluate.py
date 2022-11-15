@@ -104,7 +104,7 @@ def _get_main_evaluate_args() -> Namespace:
         "-i",
         type=str,
         default="",
-        help="The input file containing the candidates and references.",
+        help="The input file path containing the candidates and references.",
         required=True,
     )
     parser.add_argument(
@@ -112,8 +112,8 @@ def _get_main_evaluate_args() -> Namespace:
         "-cc",
         type=str,
         nargs="+",
-        default=("caption_predicted", "preds"),
-        help="The column names of the candidates in the CSV file.",
+        default=("caption_predicted", "preds", "cands"),
+        help="The column names of the candidates in the CSV file. defaults to ('caption_predicted', 'preds', 'cands').",
     )
     parser.add_argument(
         "--mrefs_columns",
@@ -128,25 +128,25 @@ def _get_main_evaluate_args() -> Namespace:
             "caption_5",
             "captions",
         ),
-        help="The column names of the candidates in the CSV file.",
+        help="The column names of the candidates in the CSV file. defaults to ('caption_1', 'caption_2', 'caption_3', 'caption_4', 'caption_5', 'captions').",
     )
     parser.add_argument(
         "--cache_path",
         type=str,
         default="$HOME/aac-metrics-cache",
-        help="Cache directory path.",
+        help="Cache directory path. defaults to '$HOME/aac-metrics-cache'.",
     )
     parser.add_argument(
         "--java_path",
         type=str,
         default="java",
-        help="Java executable path.",
+        help="Java executable path. defaults to 'java'.",
     )
     parser.add_argument(
         "--tmp_path",
         type=str,
         default="/tmp",
-        help="Temporary directory path.",
+        help="Temporary directory path. defaults to '/tmp'.",
     )
     parser.add_argument("--verbose", type=int, default=0, help="Verbose level.")
 

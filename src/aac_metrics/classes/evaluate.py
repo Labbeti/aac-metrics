@@ -41,6 +41,7 @@ class CustomEvaluate(Metric, list[Metric]):
         if isinstance(metrics, str):
             metrics = _get_metrics_classes_list(
                 metrics,
+                return_all_scores=True,
                 cache_path=cache_path,
                 java_path=java_path,
                 tmp_path=tmp_path,
@@ -110,13 +111,14 @@ class AACEvaluate(CustomEvaluate):
 
 def _get_metrics_classes_list(
     metric_set_name: str,
+    return_all_scores: bool = True,
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[Metric]:
     metrics_factory = _get_metrics_classes_factory(
-        cache_path, java_path, tmp_path, verbose
+        return_all_scores, cache_path, java_path, tmp_path, verbose
     )
 
     if metric_set_name in METRICS_SETS:
@@ -134,6 +136,7 @@ def _get_metrics_classes_list(
 
 
 def _get_metrics_classes_factory(
+    return_all_scores: bool = True,
     cache_path: str = "$HOME/aac-metrics-cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
@@ -141,40 +144,40 @@ def _get_metrics_classes_factory(
 ) -> dict[str, Callable[[], Metric]]:
     return {
         "bleu_1": lambda: CocoBLEU(
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             n=1,
         ),
         "bleu_2": lambda: CocoBLEU(
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             n=2,
         ),
         "bleu_3": lambda: CocoBLEU(
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             n=3,
         ),
         "bleu_4": lambda: CocoBLEU(
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             n=4,
         ),
         "meteor": lambda: CocoMETEOR(
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
         ),
         "rouge_l": lambda: CocoRougeL(
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
         ),
         # Note: cider_d and spice and computed inside spider metric
         "spider": lambda: SPIDEr(
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
             verbose=verbose,
         ),
         "fense": lambda: FENSE(
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             verbose=verbose,
         ),
     }
