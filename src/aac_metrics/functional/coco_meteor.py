@@ -21,7 +21,7 @@ import torch
 
 from torch import Tensor
 
-from aac_metrics.utils.misc import _check_java_path
+from aac_metrics.utils.misc import check_java_path
 
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ def coco_meteor(
         "-norm",
     ]
 
-    if not _check_java_path(java_path):
+    if not check_java_path(java_path):
         raise ValueError(
             f"Cannot find java executable with {java_path=} for compute METEOR metric score."
         )

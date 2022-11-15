@@ -11,9 +11,8 @@ from typing import Iterable, Union
 
 import yaml
 
-from aac_metrics.functional.common import _check_input
 from aac_metrics.functional.evaluate import aac_evaluate
-from aac_metrics.utils.misc import _check_java_path
+from aac_metrics.utils.misc import check_inputs, check_java_path
 
 
 logger = logging.getLogger(__name__)
@@ -163,7 +162,7 @@ def _main_evaluate() -> None:
 
     args = _get_main_evaluate_args()
 
-    if not _check_java_path(args.java_path):
+    if not check_java_path(args.java_path):
         raise RuntimeError(f"Invalid argument java_path={args.java_path}.")
 
     level = logging.INFO if args.verbose <= 1 else logging.DEBUG
@@ -175,7 +174,7 @@ def _main_evaluate() -> None:
     candidates, mult_references = load_csv_file(
         args.input_file, args.cand_columns, args.mrefs_columns
     )
-    _check_input(candidates, mult_references)
+    check_inputs(candidates, mult_references)
 
     refs_lens = list(map(len, mult_references))
     if args.verbose >= 1:

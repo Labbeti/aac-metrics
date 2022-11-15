@@ -10,7 +10,7 @@ import time
 
 from typing import Any, Hashable, Iterable, TypeVar, Optional
 
-from aac_metrics.utils.misc import _check_java_path
+from aac_metrics.utils.misc import check_java_path
 
 
 logger = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ def ptb_tokenize_batch(
         raise FileNotFoundError(
             f"Cannot find jar file {STANFORD_CORENLP_3_4_1_JAR} in {cache_path=}. Maybe run 'aac-metrics-download' before or specify a 'cache_path' directory."
         )
-    if not _check_java_path(java_path):
+    if not check_java_path(java_path):
         raise ValueError(
             f"Cannot find java executable with {java_path=} to tokenize sentences."
         )
