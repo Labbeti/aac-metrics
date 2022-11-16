@@ -94,13 +94,13 @@ def coco_spice(
     ]
 
     in_file = NamedTemporaryFile(
-        mode="w", delete=False, dir=tmp_path, suffix=".json", prefix="in_"
+        mode="w", delete=False, dir=tmp_path, prefix="spice_inputs_", suffix=".json"
     )
     json.dump(input_data, in_file, indent=2)
     in_file.close()
 
     out_file = NamedTemporaryFile(
-        mode="w", delete=False, dir=tmp_path, suffix=".json", prefix="out_"
+        mode="w", delete=False, dir=tmp_path, prefix="spice_outputs_", suffix=".json"
     )
     out_file.close()
 
@@ -108,8 +108,20 @@ def coco_spice(
         stdout = None
         stderr = None
     else:
-        stdout = subprocess.DEVNULL
-        stderr = subprocess.DEVNULL
+        stdout = NamedTemporaryFile(
+            mode="w",
+            delete=True,
+            dir=tmp_path,
+            prefix="spice_stdout_",
+            suffix=".txt",
+        )
+        stderr = NamedTemporaryFile(
+            mode="w",
+            delete=True,
+            dir=tmp_path,
+            prefix="spice_stderr_",
+            suffix=".txt",
+        )
 
     spice_cmd = [
         java_path,
@@ -136,10 +148,19 @@ def coco_spice(
             stderr=stderr,
         )
     except (CalledProcessError, PermissionError) as err:
-        logger.error(
-            f"Invalid SPICE call. (full_command='{' '.join(spice_cmd)}', {err=})"
-        )
+        logger.error("Invalid SPICE call.")
+        logger.error(f"Full command: '{' '.join(spice_cmd)}'")
+        if stdout is not None and stderr is not None:
+            logger.error(f"For more information, see temp files '{stdout.name}' and '{stdout.name}'.")
+        else:
+            logger.info(f"Note: No temp file recorded. (found {stdout=} and {stderr=})")
         raise err
+
+    if stdout is not None:
+        stdout.close()
+
+    if stderr is not None:
+        stderr.close()
 
     if verbose >= 2:
         logger.debug("SPICE java code finished.")
