@@ -151,7 +151,9 @@ def coco_spice(
         logger.error("Invalid SPICE call.")
         logger.error(f"Full command: '{' '.join(spice_cmd)}'")
         if stdout is not None and stderr is not None:
-            logger.error(f"For more information, see temp files '{stdout.name}' and '{stdout.name}'.")
+            logger.error(
+                f"For more information, see temp files '{stdout.name}' and '{stdout.name}'."
+            )
         else:
             logger.info(f"Note: No temp file recorded. (found {stdout=} and {stderr=})")
         raise err
