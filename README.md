@@ -33,7 +33,7 @@ Download the external code needed for METEOR, SPICE and PTBTokenizer:
 aac-metrics-download
 ```
 
-Note: The external code for SPICE, METEOR and PTBTokenizer is stored in the cache directory (default: `$HOME/aac-metrics-cache/`)
+Note: The external code for SPICE, METEOR and PTBTokenizer is stored in the cache directory (default: `$HOME/.cache/aac-metrics/`)
 
 ## Metrics
 ### Default AAC metrics

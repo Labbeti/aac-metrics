@@ -132,8 +132,8 @@ def _get_main_evaluate_args() -> Namespace:
     parser.add_argument(
         "--cache_path",
         type=str,
-        default="$HOME/aac-metrics-cache",
-        help="Cache directory path. defaults to '$HOME/aac-metrics-cache'.",
+        default="$HOME/.cache/aac-metrics",
+        help="Cache directory path. defaults to '$HOME/.cache/aac-metrics'.",
     )
     parser.add_argument(
         "--java_path",

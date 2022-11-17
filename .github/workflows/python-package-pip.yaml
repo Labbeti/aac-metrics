@@ -55,7 +55,7 @@ jobs:
       uses: actions/cache@master
       id: cache_external
       with:
-        path: /home/runner/aac-metrics-cache/*
+        path: /home/runner/.cache/aac-metrics-/*
         key: ${{ runner.os }}-${{ hashFiles('install_spice.sh') }}
         restore-keys: |
           ${{ runner.os }}-

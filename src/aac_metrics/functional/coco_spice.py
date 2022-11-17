@@ -31,7 +31,7 @@ def coco_spice(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/aac-metrics-cache",
+    cache_path: str = "$HOME/.cache/aac-metrics",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     n_threads: Optional[int] = None,
@@ -47,7 +47,7 @@ def coco_spice(
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache/aac-metrics".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :param java_max_memory: The maximal java memory used. defaults to "8G".

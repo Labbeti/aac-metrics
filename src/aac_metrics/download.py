@@ -39,12 +39,12 @@ JAR_URLS = {
 
 
 def download(
-    cache_path: str = "$HOME/aac-metrics-cache",
+    cache_path: str = "$HOME/.cache/aac-metrics",
     verbose: int = 0,
 ) -> None:
     """Download the code needed for SPICE, METEOR and PTB Tokenizer.
 
-    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache/aac-metrics".
     :param verbose: The verbose level. defaults to 0.
     """
     cache_path = osp.expandvars(cache_path)
@@ -127,7 +127,7 @@ def _get_main_download_args() -> Namespace:
     parser.add_argument(
         "--cache_path",
         type=str,
-        default="$HOME/aac-metrics-cache",
+        default="$HOME/.cache/aac-metrics",
         help="Cache directory.",
     )
     parser.add_argument("--verbose", type=int, default=1, help="Verbose level.")

@@ -32,7 +32,7 @@ class CustomEvaluate(Metric, list[Metric]):
     def __init__(
         self,
         preprocess: bool = True,
-        cache_path: str = "$HOME/aac-metrics-cache",
+        cache_path: str = "$HOME/.cache/aac-metrics",
         java_path: str = "java",
         tmp_path: str = "/tmp",
         verbose: int = 0,
@@ -94,7 +94,7 @@ class AACEvaluate(CustomEvaluate):
     def __init__(
         self,
         preprocess: bool = True,
-        cache_path: str = "$HOME/aac-metrics-cache",
+        cache_path: str = "$HOME/.cache/aac-metrics",
         java_path: str = "java",
         tmp_path: str = "/tmp",
         verbose: int = 0,
@@ -112,7 +112,7 @@ class AACEvaluate(CustomEvaluate):
 def _get_metrics_classes_list(
     metric_set_name: str,
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/aac-metrics-cache",
+    cache_path: str = "$HOME/.cache/aac-metrics",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
@@ -137,7 +137,7 @@ def _get_metrics_classes_list(
 
 def _get_metrics_classes_factory(
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/aac-metrics-cache",
+    cache_path: str = "$HOME/.cache/aac-metrics",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
