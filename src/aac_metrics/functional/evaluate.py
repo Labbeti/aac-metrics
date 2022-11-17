@@ -4,6 +4,8 @@
 from functools import partial
 from typing import Any, Callable, Iterable, Union
 
+import tqdm
+
 from torch import Tensor
 
 from aac_metrics.functional.coco_bleu import coco_bleu
@@ -72,6 +74,8 @@ def custom_evaluate(
             tmp_path=tmp_path,
             verbose=verbose,
         )
+    else:
+        metrics = list(metrics)
 
     global_outs = {}
     local_outs = {}
@@ -84,11 +88,17 @@ def custom_evaluate(
             mult_references, cache_path, java_path, tmp_path, verbose
         )
 
-    for metric in metrics:
+    pbar = tqdm.tqdm(total=len(metrics), disable=verbose < 2, desc="Computing metrics...")
+
+    for i, metric in enumerate(metrics):
+        name = metric.__class__.__name__
+        pbar.set_description(f"Computing {name} metric...")
         global_outs_i, local_outs_i = metric(candidates, mult_references)
         global_outs |= global_outs_i
         local_outs |= local_outs_i
+        pbar.update(1)
 
+    pbar.close()
     return global_outs, local_outs
 
 
