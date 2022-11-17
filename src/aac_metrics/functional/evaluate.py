@@ -88,7 +88,9 @@ def custom_evaluate(
             mult_references, cache_path, java_path, tmp_path, verbose
         )
 
-    pbar = tqdm.tqdm(total=len(metrics), disable=verbose < 2, desc="Computing metrics...")
+    pbar = tqdm.tqdm(
+        total=len(metrics), disable=verbose < 2, desc="Computing metrics..."
+    )
 
     for i, metric in enumerate(metrics):
         name = metric.__class__.__name__

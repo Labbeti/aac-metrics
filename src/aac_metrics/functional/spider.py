@@ -78,8 +78,10 @@ def spider(
     )
 
     if return_all_scores:
-        assert isinstance(cider_d_out, tuple), f"INTERNAL error type. ({type(cider_d_out)})"
-        assert isinstance(spice_out, tuple),  f"INTERNAL error type. ({type(spice_out)})"
+        assert isinstance(
+            cider_d_out, tuple
+        ), f"INTERNAL error type. ({type(cider_d_out)})"
+        assert isinstance(spice_out, tuple), f"INTERNAL error type. ({type(spice_out)})"
         cider_d_global_scores, cider_d_local_scores = cider_d_out
         spice_global_scores, spice_local_scores = spice_out
 
@@ -97,6 +99,10 @@ def spider(
         }
         return spider_global_scores, spider_local_scores
     else:
-        assert isinstance(cider_d_out, Tensor), f"INTERNAL error type. ({type(cider_d_out)})"
-        assert isinstance(spice_out, Tensor),  f"INTERNAL error type. ({type(spice_out)})"
+        assert isinstance(
+            cider_d_out, Tensor
+        ), f"INTERNAL error type. ({type(cider_d_out)})"
+        assert isinstance(
+            spice_out, Tensor
+        ), f"INTERNAL error type. ({type(spice_out)})"
         return (cider_d_out + spice_out) / 2.0
