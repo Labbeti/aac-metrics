@@ -24,19 +24,18 @@ except ModuleNotFoundError:
         # The maximal value of the main global score of the metric.
         max_value: Optional[float] = None
 
-        # Public abstract methods
-        def compute(self) -> Any:
-            raise NotImplementedError("Abstract method")
-
-        def reset(self) -> None:
-            raise NotImplementedError("Abstract method")
-
-        def update(self, *args, **kwargs) -> None:
-            raise NotImplementedError("Abstract method")
-
         # Public methods
+        def compute(self) -> Any:
+            return None
+
         def forward(self, *args: Any, **kwargs: Any) -> Any:
             self.update(*args, **kwargs)
-            outs = self.compute()
+            output = self.compute()
             self.reset()
-            return outs
+            return output
+
+        def reset(self) -> None:
+            pass
+
+        def update(self, *args, **kwargs) -> None:
+            pass
