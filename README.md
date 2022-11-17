@@ -14,11 +14,11 @@ Audio Captioning metrics source code, designed for Pytorch.
 </div>
 
 This package is a tool to evaluate sentences produced by automated captioning systems.
-The results of BLEU [[1]](#bleu), ROUGE-L [[2]](#rouge-l), METEOR [[3]](#meteor), CIDEr-D [[4]](#cider), SPICE [[5]](#spice) and SPIDEr [[6]](#spider) are consistents with [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools).
+The results are consistents for BLEU [[1]](#bleu), ROUGE-L [[2]](#rouge-l), METEOR [[3]](#meteor), CIDEr-D [[4]](#cider), SPICE [[5]](#spice) and SPIDEr [[6]](#spider) with [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and for FENSE [[8]](#fense) with [fense](https://github.com/blmoistawinde/fense).
 
 ## Why using this package?
 - Easy installation with pip
-- Consistent with [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools)
+- Consistent with [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense)
 - Provides functions and classes to compute metrics separately
 - Provides SPIDEr-max [[7]](#spider-max) and FENSE [[8]](#fense) metrics
 
@@ -50,7 +50,7 @@ Note: The external code for SPICE, METEOR and PTBTokenizer is stored in the cach
 | Metric name | Python Class | Origin | Range | Short description |
 |:---|:---|:---|:---|:---|
 | SPIDEr-max [[7]](#spider-max) | `SPIDErMax` | audio captioning | [0, 5.5] | Max of SPIDEr scores for multiples candidates |
-| FENSE [[8]](#fense) | `FENSE` | audio captioning | [0, 1.0] | Cosine-similarity of Sentence-BERT embeddings combined with fluency error detector |
+| FENSE [[8]](#fense) | `FENSE` | audio captioning | [0, 1] | Cosine-similarity of Sentence-BERT embeddings combined with fluency error detector |
 
 ## Usage
 ### Evaluate AAC metrics
@@ -163,12 +163,13 @@ print(local_scores)
 ## Requirements
 ### Python packages
 
-The requirements are automatically installed when using `pip install` on this repository.
+The pip requirements are automatically installed when using `pip install` on this repository.
 ```
 torch >= 1.10.1
 numpy >= 1.21.2
 pyyaml >= 6.0
 tqdm >= 4.64.0
+sentence-transformers>=2.2.2
 ```
 
 ### External requirements
