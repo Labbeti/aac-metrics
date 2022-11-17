@@ -134,7 +134,11 @@ def _get_metrics_functions_list(
     verbose: int = 0,
 ) -> list[Callable]:
     metrics_factory = _get_metrics_functions_factory(
-        return_all_scores, cache_path, java_path, tmp_path, verbose
+        return_all_scores,
+        cache_path,
+        java_path,
+        tmp_path,
+        verbose,
     )
 
     if metric_set_name in METRICS_SETS:

@@ -41,11 +41,11 @@ class CustomEvaluate(Metric, list[Metric]):
         if isinstance(metrics, str):
             metrics = _get_metrics_classes_list(
                 metrics,
-                return_all_scores=True,
-                cache_path=cache_path,
-                java_path=java_path,
-                tmp_path=tmp_path,
-                verbose=verbose,
+                True,
+                cache_path,
+                java_path,
+                tmp_path,
+                verbose,
             )
 
         Metric.__init__(self)
@@ -118,7 +118,11 @@ def _get_metrics_classes_list(
     verbose: int = 0,
 ) -> list[Metric]:
     metrics_factory = _get_metrics_classes_factory(
-        return_all_scores, cache_path, java_path, tmp_path, verbose
+        return_all_scores,
+        cache_path,
+        java_path,
+        tmp_path,
+        verbose,
     )
 
     if metric_set_name in METRICS_SETS:
