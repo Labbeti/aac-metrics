@@ -19,9 +19,9 @@ except ModuleNotFoundError:
         higher_is_better: Optional[bool] = None
         is_differentiable: Optional[bool] = False
 
-        # The minimal value of the main global score of the metric.
+        # The theorical minimal value of the main global score of the metric.
         min_value: Optional[float] = None
-        # The maximal value of the main global score of the metric.
+        # The theorical maximal value of the main global score of the metric.
         max_value: Optional[float] = None
 
         # Public methods

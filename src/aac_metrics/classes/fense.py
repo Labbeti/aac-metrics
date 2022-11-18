@@ -31,7 +31,7 @@ class FENSE(Metric):
     higher_is_better = True
     is_differentiable = False
 
-    min_value = 0.0
+    min_value = -1.0
     max_value = 1.0
 
     def __init__(
