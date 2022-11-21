@@ -249,6 +249,7 @@ def _detect_error_sents(
 
             batch_logits = echecker(**batch)
             assert not batch_logits.requires_grad
+            # batch_logits: (bsize, num_classes=6)
             batch_probs = torch.sigmoid(batch_logits)[:, -1].cpu().numpy()
             probs.append(batch_probs)
 

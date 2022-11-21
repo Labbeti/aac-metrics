@@ -46,6 +46,8 @@ def load_metric(name: str, **kwargs) -> Metric:
     :param **kwargs: The keyword optional arguments passed to the metric.
     :returns: The Metric object built.
     """
+    name = name.lower().strip()
+
     factory = _get_metrics_classes_factory(**kwargs)
     if name in factory:
         return factory[name]()
