@@ -47,7 +47,7 @@ def custom_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
-    metrics: Union[str, Iterable[Callable]] = "aac",
+    metrics: Union[str, Iterable[Callable[[list, list], tuple]]] = "aac",
     cache_path: str = "$HOME/.cache/aac-metrics",
     java_path: str = "java",
     tmp_path: str = "/tmp",
@@ -77,9 +77,6 @@ def custom_evaluate(
     else:
         metrics = list(metrics)
 
-    global_outs = {}
-    local_outs = {}
-
     if preprocess:
         candidates = preprocess_mono_sents(
             candidates, cache_path, java_path, tmp_path, verbose
@@ -92,7 +89,10 @@ def custom_evaluate(
         total=len(metrics), disable=verbose < 2, desc="Computing metrics..."
     )
 
-    for i, metric in enumerate(metrics):
+    global_outs = {}
+    local_outs = {}
+
+    for metric in metrics:
         name = metric.__class__.__name__
         pbar.set_description(f"Computing {name} metric...")
         global_outs_i, local_outs_i = metric(candidates, mult_references)
