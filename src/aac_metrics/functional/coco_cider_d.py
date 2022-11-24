@@ -31,7 +31,7 @@ def coco_cider_d(
     :param n: Maximal number of n-grams taken into account. defaults to 4.
     :param sigma: Standard deviation parameter used for gaussian penalty. defaults to 6.0.
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
-    :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the local_score output.
+    :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the sents_score output.
         defaults to False.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """

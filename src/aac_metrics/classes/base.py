@@ -3,15 +3,22 @@
 
 from typing import Any, Optional
 
-from torch import nn
+from aac_metrics.utils.imports import _TORCHMETRICS_AVAILABLE
 
 
-try:
-    from torchmetrics import Metric  # type: ignore
+if _TORCHMETRICS_AVAILABLE:
+    from torchmetrics import Metric as __BaseMetric  # type: ignore
 
-except ModuleNotFoundError:
+    class AACMetric(__BaseMetric):  # type: ignore
+        # The theorical minimal value of the main global score of the metric.
+        min_value: Optional[float] = None
+        # The theorical maximal value of the main global score of the metric.
+        max_value: Optional[float] = None
 
-    class Metric(nn.Module):
+else:
+    from torch import nn
+
+    class AACMetric(nn.Module):
         """Base Metric module used when torchmetrics is not installed."""
 
         # Global values

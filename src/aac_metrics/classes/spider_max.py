@@ -7,14 +7,14 @@ from typing import Optional, Union
 
 from torch import Tensor
 
-from aac_metrics.classes.base import Metric
+from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.spider_max import spider_max
 
 
 logger = logging.getLogger(__name__)
 
 
-class SPIDErMax(Metric):
+class SPIDErMax(AACMetric):
     """SPIDEr-max class.
 
     Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf

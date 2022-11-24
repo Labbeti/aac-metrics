@@ -7,6 +7,10 @@ All notable changes to this project will be documented in this file.
 - `FENSE` metric class, function and unittest with original source code `fense`.
 - `load_metric` function in init to match huggingface dataset package.
 
+### Changed
+- Rename `global_scores` to `corpus_scores` and `local_scores` to `sents_scores`.
+- Rename `CustomEvaluate` to `Evaluate` and `custom_evaluate` to `evaluate`.
+
 ## [0.1.2] 2022-10-31
 ### Added
 - All candidates scores option `return_all_cands_scores` for SPIDEr-max.

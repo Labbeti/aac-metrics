@@ -115,18 +115,18 @@ def _coco_bleu_compute(
     scores_1_to_n = torch.as_tensor(scores_1_to_n, dtype=dtype)
 
     if return_all_scores:
-        global_scores = {
+        corpus_scores = {
             f"bleu_{n}": score_n,
         }
-        local_scores = {
+        sents_scores = {
             f"bleu_{n}": scores_n,
         }
 
         if return_1_to_n:
-            global_scores[f"bleu_1_to_{n}"] = score_1_to_n
-            local_scores[f"bleu_1_to_{n}"] = scores_1_to_n
+            corpus_scores[f"bleu_1_to_{n}"] = score_1_to_n
+            sents_scores[f"bleu_1_to_{n}"] = scores_1_to_n
 
-        return global_scores, local_scores
+        return corpus_scores, sents_scores
     else:
         return score_n
 

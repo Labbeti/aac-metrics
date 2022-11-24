@@ -5,7 +5,7 @@ from typing import Callable, Union
 
 from torch import Tensor
 
-from aac_metrics.classes.base import Metric
+from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.coco_bleu import (
     BLEU_COCO_OPTIONS,
     _coco_bleu_compute,
@@ -13,7 +13,7 @@ from aac_metrics.functional.coco_bleu import (
 )
 
 
-class CocoBLEU(Metric):
+class CocoBLEU(AACMetric):
     """BiLingual Evaluation Understudy metric class.
 
     Paper: https://www.aclweb.org/anthology/P02-1040.pdf

@@ -5,11 +5,11 @@ from typing import Union
 
 from torch import Tensor
 
-from aac_metrics.classes.base import Metric
+from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.coco_meteor import coco_meteor
 
 
-class CocoMETEOR(Metric):
+class CocoMETEOR(AACMetric):
     """Metric for Evaluation of Translation with Explicit ORdering metric class.
 
     Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389

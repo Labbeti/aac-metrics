@@ -7,18 +7,16 @@ from typing import Union
 
 import torch
 
-from sentence_transformers import SentenceTransformer
 from torch import Tensor
-from transformers.models.auto.tokenization_auto import AutoTokenizer
 
-from aac_metrics.classes.base import Metric
-from aac_metrics.functional.fense import fense, _load_pretrain_echecker
+from aac_metrics.classes.base import AACMetric
+from aac_metrics.functional.fense import fense, _load_models_and_tokenizer
 
 
 logger = logging.getLogger(__name__)
 
 
-class FENSE(Metric):
+class FENSE(AACMetric):
     """Fluency ENhanced Sentence-bert Evaluation (FENSE)
 
     Paper: https://arxiv.org/abs/2110.04684
@@ -42,28 +40,23 @@ class FENSE(Metric):
         error_threshold: float = 0.9,
         penalty: float = 0.9,
         agg_score: str = "mean",
-        device: Union[torch.device, str, None] = "cpu",
+        device: Union[str, torch.device, None] = "cpu",
         batch_size: int = 32,
         verbose: int = 0,
     ) -> None:
+        sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(sbert_model, echecker, None)  # type: ignore
+
         super().__init__()
         self._return_all_scores = return_all_scores
+        self._sbert_model = sbert_model
+        self._echecker = echecker
+        self._echecker_tokenizer = echecker_tokenizer
         self._error_threshold = error_threshold
         self._penalty = penalty
         self._agg_score = agg_score
         self._device = device
         self._batch_size = batch_size
         self._verbose = verbose
-
-        self._sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
-        if echecker in (None, "none"):
-            self._echecker = None
-            self._echecker_tokenizer = None
-        else:
-            self._echecker = _load_pretrain_echecker(echecker, device)
-            self._echecker_tokenizer = AutoTokenizer.from_pretrained(
-                self._echecker.model_type
-            )
 
         self._candidates = []
         self._mult_references = []

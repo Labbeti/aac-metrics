@@ -7,14 +7,14 @@ from typing import Optional, Union
 
 from torch import Tensor
 
-from aac_metrics.classes.base import Metric
+from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.spider import spider
 
 
 logger = logging.getLogger(__name__)
 
 
-class SPIDEr(Metric):
+class SPIDEr(AACMetric):
     """SPIDEr class.
 
     Paper: https://arxiv.org/pdf/1612.00370.pdf

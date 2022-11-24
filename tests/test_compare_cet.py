@@ -78,8 +78,8 @@ class TestCompareCaptionEvaluationTools(TestCase):
 
     def test_example_0(self) -> None:
         cands, mrefs = self.get_example_0()
-        global_scores, _ = aac_evaluate(cands, mrefs)
-        cet_global_scores, _cet_local_scores = self.evaluate_metrics_from_lists(
+        corpus_scores, _ = aac_evaluate(cands, mrefs)
+        cet_global_scores, _cet_sents_scores = self.evaluate_metrics_from_lists(
             cands, mrefs
         )
 
@@ -88,20 +88,20 @@ class TestCompareCaptionEvaluationTools(TestCase):
             (k if k != "cider" else "cider_d"): v for k, v in cet_global_scores.items()
         }
 
-        self.assertIsInstance(global_scores, dict)
+        self.assertIsInstance(corpus_scores, dict)
         self.assertIsInstance(cet_global_scores, dict)
-        self.assertListEqual(list(global_scores.keys()), list(cet_global_scores.keys()))
-        for metric_name, v1 in global_scores.items():
+        self.assertListEqual(list(corpus_scores.keys()), list(cet_global_scores.keys()))
+        for metric_name, v1 in corpus_scores.items():
             v2 = cet_global_scores[metric_name]
             self.assertEqual(v1.item(), v2, f"{metric_name=}")
-        self.assertDictEqual(global_scores, cet_global_scores)
+        self.assertDictEqual(corpus_scores, cet_global_scores)
 
     def test_example_1(self) -> None:
         fpath = Path(__file__).parent.parent.joinpath("examples", "example_1.csv")
         candidates, mult_references = load_csv_file(fpath)
 
-        global_scores, _ = aac_evaluate(candidates, mult_references)
-        cet_global_scores, _cet_local_scores = self.evaluate_metrics_from_lists(
+        corpus_scores, _ = aac_evaluate(candidates, mult_references)
+        cet_global_scores, _cet_sents_scores = self.evaluate_metrics_from_lists(
             candidates, mult_references
         )
 
@@ -110,10 +110,10 @@ class TestCompareCaptionEvaluationTools(TestCase):
             (k if k != "cider" else "cider_d"): v for k, v in cet_global_scores.items()
         }
 
-        self.assertIsInstance(global_scores, dict)
+        self.assertIsInstance(corpus_scores, dict)
         self.assertIsInstance(cet_global_scores, dict)
-        self.assertListEqual(list(global_scores.keys()), list(cet_global_scores.keys()))
-        for metric_name, v1 in global_scores.items():
+        self.assertListEqual(list(corpus_scores.keys()), list(cet_global_scores.keys()))
+        for metric_name, v1 in corpus_scores.items():
             v2 = cet_global_scores[metric_name]
             self.assertEqual(v1.item(), v2, f"{metric_name=}")
 
@@ -121,8 +121,8 @@ class TestCompareCaptionEvaluationTools(TestCase):
         fpath = Path(__file__).parent.parent.joinpath("examples", "example_2.csv")
         candidates, mult_references = load_csv_file(fpath)
 
-        global_scores, _ = aac_evaluate(candidates, mult_references)
-        cet_global_scores, _cet_local_scores = self.evaluate_metrics_from_lists(
+        corpus_scores, _ = aac_evaluate(candidates, mult_references)
+        cet_global_scores, _cet_sents_scores = self.evaluate_metrics_from_lists(
             candidates, mult_references
         )
 
@@ -131,10 +131,10 @@ class TestCompareCaptionEvaluationTools(TestCase):
             (k if k != "cider" else "cider_d"): v for k, v in cet_global_scores.items()
         }
 
-        self.assertIsInstance(global_scores, dict)
+        self.assertIsInstance(corpus_scores, dict)
         self.assertIsInstance(cet_global_scores, dict)
-        self.assertListEqual(list(global_scores.keys()), list(cet_global_scores.keys()))
-        for metric_name, v1 in global_scores.items():
+        self.assertListEqual(list(corpus_scores.keys()), list(cet_global_scores.keys()))
+        for metric_name, v1 in corpus_scores.items():
             v2 = cet_global_scores[metric_name]
             self.assertEqual(v1.item(), v2, f"{metric_name=}")
 

@@ -42,7 +42,7 @@ Note: The external code for SPICE, METEOR and PTBTokenizer is stored in the cach
 | BLEU [[1]](#bleu) | `CocoBLEU` | machine translation | [0, 1] | Precision of n-grams |
 | ROUGE-L [[2]](#rouge-l) | `CocoRougeL` | machine translation | [0, 1] | FScore of the longest common subsequence |
 | METEOR [[3]](#meteor) | `CocoMETEOR` | machine translation | [0, 1] | Cosine-similarity of frequencies |
-| CIDEr-D [[4]](#cider) | `CocoCIDErD` | image captioning | [0, 10] | Cosine-similarity of TF-IDF |
+| CIDEr-D [[4]](#cider) | `CocoCIDErD` | image captioning | [0, 10] | Cosine-similarity of TF-IDF computed on n-grams |
 | SPICE [[5]](#spice) | `CocoSPICE` | image captioning | [0, 1] | FScore of semantic graph |
 | SPIDEr [[6]](#spider) | `SPIDEr` | image captioning | [0, 5.5] | Mean of CIDEr-D and SPICE |
 
@@ -50,7 +50,7 @@ Note: The external code for SPICE, METEOR and PTBTokenizer is stored in the cach
 | Metric name | Python Class | Origin | Range | Short description |
 |:---|:---|:---|:---|:---|
 | SPIDEr-max [[7]](#spider-max) | `SPIDErMax` | audio captioning | [0, 5.5] | Max of SPIDEr scores for multiples candidates |
-| FENSE [[8]](#fense) | `FENSE` | audio captioning | [0, 1] | Cosine-similarity of Sentence-BERT embeddings combined with fluency error detector |
+| FENSE [[8]](#fense) | `FENSE` | audio captioning | [-1, 1] | Cosine-similarity of **Sentence-BERT embeddings** combined with fluency error detector |
 
 ## Usage
 ### Evaluate AAC metrics
@@ -184,11 +184,12 @@ Most of these functions can specify a java executable path with `java_path` argu
 ### CIDEr or CIDEr-D ?
 The CIDEr [4] metric differs from CIDEr-D because it applies a stemmer to each word before computing the n-grams of the sentences. In AAC, only the CIDEr-D is reported and used for SPIDEr, but some papers called it "CIDEr".
 
+### Does metric work on multi-GPU ?
+No. Most of these metrics use numpy or external java programs to run, which prevents multi-GPU testing for now.
+
 ### Is torchmetrics needed for this package ?
 No. But if torchmetrics is installed, all metrics classes will inherit from the base class `torchmetrics.Metric`.
 It is because most of the metrics does not use PyTorch tensors to compute scores and numpy and strings cannot be added to states of `torchmetrics.Metric`.
-
-***Additional note*** : even when torchmetrics is installed, this package does not support multiple-gpu testing.
 
 ## References
 #### BLEU
@@ -234,7 +235,7 @@ arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 #### FENSE
 [8] Z. Zhou, Z. Zhang, X. Xu, Z. Xie, M. Wu, and K. Q. Zhu, Can Audio Captions Be Evaluated with Image Caption Metrics? arXiv, 2022. [Online]. Available: http://arxiv.org/abs/2110.04684 
 
-## Cite the aac-metrics package
+## Citation
 If you use this code with SPIDEr-max, you can cite the following paper:
 ```
 @inproceedings{labbe:hal-03810396,

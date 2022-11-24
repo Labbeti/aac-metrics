@@ -5,14 +5,14 @@ from typing import Callable, Union
 
 from torch import Tensor
 
-from aac_metrics.classes.base import Metric
+from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.coco_cider_d import (
     _coco_cider_d_compute,
     _coco_cider_d_update,
 )
 
 
-class CocoCIDErD(Metric):
+class CocoCIDErD(AACMetric):
     """Consensus-based Image Description Evaluation metric class.
 
     Paper: https://arxiv.org/pdf/1411.5726.pdf

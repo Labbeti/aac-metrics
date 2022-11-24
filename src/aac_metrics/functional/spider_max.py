@@ -40,12 +40,12 @@ def spider_max(
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
-    :param return_all_cands_scores: If True, returns all multiple candidates scores in local_scores outputs as tensor of shape (n_audoi, n_cands_per_audio).
+    :param return_all_cands_scores: If True, returns all multiple candidates scores in sents_scores outputs as tensor of shape (n_audoi, n_cands_per_audio).
         defaults to False.
     :param n: Maximal number of n-grams taken into account. defaults to 4.
     :param sigma: Standard deviation parameter used for gaussian penalty. defaults to 6.0.
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
-    :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the local_score output.
+    :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the sents_score output.
         defaults to False.
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache/aac-metrics".
     :param java_path: The path to the java executable. defaults to "java".

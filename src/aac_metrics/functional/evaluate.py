@@ -43,7 +43,7 @@ METRICS_SETS = {
 }
 
 
-def custom_evaluate(
+def evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
@@ -125,15 +125,15 @@ def aac_evaluate(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores.
     """
-    return custom_evaluate(
+    return evaluate(
         candidates,
         mult_references,
         preprocess,
-        metrics="aac",
-        cache_path=cache_path,
-        java_path=java_path,
-        tmp_path=tmp_path,
-        verbose=verbose,
+        "aac",
+        cache_path,
+        java_path,
+        tmp_path,
+        verbose,
     )
 
 

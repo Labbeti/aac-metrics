@@ -5,14 +5,14 @@ from typing import Callable, Union
 
 from torch import Tensor
 
-from aac_metrics.classes.base import Metric
+from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.coco_rouge_l import (
     _coco_rouge_l_compute,
     _coco_rouge_l_update,
 )
 
 
-class CocoRougeL(Metric):
+class CocoRougeL(AACMetric):
     """Recall-Oriented Understudy for Gisting Evaluation class.
 
     Paper: https://aclanthology.org/W04-1013.pdf

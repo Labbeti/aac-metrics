@@ -13,7 +13,7 @@ __status__ = "Development"
 __version__ = "0.1.2"
 
 
-from .classes.base import Metric
+from .classes.base import AACMetric
 from .classes.coco_bleu import CocoBLEU
 from .classes.coco_cider_d import CocoCIDErD
 from .classes.coco_meteor import CocoMETEOR
@@ -38,7 +38,7 @@ __all__ = [
 ]
 
 
-def load_metric(name: str, **kwargs) -> Metric:
+def load_metric(name: str, **kwargs) -> AACMetric:
     """Load a metric class by name.
 
     :param name: The name of the metric.

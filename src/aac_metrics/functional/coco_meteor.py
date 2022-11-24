@@ -126,13 +126,13 @@ def coco_meteor(
     meteor_scores = torch.as_tensor(meteor_scores, dtype=dtype)
 
     if return_all_scores:
-        global_scores = {
+        corpus_scores = {
             "meteor": meteor_score,
         }
-        local_scores = {
+        sents_scores = {
             "meteor": meteor_scores,
         }
-        return global_scores, local_scores
+        return corpus_scores, sents_scores
     else:
         return meteor_score
 

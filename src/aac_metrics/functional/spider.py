@@ -38,7 +38,7 @@ def spider(
     :param n: Maximal number of n-grams taken into account. defaults to 4.
     :param sigma: Standard deviation parameter used for gaussian penalty. defaults to 6.0.
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
-    :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the local_score output.
+    :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the sents_score output.
         defaults to False.
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache/aac-metrics".
     :param java_path: The path to the java executable. defaults to "java".
@@ -82,8 +82,8 @@ def spider(
             cider_d_out, tuple
         ), f"INTERNAL error type. ({type(cider_d_out)})"
         assert isinstance(spice_out, tuple), f"INTERNAL error type. ({type(spice_out)})"
-        cider_d_global_scores, cider_d_local_scores = cider_d_out
-        spice_global_scores, spice_local_scores = spice_out
+        cider_d_global_scores, cider_d_sents_scores = cider_d_out
+        spice_global_scores, spice_sents_scores = spice_out
 
         spider_global_scores = {
             "cider_d": cider_d_global_scores["cider_d"],
@@ -91,13 +91,13 @@ def spider(
             "spider": (cider_d_global_scores["cider_d"] + spice_global_scores["spice"])
             / 2.0,
         }
-        spider_local_scores = {
-            "cider_d": cider_d_local_scores["cider_d"],
-            "spice": spice_local_scores["spice"],
-            "spider": (cider_d_local_scores["cider_d"] + spice_local_scores["spice"])
+        spider_sents_scores = {
+            "cider_d": cider_d_sents_scores["cider_d"],
+            "spice": spice_sents_scores["spice"],
+            "spider": (cider_d_sents_scores["cider_d"] + spice_sents_scores["spice"])
             / 2.0,
         }
-        return spider_global_scores, spider_local_scores
+        return spider_global_scores, spider_sents_scores
     else:
         assert isinstance(
             cider_d_out, Tensor

@@ -81,13 +81,13 @@ def _coco_rouge_l_compute(
     rouge_l_scores_pt = torch.from_numpy(rouge_l_scores_np)
 
     if return_all_scores:
-        global_scores = {
+        corpus_scores = {
             "rouge_l": rouge_l_score_pt,
         }
-        local_scores = {
+        sents_scores = {
             "rouge_l": rouge_l_scores_pt,
         }
-        return global_scores, local_scores
+        return corpus_scores, sents_scores
     else:
         return rouge_l_score_pt
 

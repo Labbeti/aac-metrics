@@ -52,44 +52,44 @@ def mult_cands_metric(
             "Cannot compute multiple candidates metric with a various number of candidates."
         )
 
-    all_local_scores_lst: list[dict[str, Tensor]] = []
+    all_sents_scores_lst: list[dict[str, Tensor]] = []
     verbose = kwargs.get("verbose", 0)
 
     for i in tqdm.trange(n_cands_per_audio, disable=verbose < 2):
         candidates_i = [cands[i] for cands in mult_candidates]
-        _global_scores_i, local_scores_i = metric(
+        _global_scores_i, sents_scores_i = metric(
             candidates_i,
             mult_references,
             return_all_scores=True,
             **kwargs,
         )
-        all_local_scores_lst.append(local_scores_i)
+        all_sents_scores_lst.append(sents_scores_i)
 
     # list[dict[str, Tensor]] to dict[str, stacked Tensor]
-    keys = list(all_local_scores_lst[0].keys())
-    all_local_scores = {
-        k: torch.stack([local_scores_i[k] for local_scores_i in all_local_scores_lst])
+    keys = list(all_sents_scores_lst[0].keys())
+    all_sents_scores = {
+        k: torch.stack([sents_scores_i[k] for sents_scores_i in all_sents_scores_lst])
         for k in keys
     }
-    # all_local_scores dict of tensor of shapes (n_cands_per_audio, n_items)
+    # all_sents_scores dict of tensor of shapes (n_cands_per_audio, n_items)
 
     if selection == "max":
-        indexes = all_local_scores[metric_out_name].argmax(dim=0).unsqueeze(dim=0)
-        local_scores = {
+        indexes = all_sents_scores[metric_out_name].argmax(dim=0).unsqueeze(dim=0)
+        sents_scores = {
             k: scores.gather(0, indexes).squeeze(dim=0)
-            for k, scores in all_local_scores.items()
+            for k, scores in all_sents_scores.items()
         }
 
     elif selection == "min":
-        indexes = all_local_scores[metric_out_name].argmin(dim=0).unsqueeze(dim=0)
-        local_scores = {
+        indexes = all_sents_scores[metric_out_name].argmin(dim=0).unsqueeze(dim=0)
+        sents_scores = {
             k: scores.gather(0, indexes).squeeze(dim=0)
-            for k, scores in all_local_scores.items()
+            for k, scores in all_sents_scores.items()
         }
 
     elif selection == "mean":
-        selected_scores = all_local_scores[metric_out_name].mean(dim=0)
-        local_scores = {metric_out_name: selected_scores}
+        selected_scores = all_sents_scores[metric_out_name].mean(dim=0)
+        sents_scores = {metric_out_name: selected_scores}
 
     else:
         raise ValueError(
@@ -97,13 +97,13 @@ def mult_cands_metric(
         )
 
     if return_all_cands_scores:
-        local_scores |= {
-            f"{k}_all": scores.transpose(0, 1) for k, scores in all_local_scores.items()
+        sents_scores |= {
+            f"{k}_all": scores.transpose(0, 1) for k, scores in all_sents_scores.items()
         }
 
-    global_scores = {k: reduction(scores) for k, scores in local_scores.items()}
+    corpus_scores = {k: reduction(scores) for k, scores in sents_scores.items()}
 
     if return_all_scores:
-        return global_scores, local_scores
+        return corpus_scores, sents_scores
     else:
-        return global_scores[metric_out_name]
+        return corpus_scores[metric_out_name]

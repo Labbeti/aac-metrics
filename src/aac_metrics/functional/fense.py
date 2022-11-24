@@ -36,7 +36,6 @@ PRETRAIN_ECHECKERS_DICT = {
     ),
     "none": (None, None),
 }
-PRETRAIN_ECHECKERS = tuple(PRETRAIN_ECHECKERS_DICT.keys())
 
 
 pylog = logging.getLogger(__name__)
@@ -52,7 +51,7 @@ def fense(
     error_threshold: float = 0.9,
     penalty: float = 0.9,
     agg_score: str = "mean",
-    device: Union[torch.device, str, None] = "cpu",
+    device: Union[str, torch.device, None] = "cpu",
     batch_size: int = 32,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
@@ -83,39 +82,23 @@ def fense(
     """
 
     # Init models
-    if isinstance(sbert_model, str):
-        sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
-
-    if isinstance(echecker, str):
-        if echecker == "none":
-            echecker = None
-        else:
-            echecker = _load_pretrain_echecker(echecker, device)
-
-    if echecker_tokenizer is None and echecker is not None:
-        echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)
-
-    for model in (sbert_model, echecker):
-        if model is None:
-            continue
-        for p in model.parameters():
-            p.detach_()
-        model.eval()
+    sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(
+        sbert_model, echecker, echecker_tokenizer
+    )
 
     # Encode sents
     rng_ids = [0]
-    flat_references = []
     for refs in mult_references:
         rng_ids.append(rng_ids[-1] + len(refs))
-        flat_references.extend(refs)
+    flat_references = [ref for refs in mult_references for ref in refs]
 
-    emb_cands = _encode_sents_sbert(sbert_model, candidates, batch_size, verbose)
-    emb_refs = _encode_sents_sbert(sbert_model, flat_references, batch_size, verbose)
+    cands_embs = _encode_sents_sbert(sbert_model, candidates, batch_size, verbose)
+    mrefs_embs = _encode_sents_sbert(sbert_model, flat_references, batch_size, verbose)
 
     # Compute sBERT similarities
     sbert_sim_scores = [
-        (emb_cands[i] @ emb_refs[rng_ids[i] : rng_ids[i + 1]].T).mean().item()
-        for i in range(len(candidates))
+        (cands_embs[i] @ mrefs_embs[rng_ids[i] : rng_ids[i + 1]].T).mean().item()
+        for i in range(len(cands_embs))
     ]
     sbert_sim_scores = np.array(sbert_sim_scores)
 
@@ -156,11 +139,11 @@ def fense(
     fense_scores = torch.from_numpy(fense_scores)
 
     if return_all_scores:
-        global_scores = {
+        corpus_scores = {
             "fense": fense_score,
             "sbert_sim": sbert_sim_score,
         }
-        local_scores = {
+        sents_scores = {
             "fense": fense_scores,
             "sbert_sim": sbert_sim_scores,
         }
@@ -168,17 +151,45 @@ def fense(
         if has_error is not None:
             error_rates = torch.from_numpy(has_error)
             error_rate = error_rates.mean()
-            global_scores["fluency_error"] = error_rate
-            local_scores["fluency_error"] = error_rates
+            corpus_scores["fluency_error"] = error_rate
+            sents_scores["fluency_error"] = error_rates
 
-        return global_scores, local_scores
+        return corpus_scores, sents_scores
     else:
         return fense_score
 
 
+def _load_models_and_tokenizer(
+    sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
+    echecker: Union[None, str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker_tokenizer: Optional[AutoTokenizer] = None,
+    device: Union[str, torch.device, None] = "cpu",
+) -> tuple[SentenceTransformer, Optional[BERTFlatClassifier], Optional[AutoTokenizer]]:
+    if isinstance(sbert_model, str):
+        sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
+
+    if isinstance(echecker, str):
+        if echecker == "none":
+            echecker = None
+        else:
+            echecker = _load_pretrain_echecker(echecker, device)
+
+    if echecker_tokenizer is None and echecker is not None:
+        echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)
+
+    for model in (sbert_model, echecker):
+        if model is None:
+            continue
+        for p in model.parameters():
+            p.detach_()
+        model.eval()
+
+    return sbert_model, echecker, echecker_tokenizer
+
+
 def _load_pretrain_echecker(
     echecker_model: str,
-    device: Union[torch.device, str, None] = "cuda",
+    device: Union[str, torch.device, None] = "cuda",
     use_proxy: bool = False,
     proxies: Optional[dict[str, str]] = None,
 ) -> BERTFlatClassifier:
@@ -224,7 +235,7 @@ def _detect_error_sents(
     sents: list[str],
     error_threshold: float,
     batch_size: int,
-    device: Union[torch.device, str, None],
+    device: Union[str, torch.device, None],
     max_len: int = 64,
 ) -> tuple[np.ndarray, np.ndarray]:
 

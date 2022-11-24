@@ -21,12 +21,29 @@ class TestCompareFENSE(TestCase):
             device="cpu",
             echecker_model="echecker_clotho_audiocaps_base",
         )
+        self.my_fense = FENSE(
+            return_all_scores=False,
+            device="cpu",
+            verbose=2,
+            echecker="echecker_clotho_audiocaps_base",
+        )
 
     def get_orig_evaluator_class(self) -> Any:
         fense_path = osp.join(osp.dirname(__file__), "fense")
         sys.path.append(fense_path)
         fense_module = importlib.import_module("fense.evaluator")
         return fense_module.Evaluator
+
+    def test_output_size(self) -> None:
+        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_1.csv")
+        cands, mrefs = load_csv_file(fpath)
+
+        self.my_fense._return_all_scores = True
+        _global_scores, sents_scores = self.my_fense(cands, mrefs)
+        self.my_fense._return_all_scores = False
+
+        for sents_score in sents_scores.values():
+            self.assertEqual(len(cands), len(sents_score))
 
     def test_example_1(self) -> None:
         fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_1.csv")
@@ -40,14 +57,7 @@ class TestCompareFENSE(TestCase):
         cands, mrefs = load_csv_file(fpath)
 
         orig_score = self.evaluator.corpus_score(cands, mrefs).item()
-
-        fense = FENSE(
-            return_all_scores=False,
-            device="cpu",
-            verbose=2,
-            echecker="echecker_clotho_audiocaps_base",
-        )
-        score = fense(cands, mrefs).item()
+        score = self.my_fense(cands, mrefs).item()
 
         print(f"{orig_score=} ({type(orig_score)=})")
         print(f"{score=} ({type(score)=})")

@@ -7,19 +7,19 @@ from typing import Callable, Iterable, Union
 
 from torch import Tensor
 
-from aac_metrics.classes.base import Metric
+from aac_metrics.classes.base import AACMetric
 from aac_metrics.classes.coco_bleu import CocoBLEU
 from aac_metrics.classes.coco_meteor import CocoMETEOR
 from aac_metrics.classes.coco_rouge_l import CocoRougeL
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.classes.spider import SPIDEr
-from aac_metrics.functional.evaluate import METRICS_SETS, custom_evaluate
+from aac_metrics.functional.evaluate import METRICS_SETS, evaluate
 
 
 logger = logging.getLogger(__name__)
 
 
-class CustomEvaluate(Metric, list[Metric]):
+class Evaluate(AACMetric, list[AACMetric]):
     """Evaluate candidates with multiple references with custom metrics.
 
     For more information, see :func:`~aac_metrics.functional.evaluate.custom_evaluate`.
@@ -36,7 +36,7 @@ class CustomEvaluate(Metric, list[Metric]):
         java_path: str = "java",
         tmp_path: str = "/tmp",
         verbose: int = 0,
-        metrics: Union[str, Iterable[Metric]] = "all",
+        metrics: Union[str, Iterable[AACMetric]] = "aac",
     ) -> None:
         if isinstance(metrics, str):
             metrics = _get_metrics_classes_list(
@@ -48,7 +48,7 @@ class CustomEvaluate(Metric, list[Metric]):
                 verbose,
             )
 
-        Metric.__init__(self)
+        AACMetric.__init__(self)
         list.__init__(self, metrics)
         self._preprocess = preprocess
         self._cache_path = cache_path
@@ -60,7 +60,7 @@ class CustomEvaluate(Metric, list[Metric]):
         self._mult_references = []
 
     def compute(self) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
-        return custom_evaluate(
+        return evaluate(
             self._candidates,
             self._mult_references,
             self._preprocess,
@@ -85,7 +85,7 @@ class CustomEvaluate(Metric, list[Metric]):
         self._mult_references += mult_references
 
 
-class AACEvaluate(CustomEvaluate):
+class AACEvaluate(Evaluate):
     """Evaluate candidates with multiple references with all Audio Captioning metrics.
 
     For more information, see :func:`~aac_metrics.functional.evaluate.aac_evaluate`.
@@ -116,7 +116,7 @@ def _get_metrics_classes_list(
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
-) -> list[Metric]:
+) -> list[AACMetric]:
     metrics_factory = _get_metrics_classes_factory(
         return_all_scores,
         cache_path,
@@ -145,7 +145,7 @@ def _get_metrics_classes_factory(
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
-) -> dict[str, Callable[[], Metric]]:
+) -> dict[str, Callable[[], AACMetric]]:
     return {
         "bleu_1": lambda: CocoBLEU(
             return_all_scores=return_all_scores,

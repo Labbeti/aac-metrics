@@ -188,13 +188,13 @@ def coco_spice(
     spice_score = torch.as_tensor(spice_score, dtype=dtype)
 
     if return_all_scores:
-        global_scores = {
+        corpus_scores = {
             "spice": spice_score,
         }
-        local_scores = {
+        sents_scores = {
             "spice": spice_scores,
         }
-        return global_scores, local_scores
+        return corpus_scores, sents_scores
     else:
         return spice_score
 

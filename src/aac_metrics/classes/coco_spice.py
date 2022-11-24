@@ -7,14 +7,14 @@ from typing import Optional, Union
 
 from torch import Tensor
 
-from aac_metrics.classes.base import Metric
+from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.coco_spice import coco_spice
 
 
 logger = logging.getLogger(__name__)
 
 
-class CocoSPICE(Metric):
+class CocoSPICE(AACMetric):
     """Semantic Propositional Image Caption Evaluation class.
 
     Paper: https://arxiv.org/pdf/1607.08822.pdf
