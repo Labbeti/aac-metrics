@@ -20,7 +20,7 @@ exclude =
     # Ignore submodule caption-evaluation-tools
     tests/caption-evaluation-tools
     # Ignore submodule fense
-    tests/caption-evaluation-tools
+    tests/fense
 per-file-ignores =
     # imported but unused
     __init__.py: F401

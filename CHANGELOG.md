@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
 - Rename `global_scores` to `corpus_scores` and `local_scores` to `sents_scores`.
 - Rename `CustomEvaluate` to `Evaluate` and `custom_evaluate` to `evaluate`.
 
+### Fixed
+- `FENSE` metric error when computing scores with less than `batch_size=32` sentences.
+
 ## [0.1.2] 2022-10-31
 ### Added
 - All candidates scores option `return_all_cands_scores` for SPIDEr-max.

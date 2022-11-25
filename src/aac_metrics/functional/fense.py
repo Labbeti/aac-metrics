@@ -14,28 +14,14 @@ import torch
 
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
-from transformers import logging as tfmers_logging
 from transformers.models.auto.tokenization_auto import AutoTokenizer
+from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 
 from aac_metrics.functional._fense_utils import (
     BERTFlatClassifier,
-    RemoteFileMetadata,
-    check_download_resource,
     infer_preprocess,
+    load_pretrain_echecker,
 )
-
-
-PRETRAIN_ECHECKERS_DICT = {
-    "echecker_clotho_audiocaps_base": (
-        "https://github.com/blmoistawinde/fense/releases/download/V0.1/echecker_clotho_audiocaps_base.ckpt",
-        "1a719f090af70614bbdb9f9437530b7e133c48cfa4a58d964de0d47fc974a2fa",
-    ),
-    "echecker_clotho_audiocaps_tiny": (
-        "https://github.com/blmoistawinde/fense/releases/download/V0.1/echecker_clotho_audiocaps_tiny.ckpt",
-        "90ed0ac5033ec497ec66d4f68588053813e085671136dae312097c96c504f673",
-    ),
-    "none": (None, None),
-}
 
 
 pylog = logging.getLogger(__name__)
@@ -104,9 +90,9 @@ def fense(
 
     # Compute fluency error detection penalty
     if echecker is not None and echecker_tokenizer is not None:
-        has_error, probs = _detect_error_sents(
+        has_error, _probs = _detect_error_sents(
             echecker,
-            echecker_tokenizer,
+            echecker_tokenizer,  # type: ignore
             candidates,
             error_threshold,
             batch_size,
@@ -166,13 +152,14 @@ def _load_models_and_tokenizer(
     device: Union[str, torch.device, None] = "cpu",
 ) -> tuple[SentenceTransformer, Optional[BERTFlatClassifier], Optional[AutoTokenizer]]:
     if isinstance(sbert_model, str):
-        sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
+        sbert_model = SentenceTransformer(sbert_model)  # type: ignore
+    sbert_model.to(device)
 
     if isinstance(echecker, str):
         if echecker == "none":
             echecker = None
         else:
-            echecker = _load_pretrain_echecker(echecker, device)
+            echecker = load_pretrain_echecker(echecker, device)
 
     if echecker_tokenizer is None and echecker is not None:
         echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)
@@ -185,33 +172,6 @@ def _load_models_and_tokenizer(
         model.eval()
 
     return sbert_model, echecker, echecker_tokenizer
-
-
-def _load_pretrain_echecker(
-    echecker_model: str,
-    device: Union[str, torch.device, None] = "cuda",
-    use_proxy: bool = False,
-    proxies: Optional[dict[str, str]] = None,
-) -> BERTFlatClassifier:
-    tfmers_logging.set_verbosity_error()  # suppress loading warnings
-    if echecker_model not in PRETRAIN_ECHECKERS_DICT:
-        raise ValueError(
-            f"Invalid argument {echecker_model=}. (expected one of {tuple(PRETRAIN_ECHECKERS_DICT.keys())})"
-        )
-    url, checksum = PRETRAIN_ECHECKERS_DICT[echecker_model]
-    remote = RemoteFileMetadata(
-        filename=f"{echecker_model}.ckpt", url=url, checksum=checksum
-    )
-    file_path = check_download_resource(remote, use_proxy, proxies)
-    model_states = torch.load(file_path)
-    echecker = BERTFlatClassifier(
-        model_type=model_states["model_type"],
-        num_classes=model_states["num_classes"],
-    )
-    echecker.load_state_dict(model_states["state_dict"])
-    echecker.eval()
-    echecker.to(device)
-    return echecker
 
 
 def _encode_sents_sbert(
@@ -231,7 +191,7 @@ def _encode_sents_sbert(
 
 def _detect_error_sents(
     echecker: BERTFlatClassifier,
-    echecker_tokenizer: AutoTokenizer,
+    echecker_tokenizer: PreTrainedTokenizerFast,
     sents: list[str],
     error_threshold: float,
     batch_size: int,
@@ -240,23 +200,29 @@ def _detect_error_sents(
 ) -> tuple[np.ndarray, np.ndarray]:
 
     if len(sents) <= batch_size:
-        batch = infer_preprocess(echecker_tokenizer, sents, max_len=max_len)  # type: ignore
-        for k, v in batch.items():
-            batch[k] = v.to(device)
-
+        batch = infer_preprocess(
+            echecker_tokenizer,
+            sents,
+            max_len=max_len,
+            device=device,
+            dtype=torch.long,
+        )
         logits = echecker(**batch)
         assert not logits.requires_grad
-        probs = torch.sigmoid(logits).cpu().numpy()
+        # note: fix error in the original fense code: https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L69
+        probs = torch.sigmoid(logits)[:, -1].cpu().numpy()
+
     else:
         probs = []
+
         for i in range(0, len(sents), batch_size):
             batch = infer_preprocess(
-                echecker_tokenizer,  # type: ignore
+                echecker_tokenizer,
                 sents[i : i + batch_size],
                 max_len=max_len,
+                device=device,
+                dtype=torch.long,
             )
-            for k, v in batch.items():
-                batch[k] = v.to(device)
 
             batch_logits = echecker(**batch)
             assert not batch_logits.requires_grad
@@ -265,4 +231,5 @@ def _detect_error_sents(
             probs.append(batch_probs)
 
         probs = np.concatenate(probs)
+
     return (probs > error_threshold).astype(float), probs

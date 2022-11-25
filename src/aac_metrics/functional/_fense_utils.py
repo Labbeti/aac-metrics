@@ -14,13 +14,15 @@ import shutil
 from collections import namedtuple
 from os import environ, makedirs
 from os.path import exists, expanduser, join
-from typing import Callable, Optional, Union
+from typing import Mapping, Optional, Union
 
 import torch
 
 from torch import nn, Tensor
 from tqdm import tqdm
+from transformers import logging as tfmers_logging
 from transformers.models.auto.modeling_auto import AutoModel
+from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 
 
 RemoteFileMetadata = namedtuple("RemoteFileMetadata", ["filename", "url", "checksum"])
@@ -29,6 +31,17 @@ RemoteFileMetadata = namedtuple("RemoteFileMetadata", ["filename", "url", "check
 DEFAULT_PROXIES = {
     "http": "socks5h://127.0.0.1:1080",
     "https": "socks5h://127.0.0.1:1080",
+}
+PRETRAIN_ECHECKERS_DICT = {
+    "echecker_clotho_audiocaps_base": (
+        "https://github.com/blmoistawinde/fense/releases/download/V0.1/echecker_clotho_audiocaps_base.ckpt",
+        "1a719f090af70614bbdb9f9437530b7e133c48cfa4a58d964de0d47fc974a2fa",
+    ),
+    "echecker_clotho_audiocaps_tiny": (
+        "https://github.com/blmoistawinde/fense/releases/download/V0.1/echecker_clotho_audiocaps_tiny.ckpt",
+        "90ed0ac5033ec497ec66d4f68588053813e085671136dae312097c96c504f673",
+    ),
+    "none": (None, None),
 }
 
 
@@ -81,13 +94,44 @@ def clear_data_home(data_home: Optional[str] = None) -> None:
 
 
 def infer_preprocess(
-    tokenizer: Callable, texts: list[str], max_len: int
-) -> dict[str, Tensor]:
+    tokenizer: PreTrainedTokenizerFast,
+    texts: list[str],
+    max_len: int,
+    device: Union[str, torch.device, None],
+    dtype: torch.dtype,
+) -> Mapping[str, Tensor]:
     texts = _text_preprocess(texts)  # type: ignore
     batch = tokenizer(texts, truncation=True, padding="max_length", max_length=max_len)
-    for k in ["input_ids", "attention_mask", "token_type_ids"]:
-        batch[k] = torch.LongTensor(batch[k])
+    for k in ("input_ids", "attention_mask", "token_type_ids"):
+        batch[k] = torch.as_tensor(batch[k], device=device, dtype=dtype)  # type: ignore
     return batch
+
+
+def load_pretrain_echecker(
+    echecker_model: str,
+    device: Union[str, torch.device, None] = "cuda",
+    use_proxy: bool = False,
+    proxies: Optional[dict[str, str]] = None,
+) -> BERTFlatClassifier:
+    tfmers_logging.set_verbosity_error()  # suppress loading warnings
+    if echecker_model not in PRETRAIN_ECHECKERS_DICT:
+        raise ValueError(
+            f"Invalid argument {echecker_model=}. (expected one of {tuple(PRETRAIN_ECHECKERS_DICT.keys())})"
+        )
+    url, checksum = PRETRAIN_ECHECKERS_DICT[echecker_model]
+    remote = RemoteFileMetadata(
+        filename=f"{echecker_model}.ckpt", url=url, checksum=checksum
+    )
+    file_path = check_download_resource(remote, use_proxy, proxies)
+    model_states = torch.load(file_path)
+    echecker = BERTFlatClassifier(
+        model_type=model_states["model_type"],
+        num_classes=model_states["num_classes"],
+    )
+    echecker.load_state_dict(model_states["state_dict"])
+    echecker.eval()
+    echecker.to(device)
+    return echecker
 
 
 # - Private functions

@@ -44,7 +44,7 @@ class FENSE(AACMetric):
         batch_size: int = 32,
         verbose: int = 0,
     ) -> None:
-        sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(sbert_model, echecker, None)  # type: ignore
+        sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(sbert_model, echecker, None, device)  # type: ignore
 
         super().__init__()
         self._return_all_scores = return_all_scores
