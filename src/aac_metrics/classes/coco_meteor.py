@@ -27,7 +27,7 @@ class CocoMETEOR(AACMetric):
     def __init__(
         self,
         return_all_scores: bool = True,
-        cache_path: str = "$HOME/.cache/aac-metrics",
+        cache_path: str = "$HOME/.cache",
         java_path: str = "java",
         java_max_memory: str = "2G",
         verbose: int = 0,

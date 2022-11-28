@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Rename `global_scores` to `corpus_scores` and `local_scores` to `sents_scores`.
 - Rename `CustomEvaluate` to `Evaluate` and `custom_evaluate` to `evaluate`.
+- Set default cache path to `$HOME/.cache`.
 
 ### Fixed
 - `FENSE` metric error when computing scores with less than `batch_size=32` sentences.

@@ -27,14 +27,14 @@ from aac_metrics.utils.misc import check_java_path
 logger = logging.getLogger(__name__)
 
 
-METEOR_JAR_FNAME = osp.join("meteor", "meteor-1.5.jar")
+FNAME_METEOR_JAR = osp.join("aac-metrics", "meteor", "meteor-1.5.jar")
 
 
 def coco_meteor(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache/aac-metrics",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     java_max_memory: str = "2G",
     verbose: int = 0,
@@ -48,17 +48,17 @@ def coco_meteor(
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache/aac-metrics".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param java_max_memory: The maximal java memory used. defaults to "2G".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    java_path = osp.expandvars(java_path)
     cache_path = osp.expandvars(cache_path)
+    java_path = osp.expandvars(java_path)
 
     # Prepare java execution
-    meteor_jar_fpath = osp.join(cache_path, METEOR_JAR_FNAME)
+    meteor_jar_fpath = osp.join(cache_path, FNAME_METEOR_JAR)
     meteor_command = [
         java_path,
         "-jar",
@@ -72,14 +72,15 @@ def coco_meteor(
         "-norm",
     ]
 
-    if not check_java_path(java_path):
-        raise ValueError(
-            f"Cannot find java executable with {java_path=} for compute METEOR metric score."
-        )
-    if not osp.isfile(meteor_jar_fpath):
-        raise FileNotFoundError(
-            f"Cannot find JAR file '{METEOR_JAR_FNAME}' in directory '{cache_path}' for meteor metric. Maybe run 'aac-metrics-download' before or specify a 'cache_path' directory."
-        )
+    if __debug__:
+        if not osp.isfile(meteor_jar_fpath):
+            raise FileNotFoundError(
+                f"Cannot find JAR file '{meteor_jar_fpath}' for METEOR metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
+            )
+        if not check_java_path(java_path):
+            raise ValueError(
+                f"Cannot find java executable with {java_path=} for compute METEOR metric score."
+            )
 
     if len(candidates) != len(mult_references):
         raise ValueError(

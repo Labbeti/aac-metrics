@@ -152,7 +152,7 @@ def _load_models_and_tokenizer(
     device: Union[str, torch.device, None] = "cpu",
 ) -> tuple[SentenceTransformer, Optional[BERTFlatClassifier], Optional[AutoTokenizer]]:
     if isinstance(sbert_model, str):
-        sbert_model = SentenceTransformer(sbert_model)  # type: ignore
+        sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
     sbert_model.to(device)
 
     if isinstance(echecker, str):
@@ -213,7 +213,7 @@ def _detect_error_sents(
         probs = torch.sigmoid(logits)[:, -1].cpu().numpy()
 
     else:
-        probs = []
+        probs_lst = []
 
         for i in range(0, len(sents), batch_size):
             batch = infer_preprocess(
@@ -228,8 +228,8 @@ def _detect_error_sents(
             assert not batch_logits.requires_grad
             # batch_logits: (bsize, num_classes=6)
             batch_probs = torch.sigmoid(batch_logits)[:, -1].cpu().numpy()
-            probs.append(batch_probs)
+            probs_lst.append(batch_probs)
 
-        probs = np.concatenate(probs)
+        probs = np.concatenate(probs_lst)
 
     return (probs > error_threshold).astype(float), probs

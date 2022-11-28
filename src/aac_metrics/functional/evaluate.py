@@ -48,7 +48,7 @@ def evaluate(
     mult_references: list[list[str]],
     preprocess: bool = True,
     metrics: Union[str, Iterable[Callable[[list, list], tuple]]] = "aac",
-    cache_path: str = "$HOME/.cache/aac-metrics",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
@@ -59,7 +59,7 @@ def evaluate(
     :param mult_references: The list of list of sentences used as target.
     :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.defaults to True.
     :param metrics: The name of the metric list or the explicit list of metrics to compute. defaults to "aac".
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache/aac-metrics".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :param verbose: The verbose level. defaults to 0.
@@ -108,7 +108,7 @@ def aac_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
-    cache_path: str = "$HOME/.cache/aac-metrics",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
@@ -119,7 +119,7 @@ def aac_evaluate(
     :param mult_references: The list of list of sentences used as target.
     :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
         defaults to True.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache/aac-metrics".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :param verbose: The verbose level. defaults to 0.
@@ -140,7 +140,7 @@ def aac_evaluate(
 def _get_metrics_functions_list(
     metric_set_name: str,
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache/aac-metrics",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
@@ -169,7 +169,7 @@ def _get_metrics_functions_list(
 
 def _get_metrics_functions_factory(
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache/aac-metrics",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,

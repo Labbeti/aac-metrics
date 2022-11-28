@@ -13,6 +13,9 @@ from subprocess import CalledProcessError
 from torch.hub import download_url_to_file
 
 from aac_metrics.classes.fense import FENSE
+from aac_metrics.functional.coco_meteor import FNAME_METEOR_JAR
+from aac_metrics.functional.coco_spice import FNAME_SPICE_JAR, DNAME_SPICE_CACHE
+from aac_metrics.utils.tokenization import FNAME_STANFORD_CORENLP_3_4_1_JAR
 
 
 logger = logging.getLogger(__name__)
@@ -39,17 +42,25 @@ JAR_URLS = {
 
 
 def download(
-    cache_path: str = "$HOME/.cache/aac-metrics",
+    cache_path: str = "$HOME/.cache",
+    tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> None:
     """Download the code needed for SPICE, METEOR and PTB Tokenizer.
 
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache/aac-metrics".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param verbose: The verbose level. defaults to 0.
     """
     cache_path = osp.expandvars(cache_path)
+    tmp_path = osp.expandvars(tmp_path)
 
-    stanford_nlp_dpath = osp.join(cache_path, "stanford_nlp")
+    os.makedirs(cache_path, exist_ok=True)
+    os.makedirs(tmp_path, exist_ok=True)
+
+    # Download JAR file for tokenization
+    stanford_nlp_dpath = osp.join(
+        cache_path, osp.dirname(FNAME_STANFORD_CORENLP_3_4_1_JAR)
+    )
     os.makedirs(stanford_nlp_dpath, exist_ok=True)
 
     name = "stanford_nlp"
@@ -67,7 +78,8 @@ def download(
         if verbose >= 1:
             logger.info(f"Stanford model file '{name}' is already downloaded.")
 
-    meteor_dpath = osp.join(cache_path, "meteor")
+    # Download JAR files for METEOR metric
+    meteor_dpath = osp.join(cache_path, osp.dirname(FNAME_METEOR_JAR))
     os.makedirs(meteor_dpath, exist_ok=True)
 
     for name in ("meteor", "meteor_data"):
@@ -94,17 +106,23 @@ def download(
             if verbose >= 1:
                 logger.info(f"Meteor file '{name}' is already downloaded.")
 
-    script = osp.join(osp.dirname(__file__), "..", "..", "install_spice.sh")
-    if not osp.isfile(script):
-        raise FileNotFoundError(f"Cannot find script '{osp.basename(script)}'.")
+    # Download JAR files for SPICE metric
+    spice_jar_dpath = osp.join(cache_path, osp.dirname(FNAME_SPICE_JAR))
+    os.makedirs(spice_jar_dpath, exist_ok=True)
 
-    spice_dpath = osp.join(cache_path, "spice")
-    os.makedirs(spice_dpath, exist_ok=True)
+    spice_cache_path = osp.join(cache_path, DNAME_SPICE_CACHE)
+    os.makedirs(spice_cache_path, exist_ok=True)
+
+    script_path = osp.join(osp.dirname(__file__), "..", "..", "install_spice.sh")
+    if not osp.isfile(script_path):
+        raise FileNotFoundError(f"Cannot find script '{osp.basename(script_path)}'.")
 
     if verbose >= 1:
-        logger.info(f"Downloading JAR sources for SPICE metric into '{spice_dpath}'...")
+        logger.info(
+            f"Downloading JAR sources for SPICE metric into '{spice_jar_dpath}'..."
+        )
 
-    command = ["bash", script, spice_dpath]
+    command = ["bash", script_path, spice_jar_dpath]
     try:
         subprocess.check_call(
             command,
@@ -114,6 +132,7 @@ def download(
     except (CalledProcessError, PermissionError) as err:
         logger.error(err)
 
+    # Download models files for FENSE metric
     if verbose >= 1:
         logger.info("Downloading sBert and Bert error detector for FENSE metric...")
     _ = FENSE(device="cpu")
@@ -127,8 +146,14 @@ def _get_main_download_args() -> Namespace:
     parser.add_argument(
         "--cache_path",
         type=str,
-        default="$HOME/.cache/aac-metrics",
-        help="Cache directory.",
+        default="$HOME/.cache",
+        help="Cache directory path.",
+    )
+    parser.add_argument(
+        "--tmp_path",
+        type=str,
+        default="/tmp",
+        help="Temporary directory path.",
     )
     parser.add_argument("--verbose", type=int, default=1, help="Verbose level.")
 
@@ -148,7 +173,7 @@ def _main_download() -> None:
     level = logging.INFO if args.verbose <= 1 else logging.DEBUG
     pkg_logger.setLevel(level)
 
-    download(args.cache_path, args.verbose)
+    download(args.cache_path, args.tmp_path, args.verbose)
 
 
 if __name__ == "__main__":

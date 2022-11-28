@@ -36,7 +36,7 @@ class SPIDEr(AACMetric):
         n: int = 4,
         sigma: float = 6.0,
         # SPICE args
-        cache_path: str = "$HOME/.cache/aac-metrics",
+        cache_path: str = "$HOME/.cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
         n_threads: Optional[int] = None,

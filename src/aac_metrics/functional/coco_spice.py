@@ -23,15 +23,15 @@ from aac_metrics.utils.misc import check_java_path
 logger = logging.getLogger(__name__)
 
 
-SPICE_JAR_FNAME = osp.join("spice", "spice-1.0.jar")
-CACHE_DNAME = "spice_cache"
+DNAME_SPICE_CACHE = osp.join("aac-metrics", "spice", "cache")
+FNAME_SPICE_JAR = osp.join("aac-metrics", "spice", "spice-1.0.jar")
 
 
 def coco_spice(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache/aac-metrics",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     n_threads: Optional[int] = None,
@@ -47,7 +47,7 @@ def coco_spice(
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache/aac-metrics".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :param java_max_memory: The maximal java memory used. defaults to "8G".
@@ -62,26 +62,29 @@ def coco_spice(
     java_path = osp.expandvars(java_path)
     tmp_path = osp.expandvars(tmp_path)
 
-    if not check_java_path(java_path):
-        raise ValueError(
-            f"Cannot find java executable with {java_path=} for compute SPICE metric score."
-        )
+    spice_fpath = osp.join(cache_path, FNAME_SPICE_JAR)
 
-    spice_fpath = osp.join(cache_path, SPICE_JAR_FNAME)
-    if not osp.isfile(spice_fpath):
-        raise FileNotFoundError(
-            f"Cannot find JAR file '{SPICE_JAR_FNAME}' in directory '{cache_path}' for SPICE metric. Maybe run 'aac-metrics-download' before or specify a 'cache_path' directory."
-        )
+    if __debug__:
+        if not osp.isfile(spice_fpath):
+            raise FileNotFoundError(
+                f"Cannot find JAR file '{spice_fpath}' for SPICE metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
+            )
+        if not check_java_path(java_path):
+            raise ValueError(
+                f"Cannot find java executable with {java_path=} for compute SPICE metric score."
+            )
 
     if len(candidates) != len(mult_references):
         raise ValueError(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
 
-    os.makedirs(cache_path, exist_ok=True)
+    spice_cache = osp.join(cache_path, DNAME_SPICE_CACHE)
+    del cache_path
+    os.makedirs(spice_cache, exist_ok=True)
 
     if verbose >= 2:
-        logger.debug(f"Use cache directory {cache_path}.")
+        logger.debug(f"Use cache directory {spice_cache}.")
         logger.debug(f"Computing SPICE with JAR file {spice_fpath}...")
 
     input_data = [
@@ -130,7 +133,7 @@ def coco_spice(
         spice_fpath,
         in_file.name,
         "-cache",
-        cache_path,
+        spice_cache,
         "-out",
         out_file.name,
         "-subset",

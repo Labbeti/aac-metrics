@@ -4,6 +4,7 @@
 import importlib
 import os.path as osp
 import sys
+import torch
 import unittest
 
 from typing import Any
@@ -16,14 +17,16 @@ from aac_metrics.evaluate import load_csv_file
 class TestCompareFENSE(TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        print(f"{device=}")
         Evaluator = self.get_orig_evaluator_class()
         self.evaluator = Evaluator(
-            device="cpu",
+            device=device,
             echecker_model="echecker_clotho_audiocaps_base",
         )
         self.my_fense = FENSE(
             return_all_scores=False,
-            device="cpu",
+            device=device,
             verbose=2,
             echecker="echecker_clotho_audiocaps_base",
         )
@@ -33,6 +36,14 @@ class TestCompareFENSE(TestCase):
         sys.path.append(fense_path)
         fense_module = importlib.import_module("fense.evaluator")
         return fense_module.Evaluator
+
+    def test_example_1(self) -> None:
+        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_1.csv")
+        self._test_with_original_fense(fpath)
+
+    def test_example_2(self) -> None:
+        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_2.csv")
+        self._test_with_original_fense(fpath)
 
     def test_output_size(self) -> None:
         fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_1.csv")
@@ -44,14 +55,6 @@ class TestCompareFENSE(TestCase):
 
         for sents_score in sents_scores.values():
             self.assertEqual(len(cands), len(sents_score))
-
-    def test_example_1(self) -> None:
-        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_1.csv")
-        self._test_with_original_fense(fpath)
-
-    def test_example_2(self) -> None:
-        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_2.csv")
-        self._test_with_original_fense(fpath)
 
     def _test_with_original_fense(self, fpath: str) -> None:
         cands, mrefs = load_csv_file(fpath)

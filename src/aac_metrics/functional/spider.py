@@ -19,7 +19,7 @@ def spider(
     tokenizer: Callable[[str], list[str]] = str.split,
     return_tfidf: bool = False,
     # SPICE args
-    cache_path: str = "$HOME/.cache/aac-metrics",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     n_threads: Optional[int] = None,
@@ -40,7 +40,7 @@ def spider(
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
     :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the sents_score output.
         defaults to False.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache/aac-metrics".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :param java_max_memory: The maximal java memory used. defaults to "8G".
@@ -69,9 +69,9 @@ def spider(
         candidates,
         mult_references,
         return_all_scores,
+        cache_path=cache_path,
         java_path=java_path,
         tmp_path=tmp_path,
-        cache_path=cache_path,
         n_threads=n_threads,
         java_max_memory=java_max_memory,
         verbose=verbose,

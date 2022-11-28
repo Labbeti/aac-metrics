@@ -25,8 +25,6 @@ from transformers.models.auto.modeling_auto import AutoModel
 from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 
 
-RemoteFileMetadata = namedtuple("RemoteFileMetadata", ["filename", "url", "checksum"])
-
 # config according to the settings on your computer, this should be default setting of shadowsocks
 DEFAULT_PROXIES = {
     "http": "socks5h://127.0.0.1:1080",
@@ -43,6 +41,8 @@ PRETRAIN_ECHECKERS_DICT = {
     ),
     "none": (None, None),
 }
+
+RemoteFileMetadata = namedtuple("RemoteFileMetadata", ["filename", "url", "checksum"])
 
 
 class BERTFlatClassifier(nn.Module):
@@ -113,11 +113,12 @@ def load_pretrain_echecker(
     use_proxy: bool = False,
     proxies: Optional[dict[str, str]] = None,
 ) -> BERTFlatClassifier:
-    tfmers_logging.set_verbosity_error()  # suppress loading warnings
     if echecker_model not in PRETRAIN_ECHECKERS_DICT:
         raise ValueError(
             f"Invalid argument {echecker_model=}. (expected one of {tuple(PRETRAIN_ECHECKERS_DICT.keys())})"
         )
+
+    tfmers_logging.set_verbosity_error()  # suppress loading warnings
     url, checksum = PRETRAIN_ECHECKERS_DICT[echecker_model]
     remote = RemoteFileMetadata(
         filename=f"{echecker_model}.ckpt", url=url, checksum=checksum

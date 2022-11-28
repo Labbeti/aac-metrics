@@ -32,7 +32,7 @@ class CocoSPICE(AACMetric):
     def __init__(
         self,
         return_all_scores: bool = True,
-        cache_path: str = "$HOME/.cache/aac-metrics",
+        cache_path: str = "$HOME/.cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
         n_threads: Optional[int] = None,
