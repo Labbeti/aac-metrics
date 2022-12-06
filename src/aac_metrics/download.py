@@ -13,8 +13,8 @@ from subprocess import CalledProcessError
 from torch.hub import download_url_to_file
 
 from aac_metrics.classes.fense import FENSE
-from aac_metrics.functional.coco_meteor import FNAME_METEOR_JAR
-from aac_metrics.functional.coco_spice import FNAME_SPICE_JAR, DNAME_SPICE_CACHE
+from aac_metrics.functional.meteor import FNAME_METEOR_JAR
+from aac_metrics.functional.spice import FNAME_SPICE_JAR, DNAME_SPICE_CACHE
 from aac_metrics.utils.tokenization import FNAME_STANFORD_CORENLP_3_4_1_JAR
 
 

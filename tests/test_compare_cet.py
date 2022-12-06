@@ -47,7 +47,7 @@ class TestCompareCaptionEvaluationTools(TestCase):
     ]:
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
         self.install_spice()
-        # Append cet_path to allow imports of "coco_caption" in eval_metrics.py.
+        # Append cet_path to allow imports of "caption" in eval_metrics.py.
         sys.path.append(cet_path)
         # Override cache and tmp dir to avoid outputs in source code.
         spice_module = importlib.import_module("coco_caption.pycocoevalcap.spice.spice")

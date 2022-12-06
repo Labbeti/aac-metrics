@@ -8,9 +8,9 @@ import tqdm
 
 from torch import Tensor
 
-from aac_metrics.functional.coco_bleu import coco_bleu
-from aac_metrics.functional.coco_meteor import coco_meteor
-from aac_metrics.functional.coco_rouge_l import coco_rouge_l
+from aac_metrics.functional.bleu import bleu
+from aac_metrics.functional.meteor import meteor
+from aac_metrics.functional.rouge_l import rouge_l
 from aac_metrics.functional.fense import fense
 from aac_metrics.functional.spider import spider
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
@@ -176,34 +176,34 @@ def _get_metrics_functions_factory(
 ) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
     return {
         "bleu_1": partial(
-            coco_bleu,
+            bleu,
             return_all_scores=return_all_scores,
             n=1,
         ),
         "bleu_2": partial(
-            coco_bleu,
+            bleu,
             return_all_scores=return_all_scores,
             n=2,
         ),
         "bleu_3": partial(
-            coco_bleu,
+            bleu,
             return_all_scores=return_all_scores,
             n=3,
         ),
         "bleu_4": partial(
-            coco_bleu,
+            bleu,
             return_all_scores=return_all_scores,
             n=4,
         ),
         "meteor": partial(
-            coco_meteor,
+            meteor,
             return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
         ),
         "rouge_l": partial(
-            coco_rouge_l,
+            rouge_l,
             return_all_scores=return_all_scores,
         ),
         # Note: cider_d and spice and computed inside spider metric

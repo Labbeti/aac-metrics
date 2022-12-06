@@ -11,10 +11,10 @@ import torch
 from torch import Tensor
 
 
-BLEU_COCO_OPTIONS = ("shortest", "average", "closest")
+BLEU_OPTIONS = ("shortest", "average", "closest")
 
 
-def coco_bleu(
+def bleu(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
@@ -42,7 +42,7 @@ def coco_bleu(
         defauts to False.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    cooked_cands, cooked_mrefs = _coco_bleu_update(
+    cooked_cands, cooked_mrefs = _bleu_update(
         candidates,
         mult_references,
         n,
@@ -50,7 +50,7 @@ def coco_bleu(
         [],
         [],
     )
-    return _coco_bleu_compute(
+    return _bleu_compute(
         cooked_cands,
         cooked_mrefs,
         return_all_scores,
@@ -61,7 +61,7 @@ def coco_bleu(
     )
 
 
-def _coco_bleu_update(
+def _bleu_update(
     candidates: list[str],
     mult_references: list[list[str]],
     n: int,
@@ -85,7 +85,7 @@ def _coco_bleu_update(
     return prev_cooked_cands, prev_cooked_mrefs
 
 
-def _coco_bleu_compute(
+def _bleu_compute(
     cooked_cands: list,
     cooked_mrefs: list,
     return_all_scores: bool = True,
@@ -94,10 +94,8 @@ def _coco_bleu_compute(
     verbose: int = 0,
     return_1_to_n: bool = False,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
-    if option not in BLEU_COCO_OPTIONS:
-        raise ValueError(
-            f"Invalid option {option=}. (expected one of {BLEU_COCO_OPTIONS})"
-        )
+    if option not in BLEU_OPTIONS:
+        raise ValueError(f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})")
 
     score_1_to_n, scores_1_to_n = __compute_bleu_score(
         cooked_cands,
@@ -293,7 +291,7 @@ def __single_reflen(
         reflen = min((abs(len - testlen), len) for len in reflens)[1]
     else:
         raise ValueError(
-            f"Invalid argument {option=}. (expected one of {BLEU_COCO_OPTIONS})"
+            f"Invalid argument {option=}. (expected one of {BLEU_OPTIONS})"
         )
 
     return reflen

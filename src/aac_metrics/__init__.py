@@ -14,25 +14,25 @@ __version__ = "0.1.2"
 
 
 from .classes.base import AACMetric
-from .classes.coco_bleu import CocoBLEU
-from .classes.coco_cider_d import CocoCIDErD
-from .classes.coco_meteor import CocoMETEOR
-from .classes.coco_rouge_l import CocoRougeL
-from .classes.coco_spice import CocoSPICE
+from .classes.bleu import BLEU
+from .classes.cider_d import CIDErD
 from .classes.evaluate import AACEvaluate, _get_metrics_classes_factory
 from .classes.fense import FENSE
+from .classes.meteor import METEOR
+from .classes.rouge_l import ROUGEL
+from .classes.spice import SPICE
 from .classes.spider import SPIDEr
 from .functional.evaluate import aac_evaluate
 
 
 __all__ = [
-    "CocoBLEU",
-    "CocoCIDErD",
-    "CocoMETEOR",
-    "CocoRougeL",
-    "CocoSPICE",
+    "BLEU",
+    "CIDErD",
     "AACEvaluate",
     "FENSE",
+    "METEOR",
+    "ROUGEL",
+    "SPICE",
     "SPIDEr",
     "aac_evaluate",
 ]

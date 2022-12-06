@@ -27,7 +27,7 @@ DNAME_SPICE_CACHE = osp.join("aac-metrics", "spice", "cache")
 FNAME_SPICE_JAR = osp.join("aac-metrics", "spice", "spice-1.0.jar")
 
 
-def coco_spice(
+def spice(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,

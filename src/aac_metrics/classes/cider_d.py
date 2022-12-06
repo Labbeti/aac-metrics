@@ -6,18 +6,18 @@ from typing import Callable, Union
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.coco_cider_d import (
-    _coco_cider_d_compute,
-    _coco_cider_d_update,
+from aac_metrics.functional.cider_d import (
+    _cider_d_compute,
+    _cider_d_update,
 )
 
 
-class CocoCIDErD(AACMetric):
+class CIDErD(AACMetric):
     """Consensus-based Image Description Evaluation metric class.
 
     Paper: https://arxiv.org/pdf/1411.5726.pdf
 
-    For more information, see :func:`~aac_metrics.functional.coco_cider_d.coco_cider_d`.
+    For more information, see :func:`~aac_metrics.functional.cider_d.cider_d`.
     """
 
     full_state_update = False
@@ -46,7 +46,7 @@ class CocoCIDErD(AACMetric):
         self._cooked_mrefs = []
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
-        return _coco_cider_d_compute(
+        return _cider_d_compute(
             self._cooked_cands,
             self._cooked_mrefs,
             self._return_all_scores,
@@ -65,7 +65,7 @@ class CocoCIDErD(AACMetric):
         candidates: list[str],
         mult_references: list[list[str]],
     ) -> None:
-        self._cooked_cands, self._cooked_mrefs = _coco_cider_d_update(
+        self._cooked_cands, self._cooked_mrefs = _cider_d_update(
             candidates,
             mult_references,
             self._n,

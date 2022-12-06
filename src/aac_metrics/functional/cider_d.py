@@ -10,7 +10,7 @@ import torch
 from torch import Tensor
 
 
-def coco_cider_d(
+def cider_d(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
@@ -35,7 +35,7 @@ def coco_cider_d(
         defaults to False.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    cooked_cands, cooked_mrefs = _coco_cider_d_update(
+    cooked_cands, cooked_mrefs = _cider_d_update(
         candidates,
         mult_references,
         n,
@@ -43,7 +43,7 @@ def coco_cider_d(
         [],
         [],
     )
-    return _coco_cider_d_compute(
+    return _cider_d_compute(
         cooked_cands,
         cooked_mrefs,
         return_all_scores,
@@ -53,7 +53,7 @@ def coco_cider_d(
     )
 
 
-def _coco_cider_d_update(
+def _cider_d_update(
     candidates: list[str],
     mult_references: list[list[str]],
     n: int,
@@ -74,7 +74,7 @@ def _coco_cider_d_update(
     return prev_cooked_cands, prev_cooked_mrefs
 
 
-def _coco_cider_d_compute(
+def _cider_d_compute(
     cooked_cands: list,
     cooked_mrefs: list,
     return_all_scores: bool,
@@ -84,7 +84,7 @@ def _coco_cider_d_compute(
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Any]]]:
     if len(cooked_cands) <= 1:
         raise ValueError(
-            f"CIDEr metric does not support less than 2 candidates with 2 references. (found {len(cooked_cands)} candidates, but expected > 1)"
+            f"CIDEr-D metric does not support less than 2 candidates with 2 references. (found {len(cooked_cands)} candidates, but expected > 1)"
         )
     # compute idf
     document_frequency = __compute_doc_freq(cooked_mrefs)

@@ -24,7 +24,7 @@ from torch import Tensor
 logger = logging.getLogger(__name__)
 
 
-def coco_rouge_l(
+def rouge_l(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
@@ -44,13 +44,11 @@ def coco_rouge_l(
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    rouge_l_scores = _coco_rouge_l_update(
-        candidates, mult_references, beta, tokenizer, []
-    )
-    return _coco_rouge_l_compute(rouge_l_scores, return_all_scores)
+    rouge_l_scores = _rouge_l_update(candidates, mult_references, beta, tokenizer, [])
+    return _rouge_l_compute(rouge_l_scores, return_all_scores)
 
 
-def _coco_rouge_l_update(
+def _rouge_l_update(
     candidates: list[str],
     mult_references: list[list[str]],
     beta: float,
@@ -69,7 +67,7 @@ def _coco_rouge_l_update(
     return prev_rouge_l_scores
 
 
-def _coco_rouge_l_compute(
+def _rouge_l_compute(
     rouge_l_scores: list[float],
     return_all_scores: bool,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
@@ -100,7 +98,7 @@ def __calc_score(
 ) -> float:
     """Compute ROUGE-L score given one candidate and mult_references for an audio
     :param candidate: list of str : candidate sentence to be evaluated
-    :param refs: list of str : COCO reference sentences for the particular audio to be evaluated
+    :param refs: list of str : Reference sentences for the particular audio to be evaluated
     :returns score: int (ROUGE-L score for the candidate evaluated against mult_references)
     """
     assert len(references) > 0

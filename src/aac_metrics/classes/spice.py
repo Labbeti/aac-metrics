@@ -8,18 +8,18 @@ from typing import Optional, Union
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.coco_spice import coco_spice
+from aac_metrics.functional.spice import spice
 
 
 logger = logging.getLogger(__name__)
 
 
-class CocoSPICE(AACMetric):
+class SPICE(AACMetric):
     """Semantic Propositional Image Caption Evaluation class.
 
     Paper: https://arxiv.org/pdf/1607.08822.pdf
 
-    For more information, see :func:`~aac_metrics.functional.coco_spice.coco_spice`.
+    For more information, see :func:`~aac_metrics.functional.spice.spice`.
     """
 
     full_state_update = False
@@ -52,7 +52,7 @@ class CocoSPICE(AACMetric):
         self._mult_references = []
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
-        return coco_spice(
+        return spice(
             self._candidates,
             self._mult_references,
             self._return_all_scores,

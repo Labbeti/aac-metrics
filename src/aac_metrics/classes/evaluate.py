@@ -8,9 +8,9 @@ from typing import Callable, Iterable, Union
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.classes.coco_bleu import CocoBLEU
-from aac_metrics.classes.coco_meteor import CocoMETEOR
-from aac_metrics.classes.coco_rouge_l import CocoRougeL
+from aac_metrics.classes.bleu import BLEU
+from aac_metrics.classes.meteor import METEOR
+from aac_metrics.classes.rouge_l import ROUGEL
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.classes.spider import SPIDEr
 from aac_metrics.functional.evaluate import METRICS_SETS, evaluate
@@ -147,29 +147,29 @@ def _get_metrics_classes_factory(
     verbose: int = 0,
 ) -> dict[str, Callable[[], AACMetric]]:
     return {
-        "bleu_1": lambda: CocoBLEU(
+        "bleu_1": lambda: BLEU(
             return_all_scores=return_all_scores,
             n=1,
         ),
-        "bleu_2": lambda: CocoBLEU(
+        "bleu_2": lambda: BLEU(
             return_all_scores=return_all_scores,
             n=2,
         ),
-        "bleu_3": lambda: CocoBLEU(
+        "bleu_3": lambda: BLEU(
             return_all_scores=return_all_scores,
             n=3,
         ),
-        "bleu_4": lambda: CocoBLEU(
+        "bleu_4": lambda: BLEU(
             return_all_scores=return_all_scores,
             n=4,
         ),
-        "meteor": lambda: CocoMETEOR(
+        "meteor": lambda: METEOR(
             return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
         ),
-        "rouge_l": lambda: CocoRougeL(
+        "rouge_l": lambda: ROUGEL(
             return_all_scores=return_all_scores,
         ),
         # Note: cider_d and spice and computed inside spider metric

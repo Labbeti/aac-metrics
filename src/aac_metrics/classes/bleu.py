@@ -6,19 +6,19 @@ from typing import Callable, Union
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.coco_bleu import (
-    BLEU_COCO_OPTIONS,
-    _coco_bleu_compute,
-    _coco_bleu_update,
+from aac_metrics.functional.bleu import (
+    BLEU_OPTIONS,
+    _bleu_compute,
+    _bleu_update,
 )
 
 
-class CocoBLEU(AACMetric):
+class BLEU(AACMetric):
     """BiLingual Evaluation Understudy metric class.
 
     Paper: https://www.aclweb.org/anthology/P02-1040.pdf
 
-    For more information, see :func:`~aac_metrics.functional.coco_bleu.coco_bleu`.
+    For more information, see :func:`~aac_metrics.functional.bleu.bleu`.
     """
 
     full_state_update = False
@@ -36,9 +36,9 @@ class CocoBLEU(AACMetric):
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
-        if option not in BLEU_COCO_OPTIONS:
+        if option not in BLEU_OPTIONS:
             raise ValueError(
-                f"Invalid option {option=}. (expected one of {BLEU_COCO_OPTIONS})"
+                f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})"
             )
 
         super().__init__()
@@ -52,7 +52,7 @@ class CocoBLEU(AACMetric):
         self._cooked_mrefs = []
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
-        return _coco_bleu_compute(
+        return _bleu_compute(
             self._cooked_cands,
             self._cooked_mrefs,
             self._return_all_scores,
@@ -74,7 +74,7 @@ class CocoBLEU(AACMetric):
         candidates: list[str],
         mult_references: list[list[str]],
     ) -> None:
-        self._cooked_cands, self._cooked_mrefs = _coco_bleu_update(
+        self._cooked_cands, self._cooked_mrefs = _bleu_update(
             candidates,
             mult_references,
             self._n,

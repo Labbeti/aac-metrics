@@ -5,8 +5,8 @@ from typing import Callable, Optional, Union
 
 from torch import Tensor
 
-from aac_metrics.functional.coco_cider_d import coco_cider_d
-from aac_metrics.functional.coco_spice import coco_spice
+from aac_metrics.functional.cider_d import cider_d
+from aac_metrics.functional.spice import spice
 
 
 def spider(
@@ -56,7 +56,7 @@ def spider(
             f"Number of candidates and mult_references are different (found {len(candidates)} != {len(mult_references)})."
         )
 
-    cider_d_out = coco_cider_d(
+    cider_d_out = cider_d(
         candidates,
         mult_references,
         return_all_scores,
@@ -65,7 +65,7 @@ def spider(
         tokenizer=tokenizer,
         return_tfidf=return_tfidf,
     )
-    spice_out = coco_spice(
+    spice_out = spice(
         candidates,
         mult_references,
         return_all_scores,

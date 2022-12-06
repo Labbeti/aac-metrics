@@ -64,7 +64,7 @@ def ptb_tokenize_batch(
     java_path = osp.expandvars(java_path)
     tmp_path = osp.expandvars(tmp_path)
 
-    # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/coco_caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
+    # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
     sentences = list(sentences)
     if len(sentences) == 0:
         return []

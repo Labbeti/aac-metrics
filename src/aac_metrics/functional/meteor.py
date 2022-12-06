@@ -1,14 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
-# Python wrapper for METEOR implementation, by Xinlei Chen
-# Acknowledge Michael Denkowski for the generous discussion and help
-
-# =================================================================
-# This code was pulled from https://github.com/tylin/coco-caption
-# and refactored for Python 3.
-# =================================================================
+# ORIGINAL CODE FROM https://github.com/tylin/coco-caption
 
 import logging
 import os.path as osp
@@ -30,7 +23,7 @@ logger = logging.getLogger(__name__)
 FNAME_METEOR_JAR = osp.join("aac-metrics", "meteor", "meteor-1.5.jar")
 
 
-def coco_meteor(
+def meteor(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
