@@ -12,7 +12,7 @@ def check_metric_inputs(
     candidates: Any,
     mult_references: Any,
 ) -> None:
-    """Returns True candidates and mult_references have a valid type and size."""
+    """Raises ValueError if candidates and mult_references does not have a valid type and size."""
     if not is_mono_sents(candidates):
         raise ValueError("Invalid candidates type. (expected list[str])")
 

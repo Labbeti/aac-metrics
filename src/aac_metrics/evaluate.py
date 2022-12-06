@@ -12,7 +12,7 @@ from typing import Iterable, Union
 import yaml
 
 from aac_metrics.functional.evaluate import aac_evaluate
-from aac_metrics.utils.checks import check_inputs, check_java_path
+from aac_metrics.utils.checks import check_metric_inputs, check_java_path
 
 
 logger = logging.getLogger(__name__)
@@ -194,7 +194,7 @@ def _main_evaluate() -> None:
     candidates, mult_references = load_csv_file(
         args.input_file, args.cand_columns, args.mrefs_columns
     )
-    check_inputs(candidates, mult_references)
+    check_metric_inputs(candidates, mult_references)
 
     refs_lens = list(map(len, mult_references))
     if args.verbose >= 1:
