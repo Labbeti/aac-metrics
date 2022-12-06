@@ -6,10 +6,11 @@ import unittest
 
 from unittest import TestCase
 
-from aac_metrics.utils.misc import flat_list, unflat_list, is_mono_sents, is_mult_sents
+from aac_metrics.utils.checks import is_mono_sents, is_mult_sents
+from aac_metrics.utils.collections import flat_list, unflat_list
 
 
-class TestUtilsMisc(TestCase):
+class TestUtils(TestCase):
     def test_misc_functions_1(self) -> None:
         lst = [
             list(map(str, range(random.randint(0, 100))))

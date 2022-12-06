@@ -10,7 +10,8 @@ import time
 
 from typing import Any, Hashable, Iterable, Optional
 
-from aac_metrics.utils.misc import check_java_path, flat_list, unflat_list
+from aac_metrics.utils.checks import check_java_path
+from aac_metrics.utils.collections import flat_list, unflat_list
 
 
 logger = logging.getLogger(__name__)
