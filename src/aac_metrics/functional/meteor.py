@@ -14,7 +14,7 @@ import torch
 
 from torch import Tensor
 
-from aac_metrics.utils.misc import check_java_path
+from aac_metrics.utils.checks import check_java_path
 
 
 logger = logging.getLogger(__name__)
