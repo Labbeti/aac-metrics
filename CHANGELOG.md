@@ -4,16 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.0] UNRELEASED
 ### Added
-- `FENSE` metric class, function and unittest with original source code `fense`.
+- `FENSE` class and function metric.
+- Unittest with `fense` repository.
 - `load_metric` function in init to match huggingface dataset package.
 
 ### Changed
 - Rename `global_scores` to `corpus_scores` and `local_scores` to `sents_scores`.
 - Rename `CustomEvaluate` to `Evaluate` and `custom_evaluate` to `evaluate`.
 - Set default cache path to `$HOME/.cache`.
+- Remove 'coco' prefix to file, functions and classes names to have a cleaner names.
 
 ### Fixed
-- `FENSE` metric error when computing scores with less than `batch_size=32` sentences.
+- `FENSE` metric error when computing scores with less than `batch_size` sentences.
 
 ## [0.1.2] 2022-10-31
 ### Added
