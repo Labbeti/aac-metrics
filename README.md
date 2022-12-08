@@ -62,8 +62,8 @@ from aac_metrics import aac_evaluate
 candidates: list[str] = ["a man is speaking", ...]
 mult_references: list[list[str]] = [["a man speaks.", "someone speaks.", "a man is speaking while a bird is chirping in the background"], ...]
 
-global_scores, _ = aac_evaluate(candidates, mult_references)
-print(global_scores)
+corpus_scores, _ = aac_evaluate(candidates, mult_references)
+print(corpus_scores)
 # dict containing the score of each aac metric: "bleu_1", "bleu_2", "bleu_3", "bleu_4", "rouge_l", "meteor", "cider_d", "spice", "spider"
 # {"bleu_1": tensor(0.7), "bleu_2": ..., ...}
 ```
@@ -81,10 +81,10 @@ mult_references: list[list[str]] = [["a man speaks.", "someone speaks.", "a man 
 candidates = preprocess_mono_sents(candidates)
 mult_references = preprocess_mult_sents(mult_references)
 
-global_scores, local_scores = cider_d(candidates, mult_references)
-print(global_scores)
+corpus_scores, sents_scores = cider_d(candidates, mult_references)
+print(corpus_scores)
 # {"cider_d": tensor(0.1)}
-print(local_scores)
+print(sents_scores)
 # {"cider_d": tensor([0.9, ...])}
 ```
 
@@ -153,10 +153,10 @@ mult_references: list[list[str]] = [["a man speaks.", "someone speaks.", "a man 
 mult_candidates = preprocess_mult_sents(mult_candidates)
 mult_references = preprocess_mult_sents(mult_references)
 
-global_scores, local_scores = spider_max(mult_candidates, mult_references)
-print(global_scores)
+corpus_scores, sents_scores = spider_max(mult_candidates, mult_references)
+print(corpus_scores)
 # {"spider": tensor(0.1), ...}
-print(local_scores)
+print(sents_scores)
 # {"spider": tensor([0.9, ...]), ...}
 ```
 
