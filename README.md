@@ -14,12 +14,13 @@ Audio Captioning metrics source code, designed for Pytorch.
 </div>
 
 This package is a tool to evaluate sentences produced by automated captioning systems.
-The results are consistents for BLEU [[1]](#bleu), ROUGE-L [[2]](#rouge-l), METEOR [[3]](#meteor), CIDEr-D [[4]](#cider), SPICE [[5]](#spice) and SPIDEr [[6]](#spider) with [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and for FENSE [[8]](#fense) with [fense](https://github.com/blmoistawinde/fense).
+The results are the same than BLEU [[1]](#bleu), ROUGE-L [[2]](#rouge-l), METEOR [[3]](#meteor), CIDEr-D [[4]](#cider), SPICE [[5]](#spice) and SPIDEr [[6]](#spider) in [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and tahn FENSE [[8]](#fense) in [fense](https://github.com/blmoistawinde/fense).
 
 ## Why using this package?
 - Easy installation with pip
-- Consistent with [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense)
 - Provides functions and classes to compute metrics separately
+- Returns torch tensors directly
+- Same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense)
 - Provides SPIDEr-max [[7]](#spider-max) and FENSE [[8]](#fense) metrics
 
 ## Installation
