@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.0] UNRELEASED
 ### Added
-- `FENSE` class and function metric.
+- `FENSE` class and function metric, with fluency error rate.
 - Unittest with `fense` repository.
 - `load_metric` function in init to match huggingface dataset package.
 

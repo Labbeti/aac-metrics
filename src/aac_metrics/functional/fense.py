@@ -67,7 +67,6 @@ def fense(
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
     :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.9.
-    :param agg_score: The aggregate function applied. Can be "mean", "max" or "sum". defaults to "mean".
     :param device: The pytorch device used to run the sBERT and echecker models. defaults to "cpu".
     :param batch_size: The batch size of the sBERT and echecker models. defaults to 32.
     :param verbose: The verbose level. defaults to 0.
@@ -104,11 +103,13 @@ def fense(
             batch_size,
             device,
         )
-        has_errors = (probs_dic["error"] > error_threshold).astype(float)
-        probs_dic = {f"fense.{k}_prob": torch.from_numpy(v) for k, v in probs_dic.items()}
-        fense_scores = sbert_cos_sims * (1.0 - penalty * has_errors)
+        fluency_errors = (probs_dic["error"] > error_threshold).astype(float)
+        probs_dic = {
+            f"fense.{k}_prob": torch.from_numpy(v) for k, v in probs_dic.items()
+        }
+        fense_scores = sbert_cos_sims * (1.0 - penalty * fluency_errors)
     else:
-        has_errors = None
+        fluency_errors = None
         probs_dic = {}
         fense_scores = sbert_cos_sims
 
@@ -123,19 +124,19 @@ def fense(
 
     if return_all_scores:
         sents_scores = {
-            "fense.score": fense_scores,
-            "sbert.cos_sim": sbert_cos_sims,
+            "fense": fense_scores,
+            "sbert.sim": sbert_cos_sims,
         } | probs_dic
         corpus_scores = {
-            "fense.score": fense_score,
-            "sbert.cos_sim": sbert_cos_sim,
+            "fense": fense_score,
+            "sbert.sim": sbert_cos_sim,
         }
 
-        if has_errors is not None:
-            has_errors = torch.from_numpy(has_errors)
-            has_error = has_errors.mean()
-            sents_scores["fense.has_error"] = has_errors
-            corpus_scores["fense.has_error"] = has_error
+        if fluency_errors is not None:
+            fluency_errors = torch.from_numpy(fluency_errors)
+            fluency_error = fluency_errors.mean()
+            sents_scores["fluency_error"] = fluency_errors
+            corpus_scores["fluency_error"] = fluency_error
 
         return corpus_scores, sents_scores
     else:
