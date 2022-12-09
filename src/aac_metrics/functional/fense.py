@@ -203,11 +203,11 @@ def _detect_error_sents(
             device=device,
             dtype=torch.long,
         )
-        logits = echecker(**batch)
+        logits: Tensor = echecker(**batch)
         assert not logits.requires_grad
         # batch_logits: (bsize, num_classes=6)
         # note: fix error in the original fense code: https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L69
-        probs = logits.sigmoid().tranpose(0, 1).cpu().numpy()
+        probs = logits.sigmoid().transpose(0, 1).cpu().numpy()
         probs_dic = dict(zip(ERROR_NAMES, probs))
 
     else:
@@ -222,7 +222,7 @@ def _detect_error_sents(
                 dtype=torch.long,
             )
 
-            batch_logits = echecker(**batch)
+            batch_logits: Tensor = echecker(**batch)
             assert not batch_logits.requires_grad
             # batch_logits: (bsize, num_classes=6)
             # classes: add_tail, repeat_event, repeat_adv, remove_conj, remove_verb, error
