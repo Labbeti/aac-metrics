@@ -39,7 +39,6 @@ class FENSE(AACMetric):
         echecker: Union[None, str] = "echecker_clotho_audiocaps_base",
         error_threshold: float = 0.9,
         penalty: float = 0.9,
-        agg_score: str = "mean",
         device: Union[str, torch.device, None] = "cpu",
         batch_size: int = 32,
         verbose: int = 0,
@@ -53,7 +52,6 @@ class FENSE(AACMetric):
         self._echecker_tokenizer = echecker_tokenizer
         self._error_threshold = error_threshold
         self._penalty = penalty
-        self._agg_score = agg_score
         self._device = device
         self._batch_size = batch_size
         self._verbose = verbose
@@ -71,7 +69,6 @@ class FENSE(AACMetric):
             self._echecker_tokenizer,
             self._error_threshold,
             self._penalty,
-            self._agg_score,
             self._device,
             self._batch_size,
             self._verbose,
