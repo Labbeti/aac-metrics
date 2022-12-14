@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict, Counter
-from typing import Any, Callable, Union
+from typing import Any, Callable, Mapping, Union
 
 import numpy as np
 import torch
@@ -58,8 +58,8 @@ def _cider_d_update(
     mult_references: list[list[str]],
     n: int,
     tokenizer: Callable[[str], list[str]],
-    prev_cooked_cands: list,
-    prev_cooked_mrefs: list,
+    prev_cooked_cands: list[Counter],
+    prev_cooked_mrefs: list[list[Counter]],
 ) -> tuple[list, list]:
     if len(candidates) != len(mult_references):
         raise ValueError(
@@ -75,8 +75,8 @@ def _cider_d_update(
 
 
 def _cider_d_compute(
-    cooked_cands: list,
-    cooked_mrefs: list,
+    cooked_cands: list[Counter],
+    cooked_mrefs: list[list[Counter]],
     return_all_scores: bool,
     n: int,
     sigma: float,
@@ -88,18 +88,20 @@ def _cider_d_compute(
         )
     # compute idf
     document_frequency = __compute_doc_freq(cooked_mrefs)
-    # compute log reference length
-    log_ref_len = np.log(float(len(cooked_mrefs)))
     # sanity check: assert to check document frequency
-    assert len(cooked_cands) >= max(document_frequency.values())
+    assert len(cooked_cands) >= max(document_frequency.values()), "Sanity check failed."
+
+    # compute log reference length
+    log_n_refs = np.log(float(len(cooked_mrefs)))
     # compute cider score
     cider_d_scores, tfidf_lst = __compute_cider(
         cooked_cands,
         cooked_mrefs,
         document_frequency,
-        log_ref_len,
+        log_n_refs,
         n,
         sigma,
+        scale=10.0,
     )
     cider_d_score = cider_d_scores.mean()
 
@@ -161,30 +163,35 @@ def __compute_doc_freq(cooked_mrefs: list[list[Counter]]) -> Counter[tuple[str, 
 
 def __counter_to_vec(
     counters: dict[tuple, int],
-    log_ref_len: float,
+    log_n_refs: float,
     n: int,
-    document_frequency: Counter[tuple],
+    document_frequency: Union[Mapping[tuple, int], Callable[[tuple], int]],
 ) -> tuple[list[defaultdict], np.ndarray, int]:
     """
     Function maps counts of ngram to vector of tfidf weights.
     The function returns vec, an array of dictionary that store mapping of n-gram and tf-idf weights.
     The n-th entry of array denotes length of n-grams.
     :param cnts:
-    :return: vec (array of dict), norm (array of float), length (int)
+    :return: tf-idf of n-grams (array of n dict[tuple, float]), norm (array of n floats) (norms for n-grams), length (int) (number of distinct n-grams from 1 to n)
     """
     vec = [defaultdict(float) for _ in range(n)]
     length = 0
     norm = np.zeros((n,))
 
     for (ngram, term_freq) in counters.items():
-        # give word count 1 if it doesn't appear in reference corpus
-        log_df = np.log(max(1.0, document_frequency[ngram]))
+        if isinstance(document_frequency, Mapping):
+            count = document_frequency[ngram]
+        else:
+            count = document_frequency(ngram)
+
+        # give ngram count 1 if it doesn't appear in reference corpus
+        log_df = np.log(max(1.0, count))
 
         # ngram index
         cur_n = len(ngram) - 1
 
         # tf (term_freq) * idf (precomputed idf) for n-grams
-        vec[cur_n][ngram] = float(term_freq) * (log_ref_len - log_df)
+        vec[cur_n][ngram] = float(term_freq) * (log_n_refs - log_df)
 
         # compute norm for the vector.  the norm will be used for computing similarity
         norm[cur_n] += pow(vec[cur_n][ngram], 2)
@@ -208,55 +215,55 @@ def __similarity(
 ) -> np.ndarray:
     """
     Compute the cosine similarity of two vectors.
-    :param vec_hyp: array of dictionary for vector corresponding to hypothesis
-    :param vec_ref: array of dictionary for vector corresponding to reference
-    :param norm_hyp: array of float for vector corresponding to hypothesis
-    :param norm_ref: array of float for vector corresponding to reference
-    :param length_hyp: int containing length of hypothesis
-    :param length_ref: int containing length of reference
-    :return: array of score for each n-grams cosine similarity
+
+    :param cand_vec: (n, nb_ngrams_of_len_n), contains the TFIDF scores for one candidate
+    :param ref_vec: (n, nb_ngrams_of_len_n), contains the TFIDF scores for one reference
+    :param cand_norm: (n,), norms of the candidate n-grams vectors
+    :param ref_norm: (n,), norms of the reference n-grams vectors
+    :param cand_len: Size of the candidate
+    :returns: N-grams similarities as array of shape (n,)
     """
     delta = float(cand_len - ref_len)
     # measure consine similarity
-    val = np.zeros((n,))
+    similarities = np.zeros((n,))
 
     for ni in range(n):
         # ngram
         for (ngram, count) in cand_vec[ni].items():
             # vrama91 : added clipping
-            val[ni] += min(count, ref_vec[ni][ngram]) * ref_vec[ni][ngram]
+            similarities[ni] += min(count, ref_vec[ni][ngram]) * ref_vec[ni][ngram]
 
         if (cand_norm[ni] != 0) and (ref_norm[ni] != 0):
-            val[ni] /= cand_norm[ni] * ref_norm[ni]
+            similarities[ni] /= cand_norm[ni] * ref_norm[ni]
 
         # vrama91: added a length based gaussian penalty
-        val[ni] *= np.e ** (-(delta**2) / (2 * sigma**2))
+        similarities[ni] *= np.e ** (-(delta**2) / (2 * sigma**2))
 
-    return val
+    return similarities
 
 
 def __compute_cider(
-    cooked_cands: list,
-    cooked_mrefs: list,
-    document_frequency: Counter,
-    log_ref_len: float,
+    cooked_cands: list[Counter],
+    cooked_mrefs: list[list[Counter]],
+    document_frequency: Union[Counter[tuple], Callable[[tuple], int]],
+    log_n_refs: float,
     n: int,
     sigma: float,
-    scale: float = 10.0,
+    scale: float,
 ) -> tuple[np.ndarray, list[tuple[list, list]]]:
 
     scores = np.empty((len(cooked_cands),))
     tfidf_lst = []
 
-    for i, (test, refs) in enumerate(zip(cooked_cands, cooked_mrefs)):
+    for i, (cand, refs) in enumerate(zip(cooked_cands, cooked_mrefs)):
         # compute vector for test captions
-        vec, norm, length = __counter_to_vec(test, log_ref_len, n, document_frequency)
+        vec, norm, length = __counter_to_vec(cand, log_n_refs, n, document_frequency)
         # compute vector for ref captions
         ngrams_scores = np.zeros((n,))
         vec_refs = []
         for ref in refs:
             vec_ref, norm_ref, length_ref = __counter_to_vec(
-                ref, log_ref_len, n, document_frequency
+                ref, log_n_refs, n, document_frequency
             )
             vec_refs.append(vec_ref)
             ngrams_scores += __similarity(
@@ -264,12 +271,13 @@ def __compute_cider(
             )
         # change by vrama91 - mean of ngram scores, instead of sum
         score_avg = np.mean(ngrams_scores)
-        # divide by number of mult_references
+        # divide by number of references
         score_avg /= len(refs)
         # multiply score by 10
         score_avg *= scale
         # append score of an image to the score list
         scores[i] = score_avg
+
         tfidf_lst.append((vec, vec_refs))
 
     return scores, tfidf_lst
