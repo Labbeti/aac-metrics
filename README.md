@@ -237,7 +237,7 @@ arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 [8] Z. Zhou, Z. Zhang, X. Xu, Z. Xie, M. Wu, and K. Q. Zhu, Can Audio Captions Be Evaluated with Image Caption Metrics? arXiv, 2022. [Online]. Available: http://arxiv.org/abs/2110.04684 
 
 ## Citation
-If you use this code with SPIDEr-max, you can cite the following paper:
+If you use SPIDEr-max, you can cite the following paper:
 ```
 @inproceedings{labbe:hal-03810396,
   TITLE = {{Is my automatic audio captioning system so bad? spider-max: a metric to consider several caption candidates}},
