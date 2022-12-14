@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] UNRELEASED
+### Changed
+- Fix README typo.
+
 ## [0.2.0] 2022-12-14
 ### Added
 - `FENSE` class and function metric, with fluency error rate and raw output probabilities.
