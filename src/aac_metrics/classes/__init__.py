@@ -1,12 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from .base import Metric
-from .coco_bleu import CocoBLEU
-from .coco_cider_d import CocoCIDErD
-from .coco_meteor import CocoMETEOR
-from .coco_rouge_l import CocoRougeL
-from .coco_spice import CocoSPICE
-from .evaluate import CustomEvaluate, AACEvaluate
-from .spider_max import spider_max
+from .bleu import BLEU
+from .cider_d import CIDErD
+from .evaluate import Evaluate, AACEvaluate
+from .fense import FENSE
+from .meteor import METEOR
+from .rouge_l import ROUGEL
+from .spice import SPICE
 from .spider import SPIDEr
+from .spider_max import SPIDErMax
+
+
+__all__ = [
+    "BLEU",
+    "CIDErD",
+    "AACEvaluate",
+    "Evaluate",
+    "FENSE",
+    "METEOR",
+    "ROUGEL",
+    "SPICE",
+    "SPIDEr",
+    "SPIDErMax",
+]

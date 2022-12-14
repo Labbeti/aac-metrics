@@ -4,11 +4,14 @@
 from functools import partial
 from typing import Any, Callable, Iterable, Union
 
+import tqdm
+
 from torch import Tensor
 
-from aac_metrics.functional.coco_bleu import coco_bleu
-from aac_metrics.functional.coco_meteor import coco_meteor
-from aac_metrics.functional.coco_rouge_l import coco_rouge_l
+from aac_metrics.functional.bleu import bleu
+from aac_metrics.functional.meteor import meteor
+from aac_metrics.functional.rouge_l import rouge_l
+from aac_metrics.functional.fense import fense
 from aac_metrics.functional.spider import spider
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
@@ -35,16 +38,17 @@ METRICS_SETS = {
         "cider_d",
         "spice",
         "spider",
+        "fense",
     ),
 }
 
 
-def custom_evaluate(
+def evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
-    metrics: Union[str, Iterable[Callable]] = "aac",
-    cache_path: str = "$HOME/aac-metrics-cache",
+    metrics: Union[str, Iterable[Callable[[list, list], tuple]]] = "aac",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
@@ -55,7 +59,7 @@ def custom_evaluate(
     :param mult_references: The list of list of sentences used as target.
     :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.defaults to True.
     :param metrics: The name of the metric list or the explicit list of metrics to compute. defaults to "aac".
-    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :param verbose: The verbose level. defaults to 0.
@@ -64,14 +68,14 @@ def custom_evaluate(
     if isinstance(metrics, str):
         metrics = _get_metrics_functions_list(
             metrics,
+            return_all_scores=True,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
             verbose=verbose,
         )
-
-    global_outs = {}
-    local_outs = {}
+    else:
+        metrics = list(metrics)
 
     if preprocess:
         candidates = preprocess_mono_sents(
@@ -81,11 +85,22 @@ def custom_evaluate(
             mult_references, cache_path, java_path, tmp_path, verbose
         )
 
+    pbar = tqdm.tqdm(
+        total=len(metrics), disable=verbose < 2, desc="Computing metrics..."
+    )
+
+    global_outs = {}
+    local_outs = {}
+
     for metric in metrics:
+        name = metric.__class__.__name__
+        pbar.set_description(f"Computing {name} metric...")
         global_outs_i, local_outs_i = metric(candidates, mult_references)
         global_outs |= global_outs_i
         local_outs |= local_outs_i
+        pbar.update(1)
 
+    pbar.close()
     return global_outs, local_outs
 
 
@@ -93,7 +108,7 @@ def aac_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
-    cache_path: str = "$HOME/aac-metrics-cache",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
@@ -104,33 +119,38 @@ def aac_evaluate(
     :param mult_references: The list of list of sentences used as target.
     :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
         defaults to True.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores.
     """
-    return custom_evaluate(
+    return evaluate(
         candidates,
         mult_references,
         preprocess,
-        metrics="aac",
-        cache_path=cache_path,
-        java_path=java_path,
-        tmp_path=tmp_path,
-        verbose=verbose,
+        "aac",
+        cache_path,
+        java_path,
+        tmp_path,
+        verbose,
     )
 
 
 def _get_metrics_functions_list(
     metric_set_name: str,
-    cache_path: str = "$HOME/aac-metrics-cache",
+    return_all_scores: bool = True,
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> list[Callable]:
     metrics_factory = _get_metrics_functions_factory(
-        cache_path, java_path, tmp_path, verbose
+        return_all_scores,
+        cache_path,
+        java_path,
+        tmp_path,
+        verbose,
     )
 
     if metric_set_name in METRICS_SETS:
@@ -148,50 +168,56 @@ def _get_metrics_functions_list(
 
 
 def _get_metrics_functions_factory(
-    cache_path: str = "$HOME/aac-metrics-cache",
+    return_all_scores: bool = True,
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
 ) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
     return {
         "bleu_1": partial(
-            coco_bleu,
-            return_all_scores=True,
+            bleu,
+            return_all_scores=return_all_scores,
             n=1,
         ),
         "bleu_2": partial(
-            coco_bleu,
-            return_all_scores=True,
+            bleu,
+            return_all_scores=return_all_scores,
             n=2,
         ),
         "bleu_3": partial(
-            coco_bleu,
-            return_all_scores=True,
+            bleu,
+            return_all_scores=return_all_scores,
             n=3,
         ),
         "bleu_4": partial(
-            coco_bleu,
-            return_all_scores=True,
+            bleu,
+            return_all_scores=return_all_scores,
             n=4,
         ),
         "meteor": partial(
-            coco_meteor,
-            return_all_scores=True,
+            meteor,
+            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
         ),
         "rouge_l": partial(
-            coco_rouge_l,
-            return_all_scores=True,
+            rouge_l,
+            return_all_scores=return_all_scores,
         ),
         # Note: cider_d and spice and computed inside spider metric
         "spider": partial(
             spider,
-            return_all_scores=True,
+            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
+            verbose=verbose,
+        ),
+        "fense": partial(
+            fense,
+            return_all_scores=return_all_scores,
             verbose=verbose,
         ),
     }

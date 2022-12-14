@@ -8,17 +8,19 @@ import subprocess
 import tempfile
 import time
 
-from typing import Any, Hashable, Iterable, TypeVar, Optional
+from typing import Any, Hashable, Iterable, Optional
 
-from aac_metrics.utils.misc import _check_java_path
+from aac_metrics.utils.checks import check_java_path
+from aac_metrics.utils.collections import flat_list, unflat_list
 
 
 logger = logging.getLogger(__name__)
-T = TypeVar("T")
 
 
 # Path to the stanford corenlp jar
-STANFORD_CORENLP_3_4_1_JAR = osp.join("stanford_nlp", "stanford-corenlp-3.4.1.jar")
+FNAME_STANFORD_CORENLP_3_4_1_JAR = osp.join(
+    "aac-metrics", "stanford_nlp", "stanford-corenlp-3.4.1.jar"
+)
 # Punctuations to be removed from the sentences
 PTB_PUNCTUATIONS = (
     "''",
@@ -44,7 +46,7 @@ PTB_PUNCTUATIONS = (
 def ptb_tokenize_batch(
     sentences: Iterable[str],
     audio_ids: Optional[Iterable[Hashable]] = None,
-    cache_path: str = "$HOME/aac-metrics-cache",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
@@ -53,7 +55,7 @@ def ptb_tokenize_batch(
 
     :param sentences: The sentences to tokenize.
     :param audio_ids: The optional audio names. None will use the audio index as name. defaults to None.
-    :param cache_path: The path to the external directory containing the JAR program. defaults to "$HOME/aac-metrics-cache".
+    :param cache_path: The path to the external directory containing the JAR program. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: The path to a temporary directory. defaults to "/tmp".
     :param verbose: The verbose level. defaults to 0.
@@ -63,31 +65,32 @@ def ptb_tokenize_batch(
     java_path = osp.expandvars(java_path)
     tmp_path = osp.expandvars(tmp_path)
 
-    # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/coco_caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
+    # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
     sentences = list(sentences)
     if len(sentences) == 0:
         return []
 
-    stanford_fpath = osp.join(cache_path, STANFORD_CORENLP_3_4_1_JAR)
+    stanford_fpath = osp.join(cache_path, FNAME_STANFORD_CORENLP_3_4_1_JAR)
 
     # Sanity checks
-    if not osp.isdir(cache_path):
-        raise RuntimeError(f"Cannot find cache directory at {cache_path=}.")
-    if not osp.isdir(tmp_path):
-        raise RuntimeError(f"Cannot find tmp directory at {tmp_path=}.")
-    if not osp.isfile(stanford_fpath):
-        raise FileNotFoundError(
-            f"Cannot find jar file {STANFORD_CORENLP_3_4_1_JAR} in {cache_path=}. Maybe run 'aac-metrics-download' before or specify a 'cache_path' directory."
-        )
-    if not _check_java_path(java_path):
-        raise ValueError(
-            f"Cannot find java executable with {java_path=} to tokenize sentences."
-        )
+    if __debug__:
+        if not osp.isdir(cache_path):
+            raise RuntimeError(f"Cannot find cache directory at {cache_path=}.")
+        if not osp.isdir(tmp_path):
+            raise RuntimeError(f"Cannot find tmp directory at {tmp_path=}.")
+        if not osp.isfile(stanford_fpath):
+            raise FileNotFoundError(
+                f"Cannot find JAR file '{stanford_fpath}' for tokenization. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
+            )
+        if not check_java_path(java_path):
+            raise ValueError(
+                f"Cannot find java executable with {java_path=} to tokenize sentences."
+            )
 
     start_time = time.perf_counter()
     if verbose >= 2:
         logger.debug(
-            f"Start executing {STANFORD_CORENLP_3_4_1_JAR} JAR file for tokenization. ({len(sentences)=})"
+            f"Start executing {FNAME_STANFORD_CORENLP_3_4_1_JAR} JAR file for tokenization. ({len(sentences)=})"
         )
 
     cmd = [
@@ -167,7 +170,7 @@ def ptb_tokenize_batch(
 
 def preprocess_mono_sents(
     sentences: list[str],
-    cache_path: str = "$HOME/aac-metrics-cache",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
@@ -178,7 +181,7 @@ def preprocess_mono_sents(
     If you want to process multiple sentences (list[list[str]]), use `preprocess_mult_sents` instead.
 
     :param sentences: The list of sentences to process.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :returns: The sentences processed by the tokenizer.
@@ -192,7 +195,7 @@ def preprocess_mono_sents(
 
 def preprocess_mult_sents(
     mult_sentences: list[list[str]],
-    cache_path: str = "$HOME/aac-metrics-cache",
+    cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     verbose: int = 0,
@@ -200,7 +203,7 @@ def preprocess_mult_sents(
     """Tokenize multiple sentences using PTB Tokenizer with only 1 call then merge them by space.
 
     :param mult_sentences: The list of list of sentences to process.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/aac-metrics-cache".
+    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :returns: The multiple sentences processed by the tokenizer.
@@ -217,20 +220,3 @@ def preprocess_mult_sents(
     )
     mult_sentences = unflat_list(flatten_sents, sizes)
     return mult_sentences
-
-
-def flat_list(lst: list[list[T]]) -> tuple[list[T], list[int]]:
-    flatten_lst = [element for sublst in lst for element in sublst]
-    sizes = [len(sents) for sents in lst]
-    return flatten_lst, sizes
-
-
-def unflat_list(flatten_lst: list[T], sizes: list[int]) -> list[list[T]]:
-    lst = []
-    start = 0
-    stop = 0
-    for count in sizes:
-        stop += count
-        lst.append(flatten_lst[start:stop])
-        start = stop
-    return lst

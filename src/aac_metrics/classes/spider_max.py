@@ -7,14 +7,14 @@ from typing import Optional, Union
 
 from torch import Tensor
 
-from aac_metrics.classes.base import Metric
+from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.spider_max import spider_max
 
 
 logger = logging.getLogger(__name__)
 
 
-class SPIDErMax(Metric):
+class SPIDErMax(AACMetric):
     """SPIDEr-max class.
 
     Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
@@ -37,7 +37,7 @@ class SPIDErMax(Metric):
         n: int = 4,
         sigma: float = 6.0,
         # SPICE args
-        cache_path: str = "$HOME/aac-metrics-cache",
+        cache_path: str = "$HOME/.cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
         n_threads: Optional[int] = None,

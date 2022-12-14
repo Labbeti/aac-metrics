@@ -8,18 +8,18 @@ from typing import Optional, Union
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.spider import spider
+from aac_metrics.functional.spice import spice
 
 
 logger = logging.getLogger(__name__)
 
 
-class SPIDEr(AACMetric):
-    """SPIDEr class.
+class SPICE(AACMetric):
+    """Semantic Propositional Image Caption Evaluation class.
 
-    Paper: https://arxiv.org/pdf/1612.00370.pdf
+    Paper: https://arxiv.org/pdf/1607.08822.pdf
 
-    For more information, see :func:`~aac_metrics.functional.spider.spider`.
+    For more information, see :func:`~aac_metrics.functional.spice.spice`.
     """
 
     full_state_update = False
@@ -27,15 +27,11 @@ class SPIDEr(AACMetric):
     is_differentiable = False
 
     min_value = 0.0
-    max_value = 5.5
+    max_value = 1.0
 
     def __init__(
         self,
         return_all_scores: bool = True,
-        # CIDEr args
-        n: int = 4,
-        sigma: float = 6.0,
-        # SPICE args
         cache_path: str = "$HOME/.cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
@@ -45,8 +41,6 @@ class SPIDEr(AACMetric):
     ) -> None:
         super().__init__()
         self._return_all_scores = return_all_scores
-        self._n = n
-        self._sigma = sigma
         self._cache_path = cache_path
         self._java_path = java_path
         self._tmp_path = tmp_path
@@ -58,20 +52,16 @@ class SPIDEr(AACMetric):
         self._mult_references = []
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
-        return spider(
+        return spice(
             self._candidates,
             self._mult_references,
             self._return_all_scores,
-            # CIDEr args
-            n=self._n,
-            sigma=self._sigma,
-            # SPICE args
-            cache_path=self._cache_path,
-            java_path=self._java_path,
-            tmp_path=self._tmp_path,
-            n_threads=self._n_threads,
-            java_max_memory=self._java_max_memory,
-            verbose=self._verbose,
+            self._cache_path,
+            self._java_path,
+            self._tmp_path,
+            self._n_threads,
+            self._java_max_memory,
+            self._verbose,
         )
 
     def reset(self) -> None:

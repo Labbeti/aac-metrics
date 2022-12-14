@@ -5,21 +5,18 @@ import unittest
 
 from unittest import TestCase
 
-try:
+from aac_metrics.classes.bleu import BLEU
+from aac_metrics.utils.imports import _TORCHMETRICS_AVAILABLE
+
+if _TORCHMETRICS_AVAILABLE:
     from torchmetrics.text.bleu import BLEUScore
-
-    TORCHMETRICS_IS_INSTALLED = True
-
-except ModuleNotFoundError:
-    TORCHMETRICS_IS_INSTALLED = False
-
-from aac_metrics.classes.coco_bleu import CocoBLEU
 
 
 class TestBleu(TestCase):
     def test_bleu(self) -> None:
-        if not TORCHMETRICS_IS_INSTALLED:
-            return
+        if not _TORCHMETRICS_AVAILABLE:
+            return None
+
         cands = ["a man is speaking", "birds chirping"]
         mrefs = [
             [
@@ -34,7 +31,7 @@ class TestBleu(TestCase):
 
         n = 2
 
-        bleu_v1 = CocoBLEU(n=n, return_all_scores=False)
+        bleu_v1 = BLEU(n=n, return_all_scores=False)
         score_v1 = bleu_v1(cands, mrefs)
 
         bleu_v2 = BLEUScore(n_gram=n, smooth=False)

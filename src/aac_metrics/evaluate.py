@@ -11,9 +11,8 @@ from typing import Iterable, Union
 
 import yaml
 
-from aac_metrics.functional.common import _check_input
 from aac_metrics.functional.evaluate import aac_evaluate
-from aac_metrics.utils.misc import _check_java_path
+from aac_metrics.utils.checks import check_metric_inputs, check_java_path
 
 
 logger = logging.getLogger(__name__)
@@ -21,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 def load_csv_file(
     fpath: Union[str, Path],
-    cands_columns: Iterable[str] = ("caption_predicted",),
-    mrefs_columns: Iterable[str] = (
+    cands_columns: Union[str, Iterable[str]] = ("caption_predicted",),
+    mrefs_columns: Union[str, Iterable[str]] = (
         "caption_1",
         "caption_2",
         "caption_3",
@@ -30,6 +29,7 @@ def load_csv_file(
         "caption_5",
     ),
     load_mult_cands: bool = False,
+    strict: bool = True,
 ) -> tuple[list, list[list[str]]]:
     """Load candidates and mult_references from a CSV file.
 
@@ -39,6 +39,15 @@ def load_csv_file(
     :param load_mult_cands: If True, load multiple candidates from file. defaults to False.
     :returns: A tuple of (candidates, mult_references) loaded from file.
     """
+    if isinstance(cands_columns, str):
+        cands_columns = [cands_columns]
+    else:
+        cands_columns = list(cands_columns)
+
+    if isinstance(mrefs_columns, str):
+        mrefs_columns = [mrefs_columns]
+    else:
+        mrefs_columns = list(mrefs_columns)
 
     with open(fpath, "r") as file:
         reader = csv.DictReader(file)
@@ -51,15 +60,25 @@ def load_csv_file(
     file_cands_columns = [column for column in cands_columns if column in fieldnames]
     file_mrefs_columns = [column for column in mrefs_columns if column in fieldnames]
 
+    if strict:
+        if len(file_cands_columns) != len(cands_columns):
+            raise ValueError(
+                f"Cannot find all candidates columns {cands_columns=} in file '{fpath}'."
+            )
+        if len(file_mrefs_columns) != len(mrefs_columns):
+            raise ValueError(
+                f"Cannot find all references columns {mrefs_columns=} in file '{fpath}'."
+            )
+
     if (load_mult_cands and len(file_cands_columns) <= 0) or (
         not load_mult_cands and len(file_cands_columns) != 1
     ):
         raise ValueError(
-            f"Cannot find candidate in file. ({cands_columns=} not found in {fieldnames=})"
+            f"Cannot find candidate column in file. ({cands_columns=} not found in {fieldnames=})"
         )
     if len(file_mrefs_columns) <= 0:
         raise ValueError(
-            f"Cannot find candidate in file. ({mrefs_columns=} not found in {fieldnames=})"
+            f"Cannot find references columns in file. ({mrefs_columns=} not found in {fieldnames=})"
         )
 
     if load_mult_cands:
@@ -78,19 +97,19 @@ def _load_columns(data: list[dict[str, str]], columns: list[str]) -> list[list[s
     for data_i in data:
         raw_sents = [data_i[column] for column in columns]
         sents = []
-        for sent in raw_sents:
+        for raw_sent in raw_sents:
             # Refs columns can be list[str]
-            if "[" in sent and "]" in sent:
+            if "[" in raw_sent and "]" in raw_sent:
                 try:
-                    sent = eval(sent)
+                    sent = eval(raw_sent)
                     assert isinstance(sent, list) and all(
-                        isinstance(ref_i, str) for ref_i in sent
+                        isinstance(sent_i, str) for sent_i in sent
                     )
                     sents += sent
                 except (SyntaxError, NameError):
-                    sents.append(sent)
+                    sents.append(raw_sent)
             else:
-                sents.append(sent)
+                sents.append(raw_sent)
 
         mult_sentences.append(sents)
     return mult_sentences
@@ -104,7 +123,7 @@ def _get_main_evaluate_args() -> Namespace:
         "-i",
         type=str,
         default="",
-        help="The input file containing the candidates and references.",
+        help="The input file path containing the candidates and references.",
         required=True,
     )
     parser.add_argument(
@@ -112,8 +131,8 @@ def _get_main_evaluate_args() -> Namespace:
         "-cc",
         type=str,
         nargs="+",
-        default=("caption_predicted", "preds"),
-        help="The column names of the candidates in the CSV file.",
+        default=("caption_predicted", "preds", "cands"),
+        help="The column names of the candidates in the CSV file. defaults to ('caption_predicted', 'preds', 'cands').",
     )
     parser.add_argument(
         "--mrefs_columns",
@@ -128,25 +147,25 @@ def _get_main_evaluate_args() -> Namespace:
             "caption_5",
             "captions",
         ),
-        help="The column names of the candidates in the CSV file.",
+        help="The column names of the candidates in the CSV file. defaults to ('caption_1', 'caption_2', 'caption_3', 'caption_4', 'caption_5', 'captions').",
     )
     parser.add_argument(
         "--cache_path",
         type=str,
-        default="$HOME/aac-metrics-cache",
-        help="Cache directory path.",
+        default="$HOME/.cache",
+        help="Cache directory path. defaults to '$HOME/.cache'.",
     )
     parser.add_argument(
         "--java_path",
         type=str,
         default="java",
-        help="Java executable path.",
+        help="Java executable path. defaults to 'java'.",
     )
     parser.add_argument(
         "--tmp_path",
         type=str,
         default="/tmp",
-        help="Temporary directory path.",
+        help="Temporary directory path. defaults to '/tmp'.",
     )
     parser.add_argument("--verbose", type=int, default=0, help="Verbose level.")
 
@@ -163,7 +182,7 @@ def _main_evaluate() -> None:
 
     args = _get_main_evaluate_args()
 
-    if not _check_java_path(args.java_path):
+    if not check_java_path(args.java_path):
         raise RuntimeError(f"Invalid argument java_path={args.java_path}.")
 
     level = logging.INFO if args.verbose <= 1 else logging.DEBUG
@@ -175,7 +194,7 @@ def _main_evaluate() -> None:
     candidates, mult_references = load_csv_file(
         args.input_file, args.cand_columns, args.mrefs_columns
     )
-    _check_input(candidates, mult_references)
+    check_metric_inputs(candidates, mult_references)
 
     refs_lens = list(map(len, mult_references))
     if args.verbose >= 1:
@@ -183,7 +202,7 @@ def _main_evaluate() -> None:
             f"Found {len(candidates)} candidates, {len(mult_references)} references and [{min(refs_lens)}, {max(refs_lens)}] references per candidate."
         )
 
-    global_scores, _local_scores = aac_evaluate(
+    corpus_scores, _sents_scores = aac_evaluate(
         candidates,
         mult_references,
         True,
@@ -193,8 +212,8 @@ def _main_evaluate() -> None:
         args.verbose,
     )
 
-    global_scores = {k: v.item() for k, v in global_scores.items()}
-    logger.info(f"Global scores:\n{yaml.dump(global_scores, sort_keys=False)}")
+    corpus_scores = {k: v.item() for k, v in corpus_scores.items()}
+    logger.info(f"Global scores:\n{yaml.dump(corpus_scores, sort_keys=False)}")
 
 
 if __name__ == "__main__":
