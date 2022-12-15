@@ -185,7 +185,7 @@ Most of these functions can specify a java executable path with `java_path` argu
 ### CIDEr or CIDEr-D ?
 The CIDEr [4] metric differs from CIDEr-D because it applies a stemmer to each word before computing the n-grams of the sentences. In AAC, only the CIDEr-D is reported and used for SPIDEr, but some papers called it "CIDEr".
 
-### Does metric work on multi-GPU ?
+### Does metrics work on multi-GPU ?
 No. Most of these metrics use numpy or external java programs to run, which prevents multi-GPU testing for now.
 
 ### Is torchmetrics needed for this package ?

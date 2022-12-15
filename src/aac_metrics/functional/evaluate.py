@@ -89,19 +89,19 @@ def evaluate(
         total=len(metrics), disable=verbose < 2, desc="Computing metrics..."
     )
 
-    global_outs = {}
-    local_outs = {}
+    corpus_scores = {}
+    sents_scores = {}
 
     for metric in metrics:
         name = metric.__class__.__name__
         pbar.set_description(f"Computing {name} metric...")
-        global_outs_i, local_outs_i = metric(candidates, mult_references)
-        global_outs |= global_outs_i
-        local_outs |= local_outs_i
+        corpus_scores_i, sents_scores_i = metric(candidates, mult_references)
+        corpus_scores |= corpus_scores_i
+        sents_scores |= sents_scores_i
         pbar.update(1)
 
     pbar.close()
-    return global_outs, local_outs
+    return corpus_scores, sents_scores
 
 
 def aac_evaluate(
