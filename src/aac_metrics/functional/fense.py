@@ -96,41 +96,42 @@ def fense(
 
     # Compute and apply fluency error detection penalty
     if echecker is not None and echecker_tokenizer is not None:
-        probs_dic = _detect_error_sents(
+        sents_probs_dic = _detect_error_sents(
             echecker,
             echecker_tokenizer,  # type: ignore
             candidates,
             batch_size,
             device,
         )
-        fluency_errors = (probs_dic["error"] > error_threshold).astype(float)
-        probs_dic = {
-            f"fense.{k}_prob": torch.from_numpy(v) for k, v in probs_dic.items()
-        }
+        fluency_errors = (sents_probs_dic["error"] > error_threshold).astype(float)
         fense_scores = sbert_cos_sims * (1.0 - penalty * fluency_errors)
     else:
         fluency_errors = None
-        probs_dic = {}
+        sents_probs_dic = {}
         fense_scores = sbert_cos_sims
 
     # Aggregate and return
     sbert_cos_sim = sbert_cos_sims.mean()
     fense_score = fense_scores.mean()
+    corpus_probs_dic = {k: v.mean() for k, v in sents_probs_dic.items()}
 
     sbert_cos_sim = torch.as_tensor(sbert_cos_sim)
     fense_score = torch.as_tensor(fense_score)
     sbert_cos_sims = torch.from_numpy(sbert_cos_sims)
     fense_scores = torch.from_numpy(fense_scores)
+    sents_probs_dic = {
+        f"fense.{k}_prob": torch.from_numpy(v) for k, v in sents_probs_dic.items()
+    }
 
     if return_all_scores:
         sents_scores = {
             "fense": fense_scores,
             "sbert.sim": sbert_cos_sims,
-        } | probs_dic
+        } | sents_probs_dic
         corpus_scores = {
             "fense": fense_score,
             "sbert.sim": sbert_cos_sim,
-        }
+        } | corpus_probs_dic
 
         if fluency_errors is not None:
             fluency_errors = torch.from_numpy(fluency_errors)
