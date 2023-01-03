@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Fix README typo.
 
+### Fixed
+- Workflow badge with Github changes. (https://github.com/badges/shields/issues/8671)
+
 ## [0.2.0] 2022-12-14
 ### Added
 - `FENSE` class and function metric, with fluency error rate and raw output probabilities.
