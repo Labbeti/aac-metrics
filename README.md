@@ -13,15 +13,18 @@ Audio Captioning metrics source code, designed for PyTorch.
 
 </div>
 
-This package is a tool to evaluate sentences produced by automated captioning systems.
-The results are the same than BLEU [[1]](#bleu), ROUGE-L [[2]](#rouge-l), METEOR [[3]](#meteor), CIDEr-D [[4]](#cider), SPICE [[5]](#spice) and SPIDEr [[6]](#spider) in [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and than FENSE [[8]](#fense) in [fense](https://github.com/blmoistawinde/fense).
-
 ## Why using this package?
-- Easy installation with pip
-- Provides functions and classes to compute metrics separately
-- Returns torch tensors directly
-- Same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense)
-- Provides SPIDEr-max [[7]](#spider-max) and FENSE [[8]](#fense) metrics
+- **Easy installation and download**
+- **Same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense) repositories**
+- **Provides the following metrics:**
+    - BLEU [[1]](#bleu)
+    - ROUGE-L [[2]](#rouge-l)
+    - METEOR [[3]](#meteor)
+    - CIDEr-D [[4]](#cider)
+    - SPICE [[5]](#spice)
+    - SPIDEr [[6]](#spider)
+    - SPIDEr-max [[7]](#spider-max)
+    - FENSE [[8]](#fense)
 
 ## Installation
 Install the pip package:
@@ -172,7 +175,6 @@ sentence-transformers>=2.2.2
 ```
 
 ### External requirements
-
 - `java` >= 1.8 is required to compute METEOR, SPICE and use the PTBTokenizer.
 Most of these functions can specify a java executable path with `java_path` argument.
 
@@ -199,7 +201,7 @@ Linguistics - ACL ’02. Philadelphia, Pennsylvania: Association
 for Computational Linguistics, 2001, p. 311. [Online]. Available:
 http://portal.acm.org/citation.cfm?doid=1073083.1073135
 
-#### Rouge-L
+#### ROUGE-L
 [2] C.-Y. Lin, “ROUGE: A package for automatic evaluation of summaries,”
 in Text Summarization Branches Out. Barcelona, Spain: Association
 for Computational Linguistics, Jul. 2004, pp. 74–81. [Online]. Available:

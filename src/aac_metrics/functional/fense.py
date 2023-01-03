@@ -105,6 +105,7 @@ def fense(
         )
         fluency_errors = (sents_probs_dic["error"] > error_threshold).astype(float)
         fense_scores = sbert_cos_sims * (1.0 - penalty * fluency_errors)
+        sents_probs_dic = {f"fense.{k}_prob": v for k, v in sents_probs_dic.items()}
     else:
         fluency_errors = None
         sents_probs_dic = {}
@@ -117,11 +118,11 @@ def fense(
 
     sbert_cos_sim = torch.as_tensor(sbert_cos_sim)
     fense_score = torch.as_tensor(fense_score)
+    corpus_probs_dic = {k: torch.as_tensor(v) for k, v in corpus_probs_dic.items()}
+
     sbert_cos_sims = torch.from_numpy(sbert_cos_sims)
     fense_scores = torch.from_numpy(fense_scores)
-    sents_probs_dic = {
-        f"fense.{k}_prob": torch.from_numpy(v) for k, v in sents_probs_dic.items()
-    }
+    sents_probs_dic = {k: torch.from_numpy(v) for k, v in sents_probs_dic.items()}
 
     if return_all_scores:
         sents_scores = {
