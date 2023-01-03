@@ -14,7 +14,7 @@ Audio Captioning metrics source code, designed for PyTorch.
 </div>
 
 ## Why using this package?
-- **Easy installation and download**
+- **Easy install and download**
 - **Same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense) repositories**
 - **Provides the following metrics:**
     - BLEU [[1]](#bleu)
