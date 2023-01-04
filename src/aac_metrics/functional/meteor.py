@@ -97,12 +97,12 @@ def meteor(
         stat = __write_line(cand, refs, meteor_process)
         eval_line += " ||| {}".format(stat)
 
-    assert meteor_process.stdin is not None
+    assert meteor_process.stdin is not None, "INTERNAL METEOR process error"
     if verbose >= 3:
         logger.debug(f"Write line {eval_line=}.")
     meteor_process.stdin.write("{}\n".format(eval_line).encode())
     meteor_process.stdin.flush()
-    assert meteor_process.stdout is not None
+    assert meteor_process.stdout is not None, "INTERNAL METEOR process error"
 
     # Read scores
     meteor_scores = []
@@ -135,8 +135,8 @@ def __write_line(candidate: str, references: list[str], meteor_process: Popen) -
     # SCORE ||| reference 1 words ||| reference n words ||| hypothesis words
     candidate = candidate.replace("|||", "").replace("  ", " ")
     score_line = " ||| ".join(("SCORE", " ||| ".join(references), candidate))
-    assert meteor_process.stdin is not None
+    assert meteor_process.stdin is not None, "INTERNAL METEOR process error"
     meteor_process.stdin.write("{}\n".format(score_line).encode())
     meteor_process.stdin.flush()
-    assert meteor_process.stdout is not None
+    assert meteor_process.stdout is not None, "INTERNAL METEOR process error"
     return meteor_process.stdout.readline().decode().strip()

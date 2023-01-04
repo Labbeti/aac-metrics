@@ -74,6 +74,9 @@ class FENSE(AACMetric):
             self._verbose,
         )
 
+    def extra_repr(self) -> str:
+        return f"error_threshold={self._error_threshold}, penalty={self._penalty}, device={self._device}, batch_size={self._batch_size}"
+
     def reset(self) -> None:
         self._candidates = []
         self._mult_references = []

@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+import time
+
 from functools import partial
 from typing import Any, Callable, Iterable, Union
-
-import tqdm
 
 from torch import Tensor
 
@@ -14,6 +15,9 @@ from aac_metrics.functional.rouge_l import rouge_l
 from aac_metrics.functional.fense import fense
 from aac_metrics.functional.spider import spider
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
+
+
+pylog = logging.getLogger(__name__)
 
 
 METRICS_SETS = {
@@ -85,22 +89,30 @@ def evaluate(
             mult_references, cache_path, java_path, tmp_path, verbose
         )
 
-    pbar = tqdm.tqdm(
-        total=len(metrics), disable=verbose < 2, desc="Computing metrics..."
-    )
-
     corpus_scores = {}
     sents_scores = {}
 
-    for metric in metrics:
-        name = metric.__class__.__name__
-        pbar.set_description(f"Computing {name} metric...")
+    for i, metric in enumerate(metrics):
+        if hasattr(metric, "__qualname__"):
+            name = metric.__qualname__
+        else:
+            name = metric.__class__.__qualname__
+
+        if verbose >= 1:
+            pylog.info(f"[{i+1:2d}/{len(metrics):2d}] Computing {name} metric...")
+        start = time.perf_counter()
+
         corpus_scores_i, sents_scores_i = metric(candidates, mult_references)
+
+        end = time.perf_counter()
+        if verbose >= 1:
+            pylog.info(
+                f"[{i+1:2d}/{len(metrics):2d}] Metric {name} computed in {end - start:.2f}s."
+            )
+
         corpus_scores |= corpus_scores_i
         sents_scores |= sents_scores_i
-        pbar.update(1)
 
-    pbar.close()
     return corpus_scores, sents_scores
 
 

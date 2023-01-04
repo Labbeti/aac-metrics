@@ -55,6 +55,9 @@ class CIDErD(AACMetric):
             self._return_tfidf,
         )
 
+    def extra_repr(self) -> str:
+        return f"n={self._n}, sigma={self._sigma}"
+
     def reset(self) -> None:
         self._cooked_cands = []
         self._cooked_mrefs = []

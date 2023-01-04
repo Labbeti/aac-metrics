@@ -46,6 +46,9 @@ class ROUGEL(AACMetric):
             self._return_all_scores,
         )
 
+    def extra_repr(self) -> str:
+        return f"beta={self._beta}"
+
     def reset(self) -> None:
         self._rouge_l_scores = []
         return super().reset()
