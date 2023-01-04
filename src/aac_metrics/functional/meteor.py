@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 FNAME_METEOR_JAR = osp.join("aac-metrics", "meteor", "meteor-1.5.jar")
+SUPPORTED_LANGUAGES = ("en", "cz", "de", "es", "fr")
 
 
 def meteor(
@@ -50,20 +51,8 @@ def meteor(
     cache_path = osp.expandvars(cache_path)
     java_path = osp.expandvars(java_path)
 
-    # Prepare java execution
     meteor_jar_fpath = osp.join(cache_path, FNAME_METEOR_JAR)
-    meteor_command = [
-        java_path,
-        "-jar",
-        f"-Xmx{java_max_memory}",
-        meteor_jar_fpath,
-        "-",
-        "-",
-        "-stdio",
-        "-l",
-        "en",
-        "-norm",
-    ]
+    language = "en"  # supported: en cz de es fr
 
     if __debug__:
         if not osp.isfile(meteor_jar_fpath):
@@ -80,33 +69,62 @@ def meteor(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
 
-    if verbose >= 2:
-        logger.debug(
-            f"Start METEOR process with command '{' '.join(meteor_command)}'..."
+    if language not in SUPPORTED_LANGUAGES:
+        raise ValueError(
+            f"Invalid argument {language=}. (expected one of {SUPPORTED_LANGUAGES})"
         )
 
+    meteor_cmd = [
+        java_path,
+        "-jar",
+        f"-Xmx{java_max_memory}",
+        meteor_jar_fpath,
+        "-",
+        "-",
+        "-stdio",
+        "-l",
+        language,
+        "-norm",
+    ]
+
+    if verbose >= 2:
+        logger.debug(f"Start METEOR process with command '{' '.join(meteor_cmd)}'...")
+
     meteor_process = Popen(
-        meteor_command,
+        meteor_cmd,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
 
+    n_candidates = len(candidates)
+    encoded_cands_and_mrefs = [
+        encore_cand_and_refs(cand, refs)
+        for cand, refs in zip(candidates, mult_references)
+    ]
+    del candidates, mult_references
+
+    # Encode candidates and references
     eval_line = "EVAL"
-    for cand, refs in zip(candidates, mult_references):
-        stat = __write_line(cand, refs, meteor_process)
+    for encoded in encoded_cands_and_mrefs:
+        assert meteor_process.stdin is not None, "INTERNAL METEOR process error"
+        meteor_process.stdin.write(encoded)
+        meteor_process.stdin.flush()
+        assert meteor_process.stdout is not None, "INTERNAL METEOR process error"
+        stat = meteor_process.stdout.readline().decode().strip()
         eval_line += " ||| {}".format(stat)
 
+    # Eval encoded candidates and references
     assert meteor_process.stdin is not None, "INTERNAL METEOR process error"
     if verbose >= 3:
         logger.debug(f"Write line {eval_line=}.")
     meteor_process.stdin.write("{}\n".format(eval_line).encode())
     meteor_process.stdin.flush()
-    assert meteor_process.stdout is not None, "INTERNAL METEOR process error"
 
     # Read scores
+    assert meteor_process.stdout is not None, "INTERNAL METEOR process error"
     meteor_scores = []
-    for _ in range(len(candidates)):
+    for _ in range(n_candidates):
         meteor_scores_i = float(meteor_process.stdout.readline().strip())
         meteor_scores.append(meteor_scores_i)
     meteor_score = float(meteor_process.stdout.readline().strip())
@@ -131,12 +149,9 @@ def meteor(
         return meteor_score
 
 
-def __write_line(candidate: str, references: list[str], meteor_process: Popen) -> str:
-    # SCORE ||| reference 1 words ||| reference n words ||| hypothesis words
+def encore_cand_and_refs(candidate: str, references: list[str]) -> bytes:
+    # SCORE ||| reference 1 words ||| ... ||| reference N words ||| candidate words
     candidate = candidate.replace("|||", "").replace("  ", " ")
     score_line = " ||| ".join(("SCORE", " ||| ".join(references), candidate))
-    assert meteor_process.stdin is not None, "INTERNAL METEOR process error"
-    meteor_process.stdin.write("{}\n".format(score_line).encode())
-    meteor_process.stdin.flush()
-    assert meteor_process.stdout is not None, "INTERNAL METEOR process error"
-    return meteor_process.stdout.readline().decode().strip()
+    encoded = "{}\n".format(score_line).encode()
+    return encoded
