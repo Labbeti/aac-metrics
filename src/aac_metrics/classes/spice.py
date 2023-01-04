@@ -3,7 +3,7 @@
 
 import logging
 
-from typing import Optional, Union
+from typing import Iterable, Optional, Union
 
 from torch import Tensor
 
@@ -37,6 +37,7 @@ class SPICE(AACMetric):
         tmp_path: str = "/tmp",
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
+        timeout: Union[None, int, Iterable[int]] = None,
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -46,6 +47,7 @@ class SPICE(AACMetric):
         self._tmp_path = tmp_path
         self._n_threads = n_threads
         self._java_max_memory = java_max_memory
+        self._timeout = timeout
         self._verbose = verbose
 
         self._candidates = []
@@ -61,6 +63,7 @@ class SPICE(AACMetric):
             self._tmp_path,
             self._n_threads,
             self._java_max_memory,
+            self._timeout,
             self._verbose,
         )
 

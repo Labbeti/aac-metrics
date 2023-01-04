@@ -10,7 +10,7 @@ import subprocess
 
 from subprocess import CalledProcessError
 from tempfile import NamedTemporaryFile
-from typing import Any, Optional, Union
+from typing import Any, Iterable, Optional, Union
 
 import numpy as np
 import torch
@@ -36,6 +36,7 @@ def spice(
     tmp_path: str = "/tmp",
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
+    timeout: Union[None, int, Iterable[int]] = None,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Semantic Propositional Image Caption Evaluation function.
@@ -50,9 +51,13 @@ def spice(
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
-    :param java_max_memory: The maximal java memory used. defaults to "8G".
     :param n_threads: Number of threads used to compute SPICE.
         None value will use the default value of the java program.
+        defaults to None.
+    :param java_max_memory: The maximal java memory used. defaults to "8G".
+    :param timeout: The number of seconds before killing the java subprogram.
+        If a list is given, it will restart the program if the i-th timeout is reached.
+        If None, no timeout will be used.
         defaults to None.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
@@ -144,22 +149,50 @@ def spice(
     if verbose >= 2:
         logger.debug(f"Run SPICE java code with: {' '.join(spice_cmd)}")
 
-    try:
-        subprocess.check_call(
-            spice_cmd,
-            stdout=stdout,
-            stderr=stderr,
-        )
-    except (CalledProcessError, PermissionError) as err:
-        logger.error("Invalid SPICE call.")
-        logger.error(f"Full command: '{' '.join(spice_cmd)}'")
-        if stdout is not None and stderr is not None:
-            logger.error(
-                f"For more information, see temp files '{stdout.name}' and '{stderr.name}'."
+    # Sometimes the program can freeze, so timeout has been added to avoid using job time.
+
+    if timeout is None or isinstance(timeout, int):
+        timeout_lst = [timeout]
+    else:
+        timeout_lst = list(timeout)
+
+    for i, timeout_i in enumerate(timeout_lst):
+        try:
+            subprocess.check_call(
+                spice_cmd,
+                stdout=stdout,
+                stderr=stderr,
+                timeout=timeout_i,
             )
-        else:
-            logger.info(f"Note: No temp file recorded. (found {stdout=} and {stderr=})")
-        raise err
+            break
+
+        except TimeoutError as err:
+            logger.warning(
+                f"Kill SPICE java program with {timeout_i=}s (nb timeouts done={i+1}/{len(timeout_lst)})."
+            )
+
+            if i < len(timeout_lst) - 1:
+                # Clear out files
+                open(out_file.name, "w").close()
+                if stdout is not None:
+                    open(stdout.name, "w").close()
+                if stderr is not None:
+                    open(stderr.name, "w").close()
+            else:
+                raise err
+
+        except (CalledProcessError, PermissionError) as err:
+            logger.error("Invalid SPICE call.")
+            logger.error(f"Full command: '{' '.join(spice_cmd)}'")
+            if stdout is not None and stderr is not None:
+                logger.error(
+                    f"For more information, see temp files '{stdout.name}' and '{stderr.name}'."
+                )
+            else:
+                logger.info(
+                    f"Note: No temp file recorded. (found {stdout=} and {stderr=})"
+                )
+            raise err
 
     if stdout is not None:
         stdout.close()

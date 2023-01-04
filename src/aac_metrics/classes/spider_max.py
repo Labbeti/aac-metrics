@@ -3,7 +3,7 @@
 
 import logging
 
-from typing import Optional, Union
+from typing import Iterable, Optional, Union
 
 from torch import Tensor
 
@@ -42,6 +42,7 @@ class SPIDErMax(AACMetric):
         tmp_path: str = "/tmp",
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
+        timeout: Union[None, int, Iterable[int]] = None,
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -54,6 +55,7 @@ class SPIDErMax(AACMetric):
         self._tmp_path = tmp_path
         self._n_threads = n_threads
         self._java_max_memory = java_max_memory
+        self._timeout = timeout
         self._verbose = verbose
 
         self._mult_candidates = []
@@ -72,6 +74,7 @@ class SPIDErMax(AACMetric):
             tmp_path=self._tmp_path,
             n_threads=self._n_threads,
             java_max_memory=self._java_max_memory,
+            timeout=self._timeout,
             verbose=self._verbose,
         )
 
