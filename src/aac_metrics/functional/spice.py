@@ -166,7 +166,7 @@ def spice(
             )
             break
 
-        except TimeoutError as err:
+        except subprocess.TimeoutExpired as err:
             logger.warning(
                 f"Kill SPICE java program with {timeout_i=}s (nb timeouts done={i+1}/{len(timeout_lst)})."
             )
