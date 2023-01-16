@@ -75,7 +75,7 @@ def fense(
 
     # Init models
     sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(
-        sbert_model, echecker, echecker_tokenizer
+        sbert_model, echecker, echecker_tokenizer, device, verbose
     )
 
     # Encode sents
@@ -150,6 +150,7 @@ def _load_models_and_tokenizer(
     echecker: Union[None, str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     device: Union[str, torch.device, None] = "cpu",
+    verbose: int = 0,
 ) -> tuple[SentenceTransformer, Optional[BERTFlatClassifier], Optional[AutoTokenizer]]:
     if isinstance(sbert_model, str):
         sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
@@ -159,7 +160,7 @@ def _load_models_and_tokenizer(
         if echecker == "none":
             echecker = None
         else:
-            echecker = load_pretrain_echecker(echecker, device)
+            echecker = load_pretrain_echecker(echecker, device, verbose=verbose)
 
     if echecker_tokenizer is None and echecker is not None:
         echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)

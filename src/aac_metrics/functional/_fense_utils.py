@@ -6,6 +6,7 @@ BASED ON https://github.com/blmoistawinde/fense/
 """
 
 import hashlib
+import logging
 import os
 import re
 import requests
@@ -43,6 +44,8 @@ PRETRAIN_ECHECKERS_DICT = {
 }
 
 RemoteFileMetadata = namedtuple("RemoteFileMetadata", ["filename", "url", "checksum"])
+
+logger = logging.getLogger(__name__)
 
 
 class BERTFlatClassifier(nn.Module):
@@ -112,6 +115,7 @@ def load_pretrain_echecker(
     device: Union[str, torch.device, None] = "cuda",
     use_proxy: bool = False,
     proxies: Optional[dict[str, str]] = None,
+    verbose: int = 0,
 ) -> BERTFlatClassifier:
     if echecker_model not in PRETRAIN_ECHECKERS_DICT:
         raise ValueError(
@@ -124,6 +128,10 @@ def load_pretrain_echecker(
         filename=f"{echecker_model}.ckpt", url=url, checksum=checksum
     )
     file_path = check_download_resource(remote, use_proxy, proxies)
+
+    if verbose >= 2:
+        logger.debug(f"Loading echecker model from '{file_path}'.")
+
     model_states = torch.load(file_path)
     echecker = BERTFlatClassifier(
         model_type=model_states["model_type"],
