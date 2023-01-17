@@ -6,6 +6,7 @@ import logging
 import math
 import os
 import os.path as osp
+import shutil
 import subprocess
 import tempfile
 import time
@@ -87,9 +88,10 @@ def spice(
         )
 
     # spice_cache = osp.join(cache_path, DNAME_SPICE_CACHE)  # TODO
+
+    # TODO : check if cache is deleted even if program crashes
     spice_cache = tempfile.mkdtemp(dir=tmp_path)
     del cache_path
-    os.makedirs(spice_cache, exist_ok=True)
 
     if verbose >= 2:
         logger.debug(f"Use cache directory {spice_cache}.")
@@ -209,6 +211,7 @@ def spice(
         results = json.load(data_file)
     os.remove(in_file.name)
     os.remove(out_file.name)
+    shutil.rmtree(spice_cache)
 
     imgId_to_scores = {}
     spice_scores = []
