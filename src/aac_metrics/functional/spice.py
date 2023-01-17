@@ -108,55 +108,55 @@ def spice(
     json.dump(input_data, in_file, indent=2)
     in_file.close()
 
-    out_file = NamedTemporaryFile(
-        mode="w", delete=False, dir=tmp_path, prefix="spice_outputs_", suffix=".json"
-    )
-    out_file.close()
-
-    if verbose >= 3:
-        stdout = None
-        stderr = None
-    else:
-        stdout = NamedTemporaryFile(
-            mode="w",
-            delete=True,
-            dir=tmp_path,
-            prefix="spice_stdout_",
-            suffix=".txt",
-        )
-        stderr = NamedTemporaryFile(
-            mode="w",
-            delete=True,
-            dir=tmp_path,
-            prefix="spice_stderr_",
-            suffix=".txt",
-        )
-
-    spice_cmd = [
-        java_path,
-        "-jar",
-        f"-Xmx{java_max_memory}",
-        spice_fpath,
-        in_file.name,
-        "-cache",
-        spice_cache,
-        "-out",
-        out_file.name,
-        "-subset",
-    ]
-    if n_threads is not None:
-        spice_cmd += ["-threads", str(n_threads)]
-
-    if verbose >= 2:
-        logger.debug(f"Run SPICE java code with: {' '.join(spice_cmd)}")
-
     # Sometimes the java program can freeze, so timeout has been added to avoid using job time.
     if timeout is None or isinstance(timeout, (int, float)):
         timeout_lst = [timeout]
     else:
         timeout_lst = list(timeout)
 
+    out_file = NamedTemporaryFile(
+        mode="w", delete=False, dir=tmp_path, prefix="spice_outputs_", suffix=".json"
+    )
+    out_file.close()
+
     for i, timeout_i in enumerate(timeout_lst):
+        if verbose >= 3:
+            stdout = None
+            stderr = None
+        else:
+            stdout = NamedTemporaryFile(
+                mode="w",
+                delete=True,
+                dir=tmp_path,
+                prefix="spice_stdout_",
+                suffix=".txt",
+            )
+            stderr = NamedTemporaryFile(
+                mode="w",
+                delete=True,
+                dir=tmp_path,
+                prefix="spice_stderr_",
+                suffix=".txt",
+            )
+
+        spice_cmd = [
+            java_path,
+            "-jar",
+            f"-Xmx{java_max_memory}",
+            spice_fpath,
+            in_file.name,
+            "-cache",
+            spice_cache,
+            "-out",
+            out_file.name,
+            "-subset",
+        ]
+        if n_threads is not None:
+            spice_cmd += ["-threads", str(n_threads)]
+
+        if verbose >= 2:
+            logger.debug(f"Run SPICE java code with: {' '.join(spice_cmd)}")
+
         try:
             subprocess.check_call(
                 spice_cmd,
@@ -164,20 +164,24 @@ def spice(
                 stderr=stderr,
                 timeout=timeout_i,
             )
+            if stdout is not None:
+                stdout.close()
+            if stderr is not None:
+                stderr.close()
             break
 
         except subprocess.TimeoutExpired as err:
             logger.warning(
-                f"Kill SPICE java program with {timeout_i=}s (nb timeouts done={i+1}/{len(timeout_lst)})."
+                f"Timeout SPICE java program with {timeout_i=}s (nb timeouts done={i+1}/{len(timeout_lst)})."
             )
 
             if i < len(timeout_lst) - 1:
                 # Clear out files
                 open(out_file.name, "w").close()
                 if stdout is not None:
-                    open(stdout.name, "w").close()
+                    stdout.close()
                 if stderr is not None:
-                    open(stderr.name, "w").close()
+                    stderr.close()
                 time.sleep(1.0)
             else:
                 raise err
@@ -194,12 +198,6 @@ def spice(
                     f"Note: No temp file recorded. (found {stdout=} and {stderr=})"
                 )
             raise err
-
-    if stdout is not None:
-        stdout.close()
-
-    if stderr is not None:
-        stderr.close()
 
     if verbose >= 2:
         logger.debug("SPICE java code finished.")
