@@ -7,6 +7,7 @@ import math
 import os
 import os.path as osp
 import subprocess
+import tempfile
 import time
 
 from subprocess import CalledProcessError
@@ -85,7 +86,8 @@ def spice(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
 
-    spice_cache = osp.join(cache_path, DNAME_SPICE_CACHE)
+    # spice_cache = osp.join(cache_path, DNAME_SPICE_CACHE)  # TODO
+    spice_cache = tempfile.mkdtemp(dir=tmp_path)
     del cache_path
     os.makedirs(spice_cache, exist_ok=True)
 
