@@ -7,6 +7,7 @@ import math
 import os
 import os.path as osp
 import subprocess
+import time
 
 from subprocess import CalledProcessError
 from tempfile import NamedTemporaryFile
@@ -149,9 +150,8 @@ def spice(
     if verbose >= 2:
         logger.debug(f"Run SPICE java code with: {' '.join(spice_cmd)}")
 
-    # Sometimes the program can freeze, so timeout has been added to avoid using job time.
-
-    if timeout is None or isinstance(timeout, int):
+    # Sometimes the java program can freeze, so timeout has been added to avoid using job time.
+    if timeout is None or isinstance(timeout, (int, float)):
         timeout_lst = [timeout]
     else:
         timeout_lst = list(timeout)
@@ -178,6 +178,7 @@ def spice(
                     open(stdout.name, "w").close()
                 if stderr is not None:
                     open(stderr.name, "w").close()
+                time.sleep(1.0)
             else:
                 raise err
 
