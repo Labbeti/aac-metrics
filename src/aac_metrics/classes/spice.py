@@ -38,6 +38,7 @@ class SPICE(AACMetric):
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,
+        separate_cache_dir: bool = True,
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -48,6 +49,7 @@ class SPICE(AACMetric):
         self._n_threads = n_threads
         self._java_max_memory = java_max_memory
         self._timeout = timeout
+        self._separate_cache_dir = separate_cache_dir
         self._verbose = verbose
 
         self._candidates = []
@@ -64,6 +66,7 @@ class SPICE(AACMetric):
             self._n_threads,
             self._java_max_memory,
             self._timeout,
+            self._separate_cache_dir,
             self._verbose,
         )
 

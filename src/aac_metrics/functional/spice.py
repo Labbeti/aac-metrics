@@ -40,6 +40,7 @@ def spice(
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
+    separate_cache_dir: bool = True,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Semantic Propositional Image Caption Evaluation function.
@@ -62,6 +63,9 @@ def spice(
         If a list is given, it will restart the program if the i-th timeout is reached.
         If None, no timeout will be used.
         defaults to None.
+    :param separate_cache_dir: If True, the SPICE cache files will be stored into in a new temporary directory.
+        This removes potential freezes when multiple instances of SPICE are running in the same cache dir.
+        defaults to True.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
@@ -87,10 +91,10 @@ def spice(
             f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
         )
 
-    # spice_cache = osp.join(cache_path, DNAME_SPICE_CACHE)  # TODO
-
-    # TODO : check if cache is deleted even if program crashes
-    spice_cache = tempfile.mkdtemp(dir=tmp_path)
+    if separate_cache_dir:
+        spice_cache = tempfile.mkdtemp(dir=tmp_path)
+    else:
+        spice_cache = osp.join(cache_path, DNAME_SPICE_CACHE)
     del cache_path
 
     if verbose >= 2:
