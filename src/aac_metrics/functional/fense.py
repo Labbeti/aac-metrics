@@ -67,7 +67,7 @@ def fense(
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
     :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.9.
-    :param device: The pytorch device used to run the sBERT and echecker models. defaults to "cpu".
+    :param device: The pytorch device used to run FENSE models. If None, it will try to detect use cuda if available. defaults to "cpu".
     :param batch_size: The batch size of the sBERT and echecker models. defaults to 32.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
@@ -152,6 +152,8 @@ def _load_models_and_tokenizer(
     device: Union[str, torch.device, None] = "cpu",
     verbose: int = 0,
 ) -> tuple[SentenceTransformer, Optional[BERTFlatClassifier], Optional[AutoTokenizer]]:
+    if device is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if isinstance(sbert_model, str):
         sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
     sbert_model.to(device)
@@ -198,6 +200,8 @@ def _detect_error_sents(
     device: Union[str, torch.device, None],
     max_len: int = 64,
 ) -> dict[str, np.ndarray]:
+    if device is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if len(sents) <= batch_size:
         batch = infer_preprocess(
             echecker_tokenizer,

@@ -7,6 +7,8 @@ import time
 from functools import partial
 from typing import Any, Callable, Iterable, Union
 
+import torch
+
 from torch import Tensor
 
 from aac_metrics.functional.bleu import bleu
@@ -55,6 +57,7 @@ def evaluate(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    device: Union[str, torch.device, None] = None,
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Evaluate candidates with multiple references with custom metrics.
@@ -66,6 +69,7 @@ def evaluate(
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param device: The pytorch device used to run FENSE models. If None, it will try to detect use cuda if available. defaults to "cpu".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores.
     """
@@ -76,6 +80,7 @@ def evaluate(
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
+            device=device,
             verbose=verbose,
         )
     else:
@@ -145,6 +150,7 @@ def aac_evaluate(
         cache_path,
         java_path,
         tmp_path,
+        None,
         verbose,
     )
 
@@ -155,6 +161,7 @@ def _get_metrics_functions_list(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    device: Union[str, torch.device, None] = None,
     verbose: int = 0,
 ) -> list[Callable]:
     metrics_factory = _get_metrics_functions_factory(
@@ -162,6 +169,7 @@ def _get_metrics_functions_list(
         cache_path,
         java_path,
         tmp_path,
+        device,
         verbose,
     )
 
@@ -184,6 +192,7 @@ def _get_metrics_functions_factory(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    device: Union[str, torch.device, None] = None,
     verbose: int = 0,
 ) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
     return {
@@ -230,6 +239,7 @@ def _get_metrics_functions_factory(
         "fense": partial(
             fense,
             return_all_scores=return_all_scores,
+            device=device,
             verbose=verbose,
         ),
     }

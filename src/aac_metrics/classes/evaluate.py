@@ -5,6 +5,8 @@ import logging
 
 from typing import Callable, Iterable, Union
 
+import torch
+
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
@@ -22,7 +24,7 @@ logger = logging.getLogger(__name__)
 class Evaluate(AACMetric, list[AACMetric]):
     """Evaluate candidates with multiple references with custom metrics.
 
-    For more information, see :func:`~aac_metrics.functional.evaluate.custom_evaluate`.
+    For more information, see :func:`~aac_metrics.functional.evaluate.evaluate`.
     """
 
     full_state_update = False
@@ -35,6 +37,7 @@ class Evaluate(AACMetric, list[AACMetric]):
         cache_path: str = "$HOME/.cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
+        device: Union[str, torch.device, None] = None,
         verbose: int = 0,
         metrics: Union[str, Iterable[AACMetric]] = "aac",
     ) -> None:
@@ -45,6 +48,7 @@ class Evaluate(AACMetric, list[AACMetric]):
                 cache_path,
                 java_path,
                 tmp_path,
+                device,
                 verbose,
             )
 
@@ -104,6 +108,7 @@ class AACEvaluate(Evaluate):
             cache_path,
             java_path,
             tmp_path,
+            None,
             verbose,
             "aac",
         )
@@ -115,6 +120,7 @@ def _get_metrics_classes_list(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    device: Union[str, torch.device, None] = None,
     verbose: int = 0,
 ) -> list[AACMetric]:
     metrics_factory = _get_metrics_classes_factory(
@@ -122,6 +128,7 @@ def _get_metrics_classes_list(
         cache_path,
         java_path,
         tmp_path,
+        device,
         verbose,
     )
 
@@ -144,6 +151,7 @@ def _get_metrics_classes_factory(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    device: Union[str, torch.device, None] = None,
     verbose: int = 0,
 ) -> dict[str, Callable[[], AACMetric]]:
     return {
@@ -182,6 +190,7 @@ def _get_metrics_classes_factory(
         ),
         "fense": lambda: FENSE(
             return_all_scores=return_all_scores,
+            device=device,
             verbose=verbose,
         ),
     }

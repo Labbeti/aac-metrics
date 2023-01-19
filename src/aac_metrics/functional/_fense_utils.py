@@ -103,6 +103,8 @@ def infer_preprocess(
     device: Union[str, torch.device, None],
     dtype: torch.dtype,
 ) -> Mapping[str, Tensor]:
+    if device is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     texts = _text_preprocess(texts)  # type: ignore
     batch = tokenizer(texts, truncation=True, padding="max_length", max_length=max_len)
     for k in ("input_ids", "attention_mask", "token_type_ids"):
@@ -121,6 +123,9 @@ def load_pretrain_echecker(
         raise ValueError(
             f"Invalid argument {echecker_model=}. (expected one of {tuple(PRETRAIN_ECHECKERS_DICT.keys())})"
         )
+
+    if device is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     tfmers_logging.set_verbosity_error()  # suppress loading warnings
     url, checksum = PRETRAIN_ECHECKERS_DICT[echecker_model]
