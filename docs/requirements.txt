@@ -1,0 +1,1 @@
+sphinx-press-theme==0.8.0
