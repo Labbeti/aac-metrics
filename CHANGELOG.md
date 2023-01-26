@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.2.1] UNRELEASED
+### Added
+- `SPICE` options `timeout` and `separate_cache_dir`.
+- Documentation pages with sphinx.
+
 ### Changed
 - Fix README typo.
 
