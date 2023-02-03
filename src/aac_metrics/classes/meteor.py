@@ -12,7 +12,8 @@ from aac_metrics.functional.meteor import meteor
 class METEOR(AACMetric):
     """Metric for Evaluation of Translation with Explicit ORdering metric class.
 
-    Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
+    - Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
+    - Documentation: https://www.cs.cmu.edu/~alavie/METEOR/README.html
 
     For more information, see :func:`~aac_metrics.functional.meteor.meteor`.
     """

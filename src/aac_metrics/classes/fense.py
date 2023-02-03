@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class FENSE(AACMetric):
     """Fluency ENhanced Sentence-bert Evaluation (FENSE)
 
-    Paper: https://arxiv.org/abs/2110.04684
+    - Paper: https://arxiv.org/abs/2110.04684
     Original implementation: https://github.com/blmoistawinde/fense
 
     For more information, see :func:`~aac_metrics.functional.fense.fense`.

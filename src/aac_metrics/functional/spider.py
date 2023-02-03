@@ -29,7 +29,7 @@ def spider(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """SPIDEr function.
 
-    Paper: https://arxiv.org/pdf/1612.00370.pdf
+    - Paper: https://arxiv.org/pdf/1612.00370.pdf
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.

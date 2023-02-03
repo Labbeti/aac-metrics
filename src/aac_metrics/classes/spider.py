@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class SPIDEr(AACMetric):
     """SPIDEr class.
 
-    Paper: https://arxiv.org/pdf/1612.00370.pdf
+    - Paper: https://arxiv.org/pdf/1612.00370.pdf
 
     For more information, see :func:`~aac_metrics.functional.spider.spider`.
     """

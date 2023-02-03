@@ -26,7 +26,7 @@ def bleu(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """BiLingual Evaluation Understudy function.
 
-    Paper: https://www.aclweb.org/anthology/P02-1040.pdf
+    - Paper: https://www.aclweb.org/anthology/P02-1040.pdf
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.

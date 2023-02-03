@@ -15,7 +15,7 @@ from aac_metrics.functional.cider_d import (
 class CIDErD(AACMetric):
     """Consensus-based Image Description Evaluation metric class.
 
-    Paper: https://arxiv.org/pdf/1411.5726.pdf
+    - Paper: https://arxiv.org/pdf/1411.5726.pdf
 
     For more information, see :func:`~aac_metrics.functional.cider_d.cider_d`.
     """

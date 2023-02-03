@@ -36,8 +36,8 @@ def meteor(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Metric for Evaluation of Translation with Explicit ORdering function.
 
-    Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
-    Documentation: https://www.cs.cmu.edu/~alavie/METEOR/README.html
+    - Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
+    - Documentation: https://www.cs.cmu.edu/~alavie/METEOR/README.html
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.

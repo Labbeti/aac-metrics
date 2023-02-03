@@ -32,7 +32,7 @@ def spider_max(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """SPIDEr-max function.
 
-    Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
+    - Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
 
     Compute the maximal SPIDEr score accross multiple candidates.
 

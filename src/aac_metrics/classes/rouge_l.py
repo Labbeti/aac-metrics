@@ -15,7 +15,7 @@ from aac_metrics.functional.rouge_l import (
 class ROUGEL(AACMetric):
     """Recall-Oriented Understudy for Gisting Evaluation class.
 
-    Paper: https://aclanthology.org/W04-1013.pdf
+    - Paper: https://aclanthology.org/W04-1013.pdf
 
     For more information, see :func:`~aac_metrics.functional.rouge_l.rouge_l`.
     """

@@ -51,7 +51,7 @@ def fense(
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
     """Fluency ENhanced Sentence-bert Evaluation (FENSE)
 
-    Paper: https://arxiv.org/abs/2110.04684
+    - Paper: https://arxiv.org/abs/2110.04684
     Original implementation: https://github.com/blmoistawinde/fense
 
     :param candidates: The list of sentences to evaluate.

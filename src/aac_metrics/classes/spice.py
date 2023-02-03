@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class SPICE(AACMetric):
     """Semantic Propositional Image Caption Evaluation class.
 
-    Paper: https://arxiv.org/pdf/1607.08822.pdf
+    - Paper: https://arxiv.org/pdf/1607.08822.pdf
 
     For more information, see :func:`~aac_metrics.functional.spice.spice`.
     """

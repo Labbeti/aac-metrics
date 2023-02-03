@@ -16,7 +16,7 @@ from aac_metrics.functional.bleu import (
 class BLEU(AACMetric):
     """BiLingual Evaluation Understudy metric class.
 
-    Paper: https://www.aclweb.org/anthology/P02-1040.pdf
+    - Paper: https://www.aclweb.org/anthology/P02-1040.pdf
 
     For more information, see :func:`~aac_metrics.functional.bleu.bleu`.
     """

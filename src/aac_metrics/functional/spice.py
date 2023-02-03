@@ -45,7 +45,7 @@ def spice(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Semantic Propositional Image Caption Evaluation function.
 
-    Paper: https://arxiv.org/pdf/1607.08822.pdf
+    - Paper: https://arxiv.org/pdf/1607.08822.pdf
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.

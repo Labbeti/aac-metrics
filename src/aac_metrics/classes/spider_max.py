@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class SPIDErMax(AACMetric):
     """SPIDEr-max class.
 
-    Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
+    - Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
 
     For more information, see :func:`~aac_metrics.functional.spider.spider`.
     """
