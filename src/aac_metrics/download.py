@@ -43,16 +43,6 @@ _TRUE_VALUES = ("true", "1", "t")
 _FALSE_VALUES = ("false", "0", "f")
 
 
-def _str_to_bool(s: str) -> bool:
-    s = str(s).strip().lower()
-    if s in _TRUE_VALUES:
-        return True
-    elif s in _FALSE_VALUES:
-        return False
-    else:
-        raise ValueError(f"Invalid argument {s=}. (expected one of {_TRUE_VALUES + _FALSE_VALUES})")
-
-
 def download(
     cache_path: str = "$HOME/.cache",
     tmp_path: str = "/tmp",
@@ -134,7 +124,9 @@ def download(
 
         script_path = osp.join(osp.dirname(__file__), "..", "..", "install_spice.sh")
         if not osp.isfile(script_path):
-            raise FileNotFoundError(f"Cannot find script '{osp.basename(script_path)}'.")
+            raise FileNotFoundError(
+                f"Cannot find script '{osp.basename(script_path)}'."
+            )
 
         if verbose >= 1:
             logger.info(
@@ -225,6 +217,18 @@ def _main_download() -> None:
         args.fense,
         args.verbose,
     )
+
+
+def _str_to_bool(s: str) -> bool:
+    s = str(s).strip().lower()
+    if s in _TRUE_VALUES:
+        return True
+    elif s in _FALSE_VALUES:
+        return False
+    else:
+        raise ValueError(
+            f"Invalid argument {s=}. (expected one of {_TRUE_VALUES + _FALSE_VALUES})"
+        )
 
 
 if __name__ == "__main__":
