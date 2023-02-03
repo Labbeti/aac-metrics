@@ -30,6 +30,7 @@ class METEOR(AACMetric):
         cache_path: str = "$HOME/.cache",
         java_path: str = "java",
         java_max_memory: str = "2G",
+        language: str = "en",
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -37,6 +38,7 @@ class METEOR(AACMetric):
         self._cache_path = cache_path
         self._java_path = java_path
         self._java_max_memory = java_max_memory
+        self._language = language
         self._verbose = verbose
 
         self._candidates = []
@@ -50,11 +52,12 @@ class METEOR(AACMetric):
             self._cache_path,
             self._java_path,
             self._java_max_memory,
+            self._language,
             self._verbose,
         )
 
     def extra_repr(self) -> str:
-        return f"java_max_memory={self._java_max_memory}"
+        return f"java_max_memory={self._java_max_memory}, language={self._language}"
 
     def reset(self) -> None:
         self._candidates = []

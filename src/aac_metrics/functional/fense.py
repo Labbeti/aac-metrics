@@ -25,6 +25,7 @@ from aac_metrics.functional._fense_utils import (
 
 
 pylog = logging.getLogger(__name__)
+
 ERROR_NAMES = (
     "add_tail",
     "repeat_event",

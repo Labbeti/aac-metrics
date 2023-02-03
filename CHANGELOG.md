@@ -6,9 +6,11 @@ All notable changes to this project will be documented in this file.
 ### Added
 - `SPICE` options `timeout` and `separate_cache_dir`.
 - Documentation pages with sphinx.
+- Add `language` parameter to METEOR function and class.
+- Options to download only PTBTokenizer, METEOR, SPICE or FENSE in `download.py`.
 
 ### Changed
-- Fix README typo.
+- Fix README typo and SPIDER-max tables.
 
 ### Fixed
 - Workflow badge with Github changes. (https://github.com/badges/shields/issues/8671)

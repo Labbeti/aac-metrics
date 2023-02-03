@@ -31,11 +31,13 @@ def meteor(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     java_max_memory: str = "2G",
+    language: str = "en",
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Metric for Evaluation of Translation with Explicit ORdering function.
 
     Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
+    Documentation: https://www.cs.cmu.edu/~alavie/METEOR/README.html
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
@@ -45,6 +47,7 @@ def meteor(
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param java_max_memory: The maximal java memory used. defaults to "2G".
+    :param language: The language used for stem, synonym and paraphrase matching. defaults to "en".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
