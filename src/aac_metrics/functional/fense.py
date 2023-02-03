@@ -45,7 +45,7 @@ def fense(
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     penalty: float = 0.9,
-    device: Union[str, torch.device, None] = "cpu",
+    device: Union[str, torch.device] = "auto",
     batch_size: int = 32,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
@@ -68,7 +68,7 @@ def fense(
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
     :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.9.
-    :param device: The PyTorch device used to run FENSE models. If None, it will try to detect use cuda if available. defaults to "cpu".
+    :param device: The PyTorch device used to run FENSE models. If "auto", it will try to detect use cuda if available. defaults to "cpu".
     :param batch_size: The batch size of the sBERT and echecker models. defaults to 32.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
@@ -150,11 +150,14 @@ def _load_models_and_tokenizer(
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
     echecker: Union[None, str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
-    device: Union[str, torch.device, None] = "cpu",
+    device: Union[str, torch.device] = "auto",
     verbose: int = 0,
 ) -> tuple[SentenceTransformer, Optional[BERTFlatClassifier], Optional[AutoTokenizer]]:
-    if device is None:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device == "auto":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    if isinstance(device, str):
+        device = torch.device(device)
+
     if isinstance(sbert_model, str):
         sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
     sbert_model.to(device)
@@ -198,11 +201,14 @@ def _detect_error_sents(
     echecker_tokenizer: PreTrainedTokenizerFast,
     sents: list[str],
     batch_size: int,
-    device: Union[str, torch.device, None],
+    device: Union[str, torch.device],
     max_len: int = 64,
 ) -> dict[str, np.ndarray]:
-    if device is None:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device == "auto":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    if isinstance(device, str):
+        device = torch.device(device)
+
     if len(sents) <= batch_size:
         batch = infer_preprocess(
             echecker_tokenizer,

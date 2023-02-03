@@ -100,11 +100,14 @@ def infer_preprocess(
     tokenizer: PreTrainedTokenizerFast,
     texts: list[str],
     max_len: int,
-    device: Union[str, torch.device, None],
+    device: Union[str, torch.device],
     dtype: torch.dtype,
 ) -> Mapping[str, Tensor]:
-    if device is None:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device == "auto":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    if isinstance(device, str):
+        device = torch.device(device)
+
     texts = _text_preprocess(texts)  # type: ignore
     batch = tokenizer(texts, truncation=True, padding="max_length", max_length=max_len)
     for k in ("input_ids", "attention_mask", "token_type_ids"):
@@ -114,7 +117,7 @@ def infer_preprocess(
 
 def load_pretrain_echecker(
     echecker_model: str,
-    device: Union[str, torch.device, None] = "cuda",
+    device: Union[str, torch.device] = "auto",
     use_proxy: bool = False,
     proxies: Optional[dict[str, str]] = None,
     verbose: int = 0,
@@ -124,8 +127,10 @@ def load_pretrain_echecker(
             f"Invalid argument {echecker_model=}. (expected one of {tuple(PRETRAIN_ECHECKERS_DICT.keys())})"
         )
 
-    if device is None:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device == "auto":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    if isinstance(device, str):
+        device = torch.device(device)
 
     tfmers_logging.set_verbosity_error()  # suppress loading warnings
     url, checksum = PRETRAIN_ECHECKERS_DICT[echecker_model]

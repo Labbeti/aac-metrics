@@ -39,7 +39,7 @@ class FENSE(AACMetric):
         echecker: Union[None, str] = "echecker_clotho_audiocaps_base",
         error_threshold: float = 0.9,
         penalty: float = 0.9,
-        device: Union[str, torch.device, None] = "cpu",
+        device: Union[str, torch.device] = "auto",
         batch_size: int = 32,
         verbose: int = 0,
     ) -> None:
