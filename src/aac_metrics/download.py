@@ -211,6 +211,7 @@ def _main_download() -> None:
 
     download(
         args.cache_path,
+        args.tmp_path,
         args.ptb_tokenizer,
         args.meteor,
         args.spice,
