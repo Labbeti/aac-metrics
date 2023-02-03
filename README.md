@@ -8,8 +8,8 @@
 <a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/-PyTorch 1.10.1+-ee4c2c?style=for-the-badge&logo=pytorch&logoColor=white"></a>
 <a href="https://black.readthedocs.io/en/stable/"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-black.svg?style=for-the-badge&labelColor=gray"></a>
 <a href="https://github.com/Labbeti/aac-metrics/actions"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/Labbeti/aac-metrics/python-package-pip.yaml?branch=main&style=for-the-badge&logo=github"></a>
-<a href='https://aac-metrics.readthedocs.io/en/latest/?badge=latest'>
-    <img src='https://readthedocs.org/projects/aac-metrics/badge/?version=latest&style=for-the-badge' alt='Documentation Status' />
+<a href='https://aac-metrics.readthedocs.io/en/stable/?badge=stable'>
+    <img src='https://readthedocs.org/projects/aac-metrics/badge/?version=stable&style=for-the-badge' alt='Documentation Status' />
 </a>
 
 Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
