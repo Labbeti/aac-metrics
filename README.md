@@ -35,13 +35,13 @@ Install the pip package:
 pip install aac-metrics
 ```
 
-Download the external code needed for METEOR, SPICE and PTBTokenizer:
+Download the external code and models needed for METEOR, SPICE, PTBTokenizer and FENSE:
 ```bash
 aac-metrics-download
 ```
 
 Notes:
-- The external code for SPICE, METEOR and PTBTokenizer is stored in the cache directory (default: `$HOME/.cache/aac-metrics/`).
+- The external code for SPICE, METEOR and PTBTokenizer is stored in `$HOME/.cache/aac-metrics`.
 - The weights of the FENSE fluency error detector and the the SBERT model are respectively stored by default in `$HOME/.cache/torch/hub/fense_data` and `$HOME/.cache/torch/sentence_transformers`.
 
 ## Usage
