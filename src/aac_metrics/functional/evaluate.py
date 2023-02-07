@@ -53,7 +53,7 @@ def evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
-    metrics: Union[str, Iterable[Callable[[list, list], tuple]]] = "aac",
+    metrics: Union[str, Iterable[Callable[[list, list], tuple]]] = "all",
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",

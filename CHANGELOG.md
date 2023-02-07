@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - Documentation pages with sphinx.
 - Add `language` parameter to METEOR function and class.
 - Options to download only PTBTokenizer, METEOR, SPICE or FENSE in `download.py`.
+- Add SBERT and FluencyError metrics from FENSE.
 
 ### Changed
 - Fix README typo and SPIDER-max tables.

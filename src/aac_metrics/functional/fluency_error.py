@@ -10,19 +10,20 @@ import logging
 import os
 import re
 import requests
-import shutil
 
 from collections import namedtuple
 from os import environ, makedirs
 from os.path import exists, expanduser, join
 from typing import Mapping, Optional, Union
 
+import numpy as np
 import torch
 
 from torch import nn, Tensor
 from tqdm import tqdm
 from transformers import logging as tfmers_logging
 from transformers.models.auto.modeling_auto import AutoModel
+from transformers.models.auto.tokenization_auto import AutoTokenizer
 from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 
 
@@ -47,6 +48,15 @@ RemoteFileMetadata = namedtuple("RemoteFileMetadata", ["filename", "url", "check
 
 logger = logging.getLogger(__name__)
 
+ERROR_NAMES = (
+    "add_tail",
+    "repeat_event",
+    "repeat_adv",
+    "remove_conj",
+    "remove_verb",
+    "error",
+)
+
 
 class BERTFlatClassifier(nn.Module):
     def __init__(self, model_type: str, num_classes: int = 5) -> None:
@@ -56,6 +66,17 @@ class BERTFlatClassifier(nn.Module):
         self.encoder = AutoModel.from_pretrained(model_type)
         self.dropout = nn.Dropout(self.encoder.config.hidden_dropout_prob)
         self.clf = nn.Linear(self.encoder.config.hidden_size, num_classes)
+
+    @classmethod
+    def from_pretrained(
+        cls,
+        model_name: str = "echecker_clotho_audiocaps_base",
+        device: Union[str, torch.device] = "auto",
+        use_proxy: bool = False,
+        proxies: Optional[dict[str, str]] = None,
+        verbose: int = 0,
+    ) -> "BERTFlatClassifier":
+        return _load_pretrain_echecker(model_name, device, use_proxy, proxies, verbose)
 
     def forward(
         self,
@@ -71,7 +92,131 @@ class BERTFlatClassifier(nn.Module):
         return logits
 
 
-def check_download_resource(
+def fluency_error(
+    candidates: list[str],
+    return_all_scores: bool = True,
+    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker_tokenizer: Optional[AutoTokenizer] = None,
+    error_threshold: float = 0.9,
+    device: Union[str, torch.device] = "auto",
+    batch_size: int = 32,
+    verbose: int = 0,
+) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    # Init models
+    echecker, echecker_tokenizer = _load_model_and_tokenizer(
+        echecker, echecker_tokenizer, device, verbose
+    )
+
+    # Compute and apply fluency error detection penalty
+    sents_probs_dic = _detect_error_sents(
+        echecker,
+        echecker_tokenizer,  # type: ignore
+        candidates,
+        batch_size,
+        device,
+    )
+    fluency_errors = (sents_probs_dic["error"] > error_threshold).astype(float)
+    sents_probs_dic = {f"fense.{k}_prob": v for k, v in sents_probs_dic.items()}
+
+    sents_probs_dic = {k: torch.from_numpy(v) for k, v in sents_probs_dic.items()}
+    corpus_probs_dic = {k: v.mean() for k, v in sents_probs_dic.items()}
+
+    fluency_errors = torch.from_numpy(fluency_errors)
+    fluency_error = fluency_errors.mean()
+
+    if return_all_scores:
+        sents_scores = {
+            "fluency_error": fluency_errors,
+        } | sents_probs_dic
+        corpus_scores = {
+            "fluency_error": fluency_error,
+        } | corpus_probs_dic
+
+        return corpus_scores, sents_scores
+    else:
+        return fluency_error
+
+
+# - Private functions
+def _load_model_and_tokenizer(
+    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker_tokenizer: Optional[AutoTokenizer] = None,
+    device: Union[str, torch.device] = "auto",
+    verbose: int = 0,
+) -> tuple[BERTFlatClassifier, AutoTokenizer]:
+    if device == "auto":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    if isinstance(device, str):
+        device = torch.device(device)
+
+    if isinstance(echecker, str):
+        echecker = _load_pretrain_echecker(echecker, device, verbose=verbose)
+
+    if echecker_tokenizer is None:
+        echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)
+
+    for p in echecker.parameters():
+        p.detach_()
+    echecker.eval()
+
+    return echecker, echecker_tokenizer  # type: ignore
+
+
+def _detect_error_sents(
+    echecker: BERTFlatClassifier,
+    echecker_tokenizer: PreTrainedTokenizerFast,
+    sents: list[str],
+    batch_size: int,
+    device: Union[str, torch.device],
+    max_len: int = 64,
+) -> dict[str, np.ndarray]:
+    if device == "auto":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    if isinstance(device, str):
+        device = torch.device(device)
+
+    if len(sents) <= batch_size:
+        batch = _infer_preprocess(
+            echecker_tokenizer,
+            sents,
+            max_len=max_len,
+            device=device,
+            dtype=torch.long,
+        )
+        logits: Tensor = echecker(**batch)
+        assert not logits.requires_grad
+        # batch_logits: (bsize, num_classes=6)
+        # note: fix error in the original fense code: https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L69
+        probs = logits.sigmoid().transpose(0, 1).cpu().numpy()
+        probs_dic = dict(zip(ERROR_NAMES, probs))
+
+    else:
+        probs_dic = {name: [] for name in ERROR_NAMES}
+
+        for i in range(0, len(sents), batch_size):
+            batch = _infer_preprocess(
+                echecker_tokenizer,
+                sents[i : i + batch_size],
+                max_len=max_len,
+                device=device,
+                dtype=torch.long,
+            )
+
+            batch_logits: Tensor = echecker(**batch)
+            assert not batch_logits.requires_grad
+            # batch_logits: (bsize, num_classes=6)
+            # classes: add_tail, repeat_event, repeat_adv, remove_conj, remove_verb, error
+            probs = batch_logits.sigmoid().cpu().numpy()
+
+            for j, name in enumerate(probs_dic.keys()):
+                probs_dic[name].append(probs[:, j])
+
+        probs_dic = {name: np.concatenate(probs) for name, probs in probs_dic.items()}
+
+    return probs_dic
+
+
+def _check_download_resource(
     remote: RemoteFileMetadata,
     use_proxy: bool = False,
     proxies: Optional[dict[str, str]] = None,
@@ -85,18 +230,7 @@ def check_download_resource(
     return file_path
 
 
-def clear_data_home(data_home: Optional[str] = None) -> None:
-    """Delete all the content of the data home cache.
-    Parameters
-    ----------
-    data_home : str | None
-        The path to data dir.
-    """
-    data_home = _get_data_home(data_home)
-    shutil.rmtree(data_home)
-
-
-def infer_preprocess(
+def _infer_preprocess(
     tokenizer: PreTrainedTokenizerFast,
     texts: list[str],
     max_len: int,
@@ -115,7 +249,7 @@ def infer_preprocess(
     return batch
 
 
-def load_pretrain_echecker(
+def _load_pretrain_echecker(
     echecker_model: str,
     device: Union[str, torch.device] = "auto",
     use_proxy: bool = False,
@@ -137,7 +271,7 @@ def load_pretrain_echecker(
     remote = RemoteFileMetadata(
         filename=f"{echecker_model}.ckpt", url=url, checksum=checksum
     )
-    file_path = check_download_resource(remote, use_proxy, proxies)
+    file_path = _check_download_resource(remote, use_proxy, proxies)
 
     if verbose >= 2:
         logger.debug(f"Loading echecker model from '{file_path}'.")
@@ -153,7 +287,6 @@ def load_pretrain_echecker(
     return echecker
 
 
-# - Private functions
 def _text_preprocess(inp: Union[str, list[str]]) -> Union[str, list[str]]:
     if isinstance(inp, str):
         return re.sub(r"[^\w\s]", "", inp).lower()

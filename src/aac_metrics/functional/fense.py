@@ -9,31 +9,21 @@ import logging
 
 from typing import Optional, Union
 
-import numpy as np
 import torch
 
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
-from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 
-from aac_metrics.functional._fense_utils import (
-    BERTFlatClassifier,
-    infer_preprocess,
-    load_pretrain_echecker,
+from aac_metrics.functional._fense_utils import BERTFlatClassifier
+from aac_metrics.functional.fluency_error import (
+    fluency_error,
+    _load_model_and_tokenizer,
 )
+from aac_metrics.functional.sbert import sbert, _load_model
 
 
 pylog = logging.getLogger(__name__)
-
-ERROR_NAMES = (
-    "add_tail",
-    "repeat_event",
-    "repeat_adv",
-    "remove_conj",
-    "remove_verb",
-    "error",
-)
 
 
 def fense(
@@ -41,7 +31,7 @@ def fense(
     mult_references: list[list[str]],
     return_all_scores: bool = True,
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-    echecker: Union[None, str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker: Union[str, BERTFlatClassifier, None] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     penalty: float = 0.9,
@@ -79,68 +69,38 @@ def fense(
         sbert_model, echecker, echecker_tokenizer, device, verbose
     )
 
-    # Encode sents
-    rng_ids = [0]
-    for refs in mult_references:
-        rng_ids.append(rng_ids[-1] + len(refs))
-    flat_references = [ref for refs in mult_references for ref in refs]
+    sbert_corpus_scores, sbert_sents_scores = sbert(candidates, mult_references, True, sbert_model, device, batch_size, verbose)  # type: ignore
+    sbert_corpus_scores: dict[str, Tensor]
+    sbert_sents_scores: dict[str, Tensor]
 
-    cands_embs = _encode_sents_sbert(sbert_model, candidates, batch_size, verbose)
-    mrefs_embs = _encode_sents_sbert(sbert_model, flat_references, batch_size, verbose)
+    if echecker is None:
+        if return_all_scores:
+            corpus_scores = sbert_corpus_scores | {
+                "fense": sbert_corpus_scores["sbert.sim"]
+            }
+            sents_scores = sbert_sents_scores | {
+                "fense": sbert_sents_scores["sbert.sim"]
+            }
+            return corpus_scores, sents_scores
+        else:
+            return sbert_corpus_scores["sbert.sim"]
 
-    # Compute sBERT similarities
-    sbert_cos_sims = [
-        (cands_embs[i] @ mrefs_embs[rng_ids[i] : rng_ids[i + 1]].T).mean().item()
-        for i in range(len(cands_embs))
-    ]
-    sbert_cos_sims = np.array(sbert_cos_sims)
+    fluerr_corpus_scores, fluerr_sents_scores = fluency_error(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, verbose)  # type: ignore
+    fluerr_corpus_scores: dict[str, Tensor]
+    fluerr_sents_scores: dict[str, Tensor]
 
-    # Compute and apply fluency error detection penalty
-    if echecker is not None and echecker_tokenizer is not None:
-        sents_probs_dic = _detect_error_sents(
-            echecker,
-            echecker_tokenizer,  # type: ignore
-            candidates,
-            batch_size,
-            device,
-        )
-        fluency_errors = (sents_probs_dic["error"] > error_threshold).astype(float)
-        fense_scores = sbert_cos_sims * (1.0 - penalty * fluency_errors)
-        sents_probs_dic = {f"fense.{k}_prob": v for k, v in sents_probs_dic.items()}
-    else:
-        fluency_errors = None
-        sents_probs_dic = {}
-        fense_scores = sbert_cos_sims
-
-    # Aggregate and return
-    sbert_cos_sim = sbert_cos_sims.mean()
+    sbert_cos_sims = sbert_sents_scores["sbert.sim"]
+    fluency_errors = fluerr_sents_scores["fluency_error"]
+    fense_scores = sbert_cos_sims * (1.0 - penalty * fluency_errors)
     fense_score = fense_scores.mean()
-    corpus_probs_dic = {k: v.mean() for k, v in sents_probs_dic.items()}
-
-    sbert_cos_sim = torch.as_tensor(sbert_cos_sim)
-    fense_score = torch.as_tensor(fense_score)
-    corpus_probs_dic = {k: torch.as_tensor(v) for k, v in corpus_probs_dic.items()}
-
-    sbert_cos_sims = torch.from_numpy(sbert_cos_sims)
-    fense_scores = torch.from_numpy(fense_scores)
-    sents_probs_dic = {k: torch.from_numpy(v) for k, v in sents_probs_dic.items()}
 
     if return_all_scores:
-        sents_scores = {
-            "fense": fense_scores,
-            "sbert.sim": sbert_cos_sims,
-        } | sents_probs_dic
-        corpus_scores = {
-            "fense": fense_score,
-            "sbert.sim": sbert_cos_sim,
-        } | corpus_probs_dic
-
-        if fluency_errors is not None:
-            fluency_errors = torch.from_numpy(fluency_errors)
-            fluency_error = fluency_errors.mean()
-            sents_scores["fluency_error"] = fluency_errors
-            corpus_scores["fluency_error"] = fluency_error
-
+        corpus_scores = (
+            sbert_corpus_scores | fluerr_corpus_scores | {"fense": fense_score}
+        )
+        sents_scores = (
+            sbert_sents_scores | fluerr_sents_scores | {"fense": fense_scores}
+        )
         return corpus_scores, sents_scores
     else:
         return fense_score
@@ -148,103 +108,16 @@ def fense(
 
 def _load_models_and_tokenizer(
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-    echecker: Union[None, str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker: Union[str, BERTFlatClassifier, None] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     device: Union[str, torch.device] = "auto",
     verbose: int = 0,
 ) -> tuple[SentenceTransformer, Optional[BERTFlatClassifier], Optional[AutoTokenizer]]:
-    if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(device, str):
-        device = torch.device(device)
-
-    if isinstance(sbert_model, str):
-        sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
-    sbert_model.to(device)
-
-    if isinstance(echecker, str):
-        if echecker == "none":
-            echecker = None
-        else:
-            echecker = load_pretrain_echecker(echecker, device, verbose=verbose)
-
-    if echecker_tokenizer is None and echecker is not None:
-        echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)
-
-    for model in (sbert_model, echecker):
-        if model is None:
-            continue
-        for p in model.parameters():
-            p.detach_()
-        model.eval()
-
-    return sbert_model, echecker, echecker_tokenizer
-
-
-def _encode_sents_sbert(
-    sbert_model: SentenceTransformer,
-    sents: list[str],
-    batch_size: int = 32,
-    verbose: int = 0,
-) -> Tensor:
-    return sbert_model.encode(
-        sents,
-        convert_to_tensor=True,
-        normalize_embeddings=True,
-        batch_size=batch_size,
-        show_progress_bar=verbose >= 2,
-    )  # type: ignore
-
-
-def _detect_error_sents(
-    echecker: BERTFlatClassifier,
-    echecker_tokenizer: PreTrainedTokenizerFast,
-    sents: list[str],
-    batch_size: int,
-    device: Union[str, torch.device],
-    max_len: int = 64,
-) -> dict[str, np.ndarray]:
-    if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(device, str):
-        device = torch.device(device)
-
-    if len(sents) <= batch_size:
-        batch = infer_preprocess(
-            echecker_tokenizer,
-            sents,
-            max_len=max_len,
-            device=device,
-            dtype=torch.long,
+    sbert_model = _load_model(sbert_model, device)
+    if echecker is not None:
+        echecker, echecker_tokenizer = _load_model_and_tokenizer(
+            echecker, echecker_tokenizer, device, verbose
         )
-        logits: Tensor = echecker(**batch)
-        assert not logits.requires_grad
-        # batch_logits: (bsize, num_classes=6)
-        # note: fix error in the original fense code: https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L69
-        probs = logits.sigmoid().transpose(0, 1).cpu().numpy()
-        probs_dic = dict(zip(ERROR_NAMES, probs))
-
     else:
-        probs_dic = {name: [] for name in ERROR_NAMES}
-
-        for i in range(0, len(sents), batch_size):
-            batch = infer_preprocess(
-                echecker_tokenizer,
-                sents[i : i + batch_size],
-                max_len=max_len,
-                device=device,
-                dtype=torch.long,
-            )
-
-            batch_logits: Tensor = echecker(**batch)
-            assert not batch_logits.requires_grad
-            # batch_logits: (bsize, num_classes=6)
-            # classes: add_tail, repeat_event, repeat_adv, remove_conj, remove_verb, error
-            probs = batch_logits.sigmoid().cpu().numpy()
-
-            for j, name in enumerate(probs_dic.keys()):
-                probs_dic[name].append(probs[:, j])
-
-        probs_dic = {name: np.concatenate(probs) for name, probs in probs_dic.items()}
-
-    return probs_dic
+        echecker, echecker_tokenizer = None, None
+    return sbert_model, echecker, echecker_tokenizer
