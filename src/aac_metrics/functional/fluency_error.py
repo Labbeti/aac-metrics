@@ -76,7 +76,7 @@ class BERTFlatClassifier(nn.Module):
         proxies: Optional[dict[str, str]] = None,
         verbose: int = 0,
     ) -> "BERTFlatClassifier":
-        return _load_pretrain_echecker(model_name, device, use_proxy, proxies, verbose)
+        return __load_pretrain_echecker(model_name, device, use_proxy, proxies, verbose)
 
     def forward(
         self,
@@ -102,13 +102,36 @@ def fluency_error(
     batch_size: int = 32,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    """Return fluency error detected by a pre-trained BERT model.
+
+    - Paper: https://arxiv.org/abs/2110.04684
+    - Original implementation: https://github.com/blmoistawinde/fense
+
+    :param candidates: The list of sentences to evaluate.
+    :param mult_references: The list of list of sentences used as target.
+    :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
+        Otherwise returns a scalar tensor containing the main global score.
+        defaults to True.
+    :param echecker: The echecker model used to detect fluency errors.
+        Can be "echecker_clotho_audiocaps_base", "echecker_clotho_audiocaps_tiny", "none" or None.
+        defaults to "echecker_clotho_audiocaps_base".
+    :param echecker_tokenizer: The tokenizer of the echecker model.
+        If None and echecker is not None, this value will be inferred with `echecker.model_type`.
+        defaults to None.
+    :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
+    :param device: The PyTorch device used to run FENSE models. If "auto", it will try to detect use cuda if available. defaults to "cpu".
+    :param batch_size: The batch size of the echecker models. defaults to 32.
+    :param verbose: The verbose level. defaults to 0.
+    :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
+    """
+
     # Init models
-    echecker, echecker_tokenizer = _load_model_and_tokenizer(
+    echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
         echecker, echecker_tokenizer, device, verbose
     )
 
     # Compute and apply fluency error detection penalty
-    sents_probs_dic = _detect_error_sents(
+    sents_probs_dic = __detect_error_sents(
         echecker,
         echecker_tokenizer,  # type: ignore
         candidates,
@@ -138,7 +161,7 @@ def fluency_error(
 
 
 # - Private functions
-def _load_model_and_tokenizer(
+def _load_echecker_and_tokenizer(
     echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     device: Union[str, torch.device] = "auto",
@@ -150,7 +173,7 @@ def _load_model_and_tokenizer(
         device = torch.device(device)
 
     if isinstance(echecker, str):
-        echecker = _load_pretrain_echecker(echecker, device, verbose=verbose)
+        echecker = __load_pretrain_echecker(echecker, device, verbose=verbose)
 
     if echecker_tokenizer is None:
         echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)
@@ -162,7 +185,7 @@ def _load_model_and_tokenizer(
     return echecker, echecker_tokenizer  # type: ignore
 
 
-def _detect_error_sents(
+def __detect_error_sents(
     echecker: BERTFlatClassifier,
     echecker_tokenizer: PreTrainedTokenizerFast,
     sents: list[str],
@@ -176,7 +199,7 @@ def _detect_error_sents(
         device = torch.device(device)
 
     if len(sents) <= batch_size:
-        batch = _infer_preprocess(
+        batch = __infer_preprocess(
             echecker_tokenizer,
             sents,
             max_len=max_len,
@@ -194,7 +217,7 @@ def _detect_error_sents(
         probs_dic = {name: [] for name in ERROR_NAMES}
 
         for i in range(0, len(sents), batch_size):
-            batch = _infer_preprocess(
+            batch = __infer_preprocess(
                 echecker_tokenizer,
                 sents[i : i + batch_size],
                 max_len=max_len,
@@ -216,21 +239,21 @@ def _detect_error_sents(
     return probs_dic
 
 
-def _check_download_resource(
+def __check_download_resource(
     remote: RemoteFileMetadata,
     use_proxy: bool = False,
     proxies: Optional[dict[str, str]] = None,
 ) -> str:
     proxies = DEFAULT_PROXIES if use_proxy and proxies is None else proxies
-    data_home = _get_data_home()
+    data_home = __get_data_home()
     file_path = os.path.join(data_home, remote.filename)
     if not os.path.exists(file_path):
         # currently don't capture error at this level, assume download success
-        file_path = _download(remote, data_home, use_proxy, proxies)
+        file_path = __download(remote, data_home, use_proxy, proxies)
     return file_path
 
 
-def _infer_preprocess(
+def __infer_preprocess(
     tokenizer: PreTrainedTokenizerFast,
     texts: list[str],
     max_len: int,
@@ -242,98 +265,28 @@ def _infer_preprocess(
     if isinstance(device, str):
         device = torch.device(device)
 
-    texts = _text_preprocess(texts)  # type: ignore
+    texts = __text_preprocess(texts)  # type: ignore
     batch = tokenizer(texts, truncation=True, padding="max_length", max_length=max_len)
     for k in ("input_ids", "attention_mask", "token_type_ids"):
         batch[k] = torch.as_tensor(batch[k], device=device, dtype=dtype)  # type: ignore
     return batch
 
 
-def _load_pretrain_echecker(
-    echecker_model: str,
-    device: Union[str, torch.device] = "auto",
+def __download(
+    remote: RemoteFileMetadata,
+    file_path: Optional[str] = None,
     use_proxy: bool = False,
-    proxies: Optional[dict[str, str]] = None,
-    verbose: int = 0,
-) -> BERTFlatClassifier:
-    if echecker_model not in PRETRAIN_ECHECKERS_DICT:
-        raise ValueError(
-            f"Invalid argument {echecker_model=}. (expected one of {tuple(PRETRAIN_ECHECKERS_DICT.keys())})"
-        )
-
-    if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(device, str):
-        device = torch.device(device)
-
-    tfmers_logging.set_verbosity_error()  # suppress loading warnings
-    url, checksum = PRETRAIN_ECHECKERS_DICT[echecker_model]
-    remote = RemoteFileMetadata(
-        filename=f"{echecker_model}.ckpt", url=url, checksum=checksum
-    )
-    file_path = _check_download_resource(remote, use_proxy, proxies)
-
-    if verbose >= 2:
-        logger.debug(f"Loading echecker model from '{file_path}'.")
-
-    model_states = torch.load(file_path)
-    echecker = BERTFlatClassifier(
-        model_type=model_states["model_type"],
-        num_classes=model_states["num_classes"],
-    )
-    echecker.load_state_dict(model_states["state_dict"])
-    echecker.eval()
-    echecker.to(device)
-    return echecker
+    proxies: Optional[dict[str, str]] = DEFAULT_PROXIES,
+) -> str:
+    data_home = __get_data_home()
+    file_path = __fetch_remote(remote, data_home, use_proxy, proxies)
+    return file_path
 
 
-def _text_preprocess(inp: Union[str, list[str]]) -> Union[str, list[str]]:
-    if isinstance(inp, str):
-        return re.sub(r"[^\w\s]", "", inp).lower()
-    else:
-        return [re.sub(r"[^\w\s]", "", x).lower() for x in inp]
-
-
-def _get_data_home(data_home: Optional[str] = None) -> str:  # type: ignore
-    """Return the path of the scikit-learn data dir.
-    This folder is used by some large dataset loaders to avoid downloading the
-    data several times.
-    By default the data dir is set to a folder named 'fense_data' in the
-    user home folder.
-    Alternatively, it can be set by the 'FENSE_DATA' environment
-    variable or programmatically by giving an explicit folder path. The '~'
-    symbol is expanded to the user home folder.
-    If the folder does not already exist, it is automatically created.
-    Parameters
-    ----------
-    data_home : str | None
-        The path to data dir.
-    """
-    if data_home is None:
-        data_home = environ.get("FENSE_DATA", join(torch.hub.get_dir(), "fense_data"))
-
-    data_home: str
-    data_home = expanduser(data_home)
-    if not exists(data_home):
-        makedirs(data_home)
-    return data_home
-
-
-def _sha256(path: str) -> str:
-    """Calculate the sha256 hash of the file at path."""
-    sha256hash = hashlib.sha256()
-    chunk_size = 8192
-    with open(path, "rb") as f:
-        while True:
-            buffer = f.read(chunk_size)
-            if not buffer:
-                break
-            sha256hash.update(buffer)
-    return sha256hash.hexdigest()
-
-
-def _download_with_bar(
-    url: str, file_path: str, proxies: Optional[dict[str, str]] = DEFAULT_PROXIES
+def __download_with_bar(
+    url: str,
+    file_path: str,
+    proxies: Optional[dict[str, str]] = DEFAULT_PROXIES,
 ) -> str:
     # Streaming, so we can iterate over the response.
     response = requests.get(url, stream=True, proxies=proxies)
@@ -350,7 +303,7 @@ def _download_with_bar(
     return file_path
 
 
-def _fetch_remote(
+def __fetch_remote(
     remote: RemoteFileMetadata,
     dirname: Optional[str] = None,
     use_proxy: bool = False,
@@ -375,8 +328,8 @@ def _fetch_remote(
 
     file_path = remote.filename if dirname is None else join(dirname, remote.filename)
     proxies = None if not use_proxy else proxies
-    file_path = _download_with_bar(remote.url, file_path, proxies)
-    checksum = _sha256(file_path)
+    file_path = __download_with_bar(remote.url, file_path, proxies)
+    checksum = __sha256(file_path)
     if remote.checksum != checksum:
         raise IOError(
             "{} has an SHA256 checksum ({}) "
@@ -386,12 +339,84 @@ def _fetch_remote(
     return file_path
 
 
-def _download(
-    remote: RemoteFileMetadata,
-    file_path: Optional[str] = None,
+def __get_data_home(data_home: Optional[str] = None) -> str:  # type: ignore
+    """Return the path of the scikit-learn data dir.
+    This folder is used by some large dataset loaders to avoid downloading the
+    data several times.
+    By default the data dir is set to a folder named 'fense_data' in the
+    user home folder.
+    Alternatively, it can be set by the 'FENSE_DATA' environment
+    variable or programmatically by giving an explicit folder path. The '~'
+    symbol is expanded to the user home folder.
+    If the folder does not already exist, it is automatically created.
+    Parameters
+    ----------
+    data_home : str | None
+        The path to data dir.
+    """
+    if data_home is None:
+        data_home = environ.get("FENSE_DATA", join(torch.hub.get_dir(), "fense_data"))
+
+    data_home: str
+    data_home = expanduser(data_home)
+    if not exists(data_home):
+        makedirs(data_home)
+    return data_home
+
+
+def __load_pretrain_echecker(
+    echecker_model: str,
+    device: Union[str, torch.device] = "auto",
     use_proxy: bool = False,
-    proxies: Optional[dict[str, str]] = DEFAULT_PROXIES,
-) -> str:
-    data_home = _get_data_home()
-    file_path = _fetch_remote(remote, data_home, use_proxy, proxies)
-    return file_path
+    proxies: Optional[dict[str, str]] = None,
+    verbose: int = 0,
+) -> BERTFlatClassifier:
+    if echecker_model not in PRETRAIN_ECHECKERS_DICT:
+        raise ValueError(
+            f"Invalid argument {echecker_model=}. (expected one of {tuple(PRETRAIN_ECHECKERS_DICT.keys())})"
+        )
+
+    if device == "auto":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    if isinstance(device, str):
+        device = torch.device(device)
+
+    tfmers_logging.set_verbosity_error()  # suppress loading warnings
+    url, checksum = PRETRAIN_ECHECKERS_DICT[echecker_model]
+    remote = RemoteFileMetadata(
+        filename=f"{echecker_model}.ckpt", url=url, checksum=checksum
+    )
+    file_path = __check_download_resource(remote, use_proxy, proxies)
+
+    if verbose >= 2:
+        logger.debug(f"Loading echecker model from '{file_path}'.")
+
+    model_states = torch.load(file_path)
+    echecker = BERTFlatClassifier(
+        model_type=model_states["model_type"],
+        num_classes=model_states["num_classes"],
+    )
+    echecker.load_state_dict(model_states["state_dict"])
+    echecker.eval()
+    echecker.to(device)
+    return echecker
+
+
+def __sha256(path: str) -> str:
+    """Calculate the sha256 hash of the file at path."""
+    sha256hash = hashlib.sha256()
+    chunk_size = 8192
+    with open(path, "rb") as f:
+        while True:
+            buffer = f.read(chunk_size)
+            if not buffer:
+                break
+            sha256hash.update(buffer)
+    return sha256hash.hexdigest()
+
+
+def __text_preprocess(inp: Union[str, list[str]]) -> Union[str, list[str]]:
+    if isinstance(inp, str):
+        return re.sub(r"[^\w\s]", "", inp).lower()
+    else:
+        return [re.sub(r"[^\w\s]", "", x).lower() for x in inp]

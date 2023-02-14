@@ -28,8 +28,24 @@ def sbert(
     batch_size: int = 32,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+    """Cosine-similarity of the Sentence-BERT embeddings.
+
+    - Paper: https://arxiv.org/abs/1908.10084
+    - Original implementation: https://github.com/blmoistawinde/fense
+
+    :param candidates: The list of sentences to evaluate.
+    :param mult_references: The list of list of sentences used as target.
+    :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
+        Otherwise returns a scalar tensor containing the main global score.
+        defaults to True.
+    :param sbert_model: The sentence BERT model used to extract sentence embeddings for cosine-similarity. defaults to "paraphrase-TinyBERT-L6-v2".
+    :param device: The PyTorch device used to run FENSE models. If "auto", it will try to detect use cuda if available. defaults to "cpu".
+    :param batch_size: The batch size of the sBERT models. defaults to 32.
+    :param verbose: The verbose level. defaults to 0.
+    :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
+    """
     # Init models
-    sbert_model = _load_model(sbert_model, device)
+    sbert_model = _load_sbert(sbert_model, device)
 
     # Encode sents
     rng_ids = [0]
@@ -66,7 +82,7 @@ def sbert(
         return sbert_cos_sim
 
 
-def _load_model(
+def _load_sbert(
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
     device: Union[str, torch.device] = "auto",
 ) -> SentenceTransformer:

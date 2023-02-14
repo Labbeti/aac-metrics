@@ -11,9 +11,11 @@ from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.classes.bleu import BLEU
+from aac_metrics.classes.fense import FENSE
+from aac_metrics.classes.fluency_error import FluencyError
 from aac_metrics.classes.meteor import METEOR
 from aac_metrics.classes.rouge_l import ROUGEL
-from aac_metrics.classes.fense import FENSE
+from aac_metrics.classes.sbert import SBERT
 from aac_metrics.classes.spider import SPIDEr
 from aac_metrics.functional.evaluate import METRICS_SETS, evaluate
 
@@ -189,6 +191,16 @@ def _get_metrics_classes_factory(
             verbose=verbose,
         ),
         "fense": lambda: FENSE(
+            return_all_scores=return_all_scores,
+            device=device,
+            verbose=verbose,
+        ),
+        "sbert": lambda: SBERT(
+            return_all_scores=return_all_scores,
+            device=device,
+            verbose=verbose,
+        ),
+        "fluency_error": lambda: FluencyError(
             return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,

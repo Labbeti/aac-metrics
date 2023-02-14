@@ -15,12 +15,12 @@ from sentence_transformers import SentenceTransformer
 from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
-from aac_metrics.functional._fense_utils import BERTFlatClassifier
 from aac_metrics.functional.fluency_error import (
     fluency_error,
-    _load_model_and_tokenizer,
+    _load_echecker_and_tokenizer,
+    BERTFlatClassifier,
 )
-from aac_metrics.functional.sbert import sbert, _load_model
+from aac_metrics.functional.sbert import sbert, _load_sbert
 
 
 pylog = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ def fense(
     """Fluency ENhanced Sentence-bert Evaluation (FENSE)
 
     - Paper: https://arxiv.org/abs/2110.04684
-    Original implementation: https://github.com/blmoistawinde/fense
+    - Original implementation: https://github.com/blmoistawinde/fense
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
@@ -113,9 +113,9 @@ def _load_models_and_tokenizer(
     device: Union[str, torch.device] = "auto",
     verbose: int = 0,
 ) -> tuple[SentenceTransformer, Optional[BERTFlatClassifier], Optional[AutoTokenizer]]:
-    sbert_model = _load_model(sbert_model, device)
+    sbert_model = _load_sbert(sbert_model, device)
     if echecker is not None:
-        echecker, echecker_tokenizer = _load_model_and_tokenizer(
+        echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
             echecker, echecker_tokenizer, device, verbose
         )
     else:

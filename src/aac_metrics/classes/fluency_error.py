@@ -10,19 +10,22 @@ import torch
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.fense import fense, _load_models_and_tokenizer
+from aac_metrics.functional.fluency_error import (
+    fluency_error,
+    _load_echecker_and_tokenizer,
+)
 
 
 logger = logging.getLogger(__name__)
 
 
-class FENSE(AACMetric):
-    """Fluency ENhanced Sentence-bert Evaluation (FENSE)
+class FluencyError(AACMetric):
+    """Return fluency error detected by a pre-trained BERT model.
 
     - Paper: https://arxiv.org/abs/2110.04684
     - Original implementation: https://github.com/blmoistawinde/fense
 
-    For more information, see :func:`~aac_metrics.functional.fense.fense`.
+    For more information, see :func:`~aac_metrics.functional.fluency_error.fluency_error`.
     """
 
     full_state_update = False
@@ -35,23 +38,19 @@ class FENSE(AACMetric):
     def __init__(
         self,
         return_all_scores: bool = True,
-        sbert_model: str = "paraphrase-TinyBERT-L6-v2",
-        echecker: Union[None, str] = "echecker_clotho_audiocaps_base",
+        echecker: str = "echecker_clotho_audiocaps_base",
         error_threshold: float = 0.9,
-        penalty: float = 0.9,
         device: Union[str, torch.device] = "auto",
         batch_size: int = 32,
         verbose: int = 0,
     ) -> None:
-        sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(sbert_model, echecker, None, device, verbose)  # type: ignore
+        echecker, echecker_tokenizer = _load_echecker_and_tokenizer(echecker, None, device, verbose)  # type: ignore
 
         super().__init__()
         self._return_all_scores = return_all_scores
-        self._sbert_model = sbert_model
         self._echecker = echecker
         self._echecker_tokenizer = echecker_tokenizer
         self._error_threshold = error_threshold
-        self._penalty = penalty
         self._device = device
         self._batch_size = batch_size
         self._verbose = verbose
@@ -60,22 +59,20 @@ class FENSE(AACMetric):
         self._mult_references = []
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
-        return fense(
+        return fluency_error(
             self._candidates,
             self._mult_references,
             self._return_all_scores,
-            self._sbert_model,
             self._echecker,
             self._echecker_tokenizer,
             self._error_threshold,
-            self._penalty,
             self._device,
             self._batch_size,
             self._verbose,
         )
 
     def extra_repr(self) -> str:
-        return f"error_threshold={self._error_threshold}, penalty={self._penalty}, device={self._device}, batch_size={self._batch_size}"
+        return f"device={self._device}, batch_size={self._batch_size}"
 
     def reset(self) -> None:
         self._candidates = []

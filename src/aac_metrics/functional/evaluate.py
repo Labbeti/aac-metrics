@@ -12,9 +12,11 @@ import torch
 from torch import Tensor
 
 from aac_metrics.functional.bleu import bleu
+from aac_metrics.functional.fense import fense
+from aac_metrics.functional.fluency_error import fluency_error
 from aac_metrics.functional.meteor import meteor
 from aac_metrics.functional.rouge_l import rouge_l
-from aac_metrics.functional.fense import fense
+from aac_metrics.functional.sbert import sbert
 from aac_metrics.functional.spider import spider
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
@@ -238,6 +240,18 @@ def _get_metrics_functions_factory(
         ),
         "fense": partial(
             fense,
+            return_all_scores=return_all_scores,
+            device=device,
+            verbose=verbose,
+        ),
+        "sbert": partial(
+            sbert,
+            return_all_scores=return_all_scores,
+            device=device,
+            verbose=verbose,
+        ),
+        "fluency_error": partial(
+            fluency_error,
             return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
