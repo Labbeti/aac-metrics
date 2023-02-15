@@ -139,7 +139,7 @@ def fluency_error(
         device,
     )
     fluency_errors = (sents_probs_dic["error"] > error_threshold).astype(float)
-    sents_probs_dic = {f"fense.{k}_prob": v for k, v in sents_probs_dic.items()}
+    sents_probs_dic = {f"fluerr.{k}_prob": v for k, v in sents_probs_dic.items()}
 
     sents_probs_dic = {k: torch.from_numpy(v) for k, v in sents_probs_dic.items()}
     corpus_probs_dic = {k: v.mean() for k, v in sents_probs_dic.items()}

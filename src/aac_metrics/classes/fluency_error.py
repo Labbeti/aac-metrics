@@ -13,6 +13,7 @@ from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fluency_error import (
     fluency_error,
     _load_echecker_and_tokenizer,
+    ERROR_NAMES,
 )
 
 
@@ -56,12 +57,10 @@ class FluencyError(AACMetric):
         self._verbose = verbose
 
         self._candidates = []
-        self._mult_references = []
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return fluency_error(
             self._candidates,
-            self._mult_references,
             self._return_all_scores,
             self._echecker,
             self._echecker_tokenizer,
@@ -74,15 +73,17 @@ class FluencyError(AACMetric):
     def extra_repr(self) -> str:
         return f"device={self._device}, batch_size={self._batch_size}"
 
+    def get_output_names(self) -> tuple[str, ...]:
+        return ("fluency_error",) + tuple(f"fluerr.{name}_prob" for name in ERROR_NAMES)
+
     def reset(self) -> None:
         self._candidates = []
-        self._mult_references = []
         return super().reset()
 
     def update(
         self,
         candidates: list[str],
-        mult_references: list[list[str]],
+        *args,
+        **kwargs,
     ) -> None:
         self._candidates += candidates
-        self._mult_references += mult_references

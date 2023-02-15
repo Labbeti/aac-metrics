@@ -34,6 +34,7 @@ class CIDErD(AACMetric):
         sigma: float = 6.0,
         tokenizer: Callable[[str], list[str]] = str.split,
         return_tfidf: bool = False,
+        scale: float = 10.0,
     ) -> None:
         super().__init__()
         self._return_all_scores = return_all_scores
@@ -41,6 +42,7 @@ class CIDErD(AACMetric):
         self._sigma = sigma
         self._tokenizer = tokenizer
         self._return_tfidf = return_tfidf
+        self._scale = scale
 
         self._cooked_cands = []
         self._cooked_mrefs = []
@@ -53,10 +55,14 @@ class CIDErD(AACMetric):
             self._n,
             self._sigma,
             self._return_tfidf,
+            self._scale,
         )
 
     def extra_repr(self) -> str:
         return f"n={self._n}, sigma={self._sigma}"
+
+    def get_output_names(self) -> tuple[str, ...]:
+        return ("cider_d",)
 
     def reset(self) -> None:
         self._cooked_cands = []

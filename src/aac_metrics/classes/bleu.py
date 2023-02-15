@@ -64,6 +64,9 @@ class BLEU(AACMetric):
     def extra_repr(self) -> str:
         return f"n={self._n}"
 
+    def get_output_names(self) -> tuple[str, ...]:
+        return (f"bleu_{self._n}",)
+
     def reset(self) -> None:
         self._cooked_cands = []
         self._cooked_mrefs = []

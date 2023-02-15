@@ -66,6 +66,9 @@ class SBERT(AACMetric):
     def extra_repr(self) -> str:
         return f"device={self._device}, batch_size={self._batch_size}"
 
+    def get_output_names(self) -> tuple[str, ...]:
+        return ("sbert.sim",)
+
     def reset(self) -> None:
         self._candidates = []
         self._mult_references = []

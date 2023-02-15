@@ -73,6 +73,9 @@ class SPICE(AACMetric):
     def extra_repr(self) -> str:
         return f"java_max_memory={self._java_max_memory}"
 
+    def get_output_names(self) -> tuple[str, ...]:
+        return ("spice",)
+
     def reset(self) -> None:
         self._candidates = []
         self._mult_references = []

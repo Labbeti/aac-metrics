@@ -11,6 +11,7 @@ from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fense import fense, _load_models_and_tokenizer
+from aac_metrics.functional.fluency_error import ERROR_NAMES
 
 
 logger = logging.getLogger(__name__)
@@ -76,6 +77,11 @@ class FENSE(AACMetric):
 
     def extra_repr(self) -> str:
         return f"error_threshold={self._error_threshold}, penalty={self._penalty}, device={self._device}, batch_size={self._batch_size}"
+
+    def get_output_names(self) -> tuple[str, ...]:
+        return ("sbert.sim", "fluency_error", "fense") + tuple(
+            f"fluerr.{name}_prob" for name in ERROR_NAMES
+        )
 
     def reset(self) -> None:
         self._candidates = []

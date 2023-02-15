@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Audio Captioning metrics.
+"""Audio Captioning metrics package.
 """
 
 __name__ = "aac-metrics"
@@ -22,7 +22,7 @@ from .classes.meteor import METEOR
 from .classes.rouge_l import ROUGEL
 from .classes.spice import SPICE
 from .classes.spider import SPIDEr
-from .functional.evaluate import aac_evaluate
+from .functional.evaluate import aac_evaluate, evaluate
 
 
 __all__ = [
@@ -35,6 +35,7 @@ __all__ = [
     "SPICE",
     "SPIDEr",
     "aac_evaluate",
+    "evaluate",
 ]
 
 

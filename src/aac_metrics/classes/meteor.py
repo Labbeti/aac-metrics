@@ -60,6 +60,9 @@ class METEOR(AACMetric):
     def extra_repr(self) -> str:
         return f"java_max_memory={self._java_max_memory}, language={self._language}"
 
+    def get_output_names(self) -> tuple[str, ...]:
+        return ("meteor",)
+
     def reset(self) -> None:
         self._candidates = []
         self._mult_references = []

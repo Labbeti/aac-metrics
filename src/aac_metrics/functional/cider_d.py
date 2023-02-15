@@ -18,6 +18,7 @@ def cider_d(
     sigma: float = 6.0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_tfidf: bool = False,
+    scale: float = 10.0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Any]]]:
     """Consensus-based Image Description Evaluation function.
 
@@ -50,6 +51,7 @@ def cider_d(
         n,
         sigma,
         return_tfidf,
+        scale,
     )
 
 
@@ -81,6 +83,7 @@ def _cider_d_compute(
     n: int,
     sigma: float,
     return_tfidf: bool,
+    scale: float,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Any]]]:
     if len(cooked_cands) <= 1:
         raise ValueError(
@@ -101,7 +104,7 @@ def _cider_d_compute(
         log_n_refs,
         n,
         sigma,
-        scale=10.0,
+        scale=scale,
     )
     cider_d_score = cider_d_scores.mean()
 

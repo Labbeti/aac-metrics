@@ -83,6 +83,9 @@ class SPIDErMax(AACMetric):
             f"n={self._n}, sigma={self._sigma}, java_max_memory={self._java_max_memory}"
         )
 
+    def get_output_names(self) -> tuple[str, ...]:
+        return ("spider_max",)
+
     def reset(self) -> None:
         self._mult_candidates = []
         self._mult_references = []
