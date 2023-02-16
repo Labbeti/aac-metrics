@@ -36,7 +36,7 @@ class SBERT(AACMetric):
         self,
         return_all_scores: bool = True,
         sbert_model: str = "paraphrase-TinyBERT-L6-v2",
-        device: Union[str, torch.device] = "auto",
+        device: Union[str, torch.device, None] = "auto",
         batch_size: int = 32,
         verbose: int = 0,
     ) -> None:

@@ -39,7 +39,7 @@ class Evaluate(AACMetric, list[AACMetric]):
         cache_path: str = "$HOME/.cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
-        device: Union[str, torch.device] = "auto",
+        device: Union[str, torch.device, None] = "auto",
         verbose: int = 0,
         metrics: Union[str, Iterable[AACMetric]] = "aac",
     ) -> None:
@@ -122,7 +122,7 @@ def _get_metrics_classes_list(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> list[AACMetric]:
     metrics_factory = _get_metrics_classes_factory(
@@ -153,7 +153,7 @@ def _get_metrics_classes_factory(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> dict[str, Callable[[], AACMetric]]:
     return {

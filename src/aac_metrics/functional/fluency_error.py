@@ -71,7 +71,7 @@ class BERTFlatClassifier(nn.Module):
     def from_pretrained(
         cls,
         model_name: str = "echecker_clotho_audiocaps_base",
-        device: Union[str, torch.device] = "auto",
+        device: Union[str, torch.device, None] = "auto",
         use_proxy: bool = False,
         proxies: Optional[dict[str, str]] = None,
         verbose: int = 0,
@@ -98,7 +98,7 @@ def fluency_error(
     echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
     batch_size: int = 32,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
@@ -164,7 +164,7 @@ def fluency_error(
 def _load_echecker_and_tokenizer(
     echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[BERTFlatClassifier, AutoTokenizer]:
     if device == "auto":
@@ -366,7 +366,7 @@ def __get_data_home(data_home: Optional[str] = None) -> str:  # type: ignore
 
 def __load_pretrain_echecker(
     echecker_model: str,
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
     use_proxy: bool = False,
     proxies: Optional[dict[str, str]] = None,
     verbose: int = 0,

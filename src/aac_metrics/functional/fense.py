@@ -35,7 +35,7 @@ def fense(
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     penalty: float = 0.9,
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
     batch_size: int = 32,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
@@ -110,7 +110,7 @@ def _load_models_and_tokenizer(
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
     echecker: Union[str, BERTFlatClassifier, None] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[SentenceTransformer, Optional[BERTFlatClassifier], Optional[AutoTokenizer]]:
     sbert_model = _load_sbert(sbert_model, device)

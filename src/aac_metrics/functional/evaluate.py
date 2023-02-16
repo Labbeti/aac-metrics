@@ -59,7 +59,7 @@ def evaluate(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Evaluate candidates with multiple references with custom metrics.
@@ -163,7 +163,7 @@ def _get_metrics_functions_list(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> list[Callable]:
     metrics_factory = _get_metrics_functions_factory(
@@ -194,7 +194,7 @@ def _get_metrics_functions_factory(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
     return {

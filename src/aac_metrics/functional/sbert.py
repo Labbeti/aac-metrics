@@ -24,7 +24,7 @@ def sbert(
     mult_references: list[list[str]],
     return_all_scores: bool = True,
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
     batch_size: int = 32,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
@@ -84,7 +84,7 @@ def sbert(
 
 def _load_sbert(
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-    device: Union[str, torch.device] = "auto",
+    device: Union[str, torch.device, None] = "auto",
 ) -> SentenceTransformer:
     if device == "auto":
         device = "cuda" if torch.cuda.is_available() else "cpu"
