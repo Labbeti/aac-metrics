@@ -190,7 +190,7 @@ def __detect_error_sents(
     echecker_tokenizer: PreTrainedTokenizerFast,
     sents: list[str],
     batch_size: int,
-    device: Union[str, torch.device],
+    device: Union[str, torch.device, None],
     max_len: int = 64,
 ) -> dict[str, np.ndarray]:
     if device == "auto":
@@ -257,7 +257,7 @@ def __infer_preprocess(
     tokenizer: PreTrainedTokenizerFast,
     texts: list[str],
     max_len: int,
-    device: Union[str, torch.device],
+    device: Union[str, torch.device, None],
     dtype: torch.dtype,
 ) -> Mapping[str, Tensor]:
     if device == "auto":

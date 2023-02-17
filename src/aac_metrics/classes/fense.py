@@ -37,7 +37,7 @@ class FENSE(AACMetric):
         self,
         return_all_scores: bool = True,
         sbert_model: str = "paraphrase-TinyBERT-L6-v2",
-        echecker: Union[None, str] = "echecker_clotho_audiocaps_base",
+        echecker: str = "echecker_clotho_audiocaps_base",
         error_threshold: float = 0.9,
         penalty: float = 0.9,
         device: Union[str, torch.device, None] = "auto",

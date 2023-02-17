@@ -31,7 +31,7 @@ def fense(
     mult_references: list[list[str]],
     return_all_scores: bool = True,
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-    echecker: Union[str, BERTFlatClassifier, None] = "echecker_clotho_audiocaps_base",
+    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     penalty: float = 0.9,
@@ -73,18 +73,6 @@ def fense(
     sbert_corpus_scores: dict[str, Tensor]
     sbert_sents_scores: dict[str, Tensor]
 
-    if echecker is None:
-        if return_all_scores:
-            corpus_scores = sbert_corpus_scores | {
-                "fense": sbert_corpus_scores["sbert.sim"]
-            }
-            sents_scores = sbert_sents_scores | {
-                "fense": sbert_sents_scores["sbert.sim"]
-            }
-            return corpus_scores, sents_scores
-        else:
-            return sbert_corpus_scores["sbert.sim"]
-
     fluerr_corpus_scores, fluerr_sents_scores = fluency_error(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, verbose)  # type: ignore
     fluerr_corpus_scores: dict[str, Tensor]
     fluerr_sents_scores: dict[str, Tensor]
@@ -108,16 +96,13 @@ def fense(
 
 def _load_models_and_tokenizer(
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-    echecker: Union[str, BERTFlatClassifier, None] = "echecker_clotho_audiocaps_base",
+    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
-) -> tuple[SentenceTransformer, Optional[BERTFlatClassifier], Optional[AutoTokenizer]]:
+) -> tuple[SentenceTransformer, BERTFlatClassifier, AutoTokenizer]:
     sbert_model = _load_sbert(sbert_model, device)
-    if echecker is not None:
-        echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
-            echecker, echecker_tokenizer, device, verbose
-        )
-    else:
-        echecker, echecker_tokenizer = None, None
+    echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
+        echecker, echecker_tokenizer, device, verbose
+    )
     return sbert_model, echecker, echecker_tokenizer
