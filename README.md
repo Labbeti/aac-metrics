@@ -17,7 +17,7 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
 </div>
 
 ## Why using this package?
-- **Easy install and download**
+- **Easy installation and download**
 - **Same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense) repositories**
 - **Provides the following metrics:**
     - BLEU [[1]](#bleu)
@@ -27,6 +27,8 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
     - SPICE [[5]](#spice)
     - SPIDEr [[6]](#spider)
     - SPIDEr-max [[7]](#spider-max)
+    - SBERT [[8]](#fense)
+    - FluencyError [[8]](#fense)
     - FENSE [[8]](#fense)
 
 ## Installation
