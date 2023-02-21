@@ -30,7 +30,7 @@ class FluencyError(AACMetric):
     """
 
     full_state_update = False
-    higher_is_better = True
+    higher_is_better = False
     is_differentiable = False
 
     min_value = -1.0
