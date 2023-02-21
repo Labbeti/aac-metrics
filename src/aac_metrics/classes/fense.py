@@ -42,9 +42,10 @@ class FENSE(AACMetric):
         penalty: float = 0.9,
         device: Union[str, torch.device, None] = "auto",
         batch_size: int = 32,
+        reset_state: bool = True,
         verbose: int = 0,
     ) -> None:
-        sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(sbert_model, echecker, None, device, verbose)  # type: ignore
+        sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(sbert_model, echecker, None, device, reset_state, verbose)  # type: ignore
 
         super().__init__()
         self._return_all_scores = return_all_scores
@@ -55,6 +56,7 @@ class FENSE(AACMetric):
         self._penalty = penalty
         self._device = device
         self._batch_size = batch_size
+        self._reset_state = reset_state
         self._verbose = verbose
 
         self._candidates = []
@@ -72,6 +74,7 @@ class FENSE(AACMetric):
             self._penalty,
             self._device,
             self._batch_size,
+            self._reset_state,
             self._verbose,
         )
 

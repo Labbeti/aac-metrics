@@ -26,6 +26,7 @@ def sbert(
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
     device: Union[str, torch.device, None] = "auto",
     batch_size: int = 32,
+    reset_state: bool = True,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
     """Cosine-similarity of the Sentence-BERT embeddings.
@@ -45,7 +46,7 @@ def sbert(
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     # Init models
-    sbert_model = _load_sbert(sbert_model, device)
+    sbert_model = _load_sbert(sbert_model, device, reset_state)
 
     # Encode sents
     rng_ids = [0]
@@ -85,7 +86,10 @@ def sbert(
 def _load_sbert(
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
     device: Union[str, torch.device, None] = "auto",
+    reset_state: bool = True,
 ) -> SentenceTransformer:
+    state = torch.random.get_rng_state()
+
     if device == "auto":
         device = "cuda" if torch.cuda.is_available() else "cpu"
     if isinstance(device, str):
@@ -93,15 +97,18 @@ def _load_sbert(
 
     if isinstance(sbert_model, str):
         sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
-    sbert_model.to(device)
+    sbert_model.to(device=device)
 
+    sbert_model = sbert_model.eval()
     for p in sbert_model.parameters():
-        p.detach_()
-    sbert_model.eval()
+        p.requires_grad_(False)
 
+    if reset_state:
+        torch.random.set_rng_state(state)
     return sbert_model
 
 
+@torch.no_grad()
 def _encode_sents_sbert(
     sbert_model: SentenceTransformer,
     sents: list[str],

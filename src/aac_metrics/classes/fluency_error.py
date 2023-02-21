@@ -43,9 +43,10 @@ class FluencyError(AACMetric):
         error_threshold: float = 0.9,
         device: Union[str, torch.device, None] = "auto",
         batch_size: int = 32,
+        reset_state: bool = True,
         verbose: int = 0,
     ) -> None:
-        echecker, echecker_tokenizer = _load_echecker_and_tokenizer(echecker, None, device, verbose)  # type: ignore
+        echecker, echecker_tokenizer = _load_echecker_and_tokenizer(echecker, None, device, reset_state, verbose)  # type: ignore
 
         super().__init__()
         self._return_all_scores = return_all_scores
@@ -54,6 +55,7 @@ class FluencyError(AACMetric):
         self._error_threshold = error_threshold
         self._device = device
         self._batch_size = batch_size
+        self._reset_state = reset_state
         self._verbose = verbose
 
         self._candidates = []
@@ -67,6 +69,7 @@ class FluencyError(AACMetric):
             self._error_threshold,
             self._device,
             self._batch_size,
+            self._reset_state,
             self._verbose,
         )
 

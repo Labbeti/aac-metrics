@@ -37,6 +37,7 @@ def fense(
     penalty: float = 0.9,
     device: Union[str, torch.device, None] = "auto",
     batch_size: int = 32,
+    reset_state: bool = True,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
     """Fluency ENhanced Sentence-bert Evaluation (FENSE)
@@ -66,7 +67,7 @@ def fense(
 
     # Init models
     sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(
-        sbert_model, echecker, echecker_tokenizer, device, verbose
+        sbert_model, echecker, echecker_tokenizer, device, reset_state, verbose
     )
 
     sbert_corpus_scores, sbert_sents_scores = sbert(candidates, mult_references, True, sbert_model, device, batch_size, verbose)  # type: ignore
@@ -99,10 +100,11 @@ def _load_models_and_tokenizer(
     echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     device: Union[str, torch.device, None] = "auto",
+    reset_state: bool = True,
     verbose: int = 0,
 ) -> tuple[SentenceTransformer, BERTFlatClassifier, AutoTokenizer]:
-    sbert_model = _load_sbert(sbert_model, device)
+    sbert_model = _load_sbert(sbert_model, device, reset_state)
     echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
-        echecker, echecker_tokenizer, device, verbose
+        echecker, echecker_tokenizer, device, reset_state, verbose
     )
     return sbert_model, echecker, echecker_tokenizer

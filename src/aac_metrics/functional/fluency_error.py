@@ -100,6 +100,7 @@ def fluency_error(
     error_threshold: float = 0.9,
     device: Union[str, torch.device, None] = "auto",
     batch_size: int = 32,
+    reset_state: bool = True,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
     """Return fluency error detected by a pre-trained BERT model.
@@ -127,7 +128,7 @@ def fluency_error(
 
     # Init models
     echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
-        echecker, echecker_tokenizer, device, verbose
+        echecker, echecker_tokenizer, device, reset_state, verbose
     )
 
     # Compute and apply fluency error detection penalty
@@ -165,8 +166,11 @@ def _load_echecker_and_tokenizer(
     echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     device: Union[str, torch.device, None] = "auto",
+    reset_state: bool = True,
     verbose: int = 0,
 ) -> tuple[BERTFlatClassifier, AutoTokenizer]:
+    state = torch.random.get_rng_state()
+
     if device == "auto":
         device = "cuda" if torch.cuda.is_available() else "cpu"
     if isinstance(device, str):
@@ -178,9 +182,12 @@ def _load_echecker_and_tokenizer(
     if echecker_tokenizer is None:
         echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)
 
+    echecker = echecker.eval()
     for p in echecker.parameters():
-        p.detach_()
-    echecker.eval()
+        p.requires_grad_(False)
+
+    if reset_state:
+        torch.random.set_rng_state(state)
 
     return echecker, echecker_tokenizer  # type: ignore
 
@@ -398,7 +405,7 @@ def __load_pretrain_echecker(
     )
     echecker.load_state_dict(model_states["state_dict"])
     echecker.eval()
-    echecker.to(device)
+    echecker.to(device=device)
     return echecker
 
 
