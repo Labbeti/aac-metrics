@@ -39,10 +39,10 @@ class FENSE(AACMetric):
         sbert_model: str = "paraphrase-TinyBERT-L6-v2",
         echecker: str = "echecker_clotho_audiocaps_base",
         error_threshold: float = 0.9,
-        penalty: float = 0.9,
         device: Union[str, torch.device, None] = "auto",
         batch_size: int = 32,
         reset_state: bool = True,
+        penalty: float = 0.9,
         verbose: int = 0,
     ) -> None:
         sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(sbert_model, echecker, None, device, reset_state, verbose)  # type: ignore
@@ -53,10 +53,10 @@ class FENSE(AACMetric):
         self._echecker = echecker
         self._echecker_tokenizer = echecker_tokenizer
         self._error_threshold = error_threshold
-        self._penalty = penalty
         self._device = device
         self._batch_size = batch_size
         self._reset_state = reset_state
+        self._penalty = penalty
         self._verbose = verbose
 
         self._candidates = []
@@ -71,10 +71,10 @@ class FENSE(AACMetric):
             self._echecker,
             self._echecker_tokenizer,
             self._error_threshold,
-            self._penalty,
             self._device,
             self._batch_size,
             self._reset_state,
+            self._penalty,
             self._verbose,
         )
 
