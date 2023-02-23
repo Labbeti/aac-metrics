@@ -40,7 +40,7 @@ def sbert(
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
     :param sbert_model: The sentence BERT model used to extract sentence embeddings for cosine-similarity. defaults to "paraphrase-TinyBERT-L6-v2".
-    :param device: The PyTorch device used to run FENSE models. If "auto", it will try to detect use cuda if available. defaults to "cpu".
+    :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "cpu".
     :param batch_size: The batch size of the sBERT models. defaults to 32.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.

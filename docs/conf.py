@@ -79,6 +79,9 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
+html_css_files = [
+    "css/custom.css",
+]
 
 # -- Extension configuration -------------------------------------------------
 
@@ -94,3 +97,7 @@ intersphinx_mapping = {
     "torch": ("https://pytorch.org/docs/master/", None),
     "torchmetrics": ("https://torchmetrics.readthedocs.io/en/stable/", None),
 }
+
+
+def setup(app) -> None:
+    app.add_css_file('my_theme.css')
