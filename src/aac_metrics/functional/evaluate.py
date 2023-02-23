@@ -90,10 +90,18 @@ def evaluate(
 
     if preprocess:
         candidates = preprocess_mono_sents(
-            candidates, cache_path, java_path, tmp_path, verbose
+            candidates,
+            cache_path,
+            java_path,
+            tmp_path,
+            verbose=verbose,
         )
         mult_references = preprocess_mult_sents(
-            mult_references, cache_path, java_path, tmp_path, verbose
+            mult_references,
+            cache_path,
+            java_path,
+            tmp_path,
+            verbose=verbose,
         )
 
     corpus_scores = {}
