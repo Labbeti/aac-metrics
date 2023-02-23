@@ -4,14 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.1] UNRELEASED
 ### Added
-- `SPICE` options `timeout` and `separate_cache_dir`.
+- Parameters `timeout` and `separate_cache_dir` in `SPICE` function and class.
 - Documentation pages with sphinx.
-- Add `language` parameter to `METEOR` function and class.
+- Parameter `language` in `METEOR` function and class.
 - Options to download only `PTBTokenizer`, `METEOR`, `SPICE` or `FENSE` in `download.py`.
-- Add `SBERT` and `FluencyError` metrics extracted from `FENSE`.
+- `SBERT` and `FluencyError` metrics extracted from `FENSE`.
+- `SPIDErErr` metric which combines `SPIDEr` with `FluencyError`.
 
 ### Changed
-- Fix README typo and SPIDER-max tables.
+- Fix README typo and SPIDEr-max tables.
 
 ### Fixed
 - Workflow badge with Github changes. (https://github.com/badges/shields/issues/8671)
