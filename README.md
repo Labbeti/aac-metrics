@@ -252,17 +252,17 @@ arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 If you use **SPIDEr-max**, you can cite the following paper using BibTex:
 ```
 @inproceedings{labbe:hal-03810396,
-  TITLE = {{Is my automatic audio captioning system so bad? spider-max: a metric to consider several caption candidates}},
-  AUTHOR = {Labb{\'e}, Etienne and Pellegrini, Thomas and Pinquier, Julien},
-  URL = {https://hal.archives-ouvertes.fr/hal-03810396},
-  BOOKTITLE = {{Workshop DCASE}},
-  ADDRESS = {Nancy, France},
-  YEAR = {2022},
-  MONTH = Nov,
-  KEYWORDS = {audio captioning ; evaluation metric ; beam search ; multiple candidates},
-  PDF = {https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf},
-  HAL_ID = {hal-03810396},
-  HAL_VERSION = {v1},
+    TITLE = {{Is my automatic audio captioning system so bad? spider-max: a metric to consider several caption candidates}},
+    AUTHOR = {Labb{\'e}, Etienne and Pellegrini, Thomas and Pinquier, Julien},
+    URL = {https://hal.archives-ouvertes.fr/hal-03810396},
+    BOOKTITLE = {{Workshop DCASE}},
+    ADDRESS = {Nancy, France},
+    YEAR = {2022},
+    MONTH = Nov,
+    KEYWORDS = {audio captioning ; evaluation metric ; beam search ; multiple candidates},
+    PDF = {https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf},
+    HAL_ID = {hal-03810396},
+    HAL_VERSION = {v1},
 }
 ```
 

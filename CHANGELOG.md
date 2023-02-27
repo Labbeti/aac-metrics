@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.1] UNRELEASED
+## [0.3.0] 2023-02-27
 ### Added
 - Parameters `timeout` and `separate_cache_dir` in `SPICE` function and class.
 - Documentation pages with sphinx.
@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Options to download only `PTBTokenizer`, `METEOR`, `SPICE` or `FENSE` in `download.py`.
 - `SBERT` and `FluencyError` metrics extracted from `FENSE`.
 - `SPIDErErr` metric which combines `SPIDEr` with `FluencyError`.
+- Parameter `reset_state` in `SBERT`, `FluencyError`, `SPIDErErr` and `FENSE` functions and classes.
 
 ### Changed
 - Fix README typo and SPIDEr-max tables.
