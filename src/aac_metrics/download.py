@@ -39,11 +39,17 @@ JAR_URLS = {
         "fname": "stanford-corenlp-3.4.1.jar",
     },
 }
+_TRUE_VALUES = ("true", "1", "t")
+_FALSE_VALUES = ("false", "0", "f")
 
 
 def download(
     cache_path: str = "$HOME/.cache",
     tmp_path: str = "/tmp",
+    ptb_tokenizer: bool = True,
+    meteor: bool = True,
+    spice: bool = True,
+    fense: bool = True,
     verbose: int = 0,
 ) -> None:
     """Download the code needed for SPICE, METEOR and PTB Tokenizer.
@@ -57,85 +63,91 @@ def download(
     os.makedirs(cache_path, exist_ok=True)
     os.makedirs(tmp_path, exist_ok=True)
 
-    # Download JAR file for tokenization
-    stanford_nlp_dpath = osp.join(
-        cache_path, osp.dirname(FNAME_STANFORD_CORENLP_3_4_1_JAR)
-    )
-    os.makedirs(stanford_nlp_dpath, exist_ok=True)
+    if ptb_tokenizer:
+        # Download JAR file for tokenization
+        stanford_nlp_dpath = osp.join(
+            cache_path, osp.dirname(FNAME_STANFORD_CORENLP_3_4_1_JAR)
+        )
+        os.makedirs(stanford_nlp_dpath, exist_ok=True)
 
-    name = "stanford_nlp"
-    info = JAR_URLS[name]
-    url = info["url"]
-    fname = info["fname"]
-    fpath = osp.join(stanford_nlp_dpath, fname)
-    if not osp.isfile(fpath):
-        if verbose >= 1:
-            logger.info(
-                f"Downloading jar source for '{name}' in directory {stanford_nlp_dpath}."
-            )
-        download_url_to_file(url, fpath, progress=verbose >= 1)
-    else:
-        if verbose >= 1:
-            logger.info(f"Stanford model file '{name}' is already downloaded.")
-
-    # Download JAR files for METEOR metric
-    meteor_dpath = osp.join(cache_path, osp.dirname(FNAME_METEOR_JAR))
-    os.makedirs(meteor_dpath, exist_ok=True)
-
-    for name in ("meteor", "meteor_data"):
+        name = "stanford_nlp"
         info = JAR_URLS[name]
         url = info["url"]
         fname = info["fname"]
-        subdir = osp.dirname(fname)
-        fpath = osp.join(meteor_dpath, fname)
-
+        fpath = osp.join(stanford_nlp_dpath, fname)
         if not osp.isfile(fpath):
             if verbose >= 1:
                 logger.info(
-                    f"Downloading jar source for '{name}' in directory {meteor_dpath}."
+                    f"Downloading jar source for '{name}' in directory {stanford_nlp_dpath}."
                 )
-            if subdir not in ("", "."):
-                os.makedirs(osp.join(meteor_dpath, subdir), exist_ok=True)
-
-            download_url_to_file(
-                url,
-                fpath,
-                progress=verbose >= 1,
-            )
+            download_url_to_file(url, fpath, progress=verbose >= 1)
         else:
             if verbose >= 1:
-                logger.info(f"Meteor file '{name}' is already downloaded.")
+                logger.info(f"Stanford model file '{name}' is already downloaded.")
 
-    # Download JAR files for SPICE metric
-    spice_jar_dpath = osp.join(cache_path, osp.dirname(FNAME_SPICE_JAR))
-    os.makedirs(spice_jar_dpath, exist_ok=True)
+    if meteor:
+        # Download JAR files for METEOR metric
+        meteor_dpath = osp.join(cache_path, osp.dirname(FNAME_METEOR_JAR))
+        os.makedirs(meteor_dpath, exist_ok=True)
 
-    spice_cache_path = osp.join(cache_path, DNAME_SPICE_CACHE)
-    os.makedirs(spice_cache_path, exist_ok=True)
+        for name in ("meteor", "meteor_data"):
+            info = JAR_URLS[name]
+            url = info["url"]
+            fname = info["fname"]
+            subdir = osp.dirname(fname)
+            fpath = osp.join(meteor_dpath, fname)
 
-    script_path = osp.join(osp.dirname(__file__), "..", "..", "install_spice.sh")
-    if not osp.isfile(script_path):
-        raise FileNotFoundError(f"Cannot find script '{osp.basename(script_path)}'.")
+            if not osp.isfile(fpath):
+                if verbose >= 1:
+                    logger.info(
+                        f"Downloading jar source for '{name}' in directory {meteor_dpath}."
+                    )
+                if subdir not in ("", "."):
+                    os.makedirs(osp.join(meteor_dpath, subdir), exist_ok=True)
 
-    if verbose >= 1:
-        logger.info(
-            f"Downloading JAR sources for SPICE metric into '{spice_jar_dpath}'..."
-        )
+                download_url_to_file(
+                    url,
+                    fpath,
+                    progress=verbose >= 1,
+                )
+            else:
+                if verbose >= 1:
+                    logger.info(f"Meteor file '{name}' is already downloaded.")
 
-    command = ["bash", script_path, spice_jar_dpath]
-    try:
-        subprocess.check_call(
-            command,
-            stdout=None if verbose >= 2 else subprocess.DEVNULL,
-            stderr=None if verbose >= 2 else subprocess.DEVNULL,
-        )
-    except (CalledProcessError, PermissionError) as err:
-        logger.error(err)
+    if spice:
+        # Download JAR files for SPICE metric
+        spice_jar_dpath = osp.join(cache_path, osp.dirname(FNAME_SPICE_JAR))
+        os.makedirs(spice_jar_dpath, exist_ok=True)
 
-    # Download models files for FENSE metric
-    if verbose >= 1:
-        logger.info("Downloading sBert and Bert error detector for FENSE metric...")
-    _ = FENSE(device="cpu")
+        spice_cache_path = osp.join(cache_path, DNAME_SPICE_CACHE)
+        os.makedirs(spice_cache_path, exist_ok=True)
+
+        script_path = osp.join(osp.dirname(__file__), "..", "..", "install_spice.sh")
+        if not osp.isfile(script_path):
+            raise FileNotFoundError(
+                f"Cannot find script '{osp.basename(script_path)}'."
+            )
+
+        if verbose >= 1:
+            logger.info(
+                f"Downloading JAR sources for SPICE metric into '{spice_jar_dpath}'..."
+            )
+
+        command = ["bash", script_path, spice_jar_dpath]
+        try:
+            subprocess.check_call(
+                command,
+                stdout=None if verbose >= 2 else subprocess.DEVNULL,
+                stderr=None if verbose >= 2 else subprocess.DEVNULL,
+            )
+        except (CalledProcessError, PermissionError) as err:
+            logger.error(err)
+
+    if fense:
+        # Download models files for FENSE metric
+        if verbose >= 1:
+            logger.info("Downloading sBert and Bert error detector for FENSE metric...")
+        _ = FENSE(device="cpu")
 
 
 def _get_main_download_args() -> Namespace:
@@ -155,6 +167,30 @@ def _get_main_download_args() -> Namespace:
         default="/tmp",
         help="Temporary directory path.",
     )
+    parser.add_argument(
+        "--ptb_tokenizer",
+        type=_str_to_bool,
+        default=True,
+        help="Download PTBTokenizer Java source code.",
+    )
+    parser.add_argument(
+        "--meteor",
+        type=_str_to_bool,
+        default=True,
+        help="Download METEOR Java source code.",
+    )
+    parser.add_argument(
+        "--spice",
+        type=_str_to_bool,
+        default=True,
+        help="Download SPICE Java source code.",
+    )
+    parser.add_argument(
+        "--fense",
+        type=_str_to_bool,
+        default=True,
+        help="Download FENSE models.",
+    )
     parser.add_argument("--verbose", type=int, default=1, help="Verbose level.")
 
     args = parser.parse_args()
@@ -173,7 +209,27 @@ def _main_download() -> None:
     level = logging.INFO if args.verbose <= 1 else logging.DEBUG
     pkg_logger.setLevel(level)
 
-    download(args.cache_path, args.tmp_path, args.verbose)
+    download(
+        args.cache_path,
+        args.tmp_path,
+        args.ptb_tokenizer,
+        args.meteor,
+        args.spice,
+        args.fense,
+        args.verbose,
+    )
+
+
+def _str_to_bool(s: str) -> bool:
+    s = str(s).strip().lower()
+    if s in _TRUE_VALUES:
+        return True
+    elif s in _FALSE_VALUES:
+        return False
+    else:
+        raise ValueError(
+            f"Invalid argument {s=}. (expected one of {_TRUE_VALUES + _FALSE_VALUES})"
+        )
 
 
 if __name__ == "__main__":

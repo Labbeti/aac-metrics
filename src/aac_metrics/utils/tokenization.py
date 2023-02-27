@@ -49,6 +49,7 @@ def ptb_tokenize_batch(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     verbose: int = 0,
 ) -> list[list[str]]:
     """Use PTB Tokenizer to process sentences. Should be used only with all the sentences of a subset due to slow computation.
@@ -154,9 +155,10 @@ def ptb_tokenize_batch(
             f"PTB tokenize error: expected {len(audio_ids)} lines in output file but found {len(lines)}."
         )
 
+    punctuations = list(punctuations)
     for k, line in zip(audio_ids, lines):
         tokenized_caption = [
-            w for w in line.rstrip().split(" ") if w not in PTB_PUNCTUATIONS
+            w for w in line.rstrip().split(" ") if w not in punctuations
         ]
         outs[k] = tokenized_caption
     assert all(out is not None for out in outs)
@@ -173,12 +175,15 @@ def preprocess_mono_sents(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     verbose: int = 0,
 ) -> list[str]:
     """Tokenize sentences using PTB Tokenizer then merge them by space.
 
-    Note: PTB tokenizer is a java program that takes a list[str] as input, so calling several times `preprocess_mono_sents` is slow on list[list[str]].
-    If you want to process multiple sentences (list[list[str]]), use `preprocess_mult_sents` instead.
+    .. warning::
+        PTB tokenizer is a java program that takes a list[str] as input, so calling several times `preprocess_mono_sents` is slow on list[list[str]].
+
+        If you want to process multiple sentences (list[list[str]]), use `preprocess_mult_sents` instead.
 
     :param sentences: The list of sentences to process.
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
@@ -187,7 +192,7 @@ def preprocess_mono_sents(
     :returns: The sentences processed by the tokenizer.
     """
     tok_sents = ptb_tokenize_batch(
-        sentences, None, cache_path, java_path, tmp_path, verbose
+        sentences, None, cache_path, java_path, tmp_path, punctuations, verbose
     )
     sentences = [" ".join(sent) for sent in tok_sents]
     return sentences
@@ -198,9 +203,10 @@ def preprocess_mult_sents(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     verbose: int = 0,
 ) -> list[list[str]]:
-    """Tokenize multiple sentences using PTB Tokenizer with only 1 call then merge them by space.
+    """Tokenize multiple sentences using PTB Tokenizer with only one call then merge them by space.
 
     :param mult_sentences: The list of list of sentences to process.
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
@@ -216,6 +222,7 @@ def preprocess_mult_sents(
         cache_path,
         java_path,
         tmp_path,
+        punctuations,
         verbose,
     )
     mult_sentences = unflat_list(flatten_sents, sizes)

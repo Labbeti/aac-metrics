@@ -16,7 +16,7 @@ from aac_metrics.functional.bleu import (
 class BLEU(AACMetric):
     """BiLingual Evaluation Understudy metric class.
 
-    Paper: https://www.aclweb.org/anthology/P02-1040.pdf
+    - Paper: https://www.aclweb.org/anthology/P02-1040.pdf
 
     For more information, see :func:`~aac_metrics.functional.bleu.bleu`.
     """
@@ -63,6 +63,9 @@ class BLEU(AACMetric):
 
     def extra_repr(self) -> str:
         return f"n={self._n}"
+
+    def get_output_names(self) -> tuple[str, ...]:
+        return (f"bleu_{self._n}",)
 
     def reset(self) -> None:
         self._cooked_cands = []

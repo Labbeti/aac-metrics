@@ -33,7 +33,7 @@ def rouge_l(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Recall-Oriented Understudy for Gisting Evaluation function.
 
-    Paper: https://aclanthology.org/W04-1013.pdf
+    - Paper: https://aclanthology.org/W04-1013.pdf
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.

@@ -3,7 +3,7 @@
 
 import logging
 
-from typing import Optional, Union
+from typing import Iterable, Optional, Union
 
 from torch import Tensor
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class SPICE(AACMetric):
     """Semantic Propositional Image Caption Evaluation class.
 
-    Paper: https://arxiv.org/pdf/1607.08822.pdf
+    - Paper: https://arxiv.org/pdf/1607.08822.pdf
 
     For more information, see :func:`~aac_metrics.functional.spice.spice`.
     """
@@ -37,6 +37,8 @@ class SPICE(AACMetric):
         tmp_path: str = "/tmp",
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
+        timeout: Union[None, int, Iterable[int]] = None,
+        separate_cache_dir: bool = True,
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -46,6 +48,8 @@ class SPICE(AACMetric):
         self._tmp_path = tmp_path
         self._n_threads = n_threads
         self._java_max_memory = java_max_memory
+        self._timeout = timeout
+        self._separate_cache_dir = separate_cache_dir
         self._verbose = verbose
 
         self._candidates = []
@@ -61,8 +65,16 @@ class SPICE(AACMetric):
             self._tmp_path,
             self._n_threads,
             self._java_max_memory,
+            self._timeout,
+            self._separate_cache_dir,
             self._verbose,
         )
+
+    def extra_repr(self) -> str:
+        return f"java_max_memory={self._java_max_memory}"
+
+    def get_output_names(self) -> tuple[str, ...]:
+        return ("spice",)
 
     def reset(self) -> None:
         self._candidates = []

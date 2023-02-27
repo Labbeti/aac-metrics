@@ -12,7 +12,8 @@ from aac_metrics.functional.meteor import meteor
 class METEOR(AACMetric):
     """Metric for Evaluation of Translation with Explicit ORdering metric class.
 
-    Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
+    - Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
+    - Documentation: https://www.cs.cmu.edu/~alavie/METEOR/README.html
 
     For more information, see :func:`~aac_metrics.functional.meteor.meteor`.
     """
@@ -30,6 +31,7 @@ class METEOR(AACMetric):
         cache_path: str = "$HOME/.cache",
         java_path: str = "java",
         java_max_memory: str = "2G",
+        language: str = "en",
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -37,6 +39,7 @@ class METEOR(AACMetric):
         self._cache_path = cache_path
         self._java_path = java_path
         self._java_max_memory = java_max_memory
+        self._language = language
         self._verbose = verbose
 
         self._candidates = []
@@ -50,8 +53,15 @@ class METEOR(AACMetric):
             self._cache_path,
             self._java_path,
             self._java_max_memory,
+            self._language,
             self._verbose,
         )
+
+    def extra_repr(self) -> str:
+        return f"java_max_memory={self._java_max_memory}, language={self._language}"
+
+    def get_output_names(self) -> tuple[str, ...]:
+        return ("meteor",)
 
     def reset(self) -> None:
         self._candidates = []

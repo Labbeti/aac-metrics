@@ -26,7 +26,7 @@ def bleu(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """BiLingual Evaluation Understudy function.
 
-    Paper: https://www.aclweb.org/anthology/P02-1040.pdf
+    - Paper: https://www.aclweb.org/anthology/P02-1040.pdf
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
@@ -37,7 +37,7 @@ def bleu(
     :param option: Corpus reference length mode. Can be "shortest", "average" or "closest". defaults to "closest".
     :param verbose: The verbose level. defaults to 0.
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
-    :param return_1_to_no: If True, returns the n-grams results from 1 to n.
+    :param return_1_to_n: If True, returns the n-grams results from 1 to n.
         Otherwise return the n-grams scores.
         defauts to False.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
@@ -109,8 +109,6 @@ def _bleu_compute(
     dtype = torch.float64
     score_n = torch.as_tensor(score_1_to_n[-1], dtype=dtype)
     scores_n = torch.as_tensor(scores_1_to_n[-1], dtype=dtype)
-    score_1_to_n = torch.as_tensor(score_1_to_n, dtype=dtype)
-    scores_1_to_n = torch.as_tensor(scores_1_to_n, dtype=dtype)
 
     if return_all_scores:
         corpus_scores = {
@@ -121,6 +119,8 @@ def _bleu_compute(
         }
 
         if return_1_to_n:
+            score_1_to_n = torch.as_tensor(score_1_to_n, dtype=dtype)
+            scores_1_to_n = torch.as_tensor(scores_1_to_n, dtype=dtype)
             corpus_scores[f"bleu_1_to_{n}"] = score_1_to_n
             sents_scores[f"bleu_1_to_{n}"] = scores_1_to_n
 

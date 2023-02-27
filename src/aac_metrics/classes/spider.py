@@ -3,7 +3,7 @@
 
 import logging
 
-from typing import Optional, Union
+from typing import Iterable, Optional, Union
 
 from torch import Tensor
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class SPIDEr(AACMetric):
     """SPIDEr class.
 
-    Paper: https://arxiv.org/pdf/1612.00370.pdf
+    - Paper: https://arxiv.org/pdf/1612.00370.pdf
 
     For more information, see :func:`~aac_metrics.functional.spider.spider`.
     """
@@ -41,6 +41,7 @@ class SPIDEr(AACMetric):
         tmp_path: str = "/tmp",
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
+        timeout: Union[None, int, Iterable[int]] = None,
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -52,6 +53,7 @@ class SPIDEr(AACMetric):
         self._tmp_path = tmp_path
         self._n_threads = n_threads
         self._java_max_memory = java_max_memory
+        self._timeout = timeout
         self._verbose = verbose
 
         self._candidates = []
@@ -71,8 +73,17 @@ class SPIDEr(AACMetric):
             tmp_path=self._tmp_path,
             n_threads=self._n_threads,
             java_max_memory=self._java_max_memory,
+            timeout=self._timeout,
             verbose=self._verbose,
         )
+
+    def extra_repr(self) -> str:
+        return (
+            f"n={self._n}, sigma={self._sigma}, java_max_memory={self._java_max_memory}"
+        )
+
+    def get_output_names(self) -> tuple[str, ...]:
+        return ("cider_d", "spice", "spider")
 
     def reset(self) -> None:
         self._candidates = []

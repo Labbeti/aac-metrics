@@ -15,7 +15,7 @@ from aac_metrics.functional.rouge_l import (
 class ROUGEL(AACMetric):
     """Recall-Oriented Understudy for Gisting Evaluation class.
 
-    Paper: https://aclanthology.org/W04-1013.pdf
+    - Paper: https://aclanthology.org/W04-1013.pdf
 
     For more information, see :func:`~aac_metrics.functional.rouge_l.rouge_l`.
     """
@@ -45,6 +45,12 @@ class ROUGEL(AACMetric):
             self._rouge_l_scores,
             self._return_all_scores,
         )
+
+    def extra_repr(self) -> str:
+        return f"beta={self._beta}"
+
+    def get_output_names(self) -> tuple[str, ...]:
+        return ("rouge_l",)
 
     def reset(self) -> None:
         self._rouge_l_scores = []

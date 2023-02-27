@@ -1,19 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+import time
+
 from functools import partial
 from typing import Any, Callable, Iterable, Union
 
-import tqdm
+import torch
 
 from torch import Tensor
 
 from aac_metrics.functional.bleu import bleu
+from aac_metrics.functional.fense import fense
+from aac_metrics.functional.fluency_error import fluency_error
 from aac_metrics.functional.meteor import meteor
 from aac_metrics.functional.rouge_l import rouge_l
-from aac_metrics.functional.fense import fense
+from aac_metrics.functional.sbert import sbert
 from aac_metrics.functional.spider import spider
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
+
+
+pylog = logging.getLogger(__name__)
 
 
 METRICS_SETS = {
@@ -47,10 +55,11 @@ def evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
-    metrics: Union[str, Iterable[Callable[[list, list], tuple]]] = "aac",
+    metrics: Union[str, Iterable[Callable[[list, list], tuple]]] = "all",
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Evaluate candidates with multiple references with custom metrics.
@@ -62,6 +71,7 @@ def evaluate(
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param device: The PyTorch device used to run FENSE models. If None, it will try to detect use cuda if available. defaults to "cpu".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores.
     """
@@ -72,6 +82,7 @@ def evaluate(
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
+            device=device,
             verbose=verbose,
         )
     else:
@@ -79,29 +90,45 @@ def evaluate(
 
     if preprocess:
         candidates = preprocess_mono_sents(
-            candidates, cache_path, java_path, tmp_path, verbose
+            candidates,
+            cache_path,
+            java_path,
+            tmp_path,
+            verbose=verbose,
         )
         mult_references = preprocess_mult_sents(
-            mult_references, cache_path, java_path, tmp_path, verbose
+            mult_references,
+            cache_path,
+            java_path,
+            tmp_path,
+            verbose=verbose,
         )
 
-    pbar = tqdm.tqdm(
-        total=len(metrics), disable=verbose < 2, desc="Computing metrics..."
-    )
+    corpus_scores = {}
+    sents_scores = {}
 
-    global_outs = {}
-    local_outs = {}
+    for i, metric in enumerate(metrics):
+        if hasattr(metric, "__qualname__"):
+            name = metric.__qualname__
+        else:
+            name = metric.__class__.__qualname__
 
-    for metric in metrics:
-        name = metric.__class__.__name__
-        pbar.set_description(f"Computing {name} metric...")
-        global_outs_i, local_outs_i = metric(candidates, mult_references)
-        global_outs |= global_outs_i
-        local_outs |= local_outs_i
-        pbar.update(1)
+        if verbose >= 1:
+            pylog.info(f"[{i+1:2d}/{len(metrics):2d}] Computing {name} metric...")
+        start = time.perf_counter()
 
-    pbar.close()
-    return global_outs, local_outs
+        corpus_scores_i, sents_scores_i = metric(candidates, mult_references)
+
+        end = time.perf_counter()
+        if verbose >= 1:
+            pylog.info(
+                f"[{i+1:2d}/{len(metrics):2d}] Metric {name} computed in {end - start:.2f}s."
+            )
+
+        corpus_scores |= corpus_scores_i
+        sents_scores |= sents_scores_i
+
+    return corpus_scores, sents_scores
 
 
 def aac_evaluate(
@@ -133,6 +160,7 @@ def aac_evaluate(
         cache_path,
         java_path,
         tmp_path,
+        "cpu",
         verbose,
     )
 
@@ -143,6 +171,7 @@ def _get_metrics_functions_list(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> list[Callable]:
     metrics_factory = _get_metrics_functions_factory(
@@ -150,6 +179,7 @@ def _get_metrics_functions_list(
         cache_path,
         java_path,
         tmp_path,
+        device,
         verbose,
     )
 
@@ -172,6 +202,7 @@ def _get_metrics_functions_factory(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
     return {
@@ -218,6 +249,19 @@ def _get_metrics_functions_factory(
         "fense": partial(
             fense,
             return_all_scores=return_all_scores,
+            device=device,
+            verbose=verbose,
+        ),
+        "sbert": partial(
+            sbert,
+            return_all_scores=return_all_scores,
+            device=device,
+            verbose=verbose,
+        ),
+        "fluency_error": partial(
+            fluency_error,
+            return_all_scores=return_all_scores,
+            device=device,
             verbose=verbose,
         ),
     }

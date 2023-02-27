@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Optional, Union
+from typing import Callable, Iterable, Optional, Union
 
 import torch
 
@@ -27,11 +27,12 @@ def spider_max(
     tmp_path: str = "/tmp",
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
+    timeout: Union[None, int, Iterable[int]] = None,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """SPIDEr-max function.
 
-    Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
+    - Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
 
     Compute the maximal SPIDEr score accross multiple candidates.
 
@@ -77,5 +78,6 @@ def spider_max(
         tmp_path=tmp_path,
         n_threads=n_threads,
         java_max_memory=java_max_memory,
+        timeout=timeout,
         verbose=verbose,
     )

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Optional, Union
+from typing import Callable, Iterable, Optional, Union
 
 from torch import Tensor
 
@@ -24,11 +24,12 @@ def spider(
     tmp_path: str = "/tmp",
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
+    timeout: Union[None, int, Iterable[int]] = None,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """SPIDEr function.
 
-    Paper: https://arxiv.org/pdf/1612.00370.pdf
+    - Paper: https://arxiv.org/pdf/1612.00370.pdf
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
@@ -74,6 +75,7 @@ def spider(
         tmp_path=tmp_path,
         n_threads=n_threads,
         java_max_memory=java_max_memory,
+        timeout=timeout,
         verbose=verbose,
     )
 

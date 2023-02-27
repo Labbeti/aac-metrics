@@ -23,7 +23,7 @@ def mult_cands_metric(
     """Multiple candidates metric wrapper.
 
     :param metric: Any Callable metric code. Take (candidates, mult_references, return_all_scores) and return the global and local scores.
-    :param metric_out_name: The name of the metric output. Should be one of the keys of the local scores returned by the metric.
+    :param metric_out_name: The name of the metric output. Should be one of the keys of the sentences local scores returned by the metric.
     :param mult_candidates: The list of list of sentences to evaluate.
     :param mult_references: The references input.
     :param selection: The selection to apply. Can be "max", "min" or "mean". defaults to "max".
