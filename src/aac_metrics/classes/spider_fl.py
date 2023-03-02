@@ -15,16 +15,16 @@ from aac_metrics.functional.fluency_error import (
     BERTFlatClassifier,
     _load_echecker_and_tokenizer,
 )
-from aac_metrics.functional.spider_err import spider_err
+from aac_metrics.functional.spider_fl import spider_fl
 
 
 logger = logging.getLogger(__name__)
 
 
-class SPIDErErr(AACMetric):
-    """SPIDErErr class.
+class SPIDErFL(AACMetric):
+    """SPIDErFL class.
 
-    For more information, see :func:`~aac_metrics.functional.spider_err.spider_err`.
+    For more information, see :func:`~aac_metrics.functional.spider_fl.spider_fl`.
     """
 
     full_state_update = False
@@ -85,7 +85,7 @@ class SPIDErErr(AACMetric):
         self._mult_references = []
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
-        return spider_err(
+        return spider_fl(
             self._candidates,
             self._mult_references,
             self._return_all_scores,
@@ -123,7 +123,7 @@ class SPIDErErr(AACMetric):
         return extra
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("cider_d", "spice", "spider", "spider_err", "fluency_error")
+        return ("cider_d", "spice", "spider", "spider_fl", "fluency_error")
 
     def reset(self) -> None:
         self._candidates = []

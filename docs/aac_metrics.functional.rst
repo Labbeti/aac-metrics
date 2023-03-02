@@ -23,5 +23,5 @@ Submodules
    aac_metrics.functional.sbert
    aac_metrics.functional.spice
    aac_metrics.functional.spider
-   aac_metrics.functional.spider_err
+   aac_metrics.functional.spider_fl
    aac_metrics.functional.spider_max

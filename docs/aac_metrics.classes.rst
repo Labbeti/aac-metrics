@@ -23,5 +23,5 @@ Submodules
    aac_metrics.classes.sbert
    aac_metrics.classes.spice
    aac_metrics.classes.spider
-   aac_metrics.classes.spider_err
+   aac_metrics.classes.spider_fl
    aac_metrics.classes.spider_max

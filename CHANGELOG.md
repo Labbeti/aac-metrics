@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] UNRELEASED
+
+### Changed
+- Rename `SPIDErErr` to `SPIDErFL`.
+
 ## [0.3.0] 2023-02-27
 ### Added
 - Parameters `timeout` and `separate_cache_dir` in `SPICE` function and class.

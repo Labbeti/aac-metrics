@@ -11,6 +11,7 @@ from .rouge_l import rouge_l
 from .sbert import sbert
 from .spice import spice
 from .spider import spider
+from .spider_fl import spider_fl
 from .spider_max import spider_max
 
 
@@ -26,5 +27,6 @@ __all__ = [
     "sbert",
     "spice",
     "spider",
+    "spider_fl",
     "spider_max",
 ]

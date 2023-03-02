@@ -25,7 +25,7 @@ from aac_metrics.functional.spider import spider
 pylog = logging.getLogger(__name__)
 
 
-def spider_err(
+def spider_fl(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
@@ -100,20 +100,16 @@ def spider_err(
 
     spider_scores = spider_sents_scores["spider"]
     fluency_errors = fluerr_sents_scores["fluency_error"]
-    spider_err_scores = spider_scores * (1.0 - penalty * fluency_errors)
-    spider_err_score = spider_err_scores.mean()
+    spider_fl_scores = spider_scores * (1.0 - penalty * fluency_errors)
+    spider_fl_score = spider_fl_scores.mean()
 
     if return_all_scores:
         corpus_scores = (
-            spider_corpus_scores
-            | fluerr_corpus_scores
-            | {"spider_err": spider_err_score}
+            spider_corpus_scores | fluerr_corpus_scores | {"spider_fl": spider_fl_score}
         )
         sents_scores = (
-            spider_corpus_scores
-            | fluerr_sents_scores
-            | {"spider_err": spider_err_scores}
+            spider_corpus_scores | fluerr_sents_scores | {"spider_fl": spider_fl_scores}
         )
         return corpus_scores, sents_scores
     else:
-        return spider_err_score
+        return spider_fl_score
