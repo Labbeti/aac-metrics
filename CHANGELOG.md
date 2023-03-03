@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [0.3.1] UNRELEASED
 
 ### Changed
-- Rename `SPIDErErr` to `SPIDErFL`.
+- Rename `SPIDErErr` to `SPIDErFL` to match DCASE2023 metric name.
 
 ## [0.3.0] 2023-02-27
 ### Added
