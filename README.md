@@ -30,7 +30,7 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
     - SBERT [[8]](#fense)
     - FluencyError [[8]](#fense)
     - FENSE [[8]](#fense)
-    - SPIDEr-FL ([link](https://dcase.community/challenge2023/task-automated-audio-captioning))
+    - SPIDEr-FL ([DCASE](https://dcase.community/challenge2023/task-automated-audio-captioning))
 
 ## Installation
 Install the pip package:
