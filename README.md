@@ -38,7 +38,7 @@ Install the pip package:
 pip install aac-metrics
 ```
 
-Download the external code and models needed for METEOR, SPICE, PTBTokenizer and FENSE:
+Download the external code and models needed for METEOR, SPICE, SPIDEr, SPIDEr-max, PTBTokenizer, SBERT, FluencyError, FENSE and SPIDEr-FL:
 ```bash
 aac-metrics-download
 ```
