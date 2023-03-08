@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.3.1] UNRELEASED
+### Added
+- DCASE challenge export utilities in `utils/dcase.py`.
 
 ### Changed
 - Rename `SPIDErErr` to `SPIDErFL` to match DCASE2023 metric name.
