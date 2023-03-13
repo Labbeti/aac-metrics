@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Rename `SPIDErErr` to `SPIDErFL` to match DCASE2023 metric name.
 
+### Fixed
+- `SPIDErFL` sentences scores outputs when using `return_all_scores=True`.
+- `SPIDErFL`, `SBERT`, `FluencyError` and `FENSE` argument `reset_state` when using their functions.
+
 ## [0.3.0] 2023-02-27
 ### Added
 - Parameters `timeout` and `separate_cache_dir` in `SPICE` function and class.
