@@ -108,7 +108,7 @@ def spider_fl(
             spider_corpus_scores | fluerr_corpus_scores | {"spider_fl": spider_fl_score}
         )
         sents_scores = (
-            spider_corpus_scores | fluerr_sents_scores | {"spider_fl": spider_fl_scores}
+            spider_sents_scores | fluerr_sents_scores | {"spider_fl": spider_fl_scores}
         )
         return corpus_scores, sents_scores
     else:
