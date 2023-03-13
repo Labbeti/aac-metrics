@@ -55,6 +55,11 @@ def download(
     """Download the code needed for SPICE, METEOR and PTB Tokenizer.
 
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
+    :param tmp_path: The path to a temporary directory. defaults to "/tmp".
+    :param ptb_tokenizer: If True, downloads the PTBTokenizer code in cache directory. defaults to True.
+    :param meteor: If True, downloads the METEOR code in cache directory. defaults to True.
+    :param spice: If True, downloads the SPICE code in cache directory. defaults to True.
+    :param fense: If True, downloads the FENSE models. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     """
     cache_path = osp.expandvars(cache_path)
