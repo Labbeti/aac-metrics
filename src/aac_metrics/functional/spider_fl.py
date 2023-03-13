@@ -78,8 +78,9 @@ def spider_fl(
         If None and echecker is not None, this value will be inferred with `echecker.model_type`.
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
-    :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "cpu".
+    :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "auto".
     :param batch_size: The batch size of the sBERT and echecker models. defaults to 32.
+    :param reset_state: If True, reset the state of the PyTorch global generator after the pre-trained model are built. defaults to True.
     :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.9.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
@@ -90,26 +91,35 @@ def spider_fl(
         echecker, echecker_tokenizer, device, reset_state, verbose
     )
 
-    spider_corpus_scores, spider_sents_scores = spider(candidates, mult_references, True, n, sigma, tokenizer, return_tfidf, cache_path, java_path, tmp_path, n_threads, java_max_memory, timeout, verbose)  # type: ignore
-    spider_corpus_scores: dict[str, Tensor]
-    spider_sents_scores: dict[str, Tensor]
+    spider_outputs: tuple = spider(candidates, mult_references, True, n, sigma, tokenizer, return_tfidf, cache_path, java_path, tmp_path, n_threads, java_max_memory, timeout, verbose)  # type: ignore
+    fluerr_outputs: tuple = fluency_error(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, reset_state, verbose)  # type: ignore
+    spider_fl_outputs = _spider_fl_combines_scores(
+        spider_outputs, fluerr_outputs, penalty
+    )
 
-    fluerr_corpus_scores, fluerr_sents_scores = fluency_error(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, verbose)  # type: ignore
-    fluerr_corpus_scores: dict[str, Tensor]
-    fluerr_sents_scores: dict[str, Tensor]
+    if return_all_scores:
+        corpus_scores = spider_outputs[0] | fluerr_outputs[0] | spider_fl_outputs[0]
+        sents_scores = spider_outputs[1] | fluerr_outputs[1] | spider_fl_outputs[1]
+        return corpus_scores, sents_scores
+    else:
+        return spider_fl_outputs[0]["spider_fl"]
+
+
+def _spider_fl_combines_scores(
+    spider_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    fluerr_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    penalty: float = 0.9,
+) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
+    """Combines SPIDEr and FluErr outputs.
+
+    Based on https://github.com/felixgontier/dcase-2023-baseline/blob/main/metrics.py#L48
+    """
+    spider_sents_scores = spider_outputs[1]
+    fluerr_sents_scores = fluerr_outputs[1]
 
     spider_scores = spider_sents_scores["spider"]
     fluency_errors = fluerr_sents_scores["fluency_error"]
     spider_fl_scores = spider_scores * (1.0 - penalty * fluency_errors)
     spider_fl_score = spider_fl_scores.mean()
 
-    if return_all_scores:
-        corpus_scores = (
-            spider_corpus_scores | fluerr_corpus_scores | {"spider_fl": spider_fl_score}
-        )
-        sents_scores = (
-            spider_sents_scores | fluerr_sents_scores | {"spider_fl": spider_fl_scores}
-        )
-        return corpus_scores, sents_scores
-    else:
-        return spider_fl_score
+    return {"spider_fl": spider_fl_scores}, {"spider_fl": spider_fl_score}

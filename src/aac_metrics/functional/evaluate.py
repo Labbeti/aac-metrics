@@ -71,7 +71,7 @@ def evaluate(
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
-    :param device: The PyTorch device used to run FENSE models. If None, it will try to detect use cuda if available. defaults to "cpu".
+    :param device: The PyTorch device used to run FENSE models. If None, it will try to detect use cuda if available. defaults to "auto".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores.
     """
