@@ -118,8 +118,8 @@ def _spider_fl_combines_scores(
     fluerr_sents_scores = fluerr_outputs[1]
 
     spider_scores = spider_sents_scores["spider"]
-    fluency_errors = fluerr_sents_scores["fluency_error"]
+    fluency_errors = fluerr_sents_scores["fluerr"]
     spider_fl_scores = spider_scores * (1.0 - penalty * fluency_errors)
     spider_fl_score = spider_fl_scores.mean()
 
-    return {"spider_fl": spider_fl_scores}, {"spider_fl": spider_fl_score}
+    return {"spider_fl": spider_fl_score}, {"spider_fl": spider_fl_scores}

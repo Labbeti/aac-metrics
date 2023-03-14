@@ -17,6 +17,7 @@ from aac_metrics.classes.meteor import METEOR
 from aac_metrics.classes.rouge_l import ROUGEL
 from aac_metrics.classes.sbert import SBERT
 from aac_metrics.classes.spider import SPIDEr
+from aac_metrics.classes.spider_fl import SPIDErFL
 from aac_metrics.functional.evaluate import METRICS_SETS, evaluate
 
 
@@ -200,8 +201,16 @@ def _get_metrics_classes_factory(
             device=device,
             verbose=verbose,
         ),
-        "fluency_error": lambda: FluencyError(
+        "fluerr": lambda: FluencyError(
             return_all_scores=return_all_scores,
+            device=device,
+            verbose=verbose,
+        ),
+        "spider_fl": lambda: SPIDErFL(
+            return_all_scores=return_all_scores,
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
             device=device,
             verbose=verbose,
         ),

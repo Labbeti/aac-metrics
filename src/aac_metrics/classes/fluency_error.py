@@ -77,7 +77,7 @@ class FluencyError(AACMetric):
         return f"device={self._device}, batch_size={self._batch_size}"
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("fluency_error",) + tuple(f"fluerr.{name}_prob" for name in ERROR_NAMES)
+        return ("fluerr",) + tuple(f"fluerr.{name}_prob" for name in ERROR_NAMES)
 
     def reset(self) -> None:
         self._candidates = []

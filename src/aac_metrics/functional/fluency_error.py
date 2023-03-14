@@ -151,10 +151,10 @@ def fluency_error(
 
     if return_all_scores:
         sents_scores = {
-            "fluency_error": fluency_errors,
+            "fluerr": fluency_errors,
         } | sents_probs_dic
         corpus_scores = {
-            "fluency_error": fluency_error,
+            "fluerr": fluency_error,
         } | corpus_probs_dic
 
         return corpus_scores, sents_scores

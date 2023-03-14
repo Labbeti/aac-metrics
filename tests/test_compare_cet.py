@@ -11,6 +11,8 @@ from pathlib import Path
 from typing import Callable, Dict, List, Tuple
 from unittest import TestCase
 
+from torch import Tensor
+
 from aac_metrics.evaluate import aac_evaluate, load_csv_file
 
 
@@ -78,6 +80,19 @@ class TestCompareCaptionEvaluationTools(TestCase):
 
     def test_example_0(self) -> None:
         cands, mrefs = self.get_example_0()
+        self._test_with_example(cands, mrefs)
+
+    def test_example_1(self) -> None:
+        fpath = Path(__file__).parent.parent.joinpath("examples", "example_1.csv")
+        cands, mrefs = load_csv_file(fpath)
+        self._test_with_example(cands, mrefs)
+
+    def test_example_2(self) -> None:
+        fpath = Path(__file__).parent.parent.joinpath("examples", "example_2.csv")
+        cands, mrefs = load_csv_file(fpath)
+        self._test_with_example(cands, mrefs)
+
+    def _test_with_example(self, cands, mrefs) -> None:
         corpus_scores, _ = aac_evaluate(cands, mrefs)
         cet_global_scores, _cet_sents_scores = self.evaluate_metrics_from_lists(
             cands, mrefs
@@ -87,52 +102,15 @@ class TestCompareCaptionEvaluationTools(TestCase):
         cet_global_scores = {
             (k if k != "cider" else "cider_d"): v for k, v in cet_global_scores.items()
         }
+        corpus_scores.pop("spider_fl")
 
         self.assertIsInstance(corpus_scores, dict)
         self.assertIsInstance(cet_global_scores, dict)
-        self.assertListEqual(list(corpus_scores.keys()), list(cet_global_scores.keys()))
-        for metric_name, v1 in corpus_scores.items():
-            v2 = cet_global_scores[metric_name]
-            self.assertEqual(v1.item(), v2, f"{metric_name=}")
-        self.assertDictEqual(corpus_scores, cet_global_scores)
 
-    def test_example_1(self) -> None:
-        fpath = Path(__file__).parent.parent.joinpath("examples", "example_1.csv")
-        candidates, mult_references = load_csv_file(fpath)
+        for name, score in corpus_scores.items():
+            self.assertIsInstance(score, Tensor, f"Invalid score type for {name=}")
+            self.assertEqual(score.ndim, 0, f"Invalid score ndim for {name=}")
 
-        corpus_scores, _ = aac_evaluate(candidates, mult_references)
-        cet_global_scores, _cet_sents_scores = self.evaluate_metrics_from_lists(
-            candidates, mult_references
-        )
-
-        cet_global_scores = {k.lower(): v for k, v in cet_global_scores.items()}
-        cet_global_scores = {
-            (k if k != "cider" else "cider_d"): v for k, v in cet_global_scores.items()
-        }
-
-        self.assertIsInstance(corpus_scores, dict)
-        self.assertIsInstance(cet_global_scores, dict)
-        self.assertListEqual(list(corpus_scores.keys()), list(cet_global_scores.keys()))
-        for metric_name, v1 in corpus_scores.items():
-            v2 = cet_global_scores[metric_name]
-            self.assertEqual(v1.item(), v2, f"{metric_name=}")
-
-    def test_example_2(self) -> None:
-        fpath = Path(__file__).parent.parent.joinpath("examples", "example_2.csv")
-        candidates, mult_references = load_csv_file(fpath)
-
-        corpus_scores, _ = aac_evaluate(candidates, mult_references)
-        cet_global_scores, _cet_sents_scores = self.evaluate_metrics_from_lists(
-            candidates, mult_references
-        )
-
-        cet_global_scores = {k.lower(): v for k, v in cet_global_scores.items()}
-        cet_global_scores = {
-            (k if k != "cider" else "cider_d"): v for k, v in cet_global_scores.items()
-        }
-
-        self.assertIsInstance(corpus_scores, dict)
-        self.assertIsInstance(cet_global_scores, dict)
         self.assertListEqual(list(corpus_scores.keys()), list(cet_global_scores.keys()))
         for metric_name, v1 in corpus_scores.items():
             v2 = cet_global_scores[metric_name]

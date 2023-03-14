@@ -100,11 +100,11 @@ def _fense_combines_scores(
     fluerr_sents_scores = fluerr_outputs[1]
 
     sbert_cos_sims = sbert_sents_scores["sbert.sim"]
-    fluency_errors = fluerr_sents_scores["fluency_error"]
+    fluency_errors = fluerr_sents_scores["fluerr"]
     fense_scores = sbert_cos_sims * (1.0 - penalty * fluency_errors)
     fense_score = fense_scores.mean()
 
-    return {"fense": fense_scores}, {"fense": fense_score}
+    return {"fense": fense_score}, {"fense": fense_scores}
 
 
 def _load_models_and_tokenizer(

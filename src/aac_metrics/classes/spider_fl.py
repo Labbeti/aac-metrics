@@ -123,7 +123,7 @@ class SPIDErFL(AACMetric):
         return extra
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("cider_d", "spice", "spider", "spider_fl", "fluency_error")
+        return ("cider_d", "spice", "spider", "spider_fl", "fluerr")
 
     def reset(self) -> None:
         self._candidates = []

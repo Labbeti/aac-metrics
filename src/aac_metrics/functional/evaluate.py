@@ -18,6 +18,7 @@ from aac_metrics.functional.meteor import meteor
 from aac_metrics.functional.rouge_l import rouge_l
 from aac_metrics.functional.sbert import sbert
 from aac_metrics.functional.spider import spider
+from aac_metrics.functional.spider_fl import spider_fl
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
 
@@ -32,9 +33,7 @@ METRICS_SETS = {
         "bleu_4",
         "meteor",
         "rouge_l",
-        "cider_d",
-        "spice",
-        "spider",
+        "spider",  # includes spice and cider_d
     ),
     "all": (
         "bleu_1",
@@ -43,10 +42,8 @@ METRICS_SETS = {
         "bleu_4",
         "meteor",
         "rouge_l",
-        "cider_d",
-        "spice",
-        "spider",
-        "fense",
+        "fense",  # includes sbert and fluency_error
+        "spider_fl",  # includes spider, spice, cider_d and fluency_error
     ),
 }
 
@@ -71,7 +68,8 @@ def evaluate(
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
-    :param device: The PyTorch device used to run FENSE models. If None, it will try to detect use cuda if available. defaults to "auto".
+    :param device: The PyTorch device used to run FENSE and SPIDErFL models.
+        If None, it will try to detect use cuda if available. defaults to "auto".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores.
     """
@@ -138,6 +136,7 @@ def aac_evaluate(
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
+    device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Evaluate candidates with multiple references with all Audio Captioning metrics.
@@ -149,6 +148,8 @@ def aac_evaluate(
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param device: The PyTorch device used to run FENSE and SPIDErFL models.
+        If None, it will try to detect use cuda if available. defaults to "auto".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores.
     """
@@ -160,41 +161,9 @@ def aac_evaluate(
         cache_path,
         java_path,
         tmp_path,
-        "cpu",
-        verbose,
-    )
-
-
-def _get_metrics_functions_list(
-    metric_set_name: str,
-    return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
-    device: Union[str, torch.device, None] = "auto",
-    verbose: int = 0,
-) -> list[Callable]:
-    metrics_factory = _get_metrics_functions_factory(
-        return_all_scores,
-        cache_path,
-        java_path,
-        tmp_path,
         device,
         verbose,
     )
-
-    if metric_set_name in METRICS_SETS:
-        metrics = [
-            factory
-            for metric_name, factory in metrics_factory.items()
-            if metric_name in METRICS_SETS[metric_set_name]
-        ]
-    else:
-        raise ValueError(
-            f"Invalid argument {metric_set_name=}. (expected one of {tuple(METRICS_SETS.keys())})"
-        )
-
-    return metrics
 
 
 def _get_metrics_functions_factory(
@@ -258,10 +227,51 @@ def _get_metrics_functions_factory(
             device=device,
             verbose=verbose,
         ),
-        "fluency_error": partial(
+        "fluerr": partial(
             fluency_error,
             return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
         ),
+        "spider_fl": partial(
+            spider_fl,
+            return_all_scores=return_all_scores,
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
+            device=device,
+            verbose=verbose,
+        ),
     }
+
+
+def _get_metrics_functions_list(
+    metric_set_name: str,
+    return_all_scores: bool = True,
+    cache_path: str = "$HOME/.cache",
+    java_path: str = "java",
+    tmp_path: str = "/tmp",
+    device: Union[str, torch.device, None] = "auto",
+    verbose: int = 0,
+) -> list[Callable]:
+    metrics_factory = _get_metrics_functions_factory(
+        return_all_scores,
+        cache_path,
+        java_path,
+        tmp_path,
+        device,
+        verbose,
+    )
+
+    if metric_set_name in METRICS_SETS:
+        metrics = [
+            factory
+            for metric_name, factory in metrics_factory.items()
+            if metric_name in METRICS_SETS[metric_set_name]
+        ]
+    else:
+        raise ValueError(
+            f"Invalid argument {metric_set_name=}. (expected one of {tuple(METRICS_SETS.keys())})"
+        )
+
+    return metrics

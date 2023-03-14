@@ -50,12 +50,17 @@ class TestCompareFENSE(TestCase):
         cands, mrefs = load_csv_file(fpath)
 
         self.my_fense._return_all_scores = True
-        _global_scores, sents_scores = self.my_fense(cands, mrefs)
+        corpus_scores, sents_scores = self.my_fense(cands, mrefs)
         self.my_fense._return_all_scores = False
 
-        for name, sents_score in sents_scores.items():
-            print(f"{name=}, {sents_score.shape=}")
-            self.assertEqual(len(cands), len(sents_score), f"{name=}")
+        for name, score in corpus_scores.items():
+            self.assertEqual(score.ndim, 0)
+
+        for name, scores in sents_scores.items():
+            self.assertEqual(scores.ndim, 1)
+
+        for name, scores in sents_scores.items():
+            self.assertEqual(len(cands), len(scores), f"{name=}")
 
     def _test_with_original_fense(self, fpath: str) -> None:
         cands, mrefs = load_csv_file(fpath)

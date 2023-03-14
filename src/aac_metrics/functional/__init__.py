@@ -21,7 +21,7 @@ __all__ = [
     "aac_evaluate",
     "evaluate",
     "fense",
-    "fluency_error",
+    "fluerr",
     "meteor",
     "rouge_l",
     "sbert",
