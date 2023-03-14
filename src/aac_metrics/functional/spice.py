@@ -23,7 +23,7 @@ from torch import Tensor
 from aac_metrics.utils.checks import check_java_path
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 DNAME_SPICE_CACHE = osp.join("aac-metrics", "spice", "cache")
@@ -98,8 +98,8 @@ def spice(
     del cache_path
 
     if verbose >= 2:
-        logger.debug(f"Use cache directory {spice_cache}.")
-        logger.debug(f"Computing SPICE with JAR file {spice_fpath}...")
+        pylog.debug(f"Use cache directory {spice_cache}.")
+        pylog.debug(f"Computing SPICE with JAR file {spice_fpath}...")
 
     input_data = [
         {
@@ -163,7 +163,7 @@ def spice(
             spice_cmd += ["-threads", str(n_threads)]
 
         if verbose >= 2:
-            logger.debug(f"Run SPICE java code with: {' '.join(spice_cmd)}")
+            pylog.debug(f"Run SPICE java code with: {' '.join(spice_cmd)}")
 
         try:
             subprocess.check_call(
@@ -179,7 +179,7 @@ def spice(
             break
 
         except subprocess.TimeoutExpired as err:
-            logger.warning(
+            pylog.warning(
                 f"Timeout SPICE java program with {timeout_i=}s (nb timeouts done={i+1}/{len(timeout_lst)})."
             )
 
@@ -195,20 +195,20 @@ def spice(
                 raise err
 
         except (CalledProcessError, PermissionError) as err:
-            logger.error("Invalid SPICE call.")
-            logger.error(f"Full command: '{' '.join(spice_cmd)}'")
+            pylog.error("Invalid SPICE call.")
+            pylog.error(f"Full command: '{' '.join(spice_cmd)}'")
             if stdout is not None and stderr is not None:
-                logger.error(
+                pylog.error(
                     f"For more information, see temp files '{stdout.name}' and '{stderr.name}'."
                 )
             else:
-                logger.info(
+                pylog.info(
                     f"Note: No temp file recorded. (found {stdout=} and {stderr=})"
                 )
             raise err
 
     if verbose >= 2:
-        logger.debug("SPICE java code finished.")
+        pylog.debug("SPICE java code finished.")
 
     # Read and process results
     with open(out_file.name, "r") as data_file:
