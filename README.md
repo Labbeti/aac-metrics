@@ -30,7 +30,7 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
     - SBERT [[8]](#fense)
     - FluencyError [[8]](#fense)
     - FENSE [[8]](#fense)
-    - SPIDEr-FL ([DCASE](https://dcase.community/challenge2023/task-automated-audio-captioning))
+    - SPIDEr-FL [[9]](#spider-fl)
 
 ## Installation
 Install the pip package:
@@ -246,7 +246,10 @@ arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 [7] E. Labbé, T. Pellegrini, and J. Pinquier, “Is my automatic audio captioning system so bad? spider-max: a metric to consider several caption candidates,” Nov. 2022. [Online]. Available: https://hal.archives-ouvertes.fr/hal-03810396
 
 #### FENSE
-[8] Z. Zhou, Z. Zhang, X. Xu, Z. Xie, M. Wu, and K. Q. Zhu, Can Audio Captions Be Evaluated with Image Caption Metrics? arXiv, 2022. [Online]. Available: http://arxiv.org/abs/2110.04684 
+[8] Z. Zhou, Z. Zhang, X. Xu, Z. Xie, M. Wu, and K. Q. Zhu, Can Audio Captions Be Evaluated with Image Caption Metrics? arXiv, 2022. [Online]. Available: http://arxiv.org/abs/2110.04684
+
+#### SPIDEr-FL
+[9] DCASE website task6a description: https://dcase.community/challenge2023/task-automated-audio-captioning#evaluation
 
 ## Citation
 If you use **SPIDEr-max**, you can cite the following paper using BibTex:
