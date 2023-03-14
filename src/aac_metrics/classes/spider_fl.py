@@ -18,7 +18,7 @@ from aac_metrics.functional.fluency_error import (
 from aac_metrics.functional.spider_fl import spider_fl
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 class SPIDErFL(AACMetric):

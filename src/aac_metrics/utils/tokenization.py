@@ -14,7 +14,7 @@ from aac_metrics.utils.checks import check_java_path
 from aac_metrics.utils.collections import flat_list, unflat_list
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 # Path to the stanford corenlp jar
@@ -90,7 +90,7 @@ def ptb_tokenize_batch(
 
     start_time = time.perf_counter()
     if verbose >= 2:
-        logger.debug(
+        pylog.debug(
             f"Start executing {FNAME_STANFORD_CORENLP_3_4_1_JAR} JAR file for tokenization. ({len(sentences)=})"
         )
 
@@ -165,7 +165,7 @@ def ptb_tokenize_batch(
 
     if verbose >= 2:
         duration = time.perf_counter() - start_time
-        logger.debug(f"Tokenization finished in {duration:.2f}s.")
+        pylog.debug(f"Tokenization finished in {duration:.2f}s.")
 
     return outs
 

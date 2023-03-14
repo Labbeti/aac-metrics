@@ -21,7 +21,7 @@ from aac_metrics.classes.spider_fl import SPIDErFL
 from aac_metrics.functional.evaluate import METRICS_SETS, evaluate
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 class Evaluate(AACMetric, list[AACMetric]):

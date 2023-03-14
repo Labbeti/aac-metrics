@@ -21,7 +21,7 @@ import torch
 from torch import Tensor
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 def rouge_l(

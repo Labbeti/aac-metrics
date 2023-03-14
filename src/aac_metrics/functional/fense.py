@@ -77,7 +77,7 @@ def fense(
 
     sbert_outputs: tuple = sbert(candidates, mult_references, True, sbert_model, device, batch_size, reset_state, verbose)  # type: ignore
     fluerr_outputs: tuple = fluency_error(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, reset_state, verbose)  # type: ignore
-    fense_outputs = _fense_combines_scores(sbert_outputs, fluerr_outputs, penalty)
+    fense_outputs = _fense_from_outputs(sbert_outputs, fluerr_outputs, penalty)
 
     if return_all_scores:
         corpus_scores = sbert_outputs[0] | fluerr_outputs[0] | fense_outputs[0]
@@ -87,7 +87,7 @@ def fense(
         return fense_outputs[0]["fense"]
 
 
-def _fense_combines_scores(
+def _fense_from_outputs(
     sbert_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
     fluerr_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
     penalty: float = 0.9,

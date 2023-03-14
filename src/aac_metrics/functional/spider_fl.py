@@ -93,9 +93,7 @@ def spider_fl(
 
     spider_outputs: tuple = spider(candidates, mult_references, True, n, sigma, tokenizer, return_tfidf, cache_path, java_path, tmp_path, n_threads, java_max_memory, timeout, verbose)  # type: ignore
     fluerr_outputs: tuple = fluency_error(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, reset_state, verbose)  # type: ignore
-    spider_fl_outputs = _spider_fl_combines_scores(
-        spider_outputs, fluerr_outputs, penalty
-    )
+    spider_fl_outputs = _spider_fl_from_outputs(spider_outputs, fluerr_outputs, penalty)
 
     if return_all_scores:
         corpus_scores = spider_outputs[0] | fluerr_outputs[0] | spider_fl_outputs[0]
@@ -105,7 +103,7 @@ def spider_fl(
         return spider_fl_outputs[0]["spider_fl"]
 
 
-def _spider_fl_combines_scores(
+def _spider_fl_from_outputs(
     spider_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
     fluerr_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
     penalty: float = 0.9,

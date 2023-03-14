@@ -14,7 +14,7 @@ from aac_metrics.functional.fense import fense, _load_models_and_tokenizer
 from aac_metrics.functional.fluency_error import ERROR_NAMES
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 class FENSE(AACMetric):

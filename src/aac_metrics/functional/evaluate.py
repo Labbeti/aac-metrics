@@ -113,15 +113,27 @@ def evaluate(
 
         if verbose >= 1:
             pylog.info(f"[{i+1:2d}/{len(metrics):2d}] Computing {name} metric...")
+
         start = time.perf_counter()
-
         corpus_scores_i, sents_scores_i = metric(candidates, mult_references)
-
         end = time.perf_counter()
+
         if verbose >= 1:
             pylog.info(
                 f"[{i+1:2d}/{len(metrics):2d}] Metric {name} computed in {end - start:.2f}s."
             )
+
+        if __debug__:
+            corpus_overlap = tuple(
+                set(corpus_scores_i.keys()).intersection(corpus_scores.keys())
+            )
+            sents_overlap = tuple(
+                set(sents_scores_i.keys()).intersection(sents_scores.keys())
+            )
+            if len(corpus_overlap) > 0 or len(sents_overlap) > 0:
+                pylog.warning(
+                    f"Found overlapping metric outputs. (found {corpus_overlap=} and {sents_overlap=})"
+                )
 
         corpus_scores |= corpus_scores_i
         sents_scores |= sents_scores_i

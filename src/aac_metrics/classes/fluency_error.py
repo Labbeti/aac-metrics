@@ -17,7 +17,7 @@ from aac_metrics.functional.fluency_error import (
 )
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 class FluencyError(AACMetric):

@@ -15,7 +15,7 @@ from aac_metrics.functional.evaluate import aac_evaluate
 from aac_metrics.utils.checks import check_metric_inputs, check_java_path
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 def load_csv_file(
@@ -189,7 +189,7 @@ def _main_evaluate() -> None:
     pkg_logger.setLevel(level)
 
     if args.verbose >= 1:
-        logger.info(f"Load file {args.input_file}...")
+        pylog.info(f"Load file {args.input_file}...")
 
     candidates, mult_references = load_csv_file(
         args.input_file, args.cand_columns, args.mrefs_columns
@@ -198,7 +198,7 @@ def _main_evaluate() -> None:
 
     refs_lens = list(map(len, mult_references))
     if args.verbose >= 1:
-        logger.info(
+        pylog.info(
             f"Found {len(candidates)} candidates, {len(mult_references)} references and [{min(refs_lens)}, {max(refs_lens)}] references per candidate."
         )
 
@@ -213,7 +213,7 @@ def _main_evaluate() -> None:
     )
 
     corpus_scores = {k: v.item() for k, v in corpus_scores.items()}
-    logger.info(f"Global scores:\n{yaml.dump(corpus_scores, sort_keys=False)}")
+    pylog.info(f"Global scores:\n{yaml.dump(corpus_scores, sort_keys=False)}")
 
 
 if __name__ == "__main__":

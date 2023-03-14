@@ -46,7 +46,7 @@ PRETRAIN_ECHECKERS_DICT = {
 
 RemoteFileMetadata = namedtuple("RemoteFileMetadata", ["filename", "url", "checksum"])
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 ERROR_NAMES = (
     "add_tail",
@@ -397,7 +397,7 @@ def __load_pretrain_echecker(
     file_path = __check_download_resource(remote, use_proxy, proxies)
 
     if verbose >= 2:
-        logger.debug(f"Loading echecker model from '{file_path}'.")
+        pylog.debug(f"Loading echecker model from '{file_path}'.")
 
     model_states = torch.load(file_path)
     echecker = BERTFlatClassifier(

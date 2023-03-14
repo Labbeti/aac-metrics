@@ -13,7 +13,7 @@ from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.sbert import sbert, _load_sbert
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 class SBERT(AACMetric):

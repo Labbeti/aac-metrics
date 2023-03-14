@@ -18,7 +18,7 @@ from aac_metrics.functional.spice import FNAME_SPICE_JAR, DNAME_SPICE_CACHE
 from aac_metrics.utils.tokenization import FNAME_STANFORD_CORENLP_3_4_1_JAR
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 JAR_URLS = {
@@ -82,13 +82,13 @@ def download(
         fpath = osp.join(stanford_nlp_dpath, fname)
         if not osp.isfile(fpath):
             if verbose >= 1:
-                logger.info(
+                pylog.info(
                     f"Downloading jar source for '{name}' in directory {stanford_nlp_dpath}."
                 )
             download_url_to_file(url, fpath, progress=verbose >= 1)
         else:
             if verbose >= 1:
-                logger.info(f"Stanford model file '{name}' is already downloaded.")
+                pylog.info(f"Stanford model file '{name}' is already downloaded.")
 
     if meteor:
         # Download JAR files for METEOR metric
@@ -104,7 +104,7 @@ def download(
 
             if not osp.isfile(fpath):
                 if verbose >= 1:
-                    logger.info(
+                    pylog.info(
                         f"Downloading jar source for '{name}' in directory {meteor_dpath}."
                     )
                 if subdir not in ("", "."):
@@ -117,7 +117,7 @@ def download(
                 )
             else:
                 if verbose >= 1:
-                    logger.info(f"Meteor file '{name}' is already downloaded.")
+                    pylog.info(f"Meteor file '{name}' is already downloaded.")
 
     if spice:
         # Download JAR files for SPICE metric
@@ -134,7 +134,7 @@ def download(
             )
 
         if verbose >= 1:
-            logger.info(
+            pylog.info(
                 f"Downloading JAR sources for SPICE metric into '{spice_jar_dpath}'..."
             )
 
@@ -146,12 +146,12 @@ def download(
                 stderr=None if verbose >= 2 else subprocess.DEVNULL,
             )
         except (CalledProcessError, PermissionError) as err:
-            logger.error(err)
+            pylog.error(err)
 
     if fense:
         # Download models files for FENSE metric
         if verbose >= 1:
-            logger.info("Downloading sBert and Bert error detector for FENSE metric...")
+            pylog.info("Downloading sBert and Bert error detector for FENSE metric...")
         _ = FENSE(device="cpu")
 
 

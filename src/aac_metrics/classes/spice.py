@@ -11,7 +11,7 @@ from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.spice import spice
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 class SPICE(AACMetric):
