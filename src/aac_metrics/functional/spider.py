@@ -57,7 +57,7 @@ def spider(
             f"Number of candidates and mult_references are different (found {len(candidates)} != {len(mult_references)})."
         )
 
-    cider_d_out = cider_d(
+    cider_d_outputs = cider_d(
         candidates,
         mult_references,
         return_all_scores,
@@ -66,7 +66,7 @@ def spider(
         tokenizer=tokenizer,
         return_tfidf=return_tfidf,
     )
-    spice_out = spice(
+    spice_outputs = spice(
         candidates,
         mult_references,
         return_all_scores,
@@ -81,30 +81,37 @@ def spider(
 
     if return_all_scores:
         assert isinstance(
-            cider_d_out, tuple
-        ), f"INTERNAL error type. ({type(cider_d_out)})"
-        assert isinstance(spice_out, tuple), f"INTERNAL error type. ({type(spice_out)})"
-        cider_d_global_scores, cider_d_sents_scores = cider_d_out
-        spice_global_scores, spice_sents_scores = spice_out
+            cider_d_outputs, tuple
+        ), f"INTERNAL error type. ({type(cider_d_outputs)})"
+        assert isinstance(
+            spice_outputs, tuple
+        ), f"INTERNAL error type. ({type(spice_outputs)})"
 
-        spider_global_scores = {
-            "cider_d": cider_d_global_scores["cider_d"],
-            "spice": spice_global_scores["spice"],
-            "spider": (cider_d_global_scores["cider_d"] + spice_global_scores["spice"])
-            / 2.0,
-        }
-        spider_sents_scores = {
-            "cider_d": cider_d_sents_scores["cider_d"],
-            "spice": spice_sents_scores["spice"],
-            "spider": (cider_d_sents_scores["cider_d"] + spice_sents_scores["spice"])
-            / 2.0,
-        }
-        return spider_global_scores, spider_sents_scores
+        spider_outputs = _spider_from_outputs(cider_d_outputs, spice_outputs)
+        return spider_outputs
     else:
         assert isinstance(
-            cider_d_out, Tensor
-        ), f"INTERNAL error type. ({type(cider_d_out)})"
+            cider_d_outputs, Tensor
+        ), f"INTERNAL error type. ({type(cider_d_outputs)})"
         assert isinstance(
-            spice_out, Tensor
-        ), f"INTERNAL error type. ({type(spice_out)})"
-        return (cider_d_out + spice_out) / 2.0
+            spice_outputs, Tensor
+        ), f"INTERNAL error type. ({type(spice_outputs)})"
+        return (cider_d_outputs + spice_outputs) / 2.0
+
+
+def _spider_from_outputs(
+    cider_d_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    spice_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
+) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
+    """Combines CIDErD and SPICE outputs."""
+    cider_d_global_scores, cider_d_sents_scores = cider_d_outputs
+    spice_global_scores, spice_sents_scores = spice_outputs
+
+    spider_global_scores = {
+        "spider": (cider_d_global_scores["cider_d"] + spice_global_scores["spice"])
+        / 2.0,
+    }
+    spider_sents_scores = {
+        "spider": (cider_d_sents_scores["cider_d"] + spice_sents_scores["spice"]) / 2.0,
+    }
+    return spider_global_scores, spider_sents_scores

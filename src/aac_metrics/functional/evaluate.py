@@ -33,7 +33,7 @@ METRICS_SETS = {
         "bleu_4",
         "meteor",
         "rouge_l",
-        "spider",  # includes spice and cider_d
+        "spider_fl",  # includes cider_d, spice, spider and fluerr
     ),
     "all": (
         "bleu_1",
@@ -42,8 +42,8 @@ METRICS_SETS = {
         "bleu_4",
         "meteor",
         "rouge_l",
-        "fense",  # includes sbert and fluency_error
-        "spider_fl",  # includes spider, spice, cider_d and fluency_error
+        "fense",  # includes sbert and fluerr
+        "spider_fl",  # includes cider_d, spice, spider and fluerr
     ),
 }
 
