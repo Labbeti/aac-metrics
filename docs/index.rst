@@ -14,19 +14,4 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
 
    installation
    usage
-   package_tree
-
-
-.. Indices and tables
-.. ==================
-
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
-
-
-.. External links
-.. =========================================================
-
-.. * `Github link <https://github.com/Labbeti/aac-datasets>`_
-.. * `PyPI link <https://pypi.org/project/aac-datasets/>`_
+   api
