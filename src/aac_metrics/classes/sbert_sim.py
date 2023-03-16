@@ -10,13 +10,13 @@ import torch
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.sbert import sbert, _load_sbert
+from aac_metrics.functional.sbert_sim import sbert_sim, _load_sbert
 
 
 pylog = logging.getLogger(__name__)
 
 
-class SBERT(AACMetric):
+class SBERTSim(AACMetric):
     """Cosine-similarity of the Sentence-BERT embeddings.
 
     - Paper: https://arxiv.org/abs/1908.10084
@@ -55,7 +55,7 @@ class SBERT(AACMetric):
         self._mult_references = []
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
-        return sbert(
+        return sbert_sim(
             self._candidates,
             self._mult_references,
             self._return_all_scores,

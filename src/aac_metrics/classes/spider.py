@@ -32,7 +32,7 @@ class SPIDEr(AACMetric):
     def __init__(
         self,
         return_all_scores: bool = True,
-        # CIDEr args
+        # CIDErD args
         n: int = 4,
         sigma: float = 6.0,
         # SPICE args

@@ -5,10 +5,10 @@ from .bleu import bleu
 from .cider_d import cider_d
 from .evaluate import aac_evaluate, evaluate
 from .fense import fense
-from .fluency_error import fluency_error
+from .fluerr import fluerr
 from .meteor import meteor
 from .rouge_l import rouge_l
-from .sbert import sbert
+from .sbert_sim import sbert_sim
 from .spice import spice
 from .spider import spider
 from .spider_fl import spider_fl
@@ -24,7 +24,7 @@ __all__ = [
     "fluerr",
     "meteor",
     "rouge_l",
-    "sbert",
+    "sbert_sim",
     "spice",
     "spider",
     "spider_fl",

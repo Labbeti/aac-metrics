@@ -9,11 +9,14 @@ from aac_metrics.functional.cider_d import cider_d
 from aac_metrics.functional.spice import spice
 
 
+SPIDER_FL_SUBMETRICS = ("cider_d", "spice")
+
+
 def spider(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    # CIDEr args
+    # CIDErD args
     n: int = 4,
     sigma: float = 6.0,
     tokenizer: Callable[[str], list[str]] = str.split,

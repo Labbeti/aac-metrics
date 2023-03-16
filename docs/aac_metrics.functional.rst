@@ -16,11 +16,11 @@ Submodules
    aac_metrics.functional.cider_d
    aac_metrics.functional.evaluate
    aac_metrics.functional.fense
-   aac_metrics.functional.fluency_error
+   aac_metrics.functional.fluerr
    aac_metrics.functional.meteor
    aac_metrics.functional.mult_cands
    aac_metrics.functional.rouge_l
-   aac_metrics.functional.sbert
+   aac_metrics.functional.sbert_sim
    aac_metrics.functional.spice
    aac_metrics.functional.spider
    aac_metrics.functional.spider_fl

@@ -48,6 +48,7 @@ RemoteFileMetadata = namedtuple("RemoteFileMetadata", ["filename", "url", "check
 
 pylog = logging.getLogger(__name__)
 
+
 ERROR_NAMES = (
     "add_tail",
     "repeat_event",
@@ -56,6 +57,7 @@ ERROR_NAMES = (
     "remove_verb",
     "error",
 )
+FLUERR_SUBMETRICS = ()
 
 
 class BERTFlatClassifier(nn.Module):
@@ -92,7 +94,7 @@ class BERTFlatClassifier(nn.Module):
         return logits
 
 
-def fluency_error(
+def fluerr(
     candidates: list[str],
     return_all_scores: bool = True,
     echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",

@@ -10,8 +10,8 @@ import torch
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.fluency_error import (
-    fluency_error,
+from aac_metrics.functional.fluerr import (
+    fluerr,
     _load_echecker_and_tokenizer,
     ERROR_NAMES,
 )
@@ -20,13 +20,13 @@ from aac_metrics.functional.fluency_error import (
 pylog = logging.getLogger(__name__)
 
 
-class FluencyError(AACMetric):
-    """Return fluency error detected by a pre-trained BERT model.
+class FluErr(AACMetric):
+    """Return fluency error rate detected by a pre-trained BERT model.
 
     - Paper: https://arxiv.org/abs/2110.04684
     - Original implementation: https://github.com/blmoistawinde/fense
 
-    For more information, see :func:`~aac_metrics.functional.fluency_error.fluency_error`.
+    For more information, see :func:`~aac_metrics.functional.fluerr.fluerr`.
     """
 
     full_state_update = False
@@ -61,7 +61,7 @@ class FluencyError(AACMetric):
         self._candidates = []
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
-        return fluency_error(
+        return fluerr(
             self._candidates,
             self._return_all_scores,
             self._echecker,

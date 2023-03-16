@@ -19,7 +19,10 @@ from torch import Tensor
 pylog = logging.getLogger(__name__)
 
 
-def sbert(
+SBERT_SUBMETRICS = ()
+
+
+def sbert_sim(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
@@ -59,29 +62,29 @@ def sbert(
     mrefs_embs = _encode_sents_sbert(sbert_model, flat_references, batch_size, verbose)
 
     # Compute sBERT similarities
-    sbert_cos_sims = [
+    sbert_sim_scores = [
         (cands_embs[i] @ mrefs_embs[rng_ids[i] : rng_ids[i + 1]].T).mean().item()
         for i in range(len(cands_embs))
     ]
-    sbert_cos_sims = np.array(sbert_cos_sims)
+    sbert_sim_scores = np.array(sbert_sim_scores)
 
     # Aggregate and return
-    sbert_cos_sim = sbert_cos_sims.mean()
+    sbert_sim_score = sbert_sim_scores.mean()
 
-    sbert_cos_sim = torch.as_tensor(sbert_cos_sim)
-    sbert_cos_sims = torch.from_numpy(sbert_cos_sims)
+    sbert_sim_score = torch.as_tensor(sbert_sim_score)
+    sbert_sim_scores = torch.from_numpy(sbert_sim_scores)
 
     if return_all_scores:
         sents_scores = {
-            "sbert.sim": sbert_cos_sims,
+            "sbert_sim": sbert_sim_scores,
         }
         corpus_scores = {
-            "sbert.sim": sbert_cos_sim,
+            "sbert_sim": sbert_sim_score,
         }
 
         return corpus_scores, sents_scores
     else:
-        return sbert_cos_sim
+        return sbert_sim_score
 
 
 def _load_sbert(

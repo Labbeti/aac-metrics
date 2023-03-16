@@ -12,6 +12,7 @@ from torch import Tensor
 
 
 BLEU_OPTIONS = ("shortest", "average", "closest")
+BLEU_SUBMETRICS = ()
 
 
 def bleu(

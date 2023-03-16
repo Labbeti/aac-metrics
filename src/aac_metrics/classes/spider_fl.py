@@ -11,7 +11,7 @@ from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.fluency_error import (
+from aac_metrics.functional.fluerr import (
     BERTFlatClassifier,
     _load_echecker_and_tokenizer,
 )
@@ -37,7 +37,7 @@ class SPIDErFL(AACMetric):
     def __init__(
         self,
         return_all_scores: bool = True,
-        # CIDEr args
+        # CIDErD args
         n: int = 4,
         sigma: float = 6.0,
         # SPICE args

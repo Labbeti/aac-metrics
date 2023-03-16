@@ -16,15 +16,18 @@ from sentence_transformers import SentenceTransformer
 from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
-from aac_metrics.functional.fluency_error import (
-    fluency_error,
+from aac_metrics.functional.fluerr import (
+    fluerr,
     _load_echecker_and_tokenizer,
     BERTFlatClassifier,
 )
-from aac_metrics.functional.sbert import sbert, _load_sbert
+from aac_metrics.functional.sbert_sim import sbert_sim, _load_sbert
 
 
 pylog = logging.getLogger(__name__)
+
+
+FENSE_SUBMETRICS = ("sbert_sim", "fluerr")
 
 
 def fense(
@@ -75,8 +78,8 @@ def fense(
         sbert_model, echecker, echecker_tokenizer, device, reset_state, verbose
     )
 
-    sbert_outputs: tuple = sbert(candidates, mult_references, True, sbert_model, device, batch_size, reset_state, verbose)  # type: ignore
-    fluerr_outputs: tuple = fluency_error(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, reset_state, verbose)  # type: ignore
+    sbert_outputs: tuple = sbert_sim(candidates, mult_references, True, sbert_model, device, batch_size, reset_state, verbose)  # type: ignore
+    fluerr_outputs: tuple = fluerr(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, reset_state, verbose)  # type: ignore
     fense_outputs = _fense_from_outputs(sbert_outputs, fluerr_outputs, penalty)
 
     if return_all_scores:
@@ -99,7 +102,7 @@ def _fense_from_outputs(
     sbert_sents_scores = sbert_outputs[1]
     fluerr_sents_scores = fluerr_outputs[1]
 
-    sbert_cos_sims = sbert_sents_scores["sbert.sim"]
+    sbert_cos_sims = sbert_sents_scores["sbert_sim"]
     fluency_errors = fluerr_sents_scores["fluerr"]
     fense_scores = sbert_cos_sims * (1.0 - penalty * fluency_errors)
     fense_score = fense_scores.mean()

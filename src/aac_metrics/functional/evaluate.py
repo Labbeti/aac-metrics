@@ -12,13 +12,15 @@ import torch
 from torch import Tensor
 
 from aac_metrics.functional.bleu import bleu
-from aac_metrics.functional.fense import fense
-from aac_metrics.functional.fluency_error import fluency_error
+from aac_metrics.functional.cider_d import cider_d
+from aac_metrics.functional.fense import fense, _fense_from_outputs
+from aac_metrics.functional.fluerr import fluerr
 from aac_metrics.functional.meteor import meteor
 from aac_metrics.functional.rouge_l import rouge_l
-from aac_metrics.functional.sbert import sbert
-from aac_metrics.functional.spider import spider
-from aac_metrics.functional.spider_fl import spider_fl
+from aac_metrics.functional.sbert_sim import sbert_sim
+from aac_metrics.functional.spice import spice
+from aac_metrics.functional.spider import spider, _spider_from_outputs
+from aac_metrics.functional.spider_fl import spider_fl, _spider_fl_from_outputs
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
 
@@ -33,7 +35,7 @@ METRICS_SETS = {
         "bleu_4",
         "meteor",
         "rouge_l",
-        "spider_fl",  # includes cider_d, spice, spider and fluerr
+        "spider_fl",  # includes cider_d, spice, spider, fluerr
     ),
     "all": (
         "bleu_1",
@@ -42,8 +44,8 @@ METRICS_SETS = {
         "bleu_4",
         "meteor",
         "rouge_l",
-        "fense",  # includes sbert and fluerr
-        "spider_fl",  # includes cider_d, spice, spider and fluerr
+        "fense",  # includes sbert, fluerr
+        "spider_fl",  # includes cider_d, spice, spider, fluerr
     ),
 }
 
@@ -178,6 +180,38 @@ def aac_evaluate(
     )
 
 
+def _get_metrics_functions_list(
+    metric_set_name: str,
+    return_all_scores: bool = True,
+    cache_path: str = "$HOME/.cache",
+    java_path: str = "java",
+    tmp_path: str = "/tmp",
+    device: Union[str, torch.device, None] = "auto",
+    verbose: int = 0,
+) -> list[Callable]:
+    metrics_factory = _get_metrics_functions_factory(
+        return_all_scores,
+        cache_path,
+        java_path,
+        tmp_path,
+        device,
+        verbose,
+    )
+
+    if metric_set_name in METRICS_SETS:
+        metrics = [
+            factory
+            for metric_name, factory in metrics_factory.items()
+            if metric_name in METRICS_SETS[metric_set_name]
+        ]
+    else:
+        raise ValueError(
+            f"Invalid argument {metric_set_name=}. (expected one of {tuple(METRICS_SETS.keys())})"
+        )
+
+    return metrics
+
+
 def _get_metrics_functions_factory(
     return_all_scores: bool = True,
     cache_path: str = "$HOME/.cache",
@@ -218,7 +252,18 @@ def _get_metrics_functions_factory(
             rouge_l,
             return_all_scores=return_all_scores,
         ),
-        # Note: cider_d and spice and computed inside spider metric
+        "cider_d": partial(
+            cider_d,
+            return_all_scores=return_all_scores,
+        ),
+        "spice": partial(
+            spice,
+            return_all_scores=return_all_scores,
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
+            verbose=verbose,
+        ),
         "spider": partial(
             spider,
             return_all_scores=return_all_scores,
@@ -227,20 +272,20 @@ def _get_metrics_functions_factory(
             tmp_path=tmp_path,
             verbose=verbose,
         ),
-        "fense": partial(
-            fense,
-            return_all_scores=return_all_scores,
-            device=device,
-            verbose=verbose,
-        ),
         "sbert": partial(
-            sbert,
+            sbert_sim,
             return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
         ),
         "fluerr": partial(
-            fluency_error,
+            fluerr,
+            return_all_scores=return_all_scores,
+            device=device,
+            verbose=verbose,
+        ),
+        "fense": partial(
+            fense,
             return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
@@ -255,35 +300,3 @@ def _get_metrics_functions_factory(
             verbose=verbose,
         ),
     }
-
-
-def _get_metrics_functions_list(
-    metric_set_name: str,
-    return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
-    device: Union[str, torch.device, None] = "auto",
-    verbose: int = 0,
-) -> list[Callable]:
-    metrics_factory = _get_metrics_functions_factory(
-        return_all_scores,
-        cache_path,
-        java_path,
-        tmp_path,
-        device,
-        verbose,
-    )
-
-    if metric_set_name in METRICS_SETS:
-        metrics = [
-            factory
-            for metric_name, factory in metrics_factory.items()
-            if metric_name in METRICS_SETS[metric_set_name]
-        ]
-    else:
-        raise ValueError(
-            f"Invalid argument {metric_set_name=}. (expected one of {tuple(METRICS_SETS.keys())})"
-        )
-
-    return metrics

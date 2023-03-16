@@ -14,8 +14,8 @@ import torch
 from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
-from aac_metrics.functional.fluency_error import (
-    fluency_error,
+from aac_metrics.functional.fluerr import (
+    fluerr,
     _load_echecker_and_tokenizer,
     BERTFlatClassifier,
 )
@@ -25,11 +25,14 @@ from aac_metrics.functional.spider import spider
 pylog = logging.getLogger(__name__)
 
 
+SPIDER_FL_SUBMETRICS = ("cider_d", "spice", "spider")
+
+
 def spider_fl(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    # CIDEr args
+    # CIDErD args
     n: int = 4,
     sigma: float = 6.0,
     tokenizer: Callable[[str], list[str]] = str.split,
@@ -92,7 +95,7 @@ def spider_fl(
     )
 
     spider_outputs: tuple = spider(candidates, mult_references, True, n, sigma, tokenizer, return_tfidf, cache_path, java_path, tmp_path, n_threads, java_max_memory, timeout, verbose)  # type: ignore
-    fluerr_outputs: tuple = fluency_error(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, reset_state, verbose)  # type: ignore
+    fluerr_outputs: tuple = fluerr(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, reset_state, verbose)  # type: ignore
     spider_fl_outputs = _spider_fl_from_outputs(spider_outputs, fluerr_outputs, penalty)
 
     if return_all_scores:

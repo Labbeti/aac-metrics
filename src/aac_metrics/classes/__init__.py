@@ -5,10 +5,10 @@ from .bleu import BLEU
 from .cider_d import CIDErD
 from .evaluate import Evaluate, AACEvaluate
 from .fense import FENSE
-from .fluency_error import FluencyError
+from .fluerr import FluErr
 from .meteor import METEOR
 from .rouge_l import ROUGEL
-from .sbert import SBERT
+from .sbert_sim import SBERTSim
 from .spice import SPICE
 from .spider import SPIDEr
 from .spider_fl import SPIDErFL
@@ -21,10 +21,10 @@ __all__ = [
     "AACEvaluate",
     "Evaluate",
     "FENSE",
-    "FluencyError",
+    "FluErr",
     "METEOR",
     "ROUGEL",
-    "SBERT",
+    "SBERTSim",
     "SPICE",
     "SPIDEr",
     "SPIDErFL",

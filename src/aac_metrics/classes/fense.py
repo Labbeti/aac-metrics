@@ -11,7 +11,7 @@ from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fense import fense, _load_models_and_tokenizer
-from aac_metrics.functional.fluency_error import ERROR_NAMES
+from aac_metrics.functional.fluerr import ERROR_NAMES
 
 
 pylog = logging.getLogger(__name__)

@@ -28,6 +28,7 @@ pylog = logging.getLogger(__name__)
 
 DNAME_SPICE_CACHE = osp.join("aac-metrics", "spice", "cache")
 FNAME_SPICE_JAR = osp.join("aac-metrics", "spice", "spice-1.0.jar")
+SPICE_SUBMETRICS = ()
 
 
 def spice(
