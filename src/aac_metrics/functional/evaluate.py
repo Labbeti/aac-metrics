@@ -27,7 +27,7 @@ from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mul
 pylog = logging.getLogger(__name__)
 
 
-METRICS_SETS = {
+METRICS_SETS: dict[str, tuple[str, ...]] = {
     # Default metrics for AAC
     "aac": (
         "bleu_1",
@@ -180,7 +180,7 @@ def _instantiate_metrics_functions(
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> list[Callable]:
-    if metrics in METRICS_SETS:
+    if isinstance(metrics, str) and metrics in METRICS_SETS:
         metrics = METRICS_SETS[metrics]
 
     if isinstance(metrics, str):

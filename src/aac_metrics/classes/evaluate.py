@@ -127,7 +127,7 @@ def _instantiate_metrics_classes(
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> list[AACMetric]:
-    if metrics in METRICS_SETS:
+    if isinstance(metrics, str) and metrics in METRICS_SETS:
         metrics = METRICS_SETS[metrics]
 
     if isinstance(metrics, str):
