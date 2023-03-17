@@ -102,7 +102,6 @@ class TestCompareCaptionEvaluationTools(TestCase):
         cet_global_scores = {
             (k if k != "cider" else "cider_d"): v for k, v in cet_global_scores.items()
         }
-        corpus_scores.pop("spider_fl")
 
         self.assertIsInstance(corpus_scores, dict)
         self.assertIsInstance(cet_global_scores, dict)

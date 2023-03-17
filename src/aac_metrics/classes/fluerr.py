@@ -44,6 +44,7 @@ class FluErr(AACMetric):
         device: Union[str, torch.device, None] = "auto",
         batch_size: int = 32,
         reset_state: bool = True,
+        return_probs: bool = True,
         verbose: int = 0,
     ) -> None:
         echecker, echecker_tokenizer = _load_echecker_and_tokenizer(echecker, None, device, reset_state, verbose)  # type: ignore
@@ -56,6 +57,7 @@ class FluErr(AACMetric):
         self._device = device
         self._batch_size = batch_size
         self._reset_state = reset_state
+        self._return_probs = return_probs
         self._verbose = verbose
 
         self._candidates = []
@@ -70,6 +72,7 @@ class FluErr(AACMetric):
             self._device,
             self._batch_size,
             self._reset_state,
+            self._return_probs,
             self._verbose,
         )
 

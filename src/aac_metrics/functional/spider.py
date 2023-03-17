@@ -60,19 +60,19 @@ def spider(
             f"Number of candidates and mult_references are different (found {len(candidates)} != {len(mult_references)})."
         )
 
-    cider_d_outputs = cider_d(
+    cider_d_outs: tuple = cider_d(  # type: ignore
         candidates,
         mult_references,
-        return_all_scores,
+        True,
         n=n,
         sigma=sigma,
         tokenizer=tokenizer,
         return_tfidf=return_tfidf,
     )
-    spice_outputs = spice(
+    spice_outs: tuple = spice(  # type: ignore
         candidates,
         mult_references,
-        return_all_scores,
+        True,
         cache_path=cache_path,
         java_path=java_path,
         tmp_path=tmp_path,
@@ -81,40 +81,35 @@ def spider(
         timeout=timeout,
         verbose=verbose,
     )
+    spider_outs = _spider_from_outputs(cider_d_outs, spice_outs)
 
     if return_all_scores:
-        assert isinstance(
-            cider_d_outputs, tuple
-        ), f"INTERNAL error type. ({type(cider_d_outputs)})"
-        assert isinstance(
-            spice_outputs, tuple
-        ), f"INTERNAL error type. ({type(spice_outputs)})"
-
-        spider_outputs = _spider_from_outputs(cider_d_outputs, spice_outputs)
-        return spider_outputs
+        return spider_outs
     else:
-        assert isinstance(
-            cider_d_outputs, Tensor
-        ), f"INTERNAL error type. ({type(cider_d_outputs)})"
-        assert isinstance(
-            spice_outputs, Tensor
-        ), f"INTERNAL error type. ({type(spice_outputs)})"
-        return (cider_d_outputs + spice_outputs) / 2.0
+        return spider_outs[0]["spider"]
 
 
 def _spider_from_outputs(
-    cider_d_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
-    spice_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    cider_d_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    spice_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Combines CIDErD and SPICE outputs."""
-    cider_d_global_scores, cider_d_sents_scores = cider_d_outputs
-    spice_global_scores, spice_sents_scores = spice_outputs
+    cider_d_outs_corpus, cider_d_outs_sents = cider_d_outs
+    spice_outs_corpus, spice_outs_sents = spice_outs
 
-    spider_global_scores = {
-        "spider": (cider_d_global_scores["cider_d"] + spice_global_scores["spice"])
-        / 2.0,
-    }
-    spider_sents_scores = {
-        "spider": (cider_d_sents_scores["cider_d"] + spice_sents_scores["spice"]) / 2.0,
-    }
-    return spider_global_scores, spider_sents_scores
+    spider_score = (cider_d_outs_corpus["cider_d"] + spice_outs_corpus["spice"]) / 2.0
+    spider_scores = (cider_d_outs_sents["cider_d"] + spice_outs_sents["spice"]) / 2.0
+
+    spider_outs_corpus = (
+        cider_d_outs_corpus | spice_outs_corpus | {"spider": spider_score}
+    )
+    spider_outs_sents = (
+        cider_d_outs_sents
+        | spice_outs_sents
+        | {
+            "spider": spider_scores,
+        }
+    )
+    spider_outs = spider_outs_corpus, spider_outs_sents
+
+    return spider_outs

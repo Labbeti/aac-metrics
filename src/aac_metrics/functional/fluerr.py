@@ -41,7 +41,6 @@ PRETRAIN_ECHECKERS_DICT = {
         "https://github.com/blmoistawinde/fense/releases/download/V0.1/echecker_clotho_audiocaps_tiny.ckpt",
         "90ed0ac5033ec497ec66d4f68588053813e085671136dae312097c96c504f673",
     ),
-    "none": (None, None),
 }
 
 RemoteFileMetadata = namedtuple("RemoteFileMetadata", ["filename", "url", "checksum"])
@@ -103,6 +102,7 @@ def fluerr(
     device: Union[str, torch.device, None] = "auto",
     batch_size: int = 32,
     reset_state: bool = True,
+    return_probs: bool = True,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
     """Return fluency error detected by a pre-trained BERT model.
@@ -125,6 +125,7 @@ def fluerr(
     :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "auto".
     :param batch_size: The batch size of the echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the pre-trained model are built. defaults to True.
+    :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
@@ -135,33 +136,43 @@ def fluerr(
     )
 
     # Compute and apply fluency error detection penalty
-    sents_probs_dic = __detect_error_sents(
+    probs_outs_sents = __detect_error_sents(
         echecker,
         echecker_tokenizer,  # type: ignore
         candidates,
         batch_size,
         device,
     )
-    fluency_errors = (sents_probs_dic["error"] > error_threshold).astype(float)
-    sents_probs_dic = {f"fluerr.{k}_prob": v for k, v in sents_probs_dic.items()}
+    fluerr_scores = (probs_outs_sents["error"] > error_threshold).astype(float)
 
-    sents_probs_dic = {k: torch.from_numpy(v) for k, v in sents_probs_dic.items()}
-    corpus_probs_dic = {k: v.mean() for k, v in sents_probs_dic.items()}
-
-    fluency_errors = torch.from_numpy(fluency_errors)
-    fluency_error = fluency_errors.mean()
+    fluerr_scores = torch.from_numpy(fluerr_scores)
+    fluerr_score = fluerr_scores.mean()
 
     if return_all_scores:
-        sents_scores = {
-            "fluerr": fluency_errors,
-        } | sents_probs_dic
-        corpus_scores = {
-            "fluerr": fluency_error,
-        } | corpus_probs_dic
+        fluerr_outs_corpus = {
+            "fluerr": fluerr_score,
+        }
+        fluerr_outs_sents = {
+            "fluerr": fluerr_scores,
+        }
 
-        return corpus_scores, sents_scores
+        if return_probs:
+            probs_outs_sents = {
+                f"fluerr.{k}_prob": v for k, v in probs_outs_sents.items()
+            }
+            probs_outs_sents = {
+                k: torch.from_numpy(v) for k, v in probs_outs_sents.items()
+            }
+            probs_outs_corpus = {k: v.mean() for k, v in probs_outs_sents.items()}
+
+            fluerr_outs_corpus = probs_outs_corpus | fluerr_outs_corpus
+            fluerr_outs_sents = probs_outs_sents | fluerr_outs_sents
+
+        fluerr_outs = fluerr_outs_corpus, fluerr_outs_sents
+
+        return fluerr_outs
     else:
-        return fluency_error
+        return fluerr_score
 
 
 # - Private functions

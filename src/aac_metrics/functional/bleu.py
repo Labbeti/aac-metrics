@@ -29,6 +29,8 @@ def bleu(
 
     - Paper: https://www.aclweb.org/anthology/P02-1040.pdf
 
+    Note: this version of the BLEU metric applies a penalty formula that depends on the size of all candidates and the length of the references, which means that the average score of the candidates is not equal to the corpus score.
+
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
@@ -98,7 +100,7 @@ def _bleu_compute(
     if option not in BLEU_OPTIONS:
         raise ValueError(f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})")
 
-    score_1_to_n, scores_1_to_n = __compute_bleu_score(
+    bleu_1_to_n_score, bleu_1_to_n_scores = __compute_bleu_score(
         cooked_cands,
         cooked_mrefs,
         n,
@@ -108,26 +110,28 @@ def _bleu_compute(
 
     # Note: we use f64 because the original implem use numpy which uses f64 precision
     dtype = torch.float64
-    score_n = torch.as_tensor(score_1_to_n[-1], dtype=dtype)
-    scores_n = torch.as_tensor(scores_1_to_n[-1], dtype=dtype)
+    bleu_n_score = torch.as_tensor(bleu_1_to_n_score[-1], dtype=dtype)
+    bleu_n_scores = torch.as_tensor(bleu_1_to_n_scores[-1], dtype=dtype)
 
     if return_all_scores:
-        corpus_scores = {
-            f"bleu_{n}": score_n,
+        bleu_n_outs_corpus = {
+            f"bleu_{n}": bleu_n_score,
         }
-        sents_scores = {
-            f"bleu_{n}": scores_n,
+        bleu_n_outs_sents = {
+            f"bleu_{n}": bleu_n_scores,
         }
 
         if return_1_to_n:
-            score_1_to_n = torch.as_tensor(score_1_to_n, dtype=dtype)
-            scores_1_to_n = torch.as_tensor(scores_1_to_n, dtype=dtype)
-            corpus_scores[f"bleu_1_to_{n}"] = score_1_to_n
-            sents_scores[f"bleu_1_to_{n}"] = scores_1_to_n
+            bleu_1_to_n_score = torch.as_tensor(bleu_1_to_n_score, dtype=dtype)
+            bleu_1_to_n_scores = torch.as_tensor(bleu_1_to_n_scores, dtype=dtype)
+            bleu_n_outs_corpus[f"bleu_1_to_{n}"] = bleu_1_to_n_score
+            bleu_n_outs_sents[f"bleu_1_to_{n}"] = bleu_1_to_n_scores
 
-        return corpus_scores, sents_scores
+        bleu_n_outs = bleu_n_outs_corpus, bleu_n_outs_sents
+
+        return bleu_n_outs
     else:
-        return score_n
+        return bleu_n_score
 
 
 def __cook_sentence(

@@ -233,13 +233,13 @@ def spice(
     spice_score = torch.as_tensor(spice_score, dtype=dtype)
 
     if return_all_scores:
-        corpus_scores = {
+        spice_outs_corpus = {
             "spice": spice_score,
         }
-        sents_scores = {
+        spice_outs_sents = {
             "spice": spice_scores,
         }
-        return corpus_scores, sents_scores
+        return spice_outs_corpus, spice_outs_sents
     else:
         return spice_score
 

@@ -43,6 +43,7 @@ def fense(
     device: Union[str, torch.device, None] = "auto",
     batch_size: int = 32,
     reset_state: bool = True,
+    return_probs: bool = True,
     # Other args
     penalty: float = 0.9,
     verbose: int = 0,
@@ -69,6 +70,7 @@ def fense(
     :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "auto".
     :param batch_size: The batch size of the sBERT and echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the pre-trained model are built. defaults to True.
+    :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
@@ -78,36 +80,42 @@ def fense(
         sbert_model, echecker, echecker_tokenizer, device, reset_state, verbose
     )
 
-    sbert_outputs: tuple = sbert_sim(candidates, mult_references, True, sbert_model, device, batch_size, reset_state, verbose)  # type: ignore
-    fluerr_outputs: tuple = fluerr(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, reset_state, verbose)  # type: ignore
-    fense_outputs = _fense_from_outputs(sbert_outputs, fluerr_outputs, penalty)
+    sbert_sim_outs: tuple = sbert_sim(candidates, mult_references, True, sbert_model, device, batch_size, reset_state, verbose)  # type: ignore
+    fluerr_outs: tuple = fluerr(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, reset_state, return_probs, verbose)  # type: ignore
+    fense_outs = _fense_from_outputs(sbert_sim_outs, fluerr_outs, penalty)
 
     if return_all_scores:
-        corpus_scores = sbert_outputs[0] | fluerr_outputs[0] | fense_outputs[0]
-        sents_scores = sbert_outputs[1] | fluerr_outputs[1] | fense_outputs[1]
-        return corpus_scores, sents_scores
+        return fense_outs
     else:
-        return fense_outputs[0]["fense"]
+        return fense_outs[0]["fense"]
 
 
 def _fense_from_outputs(
-    sbert_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
-    fluerr_outputs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    sbert_sim_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    fluerr_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
     penalty: float = 0.9,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Combines SBERT and FluErr outputs.
 
     Based on https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L121
     """
-    sbert_sents_scores = sbert_outputs[1]
-    fluerr_sents_scores = fluerr_outputs[1]
+    sbert_sim_outs_corpus, sbert_sim_outs_sents = sbert_sim_outs
+    fluerr_outs_corpus, fluerr_outs_sents = fluerr_outs
 
-    sbert_cos_sims = sbert_sents_scores["sbert_sim"]
-    fluency_errors = fluerr_sents_scores["fluerr"]
-    fense_scores = sbert_cos_sims * (1.0 - penalty * fluency_errors)
+    sbert_sims_scores = sbert_sim_outs_sents["sbert_sim"]
+    fluerr_scores = fluerr_outs_sents["fluerr"]
+    fense_scores = sbert_sims_scores * (1.0 - penalty * fluerr_scores)
     fense_score = fense_scores.mean()
 
-    return {"fense": fense_score}, {"fense": fense_scores}
+    fense_outs_corpus = (
+        sbert_sim_outs_corpus | fluerr_outs_corpus | {"fense": fense_score}
+    )
+    fense_outs_sents = (
+        sbert_sim_outs_sents | fluerr_outs_sents | {"fense": fense_scores}
+    )
+    fense_outs = fense_outs_corpus, fense_outs_sents
+
+    return fense_outs
 
 
 def _load_models_and_tokenizer(

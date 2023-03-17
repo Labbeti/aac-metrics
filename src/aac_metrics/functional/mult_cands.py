@@ -75,21 +75,21 @@ def mult_cands_metric(
 
     if selection == "max":
         indexes = all_sents_scores[metric_out_name].argmax(dim=0).unsqueeze(dim=0)
-        sents_scores = {
+        outs_sents = {
             k: scores.gather(0, indexes).squeeze(dim=0)
             for k, scores in all_sents_scores.items()
         }
 
     elif selection == "min":
         indexes = all_sents_scores[metric_out_name].argmin(dim=0).unsqueeze(dim=0)
-        sents_scores = {
+        outs_sents = {
             k: scores.gather(0, indexes).squeeze(dim=0)
             for k, scores in all_sents_scores.items()
         }
 
     elif selection == "mean":
         selected_scores = all_sents_scores[metric_out_name].mean(dim=0)
-        sents_scores = {metric_out_name: selected_scores}
+        outs_sents = {metric_out_name: selected_scores}
 
     else:
         raise ValueError(
@@ -97,13 +97,13 @@ def mult_cands_metric(
         )
 
     if return_all_cands_scores:
-        sents_scores |= {
+        outs_sents |= {
             f"{k}_all": scores.transpose(0, 1) for k, scores in all_sents_scores.items()
         }
 
-    corpus_scores = {k: reduction(scores) for k, scores in sents_scores.items()}
+    outs_corpus = {k: reduction(scores) for k, scores in outs_sents.items()}
 
     if return_all_scores:
-        return corpus_scores, sents_scores
+        return outs_corpus, outs_sents
     else:
-        return corpus_scores[metric_out_name]
+        return outs_corpus[metric_out_name]

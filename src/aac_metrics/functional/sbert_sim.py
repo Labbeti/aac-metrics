@@ -75,14 +75,14 @@ def sbert_sim(
     sbert_sim_scores = torch.from_numpy(sbert_sim_scores)
 
     if return_all_scores:
-        sents_scores = {
-            "sbert_sim": sbert_sim_scores,
-        }
-        corpus_scores = {
+        sbert_sim_outs_corpus = {
             "sbert_sim": sbert_sim_score,
         }
+        sbert_sim_outs_sents = {
+            "sbert_sim": sbert_sim_scores,
+        }
 
-        return corpus_scores, sents_scores
+        return sbert_sim_outs_corpus, sbert_sim_outs_sents
     else:
         return sbert_sim_score
 

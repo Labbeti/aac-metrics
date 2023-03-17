@@ -142,13 +142,14 @@ def meteor(
     meteor_scores = torch.as_tensor(meteor_scores, dtype=dtype)
 
     if return_all_scores:
-        corpus_scores = {
+        meteor_outs_corpus = {
             "meteor": meteor_score,
         }
-        sents_scores = {
+        meteor_outs_sents = {
             "meteor": meteor_scores,
         }
-        return corpus_scores, sents_scores
+        meteor_outs = meteor_outs_corpus, meteor_outs_sents
+        return meteor_outs
     else:
         return meteor_score
 

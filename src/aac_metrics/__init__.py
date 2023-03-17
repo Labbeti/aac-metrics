@@ -16,7 +16,7 @@ __version__ = "0.3.0"
 from .classes.base import AACMetric
 from .classes.bleu import BLEU
 from .classes.cider_d import CIDErD
-from .classes.evaluate import AACEvaluate, _get_metrics_classes_factory
+from .classes.evaluate import AACEvaluate, _get_metric_factory_classes
 from .classes.fense import FENSE
 from .classes.meteor import METEOR
 from .classes.rouge_l import ROUGEL
@@ -49,7 +49,7 @@ def load_metric(name: str, **kwargs) -> AACMetric:
     """
     name = name.lower().strip()
 
-    factory = _get_metrics_classes_factory(**kwargs)
+    factory = _get_metric_factory_classes(**kwargs)
     if name in factory:
         return factory[name]()
     else:
