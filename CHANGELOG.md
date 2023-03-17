@@ -3,12 +3,18 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.3.1] UNRELEASED
+### Added
+- Argument `return_probs` for fluency error metric.
+
 ### Changed
 - Rename `SPIDErErr` to `SPIDErFL` to match DCASE2023 metric name.
+- Rename `SBERT` to `SBERTSim` to avoid confusion with SBERT model name.
+- Rename `FluencyError` to `FluErr`.
 
 ### Fixed
 - `SPIDErFL` sentences scores outputs when using `return_all_scores=True`.
-- `SPIDErFL`, `SBERT`, `FluencyError` and `FENSE` argument `reset_state` when using their functions.
+- Argument `reset_state` in `SPIDErFL`, `SBERT`, `FluencyError` and `FENSE` when using their functions.
+- Class and functions factories now support SPICE and CIDEr-D metrics.
 
 ## [0.3.0] 2023-02-27
 ### Added
