@@ -55,6 +55,8 @@ def spider_fl(
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
     """Combinaison of SPIDEr with Fluency Error detector.
 
+    Based on https://github.com/felixgontier/dcase-2023-baseline/blob/main/metrics.py#L48.
+
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
