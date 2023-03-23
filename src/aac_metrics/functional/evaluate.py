@@ -29,7 +29,7 @@ pylog = logging.getLogger(__name__)
 
 METRICS_SETS: dict[str, tuple[str, ...]] = {
     # Default metrics for AAC
-    "aac": (
+    "default": (
         "bleu_1",
         "bleu_2",
         "bleu_3",
@@ -37,6 +37,10 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "meteor",
         "rouge_l",
         "spider",  # includes cider_d, spice
+    ),
+    "dcase2023": (
+        "meteor",
+        "spider_fl",  # includes cider_d, spice, spider, fluerr
     ),
     "all": (
         "bleu_1",
@@ -55,7 +59,9 @@ def evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
-    metrics: Union[str, Iterable[str], Iterable[Callable[[list, list], tuple]]] = "all",
+    metrics: Union[
+        str, Iterable[str], Iterable[Callable[[list, list], tuple]]
+    ] = "default",
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
@@ -67,7 +73,7 @@ def evaluate(
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
     :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.defaults to True.
-    :param metrics: The name of the metric list or the explicit list of metrics to compute. defaults to "aac".
+    :param metrics: The name of the metric list or the explicit list of metrics to compute. defaults to "default".
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
@@ -135,7 +141,7 @@ def evaluate(
     return outs_corpus, outs_sents
 
 
-def aac_evaluate(
+def dcase2023_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
@@ -163,7 +169,7 @@ def aac_evaluate(
         candidates,
         mult_references,
         preprocess,
-        "aac",
+        "dcase2023",
         cache_path,
         java_path,
         tmp_path,
@@ -187,6 +193,11 @@ def _instantiate_metrics_functions(
         metrics = [metrics]
     else:
         metrics = list(metrics)  # type: ignore
+
+    if not all(isinstance(metric, (str, Callable)) for metric in metrics):
+        raise TypeError(
+            "Invalid argument type for metrics. (expected str, Iterable[str] or Iterable[Metric])"
+        )
 
     metric_factory = _get_metric_factory_functions(
         True,

@@ -3,7 +3,7 @@
 
 from .bleu import bleu
 from .cider_d import cider_d
-from .evaluate import aac_evaluate, evaluate
+from .evaluate import dcase2023_evaluate, evaluate
 from .fense import fense
 from .fluerr import fluerr
 from .meteor import meteor
@@ -18,7 +18,7 @@ from .spider_max import spider_max
 __all__ = [
     "bleu",
     "cider_d",
-    "aac_evaluate",
+    "dcase2023_evaluate",
     "evaluate",
     "fense",
     "fluerr",

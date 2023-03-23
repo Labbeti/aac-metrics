@@ -25,9 +25,6 @@ from aac_metrics.functional.spider import spider
 pylog = logging.getLogger(__name__)
 
 
-SPIDER_FL_SUBMETRICS = ("cider_d", "spice", "spider")
-
-
 def spider_fl(
     candidates: list[str],
     mult_references: list[list[str]],

@@ -13,7 +13,8 @@ from unittest import TestCase
 
 from torch import Tensor
 
-from aac_metrics.evaluate import aac_evaluate, load_csv_file
+from aac_metrics.functional.evaluate import evaluate
+from aac_metrics.evaluate import load_csv_file
 
 
 class TestCompareCaptionEvaluationTools(TestCase):
@@ -93,7 +94,7 @@ class TestCompareCaptionEvaluationTools(TestCase):
         self._test_with_example(cands, mrefs)
 
     def _test_with_example(self, cands, mrefs) -> None:
-        corpus_scores, _ = aac_evaluate(cands, mrefs)
+        corpus_scores, _ = evaluate(cands, mrefs, metrics="default")
         cet_global_scores, _cet_sents_scores = self.evaluate_metrics_from_lists(
             cands, mrefs
         )

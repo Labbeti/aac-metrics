@@ -9,9 +9,6 @@ from aac_metrics.functional.cider_d import cider_d
 from aac_metrics.functional.spice import spice
 
 
-SPIDER_FL_SUBMETRICS = ("cider_d", "spice")
-
-
 def spider(
     candidates: list[str],
     mult_references: list[list[str]],

@@ -21,7 +21,6 @@ pylog = logging.getLogger(__name__)
 
 
 FNAME_METEOR_JAR = osp.join("aac-metrics", "meteor", "meteor-1.5.jar")
-METEOR_SUBMETRICS = ()
 SUPPORTED_LANGUAGES = ("en", "cz", "de", "es", "fr")
 
 

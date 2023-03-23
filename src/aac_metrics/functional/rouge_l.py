@@ -24,9 +24,6 @@ from torch import Tensor
 pylog = logging.getLogger(__name__)
 
 
-ROUGE_L_SUBMETRICS = ()
-
-
 def rouge_l(
     candidates: list[str],
     mult_references: list[list[str]],

@@ -56,7 +56,6 @@ ERROR_NAMES = (
     "remove_verb",
     "error",
 )
-FLUERR_SUBMETRICS = ()
 
 
 class BERTFlatClassifier(nn.Module):

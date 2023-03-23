@@ -22,7 +22,7 @@ from .classes.meteor import METEOR
 from .classes.rouge_l import ROUGEL
 from .classes.spice import SPICE
 from .classes.spider import SPIDEr
-from .functional.evaluate import aac_evaluate, evaluate
+from .functional.evaluate import dcase2023_evaluate, evaluate
 
 
 __all__ = [
@@ -34,7 +34,7 @@ __all__ = [
     "ROUGEL",
     "SPICE",
     "SPIDEr",
-    "aac_evaluate",
+    "dcase2023_evaluate",
     "evaluate",
 ]
 

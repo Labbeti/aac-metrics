@@ -19,9 +19,6 @@ from torch import Tensor
 pylog = logging.getLogger(__name__)
 
 
-SBERT_SUBMETRICS = ()
-
-
 def sbert_sim(
     candidates: list[str],
     mult_references: list[list[str]],

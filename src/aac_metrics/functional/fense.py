@@ -27,9 +27,6 @@ from aac_metrics.functional.sbert_sim import sbert_sim, _load_sbert
 pylog = logging.getLogger(__name__)
 
 
-FENSE_SUBMETRICS = ("sbert_sim", "fluerr")
-
-
 def fense(
     candidates: list[str],
     mult_references: list[list[str]],

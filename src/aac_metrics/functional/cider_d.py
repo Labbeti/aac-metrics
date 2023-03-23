@@ -10,9 +10,6 @@ import torch
 from torch import Tensor
 
 
-CIDER_D_SUBMETRICS = ()
-
-
 def cider_d(
     candidates: list[str],
     mult_references: list[list[str]],

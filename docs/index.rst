@@ -14,4 +14,5 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
 
    installation
    usage
+   spider_max
    api

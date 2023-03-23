@@ -11,7 +11,7 @@ from typing import Iterable, Union
 
 import yaml
 
-from aac_metrics.functional.evaluate import aac_evaluate
+from aac_metrics.functional.evaluate import evaluate, METRICS_SETS
 from aac_metrics.utils.checks import check_metric_inputs, check_java_path
 
 
@@ -150,6 +150,13 @@ def _get_main_evaluate_args() -> Namespace:
         help="The column names of the candidates in the CSV file. defaults to ('caption_1', 'caption_2', 'caption_3', 'caption_4', 'caption_5', 'captions').",
     )
     parser.add_argument(
+        "--metrics_set_name",
+        type=str,
+        default="default",
+        choices=tuple(METRICS_SETS.keys()),
+        help=f"The metrics set to compute. Can be one of {tuple(METRICS_SETS.keys())}. defaults to 'default'.",
+    )
+    parser.add_argument(
         "--cache_path",
         type=str,
         default="$HOME/.cache",
@@ -202,10 +209,11 @@ def _main_evaluate() -> None:
             f"Found {len(candidates)} candidates, {len(mult_references)} references and [{min(refs_lens)}, {max(refs_lens)}] references per candidate."
         )
 
-    corpus_scores, _sents_scores = aac_evaluate(
+    corpus_scores, _sents_scores = evaluate(
         candidates,
         mult_references,
         True,
+        args.metrics_set_name,
         args.cache_path,
         args.java_path,
         args.tmp_path,
