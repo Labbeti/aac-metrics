@@ -86,7 +86,7 @@ print(sents_scores)
 Each metrics also exists as a python class version, like `aac_metrics.classes.cider_d.CIDErD`.
 
 ## Metrics
-### Default AAC metrics
+### Legacy metrics
 | Metric | Python Class | Origin | Range | Short description |
 |:---|:---|:---|:---|:---|
 | BLEU [[1]](#bleu) | `BLEU` | machine translation | [0, 1] | Precision of n-grams |
@@ -96,7 +96,7 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 | SPICE [[5]](#spice) | `SPICE` | image captioning | [0, 1] | FScore of semantic graph |
 | SPIDEr [[6]](#spider) | `SPIDEr` | image captioning | [0, 5.5] | Mean of CIDEr-D and SPICE |
 
-### Other metrics
+### AAC-specific metrics
 | Metric name | Python Class | Origin | Range | Short description |
 |:---|:---|:---|:---|:---|
 | SPIDEr-max [[7]](#spider-max) | `SPIDErMax` | audio captioning | [0, 5.5] | Max of SPIDEr scores for multiples candidates |
