@@ -101,7 +101,7 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 |:---|:---|:---|:---|:---|
 | SPIDEr-max [[7]](#spider-max) | `SPIDErMax` | audio captioning | [0, 5.5] | Max of SPIDEr scores for multiples candidates |
 | SBERT-sim [[7]](#spider-max) | `SBERTSim` | audio captioning | [-1, 1] | Cosine-similarity of **Sentence-BERT embeddings** |
-| Fluency Error Rate [[7]](#spider-max) | `FluErr` | audio captioning | [0, 1] | Use pretrained model to detect fluency errors in sentences |
+| Fluency Error [[7]](#spider-max) | `FluErr` | audio captioning | [0, 1] | Use pretrained model to detect fluency errors in sentences |
 | FENSE [[8]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines `SBERT` and `FluErr` |
 | SPIDEr-FL | `SPIDErFL` | audio captioning | [0, 5.5] | Combines `SPIDEr` and `FluErr` |
 
@@ -118,7 +118,7 @@ sentence-transformers>=2.2.2
 ```
 
 ### External requirements
-- `java` >= 1.8 is required to compute METEOR, SPICE and use the PTBTokenizer.
+- `java` **>= 1.8 and <= 1.11** is required to compute METEOR, SPICE and use the PTBTokenizer.
 Most of these functions can specify a java executable path with `java_path` argument.
 
 - `unzip` command to extract SPICE zipped files.
