@@ -71,7 +71,9 @@ class TestCompareFENSE(TestCase):
         print(f"{orig_score=} ({type(orig_score)=})")
         print(f"{score=} ({type(score)=})")
 
-        self.assertEqual(orig_score, score)
+        self.assertEqual(
+            orig_score, score, "Invalid FENSE score with original implementation."
+        )
 
 
 if __name__ == "__main__":
