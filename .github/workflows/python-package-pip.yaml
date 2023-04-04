@@ -37,6 +37,7 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java-version }}
+        java-package: jre
 
     - name: Install package
       run: |
@@ -75,4 +76,4 @@ jobs:
   
     - name: Test with pytest
       run: |
-        python -m pytest -v TestCompareFENSE.test_example_2_fense
+        python -m pytest -v tests/test_compare_fense.py -k test_example_2_fense
