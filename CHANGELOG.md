@@ -10,11 +10,11 @@ All notable changes to this project will be documented in this file.
 - Rename `SPIDErErr` to `SPIDErFL` to match DCASE2023 metric name.
 - Rename `SBERT` to `SBERTSim` to avoid confusion with SBERT model name.
 - Rename `FluencyError` to `FluErr`.
-- Check Java executable version between 8 to 11.
+- Check Java executable version between 8 and 11.
 
 ### Fixed
 - `SPIDErFL` sentences scores outputs when using `return_all_scores=True`.
-- Argument `reset_state` in `SPIDErFL`, `SBERTSim`, `FluErr` and `FENSE` when using their functions.
+- Argument `reset_state` in `SPIDErFL`, `SBERTSim`, `FluErr` and `FENSE` when using their functional interface.
 - Classes and functions factories now support SPICE and CIDEr-D metrics.
 - `SBERTSim` class instantiation.
 
