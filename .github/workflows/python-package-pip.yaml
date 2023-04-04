@@ -59,14 +59,14 @@ jobs:
     - name: Check format with Black
       run: |
         python -m black --check --diff src
-      
-    - name: Print Java version
-      run: |
-        java --version
 
     - name: Print install info
       run: |
         aac-metrics-info
+
+    - name: Print Java version
+      run: |
+        java --version
   
     - name: Install external code if needed
       if: steps.cache_external.outputs.cache-hit != 'true'
