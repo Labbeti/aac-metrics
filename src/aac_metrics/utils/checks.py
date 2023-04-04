@@ -66,7 +66,7 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
         IndexError,
         ValueError,
     ) as err:
-        pylog.error(f"Invalid java version. (found {output=})")
+        pylog.error(f"Invalid java version. (found {output=} and {err=})")
         return False
 
     return True
