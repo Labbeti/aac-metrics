@@ -41,6 +41,7 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
     if not isinstance(java_path, (str, Path)):
         return False
 
+    output = ""
     try:
         output = subprocess.check_output(
             [str(java_path), "--version"],
@@ -57,10 +58,15 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
         CalledProcessError,
         PermissionError,
         FileNotFoundError,
+    ) as err:
+        pylog.error(f"Invalid java path. (found error={err})")
+        return False
+
+    except (
         IndexError,
         ValueError,
     ) as err:
-        pylog.error(f"Invalid java path. (found error {err})")
+        pylog.error(f"Invalid java version. (found {output=})")
         return False
 
     return True
