@@ -75,4 +75,4 @@ jobs:
   
     - name: Test with pytest
       run: |
-        python -m pytest -v
+        python -m pytest -v TestCompareFENSE.test_example_2_fense
