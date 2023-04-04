@@ -59,8 +59,10 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
         FileNotFoundError,
         IndexError,
         ValueError,
-    ):
+    ) as err:
+        pylog.error(f"Invalid java path. (found error {err})")
         return False
+
     return True
 
 
