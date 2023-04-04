@@ -13,14 +13,14 @@ from torch import Tensor
 
 from aac_metrics.functional.bleu import bleu
 from aac_metrics.functional.cider_d import cider_d
-from aac_metrics.functional.fense import fense, _fense_from_outputs
+from aac_metrics.functional.fense import fense
 from aac_metrics.functional.fluerr import fluerr
 from aac_metrics.functional.meteor import meteor
 from aac_metrics.functional.rouge_l import rouge_l
 from aac_metrics.functional.sbert_sim import sbert_sim
 from aac_metrics.functional.spice import spice
-from aac_metrics.functional.spider import spider, _spider_from_outputs
-from aac_metrics.functional.spider_fl import spider_fl, _spider_fl_from_outputs
+from aac_metrics.functional.spider import spider
+from aac_metrics.functional.spider_fl import spider_fl
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
 
