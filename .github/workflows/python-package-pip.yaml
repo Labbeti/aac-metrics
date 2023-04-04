@@ -60,6 +60,10 @@ jobs:
       run: |
         python -m black --check --diff src
       
+    - name: Print Java version
+      run: |
+        java --version
+
     - name: Print install info
       run: |
         aac-metrics-info
