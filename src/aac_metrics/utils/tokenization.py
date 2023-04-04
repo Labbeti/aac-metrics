@@ -84,8 +84,8 @@ def ptb_tokenize_batch(
                 f"Cannot find JAR file '{stanford_fpath}' for tokenization. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
             )
         if not check_java_path(java_path):
-            raise ValueError(
-                f"Cannot find java executable with {java_path=} to tokenize sentences."
+            raise RuntimeError(
+                f"Invalid Java executable to tokenize sentences. ({java_path})"
             )
 
     start_time = time.perf_counter()

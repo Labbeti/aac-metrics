@@ -82,8 +82,8 @@ def spice(
                 f"Cannot find JAR file '{spice_fpath}' for SPICE metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
             )
         if not check_java_path(java_path):
-            raise ValueError(
-                f"Cannot find java executable with {java_path=} for compute SPICE metric score."
+            raise RuntimeError(
+                f"Invalid Java executable to compute SPICE score. ({java_path})"
             )
 
     if len(candidates) != len(mult_references):

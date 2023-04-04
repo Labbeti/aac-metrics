@@ -190,7 +190,7 @@ def _main_evaluate() -> None:
     args = _get_main_evaluate_args()
 
     if not check_java_path(args.java_path):
-        raise RuntimeError(f"Invalid argument java_path={args.java_path}.")
+        raise RuntimeError(f"Invalid Java executable. ({args.java_path})")
 
     level = logging.INFO if args.verbose <= 1 else logging.DEBUG
     pkg_logger.setLevel(level)
