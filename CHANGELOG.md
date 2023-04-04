@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
 - Rename `SPIDErErr` to `SPIDErFL` to match DCASE2023 metric name.
 - Rename `SBERT` to `SBERTSim` to avoid confusion with SBERT model name.
 - Rename `FluencyError` to `FluErr`.
-- Add check for Java executable version between 8 to 11.
+- Check Java executable version between 8 to 11.
 
 ### Fixed
 - `SPIDErFL` sentences scores outputs when using `return_all_scores=True`.
