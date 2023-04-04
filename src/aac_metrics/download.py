@@ -122,9 +122,9 @@ def download(
     if spice:
         # Download JAR files for SPICE metric
         spice_jar_dpath = osp.join(cache_path, osp.dirname(FNAME_SPICE_JAR))
-        os.makedirs(spice_jar_dpath, exist_ok=True)
-
         spice_cache_path = osp.join(cache_path, DNAME_SPICE_CACHE)
+
+        os.makedirs(spice_jar_dpath, exist_ok=True)
         os.makedirs(spice_cache_path, exist_ok=True)
 
         script_path = osp.join(osp.dirname(__file__), "..", "..", "install_spice.sh")

@@ -46,9 +46,9 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
         output = subprocess.check_output(
             [str(java_path), "--version"],
         )
-        output = output.decode()
-        version = output.strip().split("\n")[0][1]
-        major_version = int(version.split(".")[0])
+        output = output.decode().strip()
+        version = output.split("\n")[0]
+        major_version = int(version.split(" ")[1].split(".")[0])
         if not (8 <= major_version <= 17):
             pylog.warning(
                 f"Using Java version {version} is not officially supported by aac-metrics package and could not work for METEOR and SPICE metrics. (found {major_version=} but expected in [8, 17])"
@@ -59,7 +59,7 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
         PermissionError,
         FileNotFoundError,
     ) as err:
-        pylog.error(f"Invalid java path. (found error={err})")
+        pylog.error(f"Invalid java path. (from {java_path=} and found error={err})")
         return False
 
     except (

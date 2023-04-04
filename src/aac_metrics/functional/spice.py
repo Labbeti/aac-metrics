@@ -215,7 +215,9 @@ def spice(
         results = json.load(data_file)
     os.remove(in_file.name)
     os.remove(out_file.name)
-    shutil.rmtree(spice_cache)
+
+    if separate_cache_dir:
+        shutil.rmtree(spice_cache)
 
     imgId_to_scores = {}
     spice_scores = []
