@@ -102,7 +102,9 @@ def _fense_from_outputs(
     sbert_sims_scores = sbert_sim_outs_sents["sbert_sim"]
     fluerr_scores = fluerr_outs_sents["fluerr"]
     fense_scores = sbert_sims_scores * (1.0 - penalty * fluerr_scores)
-    fense_score = fense_scores.mean()
+    fense_score = torch.as_tensor(
+        fense_scores.cpu().numpy().mean(), device=fense_scores.device
+    )
 
     fense_outs_corpus = (
         sbert_sim_outs_corpus | fluerr_outs_corpus | {"fense": fense_score}
