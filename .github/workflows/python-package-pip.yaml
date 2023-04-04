@@ -16,6 +16,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.9"]
+        java-version: ["11", "20"]
 
     steps:
     # --- INSTALLATIONS ---
@@ -35,7 +36,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: ${{ matrix.java-version }}
 
     - name: Install package
       run: |
