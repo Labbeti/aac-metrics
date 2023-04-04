@@ -38,6 +38,15 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "rouge_l",
         "spider",  # includes cider_d, spice
     ),
+    "dcase2020": (
+        "bleu_1",
+        "bleu_2",
+        "bleu_3",
+        "bleu_4",
+        "meteor",
+        "rouge_l",
+        "spider",  # includes cider_d, spice
+    ),
     "dcase2023": (
         "meteor",
         "spider_fl",  # includes cider_d, spice, spider, fluerr
@@ -132,7 +141,7 @@ def evaluate(
             )
             if len(corpus_overlap) > 0 or len(sents_overlap) > 0:
                 pylog.warning(
-                    f"Found overlapping metric outputs. (found {corpus_overlap=} and {sents_overlap=})"
+                    f"Found overlapping metric outputs names. (found {corpus_overlap=} and {sents_overlap=})"
                 )
 
         outs_corpus |= outs_corpus_i
