@@ -90,7 +90,7 @@ def fense(
 def _fense_from_outputs(
     sbert_sim_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
     fluerr_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
-    penalty: float = 0.9,
+    penalty: float,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Combines SBERT and FluErr outputs.
 
