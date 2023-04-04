@@ -20,11 +20,18 @@ from aac_metrics.evaluate import load_csv_file
 class TestCompareCaptionEvaluationTools(TestCase):
     # Note: "cet" is here an acronym for "caption evaluation tools"
 
-    def __init__(self, methodName: str = ...) -> None:
-        super().__init__(methodName)
-        self.evaluate_metrics_from_lists = self.import_cet_eval_func()
+    # Set Up methods
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.evaluate_metrics_from_lists = cls._import_cet_eval_func()
 
-    def install_spice(self) -> None:
+    @classmethod
+    def _import_cet_eval_func(
+        cls,
+    ) -> Callable[
+        [List[str], List[List[str]]],
+        Tuple[Dict[str, float], Dict[int, Dict[str, float]]],
+    ]:
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
 
         stanford_fpath = osp.join(
@@ -39,17 +46,11 @@ class TestCompareCaptionEvaluationTools(TestCase):
             command = "bash get_stanford_models.sh"
             subprocess.check_call(
                 command.split(),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
                 cwd=osp.join(cet_path, "coco_caption"),
             )
 
-    def import_cet_eval_func(
-        self,
-    ) -> Callable[
-        [List[str], List[List[str]]],
-        Tuple[Dict[str, float], Dict[int, Dict[str, float]]],
-    ]:
-        cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
-        self.install_spice()
         # Append cet_path to allow imports of "caption" in eval_metrics.py.
         sys.path.append(cet_path)
         # Override cache and tmp dir to avoid outputs in source code.
@@ -60,7 +61,23 @@ class TestCompareCaptionEvaluationTools(TestCase):
         evaluate_metrics_from_lists = eval_metrics_module.evaluate_metrics_from_lists
         return evaluate_metrics_from_lists
 
-    def get_example_0(self) -> tuple[list[str], list[list[str]]]:
+    # Tests methods
+    def test_example_0(self) -> None:
+        cands, mrefs = self._get_example_0()
+        self._test_with_example(cands, mrefs)
+
+    def test_example_1(self) -> None:
+        fpath = Path(__file__).parent.parent.joinpath("examples", "example_1.csv")
+        cands, mrefs = load_csv_file(fpath)
+        self._test_with_example(cands, mrefs)
+
+    def test_example_2(self) -> None:
+        fpath = Path(__file__).parent.parent.joinpath("examples", "example_2.csv")
+        cands, mrefs = load_csv_file(fpath)
+        self._test_with_example(cands, mrefs)
+
+    # Others methods
+    def _get_example_0(self) -> tuple[list[str], list[list[str]]]:
         cands = [
             "a man is speaking",
             "birds chirping",
@@ -79,25 +96,12 @@ class TestCompareCaptionEvaluationTools(TestCase):
         ]
         return cands, mrefs
 
-    def test_example_0(self) -> None:
-        cands, mrefs = self.get_example_0()
-        self._test_with_example(cands, mrefs)
-
-    def test_example_1(self) -> None:
-        fpath = Path(__file__).parent.parent.joinpath("examples", "example_1.csv")
-        cands, mrefs = load_csv_file(fpath)
-        self._test_with_example(cands, mrefs)
-
-    def test_example_2(self) -> None:
-        fpath = Path(__file__).parent.parent.joinpath("examples", "example_2.csv")
-        cands, mrefs = load_csv_file(fpath)
-        self._test_with_example(cands, mrefs)
-
-    def _test_with_example(self, cands, mrefs) -> None:
-        corpus_scores, _ = evaluate(cands, mrefs, metrics="default")
-        cet_global_scores, _cet_sents_scores = self.evaluate_metrics_from_lists(
-            cands, mrefs
-        )
+    def _test_with_example(self, cands: list[str], mrefs: list[list[str]]) -> None:
+        corpus_scores, _ = evaluate(cands, mrefs, metrics="dcase2020")
+        (
+            cet_global_scores,
+            _cet_sents_scores,
+        ) = self.__class__.evaluate_metrics_from_lists(cands, mrefs)
 
         cet_global_scores = {k.lower(): v for k, v in cet_global_scores.items()}
         cet_global_scores = {
@@ -113,8 +117,9 @@ class TestCompareCaptionEvaluationTools(TestCase):
 
         self.assertListEqual(list(corpus_scores.keys()), list(cet_global_scores.keys()))
         for metric_name, v1 in corpus_scores.items():
+            v1 = v1.item()
             v2 = cet_global_scores[metric_name]
-            self.assertEqual(v1.item(), v2, f"{metric_name=}")
+            self.assertEqual(v1, v2, f"{metric_name=}")
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ if _TORCHMETRICS_AVAILABLE:
 
 
 class TestBleu(TestCase):
+    # Tests methods
     def test_bleu(self) -> None:
         if not _TORCHMETRICS_AVAILABLE:
             return None

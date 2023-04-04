@@ -10,6 +10,7 @@ from aac_metrics.classes.evaluate import _instantiate_metrics_classes
 
 
 class TestCompare(TestCase):
+    # Tests methods
     def test_pickle_dump(self) -> None:
         metrics = _instantiate_metrics_classes("all")
 
