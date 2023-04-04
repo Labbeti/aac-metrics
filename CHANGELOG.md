@@ -13,8 +13,9 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - `SPIDErFL` sentences scores outputs when using `return_all_scores=True`.
-- Argument `reset_state` in `SPIDErFL`, `SBERT`, `FluencyError` and `FENSE` when using their functions.
-- Class and functions factories now support SPICE and CIDEr-D metrics.
+- Argument `reset_state` in `SPIDErFL`, `SBERTSim`, `FluErr` and `FENSE` when using their functions.
+- Classes and functions factories now support SPICE and CIDEr-D metrics.
+- `SBERTSim` class instantiation.
 
 ## [0.3.0] 2023-02-27
 ### Added
