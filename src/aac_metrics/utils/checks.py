@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
 import subprocess
 
 from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Any, Union
+
+
+pylog = logging.getLogger(__name__)
 
 
 def check_metric_inputs(
@@ -38,14 +42,26 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
         return False
 
     try:
-        exitcode = subprocess.check_call(
-            [java_path, "--version"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+        output = subprocess.check_output(
+            [str(java_path), "--version"],
         )
-    except (CalledProcessError, PermissionError, FileNotFoundError):
-        exitcode = 1
-    return exitcode == 0
+        output = output.decode()
+        version = output.strip().split("\n")[0][1]
+        major_version = int(version.split(".")[0])
+        if not (8 <= major_version <= 17):
+            pylog.warning(
+                f"Using Java version {version} is not officially supported by aac-metrics package and could not work for METEOR and SPICE metrics. (found {major_version=} but expected in [8, 17])"
+            )
+
+    except (
+        CalledProcessError,
+        PermissionError,
+        FileNotFoundError,
+        IndexError,
+        ValueError,
+    ):
+        return False
+    return True
 
 
 def is_mono_sents(sents: Any) -> bool:
