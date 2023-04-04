@@ -27,8 +27,8 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
     - SPICE [[5]](#spice)
     - SPIDEr [[6]](#spider)
     - SPIDEr-max [[7]](#spider-max)
-    - SBERTSim [[8]](#fense)
-    - FluErr [[8]](#fense)
+    - SBERT-sim [[8]](#fense)
+    - Fluency Error [[8]](#fense)
     - FENSE [[8]](#fense)
     - SPIDEr-FL [[9]](#spider-fl)
 
@@ -100,10 +100,10 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 | Metric name | Python Class | Origin | Range | Short description |
 |:---|:---|:---|:---|:---|
 | SPIDEr-max [[7]](#spider-max) | `SPIDErMax` | audio captioning | [0, 5.5] | Max of SPIDEr scores for multiples candidates |
-| SBERT-sim [[7]](#spider-max) | `SBERTSim` | audio captioning | [-1, 1] | Cosine-similarity of **Sentence-BERT embeddings** |
-| Fluency Error [[7]](#spider-max) | `FluErr` | audio captioning | [0, 1] | Use pretrained model to detect fluency errors in sentences |
-| FENSE [[8]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines `SBERT` and `FluErr` |
-| SPIDEr-FL | `SPIDErFL` | audio captioning | [0, 5.5] | Combines `SPIDEr` and `FluErr` |
+| SBERT-sim [[8]](#spider-max) | `SBERTSim` | audio captioning | [-1, 1] | Cosine-similarity of **Sentence-BERT embeddings** |
+| Fluency Error [[8]](#spider-max) | `FluErr` | audio captioning | [0, 1] | Use pretrained model to detect fluency errors in sentences |
+| FENSE [[8]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines `SBERTSim` and `FluErr` |
+| SPIDEr-FL [[9]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines `SPIDEr` and `FluErr` |
 
 ## Requirements
 ### Python packages
