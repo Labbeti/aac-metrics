@@ -4,12 +4,16 @@
 import logging
 import subprocess
 
+from functools import cache
 from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Any, Union
 
 
 pylog = logging.getLogger(__name__)
+
+MIN_JAVA_MAJOR_VERSION = 8
+MAX_JAVA_MAJOR_VERSION = 11
 
 
 def check_metric_inputs(
@@ -49,10 +53,6 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
         output = output.decode().strip()
         version = output.split("\n")[0]
         major_version = int(version.split(" ")[1].split(".")[0])
-        if not (8 <= major_version <= 17):
-            pylog.warning(
-                f"Using Java version {version} is not officially supported by aac-metrics package and could not work for METEOR and SPICE metrics. (found {major_version=} but expected in [8, 17])"
-            )
 
     except (
         CalledProcessError,
@@ -67,6 +67,13 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
         ValueError,
     ) as err:
         pylog.error(f"Invalid java version. (found {output=} and {err=})")
+        return False
+
+    if not (MIN_JAVA_MAJOR_VERSION <= major_version <= MAX_JAVA_MAJOR_VERSION):
+        pylog.error(
+            f"Using Java version {version} is not officially supported by aac-metrics package and could not work for METEOR and SPICE metrics."
+            f"(found {major_version=} but expected in [{MIN_JAVA_MAJOR_VERSION}, {MAX_JAVA_MAJOR_VERSION}])"
+        )
         return False
 
     return True
@@ -84,3 +91,8 @@ def is_mult_sents(mult_sents: Any) -> bool:
         and all(isinstance(sents, list) for sents in mult_sents)
         and all(isinstance(sent, str) for sents in mult_sents for sent in sents)
     )
+
+
+@cache
+def _warn_once(msg: str) -> None:
+    pylog.warning(msg)
