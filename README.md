@@ -101,9 +101,9 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 |:---|:---|:---|:---|:---|
 | SPIDEr-max [[7]](#spider-max) | `SPIDErMax` | audio captioning | [0, 5.5] | Max of SPIDEr scores for multiples candidates |
 | SBERT-sim [[8]](#spider-max) | `SBERTSim` | audio captioning | [-1, 1] | Cosine-similarity of **Sentence-BERT embeddings** |
-| Fluency Error [[8]](#spider-max) | `FluErr` | audio captioning | [0, 1] | Use pretrained model to detect fluency errors in sentences |
-| FENSE [[8]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines `SBERTSim` and `FluErr` |
-| SPIDEr-FL [[9]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines `SPIDEr` and `FluErr` |
+| Fluency Error [[8]](#spider-max) | `FluErr` | audio captioning | [0, 1] | Use a pretrained model to detect fluency errors in sentences |
+| FENSE [[8]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines SBERT-sim and Fluency Error |
+| SPIDEr-FL [[9]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error |
 
 ## Requirements
 ### Python packages
