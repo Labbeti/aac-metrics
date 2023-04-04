@@ -7,6 +7,7 @@ from typing import Union
 
 import torch
 
+from sentence_transformers import SentenceTransformer
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
@@ -35,13 +36,13 @@ class SBERTSim(AACMetric):
     def __init__(
         self,
         return_all_scores: bool = True,
-        sbert_model: str = "paraphrase-TinyBERT-L6-v2",
+        sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
         device: Union[str, torch.device, None] = "auto",
         batch_size: int = 32,
         reset_state: bool = True,
         verbose: int = 0,
     ) -> None:
-        sbert_model = _load_sbert(sbert_model, device, reset_state, verbose)  # type: ignore
+        sbert_model = _load_sbert(sbert_model, device, reset_state)
 
         super().__init__()
         self._return_all_scores = return_all_scores
