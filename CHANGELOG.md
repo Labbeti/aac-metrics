@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.1] UNRELEASED
+## [0.4.0] UNRELEASED
 ### Added
 - Argument `return_probs` for fluency error metric.
 
@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
 - Rename `SPIDErErr` to `SPIDErFL` to match DCASE2023 metric name.
 - Rename `SBERT` to `SBERTSim` to avoid confusion with SBERT model name.
 - Rename `FluencyError` to `FluErr`.
-- Check Java executable version between 8 and 11.
+- Check if Java executable version between 8 and 11.
 
 ### Fixed
 - `SPIDErFL` sentences scores outputs when using `return_all_scores=True`.
