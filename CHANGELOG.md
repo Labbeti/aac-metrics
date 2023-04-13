@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.0] UNRELEASED
+## [0.4.0] 2023-04-13
 ### Added
 - Argument `return_probs` for fluency error metric.
 
