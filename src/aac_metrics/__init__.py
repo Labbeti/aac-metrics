@@ -10,19 +10,19 @@ __author_email__ = "labbeti.pub@gmail.com"
 __license__ = "MIT"
 __maintainer__ = "Etienne Labbé (Labbeti)"
 __status__ = "Development"
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 
 from .classes.base import AACMetric
 from .classes.bleu import BLEU
 from .classes.cider_d import CIDErD
-from .classes.evaluate import AACEvaluate, _get_metrics_classes_factory
+from .classes.evaluate import AACEvaluate, _get_metric_factory_classes
 from .classes.fense import FENSE
 from .classes.meteor import METEOR
 from .classes.rouge_l import ROUGEL
 from .classes.spice import SPICE
 from .classes.spider import SPIDEr
-from .functional.evaluate import aac_evaluate, evaluate
+from .functional.evaluate import dcase2023_evaluate, evaluate
 
 
 __all__ = [
@@ -34,7 +34,7 @@ __all__ = [
     "ROUGEL",
     "SPICE",
     "SPIDEr",
-    "aac_evaluate",
+    "dcase2023_evaluate",
     "evaluate",
 ]
 
@@ -49,7 +49,7 @@ def load_metric(name: str, **kwargs) -> AACMetric:
     """
     name = name.lower().strip()
 
-    factory = _get_metrics_classes_factory(**kwargs)
+    factory = _get_metric_factory_classes(**kwargs)
     if name in factory:
         return factory[name]()
     else:

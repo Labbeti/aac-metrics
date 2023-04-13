@@ -18,7 +18,7 @@ from aac_metrics.functional.spice import FNAME_SPICE_JAR, DNAME_SPICE_CACHE
 from aac_metrics.utils.tokenization import FNAME_STANFORD_CORENLP_3_4_1_JAR
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 JAR_URLS = {
@@ -55,6 +55,11 @@ def download(
     """Download the code needed for SPICE, METEOR and PTB Tokenizer.
 
     :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
+    :param tmp_path: The path to a temporary directory. defaults to "/tmp".
+    :param ptb_tokenizer: If True, downloads the PTBTokenizer code in cache directory. defaults to True.
+    :param meteor: If True, downloads the METEOR code in cache directory. defaults to True.
+    :param spice: If True, downloads the SPICE code in cache directory. defaults to True.
+    :param fense: If True, downloads the FENSE models. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     """
     cache_path = osp.expandvars(cache_path)
@@ -77,13 +82,13 @@ def download(
         fpath = osp.join(stanford_nlp_dpath, fname)
         if not osp.isfile(fpath):
             if verbose >= 1:
-                logger.info(
+                pylog.info(
                     f"Downloading jar source for '{name}' in directory {stanford_nlp_dpath}."
                 )
             download_url_to_file(url, fpath, progress=verbose >= 1)
         else:
             if verbose >= 1:
-                logger.info(f"Stanford model file '{name}' is already downloaded.")
+                pylog.info(f"Stanford model file '{name}' is already downloaded.")
 
     if meteor:
         # Download JAR files for METEOR metric
@@ -99,7 +104,7 @@ def download(
 
             if not osp.isfile(fpath):
                 if verbose >= 1:
-                    logger.info(
+                    pylog.info(
                         f"Downloading jar source for '{name}' in directory {meteor_dpath}."
                     )
                 if subdir not in ("", "."):
@@ -112,14 +117,14 @@ def download(
                 )
             else:
                 if verbose >= 1:
-                    logger.info(f"Meteor file '{name}' is already downloaded.")
+                    pylog.info(f"Meteor file '{name}' is already downloaded.")
 
     if spice:
         # Download JAR files for SPICE metric
         spice_jar_dpath = osp.join(cache_path, osp.dirname(FNAME_SPICE_JAR))
-        os.makedirs(spice_jar_dpath, exist_ok=True)
-
         spice_cache_path = osp.join(cache_path, DNAME_SPICE_CACHE)
+
+        os.makedirs(spice_jar_dpath, exist_ok=True)
         os.makedirs(spice_cache_path, exist_ok=True)
 
         script_path = osp.join(osp.dirname(__file__), "..", "..", "install_spice.sh")
@@ -129,7 +134,7 @@ def download(
             )
 
         if verbose >= 1:
-            logger.info(
+            pylog.info(
                 f"Downloading JAR sources for SPICE metric into '{spice_jar_dpath}'..."
             )
 
@@ -141,12 +146,12 @@ def download(
                 stderr=None if verbose >= 2 else subprocess.DEVNULL,
             )
         except (CalledProcessError, PermissionError) as err:
-            logger.error(err)
+            pylog.error(err)
 
     if fense:
         # Download models files for FENSE metric
         if verbose >= 1:
-            logger.info("Downloading sBert and Bert error detector for FENSE metric...")
+            pylog.info("Downloading sBert and Bert error detector for FENSE metric...")
         _ = FENSE(device="cpu")
 
 

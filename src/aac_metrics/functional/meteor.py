@@ -17,7 +17,7 @@ from torch import Tensor
 from aac_metrics.utils.checks import check_java_path
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 FNAME_METEOR_JAR = osp.join("aac-metrics", "meteor", "meteor-1.5.jar")
@@ -63,8 +63,8 @@ def meteor(
                 f"Cannot find JAR file '{meteor_jar_fpath}' for METEOR metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
             )
         if not check_java_path(java_path):
-            raise ValueError(
-                f"Cannot find java executable with {java_path=} for compute METEOR metric score."
+            raise RuntimeError(
+                f"Invalid Java executable to compute METEOR score. ({java_path})"
             )
 
     if len(candidates) != len(mult_references):
@@ -91,7 +91,7 @@ def meteor(
     ]
 
     if verbose >= 2:
-        logger.debug(f"Start METEOR process with command '{' '.join(meteor_cmd)}'...")
+        pylog.debug(f"Start METEOR process with command '{' '.join(meteor_cmd)}'...")
 
     meteor_process = Popen(
         meteor_cmd,
@@ -120,7 +120,7 @@ def meteor(
     # Eval encoded candidates and references
     assert meteor_process.stdin is not None, "INTERNAL METEOR process error"
     if verbose >= 3:
-        logger.debug(f"Write line {eval_line=}.")
+        pylog.debug(f"Write line {eval_line=}.")
     meteor_process.stdin.write("{}\n".format(eval_line).encode())
     meteor_process.stdin.flush()
 
@@ -141,13 +141,14 @@ def meteor(
     meteor_scores = torch.as_tensor(meteor_scores, dtype=dtype)
 
     if return_all_scores:
-        corpus_scores = {
+        meteor_outs_corpus = {
             "meteor": meteor_score,
         }
-        sents_scores = {
+        meteor_outs_sents = {
             "meteor": meteor_scores,
         }
-        return corpus_scores, sents_scores
+        meteor_outs = meteor_outs_corpus, meteor_outs_sents
+        return meteor_outs
     else:
         return meteor_score
 

@@ -23,7 +23,7 @@ from torch import Tensor
 from aac_metrics.utils.checks import check_java_path
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 DNAME_SPICE_CACHE = osp.join("aac-metrics", "spice", "cache")
@@ -82,8 +82,8 @@ def spice(
                 f"Cannot find JAR file '{spice_fpath}' for SPICE metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
             )
         if not check_java_path(java_path):
-            raise ValueError(
-                f"Cannot find java executable with {java_path=} for compute SPICE metric score."
+            raise RuntimeError(
+                f"Invalid Java executable to compute SPICE score. ({java_path})"
             )
 
     if len(candidates) != len(mult_references):
@@ -98,8 +98,8 @@ def spice(
     del cache_path
 
     if verbose >= 2:
-        logger.debug(f"Use cache directory {spice_cache}.")
-        logger.debug(f"Computing SPICE with JAR file {spice_fpath}...")
+        pylog.debug(f"Use cache directory {spice_cache}.")
+        pylog.debug(f"Computing SPICE with JAR file {spice_fpath}...")
 
     input_data = [
         {
@@ -163,7 +163,7 @@ def spice(
             spice_cmd += ["-threads", str(n_threads)]
 
         if verbose >= 2:
-            logger.debug(f"Run SPICE java code with: {' '.join(spice_cmd)}")
+            pylog.debug(f"Run SPICE java code with: {' '.join(spice_cmd)}")
 
         try:
             subprocess.check_call(
@@ -179,7 +179,7 @@ def spice(
             break
 
         except subprocess.TimeoutExpired as err:
-            logger.warning(
+            pylog.warning(
                 f"Timeout SPICE java program with {timeout_i=}s (nb timeouts done={i+1}/{len(timeout_lst)})."
             )
 
@@ -195,27 +195,42 @@ def spice(
                 raise err
 
         except (CalledProcessError, PermissionError) as err:
-            logger.error("Invalid SPICE call.")
-            logger.error(f"Full command: '{' '.join(spice_cmd)}'")
-            if stdout is not None and stderr is not None:
-                logger.error(
-                    f"For more information, see temp files '{stdout.name}' and '{stderr.name}'."
+            pylog.error("Invalid SPICE call.")
+            pylog.error(f"Full command: '{' '.join(spice_cmd)}'")
+            if (
+                stdout is not None
+                and stderr is not None
+                and osp.isfile(stdout.name)
+                and osp.isfile(stderr.name)
+            ):
+                stdout_crashlog = stdout.name.replace(
+                    "spice_stdout", "CRASH_spice_stdout"
+                )
+                stderr_crashlog = stderr.name.replace(
+                    "spice_stderr", "CRASH_spice_stderr"
+                )
+                shutil.copy(stdout.name, stdout_crashlog)
+                shutil.copy(stderr.name, stderr_crashlog)
+                pylog.error(
+                    f"For more information, see temp files '{stdout_crashlog}' and '{stderr_crashlog}'."
                 )
             else:
-                logger.info(
+                pylog.info(
                     f"Note: No temp file recorded. (found {stdout=} and {stderr=})"
                 )
             raise err
 
     if verbose >= 2:
-        logger.debug("SPICE java code finished.")
+        pylog.debug("SPICE java code finished.")
 
     # Read and process results
     with open(out_file.name, "r") as data_file:
         results = json.load(data_file)
     os.remove(in_file.name)
     os.remove(out_file.name)
-    shutil.rmtree(spice_cache)
+
+    if separate_cache_dir:
+        shutil.rmtree(spice_cache)
 
     imgId_to_scores = {}
     spice_scores = []
@@ -232,13 +247,13 @@ def spice(
     spice_score = torch.as_tensor(spice_score, dtype=dtype)
 
     if return_all_scores:
-        corpus_scores = {
+        spice_outs_corpus = {
             "spice": spice_score,
         }
-        sents_scores = {
+        spice_outs_sents = {
             "spice": spice_scores,
         }
-        return corpus_scores, sents_scores
+        return spice_outs_corpus, spice_outs_sents
     else:
         return spice_score
 

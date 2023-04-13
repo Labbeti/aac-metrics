@@ -10,63 +10,114 @@ import unittest
 from typing import Any
 from unittest import TestCase
 
+from aac_metrics.classes.sbert_sim import SBERTSim
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.evaluate import load_csv_file
 
 
 class TestCompareFENSE(TestCase):
-    def __init__(self, methodName: str = ...) -> None:
-        super().__init__(methodName)
+    # Set Up methods
+    @classmethod
+    def setUpClass(cls) -> None:
+        Evaluator = cls._get_src_evaluator_class()
+
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"{device=}")
-        Evaluator = self.get_orig_evaluator_class()
-        self.evaluator = Evaluator(
+        print(f"Using {device=}")
+
+        cls.src_sbert_sim = Evaluator(
+            device=device,
+            echecker_model="none",
+        )
+        cls.src_fense = Evaluator(
             device=device,
             echecker_model="echecker_clotho_audiocaps_base",
         )
-        self.my_fense = FENSE(
+
+        cls.new_sbert_sim = SBERTSim(
+            return_all_scores=False,
+            device=device,
+            verbose=2,
+        )
+        cls.new_fense = FENSE(
             return_all_scores=False,
             device=device,
             verbose=2,
             echecker="echecker_clotho_audiocaps_base",
         )
 
-    def get_orig_evaluator_class(self) -> Any:
+    @classmethod
+    def _get_src_evaluator_class(cls) -> Any:
         fense_path = osp.join(osp.dirname(__file__), "fense")
         sys.path.append(fense_path)
         fense_module = importlib.import_module("fense.evaluator")
         return fense_module.Evaluator
 
-    def test_example_1(self) -> None:
+    # Tests methods
+    def test_example_1_fense(self) -> None:
         fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_1.csv")
         self._test_with_original_fense(fpath)
 
-    def test_example_2(self) -> None:
+    def test_example_1_sbert_sim(self) -> None:
+        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_1.csv")
+        self._test_with_original_sbert_sim(fpath)
+
+    def test_example_2_fense(self) -> None:
         fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_2.csv")
         self._test_with_original_fense(fpath)
+
+    def test_example_2_sbert_sim(self) -> None:
+        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_2.csv")
+        self._test_with_original_sbert_sim(fpath)
 
     def test_output_size(self) -> None:
         fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_1.csv")
         cands, mrefs = load_csv_file(fpath)
 
-        self.my_fense._return_all_scores = True
-        _global_scores, sents_scores = self.my_fense(cands, mrefs)
-        self.my_fense._return_all_scores = False
+        self.new_fense._return_all_scores = True
+        corpus_scores, sents_scores = self.new_fense(cands, mrefs)
+        self.new_fense._return_all_scores = False
 
-        for name, sents_score in sents_scores.items():
-            print(f"{name=}, {sents_score.shape=}")
-            self.assertEqual(len(cands), len(sents_score), f"{name=}")
+        for name, score in corpus_scores.items():
+            self.assertEqual(score.ndim, 0)
 
+        for name, scores in sents_scores.items():
+            self.assertEqual(scores.ndim, 1)
+
+        for name, scores in sents_scores.items():
+            self.assertEqual(len(cands), len(scores), f"{name=}")
+
+    # Others methods
     def _test_with_original_fense(self, fpath: str) -> None:
         cands, mrefs = load_csv_file(fpath)
 
-        orig_score = self.evaluator.corpus_score(cands, mrefs).item()
-        score = self.my_fense(cands, mrefs).item()
+        src_fense_score = self.src_fense.corpus_score(cands, mrefs).item()
+        new_fense_score = self.new_fense(cands, mrefs).item()
 
-        print(f"{orig_score=} ({type(orig_score)=})")
-        print(f"{score=} ({type(score)=})")
+        print(f"{fpath=}")
+        print(f"{src_fense_score=}")
+        print(f"{new_fense_score=}")
 
-        self.assertEqual(orig_score, score)
+        self.assertEqual(
+            src_fense_score,
+            new_fense_score,
+            "Invalid FENSE score with original implementation.",
+        )
+
+    def _test_with_original_sbert_sim(self, fpath: str) -> None:
+        cands, mrefs = load_csv_file(fpath)
+
+        src_sbert_sim_score = self.src_sbert_sim.corpus_score(cands, mrefs).item()
+        new_sbert_sim_score = self.new_sbert_sim(cands, mrefs).item()
+
+        print(f"{fpath=}")
+        print(f"{src_sbert_sim_score=}")
+        print(f"{new_sbert_sim_score=}")
+
+        self.assertEqual(
+            src_sbert_sim_score,
+            new_sbert_sim_score,
+            "Invalid SBERTSim score with original implementation.",
+        )
 
 
 if __name__ == "__main__":

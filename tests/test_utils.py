@@ -11,6 +11,7 @@ from aac_metrics.utils.collections import flat_list, unflat_list
 
 
 class TestUtils(TestCase):
+    # Tests methods
     def test_misc_functions_1(self) -> None:
         lst = [
             list(map(str, range(random.randint(0, 100))))

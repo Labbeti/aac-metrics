@@ -1,11 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
 import subprocess
 
+from functools import cache
 from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Any, Union
+
+
+pylog = logging.getLogger(__name__)
+
+MIN_JAVA_MAJOR_VERSION = 8
+MAX_JAVA_MAJOR_VERSION = 11
 
 
 def check_metric_inputs(
@@ -37,15 +45,38 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
     if not isinstance(java_path, (str, Path)):
         return False
 
+    output = ""
     try:
-        exitcode = subprocess.check_call(
-            [java_path, "--version"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+        output = subprocess.check_output(
+            [str(java_path), "--version"],
         )
-    except (CalledProcessError, PermissionError, FileNotFoundError):
-        exitcode = 1
-    return exitcode == 0
+        output = output.decode().strip()
+        version = output.split("\n")[0]
+        major_version = int(version.split(" ")[1].split(".")[0])
+
+    except (
+        CalledProcessError,
+        PermissionError,
+        FileNotFoundError,
+    ) as err:
+        pylog.error(f"Invalid java path. (from {java_path=} and found error={err})")
+        return False
+
+    except (
+        IndexError,
+        ValueError,
+    ) as err:
+        pylog.error(f"Invalid java version. (found {output=} and {err=})")
+        return False
+
+    if not (MIN_JAVA_MAJOR_VERSION <= major_version <= MAX_JAVA_MAJOR_VERSION):
+        pylog.error(
+            f"Using Java version {version} is not officially supported by aac-metrics package and could not work for METEOR and SPICE metrics."
+            f"(found {major_version=} but expected in [{MIN_JAVA_MAJOR_VERSION}, {MAX_JAVA_MAJOR_VERSION}])"
+        )
+        return False
+
+    return True
 
 
 def is_mono_sents(sents: Any) -> bool:
@@ -60,3 +91,8 @@ def is_mult_sents(mult_sents: Any) -> bool:
         and all(isinstance(sents, list) for sents in mult_sents)
         and all(isinstance(sent, str) for sents in mult_sents for sent in sents)
     )
+
+
+@cache
+def _warn_once(msg: str) -> None:
+    pylog.warning(msg)

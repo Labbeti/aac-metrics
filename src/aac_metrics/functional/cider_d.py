@@ -90,9 +90,9 @@ def _cider_d_compute(
             f"CIDEr-D metric does not support less than 2 candidates with 2 references. (found {len(cooked_cands)} candidates, but expected > 1)"
         )
     # compute idf
-    document_frequency = __compute_doc_freq(cooked_mrefs)
+    doc_frequencies = __compute_doc_freq(cooked_mrefs)
     # sanity check: assert to check document frequency
-    assert len(cooked_cands) >= max(document_frequency.values()), "Sanity check failed."
+    assert len(cooked_cands) >= max(doc_frequencies.values()), "Sanity check failed."
 
     # compute log reference length
     log_n_refs = np.log(float(len(cooked_mrefs)))
@@ -100,7 +100,7 @@ def _cider_d_compute(
     cider_d_scores, tfidf_lst = __compute_cider(
         cooked_cands,
         cooked_mrefs,
-        document_frequency,
+        doc_frequencies,
         log_n_refs,
         n,
         sigma,
@@ -112,16 +112,17 @@ def _cider_d_compute(
     cider_d_score = torch.as_tensor(cider_d_score, dtype=torch.float64)
 
     if return_all_scores:
-        cider_d_global_outs = {
+        cider_d_outs_corpus = {
             "cider_d": cider_d_score,
         }
-        cider_d_local_outs = {
+        cider_d_outs_sents = {
             "cider_d": cider_d_scores,
         }
         if return_tfidf:
-            cider_d_local_outs["tfidf_lst"] = tfidf_lst  # type: ignore
+            cider_d_outs_sents["tfidf_lst"] = tfidf_lst  # type: ignore
+        cider_d_outs = cider_d_outs_corpus, cider_d_outs_sents
 
-        return cider_d_global_outs, cider_d_local_outs
+        return cider_d_outs
     else:
         return cider_d_score
 
@@ -155,20 +156,20 @@ def __compute_doc_freq(cooked_mrefs: list[list[Counter]]) -> Counter[tuple[str, 
     The term frequency is stored in the object
     :return: None
     """
-    document_frequency = Counter()
+    doc_frequencies = Counter()
     for refs in cooked_mrefs:
         all_refs_ngrams = set(ngram for ref in refs for ngram in ref.keys())
         for ngram in all_refs_ngrams:
-            document_frequency[ngram] += 1
+            doc_frequencies[ngram] += 1
 
-    return document_frequency
+    return doc_frequencies
 
 
 def __counter_to_vec(
     counters: dict[tuple, int],
     log_n_refs: float,
     n: int,
-    document_frequency: Union[Mapping[tuple, int], Callable[[tuple], int]],
+    doc_frequencies: Union[Mapping[tuple, int], Callable[[tuple], int]],
 ) -> tuple[list[defaultdict], np.ndarray, int]:
     """
     Function maps counts of ngram to vector of tfidf weights.
@@ -182,10 +183,10 @@ def __counter_to_vec(
     norm = np.zeros((n,))
 
     for (ngram, term_freq) in counters.items():
-        if isinstance(document_frequency, Mapping):
-            count = document_frequency[ngram]
+        if isinstance(doc_frequencies, Mapping):
+            count = doc_frequencies[ngram]
         else:
-            count = document_frequency(ngram)
+            count = doc_frequencies(ngram)
 
         # give ngram count 1 if it doesn't appear in reference corpus
         log_df = np.log(max(1.0, count))
@@ -248,7 +249,7 @@ def __similarity(
 def __compute_cider(
     cooked_cands: list[Counter],
     cooked_mrefs: list[list[Counter]],
-    document_frequency: Union[Counter[tuple], Callable[[tuple], int]],
+    doc_frequencies: Union[Counter[tuple], Callable[[tuple], int]],
     log_n_refs: float,
     n: int,
     sigma: float,
@@ -260,13 +261,13 @@ def __compute_cider(
 
     for i, (cand, refs) in enumerate(zip(cooked_cands, cooked_mrefs)):
         # compute vector for test captions
-        vec, norm, length = __counter_to_vec(cand, log_n_refs, n, document_frequency)
+        vec, norm, length = __counter_to_vec(cand, log_n_refs, n, doc_frequencies)
         # compute vector for ref captions
         ngrams_scores = np.zeros((n,))
         vec_refs = []
         for ref in refs:
             vec_ref, norm_ref, length_ref = __counter_to_vec(
-                ref, log_n_refs, n, document_frequency
+                ref, log_n_refs, n, doc_frequencies
             )
             vec_refs.append(vec_ref)
             ngrams_scores += __similarity(

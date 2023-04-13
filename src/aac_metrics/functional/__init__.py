@@ -3,28 +3,30 @@
 
 from .bleu import bleu
 from .cider_d import cider_d
-from .evaluate import aac_evaluate, evaluate
+from .evaluate import dcase2023_evaluate, evaluate
 from .fense import fense
-from .fluency_error import fluency_error
+from .fluerr import fluerr
 from .meteor import meteor
 from .rouge_l import rouge_l
-from .sbert import sbert
+from .sbert_sim import sbert_sim
 from .spice import spice
 from .spider import spider
+from .spider_fl import spider_fl
 from .spider_max import spider_max
 
 
 __all__ = [
     "bleu",
     "cider_d",
-    "aac_evaluate",
+    "dcase2023_evaluate",
     "evaluate",
     "fense",
-    "fluency_error",
+    "fluerr",
     "meteor",
     "rouge_l",
-    "sbert",
+    "sbert_sim",
     "spice",
     "spider",
+    "spider_fl",
     "spider_max",
 ]

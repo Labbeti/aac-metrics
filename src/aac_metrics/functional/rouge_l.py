@@ -21,7 +21,7 @@ import torch
 from torch import Tensor
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 def rouge_l(
@@ -68,24 +68,24 @@ def _rouge_l_update(
 
 
 def _rouge_l_compute(
-    rouge_l_scores: list[float],
+    rouge_l_scs: list[float],
     return_all_scores: bool,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     # Note: use numpy to compute mean because np.mean and torch.mean can give very small differences
-    rouge_l_scores_np = np.array(rouge_l_scores)
+    rouge_l_scores_np = np.array(rouge_l_scs)
     rouge_l_score_np = rouge_l_scores_np.mean()
 
     rouge_l_score_pt = torch.as_tensor(rouge_l_score_np)
     rouge_l_scores_pt = torch.from_numpy(rouge_l_scores_np)
 
     if return_all_scores:
-        corpus_scores = {
+        rouge_l_outs_corpus = {
             "rouge_l": rouge_l_score_pt,
         }
-        sents_scores = {
+        rouge_l_outs_sents = {
             "rouge_l": rouge_l_scores_pt,
         }
-        return corpus_scores, sents_scores
+        return rouge_l_outs_corpus, rouge_l_outs_sents
     else:
         return rouge_l_score_pt
 

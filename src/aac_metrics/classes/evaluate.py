@@ -11,16 +11,19 @@ from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.classes.bleu import BLEU
+from aac_metrics.classes.cider_d import CIDErD
 from aac_metrics.classes.fense import FENSE
-from aac_metrics.classes.fluency_error import FluencyError
+from aac_metrics.classes.fluerr import FluErr
 from aac_metrics.classes.meteor import METEOR
 from aac_metrics.classes.rouge_l import ROUGEL
-from aac_metrics.classes.sbert import SBERT
+from aac_metrics.classes.sbert_sim import SBERTSim
+from aac_metrics.classes.spice import SPICE
 from aac_metrics.classes.spider import SPIDEr
+from aac_metrics.classes.spider_fl import SPIDErFL
 from aac_metrics.functional.evaluate import METRICS_SETS, evaluate
 
 
-logger = logging.getLogger(__name__)
+pylog = logging.getLogger(__name__)
 
 
 class Evaluate(AACMetric, list[AACMetric]):
@@ -36,23 +39,21 @@ class Evaluate(AACMetric, list[AACMetric]):
     def __init__(
         self,
         preprocess: bool = True,
+        metrics: Union[str, Iterable[str], Iterable[AACMetric]] = "aac",
         cache_path: str = "$HOME/.cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
         device: Union[str, torch.device, None] = "auto",
         verbose: int = 0,
-        metrics: Union[str, Iterable[AACMetric]] = "aac",
     ) -> None:
-        if isinstance(metrics, str):
-            metrics = _get_metrics_classes_list(
-                metrics,
-                True,
-                cache_path,
-                java_path,
-                tmp_path,
-                device,
-                verbose,
-            )
+        metrics = _instantiate_metrics_classes(
+            metrics,
+            cache_path,
+            java_path,
+            tmp_path,
+            device,
+            verbose,
+        )
 
         AACMetric.__init__(self)
         list.__init__(self, metrics)
@@ -60,6 +61,7 @@ class Evaluate(AACMetric, list[AACMetric]):
         self._cache_path = cache_path
         self._java_path = java_path
         self._tmp_path = tmp_path
+        self._device = device
         self._verbose = verbose
 
         self._candidates = []
@@ -71,10 +73,11 @@ class Evaluate(AACMetric, list[AACMetric]):
             self._mult_references,
             self._preprocess,
             self,
-            cache_path=self._cache_path,
-            java_path=self._java_path,
-            tmp_path=self._tmp_path,
-            verbose=self._verbose,
+            self._cache_path,
+            self._java_path,
+            self._tmp_path,
+            self._device,
+            self._verbose,
         )
 
     def reset(self) -> None:
@@ -107,26 +110,33 @@ class AACEvaluate(Evaluate):
     ) -> None:
         super().__init__(
             preprocess,
+            "aac",
             cache_path,
             java_path,
             tmp_path,
-            "cpu",
+            "auto",
             verbose,
-            "aac",
         )
 
 
-def _get_metrics_classes_list(
-    metric_set_name: str,
-    return_all_scores: bool = True,
+def _instantiate_metrics_classes(
+    metrics: Union[str, Iterable[str], Iterable[AACMetric]] = "aac",
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> list[AACMetric]:
-    metrics_factory = _get_metrics_classes_factory(
-        return_all_scores,
+    if isinstance(metrics, str) and metrics in METRICS_SETS:
+        metrics = METRICS_SETS[metrics]
+
+    if isinstance(metrics, str):
+        metrics = [metrics]
+    else:
+        metrics = list(metrics)  # type: ignore
+
+    metric_factory = _get_metric_factory_classes(
+        True,
         cache_path,
         java_path,
         tmp_path,
@@ -134,21 +144,15 @@ def _get_metrics_classes_list(
         verbose,
     )
 
-    if metric_set_name in METRICS_SETS:
-        metrics = [
-            factory()
-            for metric_name, factory in metrics_factory.items()
-            if metric_name in METRICS_SETS[metric_set_name]
-        ]
-    else:
-        raise ValueError(
-            f"Invalid argument {metric_set_name=}. (expected one of {tuple(METRICS_SETS.keys())})"
-        )
-
-    return metrics
+    metrics_inst: list[AACMetric] = []
+    for metric in metrics:
+        if isinstance(metric, str):
+            metric = metric_factory[metric]()
+        metrics_inst.append(metric)
+    return metrics_inst
 
 
-def _get_metrics_classes_factory(
+def _get_metric_factory_classes(
     return_all_scores: bool = True,
     cache_path: str = "$HOME/.cache",
     java_path: str = "java",
@@ -182,7 +186,16 @@ def _get_metrics_classes_factory(
         "rouge_l": lambda: ROUGEL(
             return_all_scores=return_all_scores,
         ),
-        # Note: cider_d and spice and computed inside spider metric
+        "cider_d": lambda: CIDErD(
+            return_all_scores=return_all_scores,
+        ),
+        "spice": lambda: SPICE(
+            return_all_scores=return_all_scores,
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
+            verbose=verbose,
+        ),
         "spider": lambda: SPIDEr(
             return_all_scores=return_all_scores,
             cache_path=cache_path,
@@ -190,18 +203,26 @@ def _get_metrics_classes_factory(
             tmp_path=tmp_path,
             verbose=verbose,
         ),
+        "sbert": lambda: SBERTSim(
+            return_all_scores=return_all_scores,
+            device=device,
+            verbose=verbose,
+        ),
+        "fluerr": lambda: FluErr(
+            return_all_scores=return_all_scores,
+            device=device,
+            verbose=verbose,
+        ),
         "fense": lambda: FENSE(
             return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
         ),
-        "sbert": lambda: SBERT(
+        "spider_fl": lambda: SPIDErFL(
             return_all_scores=return_all_scores,
-            device=device,
-            verbose=verbose,
-        ),
-        "fluency_error": lambda: FluencyError(
-            return_all_scores=return_all_scores,
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
             device=device,
             verbose=verbose,
         ),

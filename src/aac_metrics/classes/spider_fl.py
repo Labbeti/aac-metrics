@@ -5,21 +5,26 @@ import logging
 
 from typing import Iterable, Optional, Union
 
+import torch
+
 from torch import Tensor
+from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.spider import spider
+from aac_metrics.functional.fluerr import (
+    BERTFlatClassifier,
+    _load_echecker_and_tokenizer,
+)
+from aac_metrics.functional.spider_fl import spider_fl
 
 
 pylog = logging.getLogger(__name__)
 
 
-class SPIDEr(AACMetric):
-    """SPIDEr class.
+class SPIDErFL(AACMetric):
+    """SPIDErFL class.
 
-    - Paper: https://arxiv.org/pdf/1612.00370.pdf
-
-    For more information, see :func:`~aac_metrics.functional.spider.spider`.
+    For more information, see :func:`~aac_metrics.functional.spider_fl.spider_fl`.
     """
 
     full_state_update = False
@@ -42,8 +47,22 @@ class SPIDEr(AACMetric):
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,
+        # FluencyError args
+        echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+        echecker_tokenizer: Optional[AutoTokenizer] = None,
+        error_threshold: float = 0.9,
+        device: Union[str, torch.device, None] = "auto",
+        batch_size: int = 32,
+        reset_state: bool = True,
+        return_probs: bool = True,
+        # Other args
+        penalty: float = 0.9,
         verbose: int = 0,
     ) -> None:
+        echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
+            echecker, echecker_tokenizer, device, reset_state, verbose
+        )
+
         super().__init__()
         self._return_all_scores = return_all_scores
         self._n = n
@@ -54,13 +73,21 @@ class SPIDEr(AACMetric):
         self._n_threads = n_threads
         self._java_max_memory = java_max_memory
         self._timeout = timeout
+        self._echecker = echecker
+        self._echecker_tokenizer = echecker_tokenizer
+        self._error_threshold = error_threshold
+        self._device = device
+        self._batch_size = batch_size
+        self._reset_state = reset_state
+        self._return_probs = return_probs
+        self._penalty = penalty
         self._verbose = verbose
 
         self._candidates = []
         self._mult_references = []
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
-        return spider(
+        return spider_fl(
             self._candidates,
             self._mult_references,
             self._return_all_scores,
@@ -74,16 +101,32 @@ class SPIDEr(AACMetric):
             n_threads=self._n_threads,
             java_max_memory=self._java_max_memory,
             timeout=self._timeout,
+            # FluencyError args
+            echecker=self._echecker,
+            echecker_tokenizer=self._echecker_tokenizer,
+            error_threshold=self._error_threshold,
+            device=self._device,
+            batch_size=self._batch_size,
+            reset_state=self._reset_state,
+            return_probs=self._return_probs,
+            # Other args
+            penalty=self._penalty,
             verbose=self._verbose,
         )
 
     def extra_repr(self) -> str:
-        return (
-            f"n={self._n}, sigma={self._sigma}, java_max_memory={self._java_max_memory}"
-        )
+        hparams = {
+            "n": self._n,
+            "sigma": self._sigma,
+            "java_max_memory": self._java_max_memory,
+            "device": self._device,
+            "batch_size": self._batch_size,
+        }
+        extra = ", ".join(f"{k}={v}" for k, v in hparams.items())
+        return extra
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("cider_d", "spice", "spider")
+        return ("cider_d", "spice", "spider", "spider_fl", "fluerr")
 
     def reset(self) -> None:
         self._candidates = []

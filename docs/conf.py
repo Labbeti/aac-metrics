@@ -100,4 +100,4 @@ intersphinx_mapping = {
 
 
 def setup(app) -> None:
-    app.add_css_file('my_theme.css')
+    app.add_css_file("my_theme.css")
