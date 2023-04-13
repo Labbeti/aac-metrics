@@ -48,8 +48,8 @@ Notes:
 - The weights of the FENSE fluency error detector and the the SBERT model are respectively stored by default in `$HOME/.cache/torch/hub/fense_data` and `$HOME/.cache/torch/sentence_transformers`.
 
 ## Usage
-### Evaluate default AAC metrics
-The full evaluation process to compute AAC metrics can be done with `aac_metrics.evaluate` function.
+### Evaluate default metrics
+The full evaluation pipeline to compute AAC metrics can be done with `aac_metrics.evaluate` function.
 
 ```python
 from aac_metrics import evaluate
@@ -59,8 +59,16 @@ mult_references: list[list[str]] = [["a man speaks.", "someone speaks.", "a man 
 
 corpus_scores, _ = evaluate(candidates, mult_references)
 print(corpus_scores)
-# dict containing the score of each aac metric: "bleu_1", "bleu_2", "bleu_3", "bleu_4", "rouge_l", "meteor", "cider_d", "spice", "spider"
+# dict containing the score of each metric: "bleu_1", "bleu_2", "bleu_3", "bleu_4", "rouge_l", "meteor", "cider_d", "spice", "spider"
 # {"bleu_1": tensor(0.7), "bleu_2": ..., ...}
+```
+### Evaluate DCASE2023 metrics
+To compute metrics for the DCASE2023 challenge, just set the argument `metrics="dcase2023"` in `evaluate` function call.
+
+```python
+corpus_scores, _ = evaluate(candidates, mult_references, metrics="dcase2023")
+print(corpus_scores)
+# dict containing the score of each metric: "meteor", "cider_d", "spice", "spider", "spider_fl", "fluerr"
 ```
 
 ### Evaluate a specific metric
