@@ -28,7 +28,7 @@ pylog = logging.getLogger(__name__)
 
 
 METRICS_SETS: dict[str, tuple[str, ...]] = {
-    # Default metrics for AAC
+    # Legacy metrics for AAC
     "default": (
         "bleu_1",
         "bleu_2",
@@ -38,6 +38,7 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "rouge_l",
         "spider",  # includes cider_d, spice
     ),
+    # DCASE challenge task6a metrics for 2020, 2021 and 2022
     "dcase2020": (
         "bleu_1",
         "bleu_2",
@@ -47,10 +48,12 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "rouge_l",
         "spider",  # includes cider_d, spice
     ),
+    # DCASE challenge task6a metrics for 2023
     "dcase2023": (
         "meteor",
         "spider_fl",  # includes cider_d, spice, spider, fluerr
     ),
+    # All metrics
     "all": (
         "bleu_1",
         "bleu_2",
