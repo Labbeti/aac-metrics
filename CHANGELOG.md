@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] 2023-04-13
+### Deleted
+- Old unused files `package_tree.rst`, `fluency_error.py`, `sbert.py` and `spider_err.py`.
+
 ## [0.4.0] 2023-04-13
 ### Added
 - Argument `return_probs` for fluency error metric.
