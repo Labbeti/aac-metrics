@@ -185,7 +185,7 @@ arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 [9] DCASE website task6a description: https://dcase.community/challenge2023/task-automated-audio-captioning#evaluation
 
 ## Citation
-If you use **SPIDEr-max**, you can cite the following paper using BibTex:
+If you use **SPIDEr-max**, you can cite the following paper using BibTex :
 ```
 @inproceedings{labbe:hal-03810396,
     TITLE = {{Is my automatic audio captioning system so bad? spider-max: a metric to consider several caption candidates}},
@@ -199,6 +199,20 @@ If you use **SPIDEr-max**, you can cite the following paper using BibTex:
     PDF = {https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf},
     HAL_ID = {hal-03810396},
     HAL_VERSION = {v1},
+}
+```
+
+If you use this software, please consider cite it as below :
+```
+@software{
+    Labbe_aac-metrics_2023,
+    author = {Labbé, Etienne},
+    license = {MIT},
+    month = {4},
+    title = {{aac-metrics}},
+    url = {https://github.com/Labbeti/aac-metrics/},
+    version = {0.4.0},
+    year = {2023},
 }
 ```
 
