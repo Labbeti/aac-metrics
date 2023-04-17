@@ -41,36 +41,11 @@ def check_metric_inputs(
 
 
 def check_java_path(java_path: Union[str, Path]) -> bool:
-    """Returns True if the java path is valid."""
-    if not isinstance(java_path, (str, Path)):
-        raise TypeError(
-            f"Invalid argument type {type(java_path)=}. (expected str or Path)"
-        )
-
-    output = "INVALID"
+    version = get_java_version(str(java_path))
     try:
-        output = subprocess.check_output(
-            [str(java_path), "-version"],
-            stderr=subprocess.STDOUT,
-        )
-        output = output.decode().strip()
-        version = output.split(" ")[2][1:-1]
         major_version = int(version.split(".")[0])
-
-    except (
-        CalledProcessError,
-        PermissionError,
-        FileNotFoundError,
-    ) as err:
-        pylog.error(f"Invalid java path. (from {java_path=} and found error={err})")
-        return False
-
-    except (
-        IndexError,
-        ValueError,
-    ) as err:
-        pylog.error(f"Invalid java version. (found {output=} and {err=})")
-        return False
+    except ValueError as err:
+        raise RuntimeError(f"Cannot find java MAJOR version in {version=}.")
 
     if not (MIN_JAVA_MAJOR_VERSION <= major_version <= MAX_JAVA_MAJOR_VERSION):
         pylog.error(
@@ -78,8 +53,37 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
             f"(found {major_version=} but expected in [{MIN_JAVA_MAJOR_VERSION}, {MAX_JAVA_MAJOR_VERSION}])"
         )
         return False
+    else:
+        return True
 
-    return True
+
+def get_java_version(java_path: str) -> str:
+    """Returns True if the java path is valid."""
+    if not isinstance(java_path, str):
+        raise TypeError(f"Invalid argument type {type(java_path)=}. (expected str)")
+
+    output = "INVALID"
+    try:
+        output = subprocess.check_output(
+            [java_path, "-version"],
+            stderr=subprocess.STDOUT,
+        )
+        output = output.decode().strip()
+        version = output.split(" ")[2][1:-1]
+
+    except (
+        CalledProcessError,
+        PermissionError,
+        FileNotFoundError,
+    ) as err:
+        raise ValueError(f"Invalid java path. (from {java_path=} and found {err=})")
+
+    except IndexError as err:
+        raise ValueError(
+            f"Invalid java version. (from {java_path=} and found {output=} and {err=})"
+        )
+
+    return version
 
 
 def is_mono_sents(sents: Any) -> bool:
