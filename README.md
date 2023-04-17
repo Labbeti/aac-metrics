@@ -219,7 +219,7 @@ If you use this software, please consider cite it as below :
     month = {4},
     title = {{aac-metrics}},
     url = {https://github.com/Labbeti/aac-metrics/},
-    version = {0.4.1},
+    version = {0.4.2},
     year = {2023},
 }
 ```

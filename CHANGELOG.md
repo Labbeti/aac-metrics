@@ -4,8 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [0.4.2] UNRELEASED
 ### Fixed
-- Java version retriever.
-- File `install_spice.sh` is now in `src/aac_metrics` directory.
+- File `install_spice.sh` is now in `src/aac_metrics` directory for fixing download from a pip installation.
+- Java version retriever to avoid exception when java version is correct.
 
 ## [0.4.1] 2023-04-13
 ### Deleted
