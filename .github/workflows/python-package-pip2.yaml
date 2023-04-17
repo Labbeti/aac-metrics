@@ -40,7 +40,7 @@ jobs:
 
     - name: Install package
       run: |
-        python -m pip install git+https://github.com/Labbeti/aac-metrics@dev
+        python -m pip install "aac-metrics[dev] @ git+https://github.com/Labbeti/aac-metrics@dev"
   
     - name: Load cache of external code and data
       uses: actions/cache@master
