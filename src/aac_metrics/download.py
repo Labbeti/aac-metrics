@@ -127,7 +127,7 @@ def download(
         os.makedirs(spice_jar_dpath, exist_ok=True)
         os.makedirs(spice_cache_path, exist_ok=True)
 
-        script_path = osp.join(osp.dirname(__file__), "install_spice.sh")
+        script_path = osp.join(osp.dirname(__file__), "..", "..", "install_spice.sh")
         if not osp.isfile(script_path):
             raise FileNotFoundError(
                 f"Cannot find script '{osp.basename(script_path)}'."
