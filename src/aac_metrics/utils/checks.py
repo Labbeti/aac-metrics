@@ -47,7 +47,7 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
             f"Invalid argument type {type(java_path)=}. (expected str or Path)"
         )
 
-    output = "UNKNOWN"
+    output = "INVALID"
     try:
         output = subprocess.check_output(
             [str(java_path), "-version"],
