@@ -20,7 +20,6 @@ jobs:
 
     steps:
     # --- INSTALLATIONS ---
-
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
@@ -48,7 +47,7 @@ jobs:
       id: cache_external
       with:
         path: /home/runner/.cache/aac-metrics/*
-        key: ${{ runner.os }}-${{ hashFiles('install_spice.sh') }}
+        key: ${{ runner.os }}-${{ hashFiles('src/aac_metrics/download.py') }}
         restore-keys: |
           ${{ runner.os }}-
 
@@ -67,7 +66,7 @@ jobs:
 
     - name: Print Java version
       run: |
-        java --version
+        java -version
   
     - name: Install external code if needed
       if: steps.cache_external.outputs.cache-hit != 'true'

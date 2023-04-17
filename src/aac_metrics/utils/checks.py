@@ -43,16 +43,19 @@ def check_metric_inputs(
 def check_java_path(java_path: Union[str, Path]) -> bool:
     """Returns True if the java path is valid."""
     if not isinstance(java_path, (str, Path)):
-        return False
+        raise TypeError(
+            f"Invalid argument type {type(java_path)=}. (expected str or Path)"
+        )
 
-    output = ""
+    output = "UNKNOWN"
     try:
         output = subprocess.check_output(
-            [str(java_path), "--version"],
+            [str(java_path), "-version"],
+            stderr=subprocess.STDOUT,
         )
         output = output.decode().strip()
-        version = output.split("\n")[0]
-        major_version = int(version.split(" ")[1].split(".")[0])
+        version = output.split(" ")[2][1:-1]
+        major_version = int(version.split(".")[0])
 
     except (
         CalledProcessError,

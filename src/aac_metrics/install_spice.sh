@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEFAULT_SPICE_ROOT="."
+DEFAULT_SPICE_ROOT="$HOME/.cache/aac-metrics/spice"
 
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     echo "Install all files for running the java SPICE program in the SPICE_ROOT directory."
