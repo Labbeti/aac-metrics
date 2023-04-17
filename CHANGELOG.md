@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2] UNRELEASED
+### Fixed
+- Java version retriever.
+- File `install_spice.sh` is now in `src/aac_metrics` directory.
+
 ## [0.4.1] 2023-04-13
 ### Deleted
 - Old unused files `package_tree.rst`, `fluency_error.py`, `sbert.py` and `spider_err.py`.
