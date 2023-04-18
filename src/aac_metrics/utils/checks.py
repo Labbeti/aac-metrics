@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import re
 import subprocess
 
+from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 from subprocess import CalledProcessError
@@ -12,6 +14,7 @@ from typing import Any, Union
 
 pylog = logging.getLogger(__name__)
 
+VERSION_PATTERN = r"(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+).*"
 MIN_JAVA_MAJOR_VERSION = 8
 MAX_JAVA_MAJOR_VERSION = 11
 
@@ -42,10 +45,19 @@ def check_metric_inputs(
 
 def check_java_path(java_path: Union[str, Path]) -> bool:
     version = get_java_version(str(java_path))
-    try:
-        major_version = int(version.split(".")[0])
-    except ValueError as err:
-        raise RuntimeError(f"Cannot find java MAJOR version in {version=}.")
+    result = re.match(VERSION_PATTERN, version)
+    if result is None:
+        raise ValueError(
+            f"Invalid Java version {version=}. (expected version with pattern={VERSION_PATTERN})"
+        )
+
+    major_version = int(result["major"])
+    minor_version = int(result["minor"])
+
+    if (
+        major_version == 1
+    ):  # java <= 8 use versioning "1.MAJOR.MINOR" and > 8 use "MAJOR.MINOR.PATCH"
+        major_version = minor_version
 
     if not (MIN_JAVA_MAJOR_VERSION <= major_version <= MAX_JAVA_MAJOR_VERSION):
         pylog.error(
