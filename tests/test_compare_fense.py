@@ -54,23 +54,23 @@ class TestCompareFENSE(TestCase):
 
     # Tests methods
     def test_example_1_fense(self) -> None:
-        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_1.csv")
+        fpath = osp.join(osp.dirname(__file__), "..", "data", "example_1.csv")
         self._test_with_original_fense(fpath)
 
     def test_example_1_sbert_sim(self) -> None:
-        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_1.csv")
+        fpath = osp.join(osp.dirname(__file__), "..", "data", "example_1.csv")
         self._test_with_original_sbert_sim(fpath)
 
     def test_example_2_fense(self) -> None:
-        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_2.csv")
+        fpath = osp.join(osp.dirname(__file__), "..", "data", "example_2.csv")
         self._test_with_original_fense(fpath)
 
     def test_example_2_sbert_sim(self) -> None:
-        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_2.csv")
+        fpath = osp.join(osp.dirname(__file__), "..", "data", "example_2.csv")
         self._test_with_original_sbert_sim(fpath)
 
     def test_output_size(self) -> None:
-        fpath = osp.join(osp.dirname(__file__), "..", "examples", "example_1.csv")
+        fpath = osp.join(osp.dirname(__file__), "..", "data", "example_1.csv")
         cands, mrefs = load_csv_file(fpath)
 
         self.new_fense._return_all_scores = True

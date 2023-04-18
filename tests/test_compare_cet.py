@@ -67,12 +67,12 @@ class TestCompareCaptionEvaluationTools(TestCase):
         self._test_with_example(cands, mrefs)
 
     def test_example_1(self) -> None:
-        fpath = Path(__file__).parent.parent.joinpath("examples", "example_1.csv")
+        fpath = Path(__file__).parent.parent.joinpath("data", "example_1.csv")
         cands, mrefs = load_csv_file(fpath)
         self._test_with_example(cands, mrefs)
 
     def test_example_2(self) -> None:
-        fpath = Path(__file__).parent.parent.joinpath("examples", "example_2.csv")
+        fpath = Path(__file__).parent.parent.joinpath("data", "example_2.csv")
         cands, mrefs = load_csv_file(fpath)
         self._test_with_example(cands, mrefs)
 
