@@ -151,7 +151,7 @@ def download(
     if fense:
         # Download models files for FENSE metric
         if verbose >= 1:
-            pylog.info("Downloading sBert and Bert error detector for FENSE metric...")
+            pylog.info("Downloading SBERT and BERT error detector for FENSE metric...")
         _ = FENSE(device="cpu")
 
 
