@@ -44,32 +44,17 @@ def check_metric_inputs(
 
 
 def check_java_path(java_path: Union[str, Path]) -> bool:
-    version = get_java_version(str(java_path))
-    result = re.match(VERSION_PATTERN, version)
-    if result is None:
-        raise ValueError(
-            f"Invalid Java version {version=}. (expected version with pattern={VERSION_PATTERN})"
-        )
-
-    major_version = int(result["major"])
-    minor_version = int(result["minor"])
-
-    if (
-        major_version == 1
-    ):  # java <= 8 use versioning "1.MAJOR.MINOR" and > 8 use "MAJOR.MINOR.PATCH"
-        major_version = minor_version
-
-    if not (MIN_JAVA_MAJOR_VERSION <= major_version <= MAX_JAVA_MAJOR_VERSION):
+    version = _get_java_version(str(java_path))
+    valid = _check_java_version(version, MIN_JAVA_MAJOR_VERSION, MAX_JAVA_MAJOR_VERSION)
+    if not valid:
         pylog.error(
-            f"Using Java version {version} is not officially supported by aac-metrics package and could not work for METEOR and SPICE metrics."
-            f"(found {major_version=} but expected in [{MIN_JAVA_MAJOR_VERSION}, {MAX_JAVA_MAJOR_VERSION}])"
+            f"Using Java version {version} is not officially supported by aac-metrics package and will not work for METEOR and SPICE metrics."
+            f"(expected major version in range [{MIN_JAVA_MAJOR_VERSION}, {MAX_JAVA_MAJOR_VERSION}])"
         )
-        return False
-    else:
-        return True
+    return valid
 
 
-def get_java_version(java_path: str) -> str:
+def _get_java_version(java_path: str) -> str:
     """Returns True if the java path is valid."""
     if not isinstance(java_path, str):
         raise TypeError(f"Invalid argument type {type(java_path)=}. (expected str)")
@@ -96,6 +81,24 @@ def get_java_version(java_path: str) -> str:
         )
 
     return version
+
+
+def _check_java_version(version: str, min_major: int, max_major: int) -> bool:
+    result = re.match(VERSION_PATTERN, version)
+    if result is None:
+        raise ValueError(
+            f"Invalid Java version {version=}. (expected version with pattern={VERSION_PATTERN})"
+        )
+
+    major_version = int(result["major"])
+    minor_version = int(result["minor"])
+
+    if (
+        major_version == 1 and minor_version <= 8
+    ):  # java <= 8 use versioning "1.MAJOR.MINOR" and > 8 use "MAJOR.MINOR.PATCH"
+        major_version = minor_version
+
+    return min_major <= major_version <= max_major
 
 
 def is_mono_sents(sents: Any) -> bool:
