@@ -38,7 +38,7 @@ Install the pip package:
 pip install aac-metrics
 ```
 
-Download the external code and models needed for METEOR, SPICE, SPIDEr, SPIDEr-max, PTBTokenizer, SBERT, FluencyError, FENSE and SPIDEr-FL:
+Download the external code and models needed for METEOR, SPICE, SPIDEr, SPIDEr-max, PTBTokenizer, SBERTSim, FluencyError, FENSE and SPIDEr-FL:
 ```bash
 aac-metrics-download
 ```
@@ -122,7 +122,7 @@ torch >= 1.10.1
 numpy >= 1.21.2
 pyyaml >= 6.0
 tqdm >= 4.64.0
-sentence-transformers>=2.2.2
+sentence-transformers >= 2.2.2
 ```
 
 ### External requirements
@@ -219,7 +219,7 @@ If you use this software, please consider cite it as below :
     month = {4},
     title = {{aac-metrics}},
     url = {https://github.com/Labbeti/aac-metrics/},
-    version = {0.4.1},
+    version = {0.4.2},
     year = {2023},
 }
 ```

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2] 2023-04-19
+### Fixed
+- File `install_spice.sh` is now in `src/aac_metrics` directory to fix download from a pip installation. ([#3](https://github.com/Labbeti/aac-metrics/issues/3))
+- Java version retriever to avoid exception when java version is correct. ([#2](https://github.com/Labbeti/aac-metrics/issues/2))
+
 ## [0.4.1] 2023-04-13
 ### Deleted
 - Old unused files `package_tree.rst`, `fluency_error.py`, `sbert.py` and `spider_err.py`.
@@ -14,7 +19,7 @@ All notable changes to this project will be documented in this file.
 - Rename `SPIDErErr` to `SPIDErFL` to match DCASE2023 metric name.
 - Rename `SBERT` to `SBERTSim` to avoid confusion with SBERT model name.
 - Rename `FluencyError` to `FluErr`.
-- Check if Java executable version between 8 and 11.
+- Check if Java executable version between 8 and 11. ([#1](https://github.com/Labbeti/aac-metrics/issues/1))
 
 ### Fixed
 - `SPIDErFL` sentences scores outputs when using `return_all_scores=True`.
