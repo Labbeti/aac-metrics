@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.2] UNRELEASED
+## [0.4.2] 2023-04-19
 ### Fixed
 - File `install_spice.sh` is now in `src/aac_metrics` directory to fix download from a pip installation. ([#3](https://github.com/Labbeti/aac-metrics/issues/3))
 - Java version retriever to avoid exception when java version is correct. ([#2](https://github.com/Labbeti/aac-metrics/issues/2))
