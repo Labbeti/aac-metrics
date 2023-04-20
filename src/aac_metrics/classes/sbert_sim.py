@@ -71,7 +71,7 @@ class SBERTSim(AACMetric):
         return f"device={self._device}, batch_size={self._batch_size}"
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("sbert.sim",)
+        return ("sbert_sim",)
 
     def reset(self) -> None:
         self._candidates = []
