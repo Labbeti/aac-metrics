@@ -10,6 +10,8 @@ if _TORCHMETRICS_AVAILABLE:
     from torchmetrics import Metric as __BaseMetric  # type: ignore
 
     class AACMetric(__BaseMetric):  # type: ignore
+        """Base Metric module used when torchmetrics is installed."""
+
         # The theorical minimal value of the main global score of the metric.
         min_value: Optional[float] = None
         # The theorical maximal value of the main global score of the metric.
