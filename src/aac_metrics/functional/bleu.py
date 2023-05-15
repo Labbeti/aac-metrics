@@ -165,7 +165,7 @@ def __cook_references(
     for ref in refs:
         rl, counts = __cook_sentence(ref, n, tokenizer)
         reflen.append(rl)
-        for (ngram, count) in counts.items():
+        for ngram, count in counts.items():
             maxcounts[ngram] = max(maxcounts.get(ngram, 0), count)
 
     # Calculate effective reference sentence length.
@@ -203,7 +203,7 @@ def __cook_candidate(
     result["guess"] = [max(0, testlen - k + 1) for k in range(1, n + 1)]
     result["correct"] = [0] * n
 
-    for (ngram, count) in counts.items():
+    for ngram, count in counts.items():
         result["correct"][len(ngram) - 1] += min(refmaxcounts.get(ngram, 0), count)
 
     return result

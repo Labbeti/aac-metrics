@@ -182,7 +182,7 @@ def __counter_to_vec(
     length = 0
     norm = np.zeros((n,))
 
-    for (ngram, term_freq) in counters.items():
+    for ngram, term_freq in counters.items():
         if isinstance(doc_frequencies, Mapping):
             count = doc_frequencies[ngram]
         else:
@@ -233,7 +233,7 @@ def __similarity(
 
     for ni in range(n):
         # ngram
-        for (ngram, count) in cand_vec[ni].items():
+        for ngram, count in cand_vec[ni].items():
             # vrama91 : added clipping
             similarities[ni] += min(count, ref_vec[ni][ngram]) * ref_vec[ni][ngram]
 
@@ -255,7 +255,6 @@ def __compute_cider(
     sigma: float,
     scale: float,
 ) -> tuple[np.ndarray, list[tuple[list, list]]]:
-
     scores = np.empty((len(cooked_cands),))
     tfidf_lst = []
 
