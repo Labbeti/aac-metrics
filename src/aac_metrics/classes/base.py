@@ -33,6 +33,9 @@ else:
         # The theorical maximal value of the main global score of the metric.
         max_value: Optional[float] = None
 
+        def __init__(self, **kwargs: Any) -> None:
+            super().__init__(**kwargs)
+
         # Public methods
         def compute(self) -> Any:
             return None
