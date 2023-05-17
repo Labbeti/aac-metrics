@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
 import math
 
 from collections import Counter
@@ -10,6 +11,8 @@ import torch
 
 from torch import Tensor
 
+
+pylog = logging.getLogger(__name__)
 
 BLEU_OPTIONS = ("shortest", "average", "closest")
 
@@ -221,7 +224,10 @@ def __compute_bleu_score(
     bleu_list = [[] for _ in range(n)]
 
     if option is None:
-        option = "average" if len(cooked_mrefs) == 1 else "closest"
+        if len(cooked_mrefs) == 1:
+            option = "average"
+        else:
+            option = "closest"
 
     global_cands_len = 0
     global_mrefs_len = 0
@@ -254,8 +260,8 @@ def __compute_bleu_score(
             for k in range(n):
                 bleu_list[k][-1] *= math.exp(1 - 1 / ratio)
 
-        if verbose > 1:
-            print(comps, reflen)
+        if verbose > 2:
+            pylog.debug(comps, reflen)
 
     totalcomps["reflen"] = global_mrefs_len
     totalcomps["testlen"] = global_cands_len
@@ -274,9 +280,9 @@ def __compute_bleu_score(
         for k in range(n):
             bleus[k] *= math.exp(1 - 1 / ratio)
 
-    if verbose > 0:
-        print(totalcomps)
-        print("ratio:", ratio)
+    if verbose > 2:
+        pylog.debug(totalcomps)
+        pylog.debug("ratio:", ratio)
 
     return bleus, bleu_list
 
