@@ -16,7 +16,7 @@ pylog = logging.getLogger(__name__)
 
 VERSION_PATTERN = r"(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+).*"
 MIN_JAVA_MAJOR_VERSION = 8
-MAX_JAVA_MAJOR_VERSION = 11
+MAX_JAVA_MAJOR_VERSION = 13
 
 
 def check_metric_inputs(
