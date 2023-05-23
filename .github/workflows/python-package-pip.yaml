@@ -16,7 +16,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.9"]
-        java-version: ["11","13"]
+        java-version: ["11"]
 
     steps:
     # --- INSTALLATIONS ---
