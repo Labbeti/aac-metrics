@@ -51,7 +51,9 @@ class TestUtils(TestCase):
             ("9.0.0", True),
             ("10.0.0", True),
             ("11.0.0", True),
-            ("12.0.0", False),
+            ("12.0.0", True),
+            ("13.0.0", True),
+            ("14.0.0", False),
             ("17.0.0", False),
             ("20.0.0", False),
         ]
