@@ -97,6 +97,7 @@ def ptb_tokenize_batch(
 
     cmd = [
         java_path,
+        "-Xlog:disable",
         "-cp",
         stanford_fpath,
         "edu.stanford.nlp.process.PTBTokenizer",

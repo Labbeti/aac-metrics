@@ -79,6 +79,7 @@ def meteor(
 
     meteor_cmd = [
         java_path,
+        "-Xlog:disable",
         "-jar",
         f"-Xmx{java_max_memory}",
         meteor_jar_fpath,

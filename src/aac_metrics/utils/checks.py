@@ -76,7 +76,7 @@ def _get_java_version(java_path: str) -> str:
     output = "INVALID"
     try:
         output = subprocess.check_output(
-            [java_path, "-version"],
+            [java_path, "-Xlog:disable", "-version"],
             stderr=subprocess.STDOUT,
         )
         output = output.decode().strip()
