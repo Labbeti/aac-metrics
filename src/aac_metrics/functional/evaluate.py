@@ -64,6 +64,14 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "fense",  # includes sbert, fluerr
         "spider_fl",  # includes cider_d, spice, spider, fluerr
     ),
+    "fr": (
+        "bleu_1",
+        "bleu_2",
+        "bleu_3",
+        "bleu_4",
+        "meteor_fr",
+        "rouge_l",
+    ),
 }
 
 
@@ -263,6 +271,14 @@ def _get_metric_factory_functions(
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
+        ),
+        "meteor_fr": partial(
+            meteor,
+            return_all_scores=return_all_scores,
+            cache_path=cache_path,
+            java_path=java_path,
+            verbose=verbose,
+            language="fr"
         ),
         "rouge_l": partial(
             rouge_l,
