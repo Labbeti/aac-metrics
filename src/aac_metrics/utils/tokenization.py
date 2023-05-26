@@ -118,7 +118,7 @@ def ptb_tokenize_batch(
             f"Invalid number of audio ids ({len(audio_ids)}) with sentences len={len(sentences)}."
         )
 
-    sentences = "\n".join(sentences)
+    sentences = "\n".join(sentences).replace("'", "' ").replace("'  ", "' ").replace(" '", "'")
 
     # ======================================================
     # save sentences to temporary file
