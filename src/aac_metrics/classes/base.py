@@ -3,51 +3,37 @@
 
 from typing import Any, Optional
 
-from aac_metrics.utils.imports import _TORCHMETRICS_AVAILABLE
+from torch import nn
 
 
-if _TORCHMETRICS_AVAILABLE:
-    from torchmetrics import Metric as __BaseMetric  # type: ignore
+class AACMetric(nn.Module):
+    """Base Metric module used when torchmetrics is not installed."""
 
-    class AACMetric(__BaseMetric):  # type: ignore
-        """Base Metric module used when torchmetrics is installed."""
+    # Global values
+    full_state_update: Optional[bool] = False
+    higher_is_better: Optional[bool] = None
+    is_differentiable: Optional[bool] = False
 
-        # The theorical minimal value of the main global score of the metric.
-        min_value: Optional[float] = None
-        # The theorical maximal value of the main global score of the metric.
-        max_value: Optional[float] = None
+    # The theorical minimal value of the main global score of the metric.
+    min_value: Optional[float] = None
+    # The theorical maximal value of the main global score of the metric.
+    max_value: Optional[float] = None
 
-else:
-    from torch import nn
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
 
-    class AACMetric(nn.Module):
-        """Base Metric module used when torchmetrics is not installed."""
+    # Public methods
+    def compute(self) -> Any:
+        return None
 
-        # Global values
-        full_state_update: Optional[bool] = False
-        higher_is_better: Optional[bool] = None
-        is_differentiable: Optional[bool] = False
+    def forward(self, *args: Any, **kwargs: Any) -> Any:
+        self.update(*args, **kwargs)
+        output = self.compute()
+        self.reset()
+        return output
 
-        # The theorical minimal value of the main global score of the metric.
-        min_value: Optional[float] = None
-        # The theorical maximal value of the main global score of the metric.
-        max_value: Optional[float] = None
+    def reset(self) -> None:
+        pass
 
-        def __init__(self, **kwargs: Any) -> None:
-            super().__init__(**kwargs)
-
-        # Public methods
-        def compute(self) -> Any:
-            return None
-
-        def forward(self, *args: Any, **kwargs: Any) -> Any:
-            self.update(*args, **kwargs)
-            output = self.compute()
-            self.reset()
-            return output
-
-        def reset(self) -> None:
-            pass
-
-        def update(self, *args, **kwargs) -> None:
-            pass
+    def update(self, *args, **kwargs) -> None:
+        pass

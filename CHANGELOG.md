@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [0.4.3] UNRELEASED
 ### Fixed
 - Output name `sbert_sim` in FENSE and SBERTSim classes.
+- `Evaluate` class instantiation with `torchmetrics` >= 0.11.
 
 ## [0.4.2] 2023-04-19
 ### Fixed

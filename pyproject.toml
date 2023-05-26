@@ -49,6 +49,7 @@ dev = [
     "black==22.8.0",
     "scikit-image==0.19.2",
     "matplotlib==3.5.2",
+    "torchmetrics>=0.10",
 ]
 
 [tool.setuptools.packages.find]
