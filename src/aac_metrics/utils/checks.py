@@ -5,7 +5,6 @@ import logging
 import re
 import subprocess
 
-from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 from subprocess import CalledProcessError
