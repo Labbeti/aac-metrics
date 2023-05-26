@@ -26,7 +26,7 @@ from aac_metrics.functional.evaluate import METRICS_SETS, evaluate
 pylog = logging.getLogger(__name__)
 
 
-class Evaluate(AACMetric, list[AACMetric]):
+class Evaluate(list[AACMetric], AACMetric):
     """Evaluate candidates with multiple references with custom metrics.
 
     For more information, see :func:`~aac_metrics.functional.evaluate.evaluate`.
@@ -55,8 +55,8 @@ class Evaluate(AACMetric, list[AACMetric]):
             verbose,
         )
 
-        AACMetric.__init__(self)
         list.__init__(self, metrics)
+        AACMetric.__init__(self)
         self._preprocess = preprocess
         self._cache_path = cache_path
         self._java_path = java_path
