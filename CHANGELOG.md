@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Output name `sbert_sim` in FENSE and SBERTSim classes.
 - `Evaluate` class instantiation with `torchmetrics` >= 0.11.
+- `evaluate.py` script when using a verbose mode != 0.
 
 ## [0.4.2] 2023-04-19
 ### Fixed
