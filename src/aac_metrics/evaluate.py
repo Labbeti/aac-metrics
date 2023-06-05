@@ -176,6 +176,8 @@ def _get_main_evaluate_args() -> Namespace:
     )
     parser.add_argument("--verbose", type=int, default=0, help="Verbose level.")
 
+    parser.add_argument("--sents", action="store_true", help="Print local scores.")
+
     args = parser.parse_args()
     return args
 
@@ -217,11 +219,15 @@ def _main_evaluate() -> None:
         args.cache_path,
         args.java_path,
         args.tmp_path,
-        args.verbose,
+        verbose=args.verbose,
     )
 
     corpus_scores = {k: v.item() for k, v in corpus_scores.items()}
     pylog.info(f"Global scores:\n{yaml.dump(corpus_scores, sort_keys=False)}")
+    if args.sents:
+        for metric in _sents_scores:
+            _sents_scores[metric] = _sents_scores[metric].tolist()
+        pylog.info(f"Local scores:\n{yaml.dump(_sents_scores, sort_keys=False)}")
 
 
 if __name__ == "__main__":
