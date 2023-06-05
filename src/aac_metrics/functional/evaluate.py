@@ -71,6 +71,7 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "bleu_4",
         "meteor_fr",
         "rouge_l",
+        "cider_d"
     ),
 }
 
