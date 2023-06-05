@@ -55,7 +55,6 @@ def meteor(
     java_path = osp.expandvars(java_path)
 
     meteor_jar_fpath = osp.join(cache_path, FNAME_METEOR_JAR)
-    language = "en"  # supported: en cz de es fr
 
     if __debug__:
         if not osp.isfile(meteor_jar_fpath):
