@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.4.3] UNRELEASED
+### Changed
+- `AACMetric` is no longer a subclass of `torchmetrics.Metric` even when it is installed. It avoid dependency to this package and remove potential errors due to Metric.
+
 ### Fixed
 - Output name `sbert_sim` in FENSE and SBERTSim classes.
 - `Evaluate` class instantiation with `torchmetrics` >= 0.11.
