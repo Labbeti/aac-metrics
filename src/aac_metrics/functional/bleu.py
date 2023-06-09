@@ -179,7 +179,7 @@ def __cook_references(
 
     # lhuang: N.B.: leave reflen computaiton to the very end!!
     # lhuang: N.B.: in case of "closest", keep a list of reflens!! (bad design)
-    return (reflen, maxcounts)
+    return reflen, maxcounts
 
 
 def __cook_candidate(
