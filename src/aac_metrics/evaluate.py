@@ -174,9 +174,13 @@ def _get_main_evaluate_args() -> Namespace:
         default="/tmp",
         help="Temporary directory path. defaults to '/tmp'.",
     )
+
+    parser.add_argument("--use_random_refs", action="store_true", help="Evaluate on one reference only, picked at random")
+
     parser.add_argument("--verbose", type=int, default=0, help="Verbose level.")
 
     parser.add_argument("--sents", action="store_true", help="Print local scores.")
+
 
     args = parser.parse_args()
     return args
@@ -211,7 +215,7 @@ def _main_evaluate() -> None:
             f"Found {len(candidates)} candidates, {len(mult_references)} references and [{min(refs_lens)}, {max(refs_lens)}] references per candidate."
         )
 
-    corpus_scores, _sents_scores = evaluate(
+    corpus_scores, _sents_scores, random_indices = evaluate(
         candidates,
         mult_references,
         True,
@@ -219,6 +223,7 @@ def _main_evaluate() -> None:
         args.cache_path,
         args.java_path,
         args.tmp_path,
+        use_random_refs = args.use_random_refs,
         verbose=args.verbose,
     )
 
@@ -228,6 +233,9 @@ def _main_evaluate() -> None:
         for metric in _sents_scores:
             _sents_scores[metric] = _sents_scores[metric].tolist()
         pylog.info(f"Local scores:\n{yaml.dump(_sents_scores, sort_keys=False)}")
+    
+    if args.use_random_refs:
+        pylog.info(f"Used indices:\n{yaml.dump(random_indices, sort_keys=False)}")
 
 
 if __name__ == "__main__":

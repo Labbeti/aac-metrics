@@ -4,6 +4,8 @@
 import logging
 import time
 
+import random
+
 from functools import partial
 from typing import Any, Callable, Iterable, Union
 
@@ -87,6 +89,7 @@ def evaluate(
     java_path: str = "java",
     tmp_path: str = "/tmp",
     device: Union[str, torch.device, None] = "auto",
+    use_random_refs: bool = False,
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Evaluate candidates with multiple references with custom metrics.
@@ -106,6 +109,12 @@ def evaluate(
     metrics = _instantiate_metrics_functions(
         metrics, cache_path, java_path, tmp_path, device, verbose
     )
+
+    if use_random_refs:
+        random_indices = [random.randint(0, len(refs) - 1) for refs in mult_references]
+        mult_references = [[refs[i]] for i, refs in zip(random_indices, mult_references)]
+    else:
+        random_indices = None
 
     if preprocess:
         candidates = preprocess_mono_sents(
@@ -159,7 +168,7 @@ def evaluate(
         outs_corpus |= outs_corpus_i
         outs_sents |= outs_sents_i
 
-    return outs_corpus, outs_sents
+    return outs_corpus, outs_sents, random_indices
 
 
 def dcase2023_evaluate(
