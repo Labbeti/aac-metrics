@@ -60,16 +60,17 @@ def ptb_tokenize_batch(
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: The path to a temporary directory. defaults to "/tmp".
     :param verbose: The verbose level. defaults to 0.
-    :returns: The sentences tokenized.
+    :returns: The sentences tokenized as list[list[str]].
     """
+    sentences = list(sentences)
+    if len(sentences) == 0:
+        return []
+
     cache_path = osp.expandvars(cache_path)
     java_path = osp.expandvars(java_path)
     tmp_path = osp.expandvars(tmp_path)
 
     # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
-    sentences = list(sentences)
-    if len(sentences) == 0:
-        return []
 
     stanford_fpath = osp.join(cache_path, FNAME_STANFORD_CORENLP_3_4_1_JAR)
 

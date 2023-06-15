@@ -210,14 +210,14 @@ def _main_evaluate() -> None:
         )
 
     corpus_scores, _sents_scores = evaluate(
-        candidates,
-        mult_references,
-        True,
-        args.metrics_set_name,
-        args.cache_path,
-        args.java_path,
-        args.tmp_path,
-        args.verbose,
+        candidates=candidates,
+        mult_references=mult_references,
+        preprocess=True,
+        metrics=args.metrics_set_name,
+        cache_path=args.cache_path,
+        java_path=args.java_path,
+        tmp_path=args.tmp_path,
+        verbose=args.verbose,
     )
 
     corpus_scores = {k: v.item() for k, v in corpus_scores.items()}

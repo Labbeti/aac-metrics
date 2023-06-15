@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.4] UNRELEASED
+### Changed
+- TODO
+
+## [0.4.3] 2023-06-15
+### Changed
+- `AACMetric` is no longer a subclass of `torchmetrics.Metric` even when it is installed. It avoid dependency to this package and remove potential errors due to Metric.
+- Java 12 and 13 are now allowed.
+
+### Fixed
+- Output name `sbert_sim` in FENSE and SBERTSim classes.
+- `Evaluate` class instantiation with `torchmetrics` >= 0.11.
+- `evaluate.py` script when using a verbose mode != 0.
+
 ## [0.4.2] 2023-04-19
 ### Fixed
 - File `install_spice.sh` is now in `src/aac_metrics` directory to fix download from a pip installation. ([#3](https://github.com/Labbeti/aac-metrics/issues/3))

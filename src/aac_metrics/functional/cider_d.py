@@ -182,7 +182,7 @@ def __counter_to_vec(
     length = 0
     norm = np.zeros((n,))
 
-    for (ngram, term_freq) in counters.items():
+    for ngram, term_freq in counters.items():
         if isinstance(doc_frequencies, Mapping):
             count = doc_frequencies[ngram]
         else:
@@ -233,7 +233,7 @@ def __similarity(
 
     for ni in range(n):
         # ngram
-        for (ngram, count) in cand_vec[ni].items():
+        for ngram, count in cand_vec[ni].items():
             # vrama91 : added clipping
             similarities[ni] += min(count, ref_vec[ni][ngram]) * ref_vec[ni][ngram]
 
@@ -255,7 +255,6 @@ def __compute_cider(
     sigma: float,
     scale: float,
 ) -> tuple[np.ndarray, list[tuple[list, list]]]:
-
     scores = np.empty((len(cooked_cands),))
     tfidf_lst = []
 
@@ -263,25 +262,21 @@ def __compute_cider(
         # compute vector for test captions
         vec, norm, length = __counter_to_vec(cand, log_n_refs, n, doc_frequencies)
         # compute vector for ref captions
-        ngrams_scores = np.zeros((n,))
+        ngrams_scores = np.zeros((len(refs), n))
         vec_refs = []
-        for ref in refs:
+        for j, ref in enumerate(refs):
             vec_ref, norm_ref, length_ref = __counter_to_vec(
                 ref, log_n_refs, n, doc_frequencies
             )
             vec_refs.append(vec_ref)
-            ngrams_scores += __similarity(
+            ngrams_scores[j] = __similarity(
                 vec, vec_ref, norm, norm_ref, length, length_ref, n, sigma
             )
-        # change by vrama91 - mean of ngram scores, instead of sum
-        score_avg = np.mean(ngrams_scores)
-        # divide by number of references
-        score_avg /= len(refs)
-        # multiply score by 10
-        score_avg *= scale
-        # append score of an image to the score list
-        scores[i] = score_avg
 
+        # Use this weird mean calculation instead of ".mean()" because it can give slight differences compared to the original implementation
+        score_avg = ngrams_scores.sum(axis=0).mean() / len(refs)
+        scores[i] = score_avg
         tfidf_lst.append((vec, vec_refs))
 
+    scores = scores * scale
     return scores, tfidf_lst

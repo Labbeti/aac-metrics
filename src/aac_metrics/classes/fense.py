@@ -85,7 +85,7 @@ class FENSE(AACMetric):
         return f"error_threshold={self._error_threshold}, penalty={self._penalty}, device={self._device}, batch_size={self._batch_size}"
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("sbert.sim", "fluerr", "fense") + tuple(
+        return ("sbert_sim", "fluerr", "fense") + tuple(
             f"fluerr.{name}_prob" for name in ERROR_NAMES
         )
 

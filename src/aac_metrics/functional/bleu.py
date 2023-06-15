@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
 import math
 
 from collections import Counter
@@ -10,6 +11,8 @@ import torch
 
 from torch import Tensor
 
+
+pylog = logging.getLogger(__name__)
 
 BLEU_OPTIONS = ("shortest", "average", "closest")
 
@@ -165,7 +168,7 @@ def __cook_references(
     for ref in refs:
         rl, counts = __cook_sentence(ref, n, tokenizer)
         reflen.append(rl)
-        for (ngram, count) in counts.items():
+        for ngram, count in counts.items():
             maxcounts[ngram] = max(maxcounts.get(ngram, 0), count)
 
     # Calculate effective reference sentence length.
@@ -176,7 +179,7 @@ def __cook_references(
 
     # lhuang: N.B.: leave reflen computaiton to the very end!!
     # lhuang: N.B.: in case of "closest", keep a list of reflens!! (bad design)
-    return (reflen, maxcounts)
+    return reflen, maxcounts
 
 
 def __cook_candidate(
@@ -203,7 +206,7 @@ def __cook_candidate(
     result["guess"] = [max(0, testlen - k + 1) for k in range(1, n + 1)]
     result["correct"] = [0] * n
 
-    for (ngram, count) in counts.items():
+    for ngram, count in counts.items():
         result["correct"][len(ngram) - 1] += min(refmaxcounts.get(ngram, 0), count)
 
     return result
@@ -221,7 +224,10 @@ def __compute_bleu_score(
     bleu_list = [[] for _ in range(n)]
 
     if option is None:
-        option = "average" if len(cooked_mrefs) == 1 else "closest"
+        if len(cooked_mrefs) == 1:
+            option = "average"
+        else:
+            option = "closest"
 
     global_cands_len = 0
     global_mrefs_len = 0
@@ -254,8 +260,8 @@ def __compute_bleu_score(
             for k in range(n):
                 bleu_list[k][-1] *= math.exp(1 - 1 / ratio)
 
-        if verbose > 1:
-            print(comps, reflen)
+        if verbose > 2:
+            pylog.debug(comps, reflen)
 
     totalcomps["reflen"] = global_mrefs_len
     totalcomps["testlen"] = global_cands_len
@@ -274,9 +280,9 @@ def __compute_bleu_score(
         for k in range(n):
             bleus[k] *= math.exp(1 - 1 / ratio)
 
-    if verbose > 0:
-        print(totalcomps)
-        print("ratio:", ratio)
+    if verbose > 2:
+        pylog.debug(totalcomps)
+        pylog.debug("ratio:", ratio)
 
     return bleus, bleu_list
 

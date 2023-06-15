@@ -5,7 +5,6 @@ import logging
 import re
 import subprocess
 
-from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 from subprocess import CalledProcessError
@@ -16,7 +15,7 @@ pylog = logging.getLogger(__name__)
 
 VERSION_PATTERN = r"(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+).*"
 MIN_JAVA_MAJOR_VERSION = 8
-MAX_JAVA_MAJOR_VERSION = 11
+MAX_JAVA_MAJOR_VERSION = 13
 
 
 def check_metric_inputs(
@@ -52,6 +51,20 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
             f"(expected major version in range [{MIN_JAVA_MAJOR_VERSION}, {MAX_JAVA_MAJOR_VERSION}])"
         )
     return valid
+
+
+def is_mono_sents(sents: Any) -> bool:
+    """Returns True if input is list[str]."""
+    return isinstance(sents, list) and all(isinstance(sent, str) for sent in sents)
+
+
+def is_mult_sents(mult_sents: Any) -> bool:
+    """Returns True if input is list[list[str]]."""
+    return (
+        isinstance(mult_sents, list)
+        and all(isinstance(sents, list) for sents in mult_sents)
+        and all(isinstance(sent, str) for sents in mult_sents for sent in sents)
+    )
 
 
 def _get_java_version(java_path: str) -> str:
@@ -99,20 +112,6 @@ def _check_java_version(version: str, min_major: int, max_major: int) -> bool:
         major_version = minor_version
 
     return min_major <= major_version <= max_major
-
-
-def is_mono_sents(sents: Any) -> bool:
-    """Returns True if input is list[str]."""
-    return isinstance(sents, list) and all(isinstance(sent, str) for sent in sents)
-
-
-def is_mult_sents(mult_sents: Any) -> bool:
-    """Returns True if input is list[list[str]]."""
-    return (
-        isinstance(mult_sents, list)
-        and all(isinstance(sents, list) for sents in mult_sents)
-        and all(isinstance(sent, str) for sents in mult_sents for sent in sents)
-    )
 
 
 @cache
