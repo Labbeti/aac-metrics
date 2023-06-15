@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.4] UNRELEASED
+### Changed
+- TODO
+
 ## [0.4.3] 2023-06-15
 ### Changed
 - `AACMetric` is no longer a subclass of `torchmetrics.Metric` even when it is installed. It avoid dependency to this package and remove potential errors due to Metric.
