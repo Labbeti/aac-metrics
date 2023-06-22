@@ -3,8 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.4.4] UNRELEASED
-### Changed
-- TODO
+### Added
+- `Evaluate` class now implements a __hash__ and tolist() methods.
 
 ## [0.4.3] 2023-06-15
 ### Changed

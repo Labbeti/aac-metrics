@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import pickle
+import zlib
 
 from typing import Callable, Iterable, Union
 
@@ -92,6 +94,14 @@ class Evaluate(list[AACMetric], AACMetric):
     ) -> None:
         self._candidates += candidates
         self._mult_references += mult_references
+
+    def tolist(self) -> list[AACMetric]:
+        return list(self)
+
+    def __hash__(self) -> int:
+        data = pickle.dumps(self)
+        data = zlib.adler32(data)
+        return data
 
 
 class AACEvaluate(Evaluate):
