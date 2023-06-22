@@ -50,6 +50,7 @@ def ptb_tokenize_batch(
     java_path: str = "java",
     tmp_path: str = "/tmp",
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
+    normalize_apostrophe: bool=False,
     verbose: int = 0,
 ) -> list[list[str]]:
     """Use PTB Tokenizer to process sentences. Should be used only with all the sentences of a subset due to slow computation.
@@ -118,7 +119,10 @@ def ptb_tokenize_batch(
             f"Invalid number of audio ids ({len(audio_ids)}) with sentences len={len(sentences)}."
         )
 
-    sentences = "\n".join(sentences).replace("'", "' ").replace("'  ", "' ").replace(" '", "'")
+
+    sentences = "\n".join(sentences)
+    if normalize_apostrophe:
+        sentences = sentences.replace(" s ", " s'").replace("'", "' ").replace("'  ", "' ").replace(" '", "'")
 
     # ======================================================
     # save sentences to temporary file
