@@ -294,7 +294,7 @@ def _get_metric_factory_functions(
             device=device,
             verbose=verbose,
         ),
-        "fluerr": partial(
+        "fluerr": partial(  # type: ignore
             fluerr,
             return_all_scores=return_all_scores,
             device=device,
