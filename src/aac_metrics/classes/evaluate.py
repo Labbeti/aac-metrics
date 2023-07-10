@@ -69,15 +69,16 @@ class Evaluate(list[AACMetric], AACMetric):
 
     def compute(self) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
         return evaluate(
-            self._candidates,
-            self._mult_references,
-            self._preprocess,
-            self,
-            self._cache_path,
-            self._java_path,
-            self._tmp_path,
-            self._device,
-            self._verbose,
+            candidates=self._candidates,
+            mult_references=self._mult_references,
+            preprocess=self._preprocess,
+            metrics=self,
+            cache_path=self._cache_path,
+            java_path=self._java_path,
+            tmp_path=self._tmp_path,
+            device=self._device,
+            use_random_refs=False,
+            verbose=self._verbose,
         )
 
     def reset(self) -> None:
