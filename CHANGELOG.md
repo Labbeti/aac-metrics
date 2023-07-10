@@ -4,7 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [0.4.4] UNRELEASED
 ### Added
-- `Evaluate` class now implements a __hash__ and tolist() methods.
+- `Evaluate` class now implements a `__hash__` and `tolist()` methods.
+
+### Changed
+- Function `get_install_info` now returns `package_path`.
 
 ## [0.4.3] 2023-06-15
 ### Changed
