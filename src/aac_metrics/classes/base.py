@@ -7,7 +7,7 @@ from torch import nn
 
 
 class AACMetric(nn.Module):
-    """Base Metric module used when torchmetrics is not installed."""
+    """Base Metric module for AAC metrics. Similar to torchmetrics.Metric."""
 
     # Global values
     full_state_update: Optional[bool] = False
