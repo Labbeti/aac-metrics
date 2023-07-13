@@ -16,7 +16,7 @@ __version__ = "0.4.3"
 from .classes.base import AACMetric
 from .classes.bleu import BLEU
 from .classes.cider_d import CIDErD
-from .classes.evaluate import AACEvaluate, _get_metric_factory_classes
+from .classes.evaluate import DCASE2023Evaluate, _get_metric_factory_classes
 from .classes.fense import FENSE
 from .classes.meteor import METEOR
 from .classes.rouge_l import ROUGEL
@@ -28,7 +28,7 @@ from .functional.evaluate import dcase2023_evaluate, evaluate
 __all__ = [
     "BLEU",
     "CIDErD",
-    "AACEvaluate",
+    "DCASE2023Evaluate",
     "FENSE",
     "METEOR",
     "ROUGEL",

@@ -9,7 +9,7 @@ from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.meteor import meteor
 
 
-class METEOR(AACMetric):
+class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """Metric for Evaluation of Translation with Explicit ORdering metric class.
 
     - Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389

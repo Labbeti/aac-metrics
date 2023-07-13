@@ -3,7 +3,7 @@
 
 from .bleu import BLEU
 from .cider_d import CIDErD
-from .evaluate import Evaluate, AACEvaluate
+from .evaluate import DCASE2023Evaluate, Evaluate
 from .fense import FENSE
 from .fluerr import FluErr
 from .meteor import METEOR
@@ -18,7 +18,7 @@ from .spider_max import SPIDErMax
 __all__ = [
     "BLEU",
     "CIDErD",
-    "AACEvaluate",
+    "DCASE2023Evaluate",
     "Evaluate",
     "FENSE",
     "FluErr",

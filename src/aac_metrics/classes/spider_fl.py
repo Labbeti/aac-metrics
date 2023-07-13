@@ -21,7 +21,7 @@ from aac_metrics.functional.spider_fl import spider_fl
 pylog = logging.getLogger(__name__)
 
 
-class SPIDErFL(AACMetric):
+class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """SPIDErFL class.
 
     For more information, see :func:`~aac_metrics.functional.spider_fl.spider_fl`.

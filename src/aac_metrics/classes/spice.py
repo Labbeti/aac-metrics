@@ -14,7 +14,7 @@ from aac_metrics.functional.spice import spice
 pylog = logging.getLogger(__name__)
 
 
-class SPICE(AACMetric):
+class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """Semantic Propositional Image Caption Evaluation class.
 
     - Paper: https://arxiv.org/pdf/1607.08822.pdf

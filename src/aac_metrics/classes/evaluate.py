@@ -28,7 +28,7 @@ from aac_metrics.functional.evaluate import METRICS_SETS, evaluate
 pylog = logging.getLogger(__name__)
 
 
-class Evaluate(list[AACMetric], AACMetric):
+class Evaluate(list[AACMetric], AACMetric[tuple[dict[str, Tensor], dict[str, Tensor]]]):
     """Evaluate candidates with multiple references with custom metrics.
 
     For more information, see :func:`~aac_metrics.functional.evaluate.evaluate`.
@@ -105,8 +105,8 @@ class Evaluate(list[AACMetric], AACMetric):
         return data
 
 
-class AACEvaluate(Evaluate):
-    """Evaluate candidates with multiple references with all Audio Captioning metrics.
+class DCASE2023Evaluate(Evaluate):
+    """Evaluate candidates with multiple references with DCASE2023 Audio Captioning metrics.
 
     For more information, see :func:`~aac_metrics.functional.evaluate.aac_evaluate`.
     """
@@ -117,15 +117,16 @@ class AACEvaluate(Evaluate):
         cache_path: str = "$HOME/.cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
+        device: Union[str, torch.device, None] = "auto",
         verbose: int = 0,
     ) -> None:
         super().__init__(
             preprocess,
-            "aac",
+            "dcase2023",
             cache_path,
             java_path,
             tmp_path,
-            "auto",
+            device,
             verbose,
         )
 
@@ -214,7 +215,7 @@ def _get_metric_factory_classes(
             tmp_path=tmp_path,
             verbose=verbose,
         ),
-        "sbert": lambda: SBERTSim(
+        "sbert_sim": lambda: SBERTSim(
             return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,

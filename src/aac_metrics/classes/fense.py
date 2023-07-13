@@ -17,7 +17,7 @@ from aac_metrics.functional.fluerr import ERROR_NAMES
 pylog = logging.getLogger(__name__)
 
 
-class FENSE(AACMetric):
+class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """Fluency ENhanced Sentence-bert Evaluation (FENSE)
 
     - Paper: https://arxiv.org/abs/2110.04684

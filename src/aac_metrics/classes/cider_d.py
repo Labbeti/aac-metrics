@@ -12,7 +12,7 @@ from aac_metrics.functional.cider_d import (
 )
 
 
-class CIDErD(AACMetric):
+class CIDErD(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """Consensus-based Image Description Evaluation metric class.
 
     - Paper: https://arxiv.org/pdf/1411.5726.pdf

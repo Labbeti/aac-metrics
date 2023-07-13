@@ -193,7 +193,7 @@ def _load_echecker_and_tokenizer(
         echecker = __load_pretrain_echecker(echecker, device, verbose=verbose)
 
     if echecker_tokenizer is None:
-        echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)
+        echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)  # type: ignore
 
     echecker = echecker.eval()
     for p in echecker.parameters():
@@ -231,10 +231,10 @@ def __detect_error_sents(
         # batch_logits: (bsize, num_classes=6)
         # note: fix error in the original fense code: https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L69
         probs = logits.sigmoid().transpose(0, 1).cpu().numpy()
-        probs_dic = dict(zip(ERROR_NAMES, probs))
+        probs_dic: dict[str, np.ndarray] = dict(zip(ERROR_NAMES, probs))
 
     else:
-        probs_dic = {name: [] for name in ERROR_NAMES}
+        dic_lst_probs = {name: [] for name in ERROR_NAMES}
 
         for i in range(0, len(sents), batch_size):
             batch = __infer_preprocess(
@@ -251,10 +251,12 @@ def __detect_error_sents(
             # classes: add_tail, repeat_event, repeat_adv, remove_conj, remove_verb, error
             probs = batch_logits.sigmoid().cpu().numpy()
 
-            for j, name in enumerate(probs_dic.keys()):
-                probs_dic[name].append(probs[:, j])
+            for j, name in enumerate(dic_lst_probs.keys()):
+                dic_lst_probs[name].append(probs[:, j])
 
-        probs_dic = {name: np.concatenate(probs) for name, probs in probs_dic.items()}
+        probs_dic = {
+            name: np.concatenate(probs) for name, probs in dic_lst_probs.items()
+        }
 
     return probs_dic
 

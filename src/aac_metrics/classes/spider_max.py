@@ -14,7 +14,7 @@ from aac_metrics.functional.spider_max import spider_max
 pylog = logging.getLogger(__name__)
 
 
-class SPIDErMax(AACMetric):
+class SPIDErMax(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """SPIDEr-max class.
 
     - Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf

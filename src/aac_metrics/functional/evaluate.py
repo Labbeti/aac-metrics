@@ -288,7 +288,7 @@ def _get_metric_factory_functions(
             tmp_path=tmp_path,
             verbose=verbose,
         ),
-        "sbert": partial(
+        "sbert_sim": partial(
             sbert_sim,
             return_all_scores=return_all_scores,
             device=device,

@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Any, Optional
+from typing import Any, Generic, Optional, TypeVar
 
 from torch import nn
 
+OutType = TypeVar("OutType")
 
-class AACMetric(nn.Module):
+
+class AACMetric(nn.Module, Generic[OutType]):
     """Base Metric module for AAC metrics. Similar to torchmetrics.Metric."""
 
     # Global values
@@ -23,10 +25,10 @@ class AACMetric(nn.Module):
         super().__init__(**kwargs)
 
     # Public methods
-    def compute(self) -> Any:
-        return None
+    def compute(self) -> OutType:
+        return None  # type: ignore
 
-    def forward(self, *args: Any, **kwargs: Any) -> Any:
+    def forward(self, *args: Any, **kwargs: Any) -> OutType:
         self.update(*args, **kwargs)
         output = self.compute()
         self.reset()
@@ -37,3 +39,7 @@ class AACMetric(nn.Module):
 
     def update(self, *args, **kwargs) -> None:
         pass
+
+    # Magic methods
+    def __call__(self, *args: Any, **kwds: Any) -> OutType:
+        return super().__call__(*args, **kwds)

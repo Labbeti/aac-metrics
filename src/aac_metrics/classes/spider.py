@@ -14,7 +14,7 @@ from aac_metrics.functional.spider import spider
 pylog = logging.getLogger(__name__)
 
 
-class SPIDEr(AACMetric):
+class SPIDEr(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """SPIDEr class.
 
     - Paper: https://arxiv.org/pdf/1612.00370.pdf
