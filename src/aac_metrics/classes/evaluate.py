@@ -99,6 +99,7 @@ class Evaluate(list[AACMetric], AACMetric):
         return list(self)
 
     def __hash__(self) -> int:
+        # note: assume that all metrics can be pickled
         data = pickle.dumps(self)
         data = zlib.adler32(data)
         return data

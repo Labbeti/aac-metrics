@@ -11,8 +11,8 @@ All notable changes to this project will be documented in this file.
 
 ## [0.4.3] 2023-06-15
 ### Changed
-- `AACMetric` is no longer a subclass of `torchmetrics.Metric` even when it is installed. It avoid dependency to this package and remove potential errors due to Metric.
-- Java 12 and 13 are now allowed.
+- `AACMetric` is no longer a subclass of `torchmetrics.Metric` even when it is installed. It avoid dependency to this package and remove potential errors due to Metric base class.
+- Java 12 and 13 are now allowed in this package.
 
 ### Fixed
 - Output name `sbert_sim` in FENSE and SBERTSim classes.
