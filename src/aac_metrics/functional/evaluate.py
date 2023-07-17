@@ -75,6 +75,10 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "rouge_l",
         "cider_d"
     ),
+    
+    "multi_sbert": (
+        "multi_sbert",
+    )
 }
 
 
@@ -338,6 +342,13 @@ def _get_metric_factory_functions(
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
+            device=device,
+            verbose=verbose,
+        ),
+        "multi_sbert": partial(
+            sbert_sim,
+            return_all_scores=return_all_scores,
+            sbert_model="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
             device=device,
             verbose=verbose,
         ),
