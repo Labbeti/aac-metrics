@@ -34,6 +34,14 @@ JAR_URLS = {
         "url": "https://github.com/cmu-mtlab/meteor/raw/master/data/paraphrase-fr.gz",
         "fname": osp.join("data", "paraphrase-fr.gz"),
     },
+    "meteor_data_de": {
+        "url": "https://github.com/cmu-mtlab/meteor/raw/master/data/paraphrase-de.gz",
+        "fname": osp.join("data", "paraphrase-de.gz"),
+    },
+    "meteor_data_es": {
+        "url": "https://github.com/cmu-mtlab/meteor/raw/master/data/paraphrase-es.gz",
+        "fname": osp.join("data", "paraphrase-es.gz"),
+    },
     "spice": {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/spice/spice-1.0.jar",
         "fname": "spice-1.0.jar",
@@ -99,7 +107,7 @@ def download(
         meteor_dpath = osp.join(cache_path, osp.dirname(FNAME_METEOR_JAR))
         os.makedirs(meteor_dpath, exist_ok=True)
 
-        for name in ("meteor", "meteor_data", "meteor_data_fr"):
+        for name in ("meteor", "meteor_data", "meteor_data_fr", "meteor_data_de", "meteor_data_es"):
             info = JAR_URLS[name]
             url = info["url"]
             fname = info["fname"]
