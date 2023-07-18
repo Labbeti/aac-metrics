@@ -77,7 +77,7 @@ class Evaluate(list[AACMetric], AACMetric):
             self._java_path,
             self._tmp_path,
             self._device,
-            self._verbose,
+            verbose=self._verbose,
         )
 
     def reset(self) -> None:
