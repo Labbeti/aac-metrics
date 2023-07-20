@@ -163,7 +163,7 @@ def dcase2023_evaluate(
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
-    """Evaluate candidates with multiple references with all Audio Captioning metrics.
+    """Evaluate candidates with multiple references with the DCASE2023 Audio Captioning metrics.
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
