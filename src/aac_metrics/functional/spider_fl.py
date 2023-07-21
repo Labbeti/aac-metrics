@@ -83,7 +83,7 @@ def spider_fl(
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
     :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "auto".
     :param batch_size: The batch size of the sBERT and echecker models. defaults to 32.
-    :param reset_state: If True, reset the state of the PyTorch global generator after the pre-trained model are built. defaults to True.
+    :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to True.
     :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.9.
     :param verbose: The verbose level. defaults to 0.
