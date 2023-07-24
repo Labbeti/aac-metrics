@@ -414,6 +414,12 @@ def __load_pretrain_echecker(
         pylog.debug(f"Loading echecker model from '{file_path}'.")
 
     model_states = torch.load(file_path)
+
+    if verbose >= 2:
+        pylog.debug(
+            f"Loading echecker model type '{model_states['model_type']}' with '{model_states['num_classes']}' classes."
+        )
+
     echecker = BERTFlatClassifier(
         model_type=model_states["model_type"],
         num_classes=model_states["num_classes"],
