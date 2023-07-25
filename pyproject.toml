@@ -50,6 +50,7 @@ dev = [
     "scikit-image==0.19.2",
     "matplotlib==3.5.2",
     "torchmetrics>=0.10",
+    "transformers<4.31.0",
 ]
 
 [tool.setuptools.packages.find]
