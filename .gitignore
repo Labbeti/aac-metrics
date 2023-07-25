@@ -136,3 +136,5 @@ tests/fense
 tmp/
 tmp*/
 *.mdb
+core-python*
+core-srun*
