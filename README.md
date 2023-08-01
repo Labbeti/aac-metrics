@@ -125,8 +125,10 @@ tqdm >= 4.64.0
 sentence-transformers >= 2.2.2
 ```
 
+This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions.
+
 ### External requirements
-- `java` **>= 1.8 and <= 1.11** is required to compute METEOR, SPICE and use the PTBTokenizer.
+- `java` **>= 1.8 and <= 1.13** is required to compute METEOR, SPICE and use the PTBTokenizer.
 Most of these functions can specify a java executable path with `java_path` argument.
 
 - `unzip` command to extract SPICE zipped files.
