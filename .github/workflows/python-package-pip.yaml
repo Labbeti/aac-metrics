@@ -40,11 +40,11 @@ jobs:
 
     - name: Tests
       run: |
-        echo $GITHUB_REF_NAME
-        echo ${GITHUB_REF_NAME}
-        echo %GITHUB_REF_NAME%
-        echo %{GITHUB_REF_NAME}%
-        echo %GITHUB_REF_NAME
+        echo $GITHUB_REF
+        echo ${GITHUB_REF}
+        echo %GITHUB_REF%
+        echo %{GITHUB_REF}%
+        echo %GITHUB_REF
 
     - name: Install package
       # note: ${GITHUB_REF##*/} gives the branch name
