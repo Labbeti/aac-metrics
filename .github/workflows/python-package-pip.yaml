@@ -38,6 +38,14 @@ jobs:
         java-version: ${{ matrix.java-version }}
         java-package: jre
 
+    - name: Tests
+      run: |
+        echo $GITHUB_REF_NAME
+        echo ${GITHUB_REF_NAME}
+        echo %GITHUB_REF_NAME%
+        echo %{GITHUB_REF_NAME}%
+        echo %GITHUB_REF_NAME
+
     - name: Install package
       # note: ${GITHUB_REF##*/} gives the branch name
       # python -m pip install "aac-metrics[dev] @ git+https://github.com/Labbeti/aac-metrics@${GITHUB_REF##*/}"

@@ -12,6 +12,11 @@ from typing import Any, Hashable, Iterable, Optional
 
 from aac_metrics.utils.checks import check_java_path
 from aac_metrics.utils.collections import flat_list, unflat_list
+from aac_metrics.utils.path import (
+    _process_cache_path,
+    _process_java_path,
+    _process_tmp_path,
+)
 
 
 pylog = logging.getLogger(__name__)
@@ -46,9 +51,9 @@ PTB_PUNCTUATIONS = (
 def ptb_tokenize_batch(
     sentences: Iterable[str],
     audio_ids: Optional[Iterable[Hashable]] = None,
-    cache_path: str = "~/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     verbose: int = 0,
 ) -> list[list[str]]:
@@ -66,9 +71,9 @@ def ptb_tokenize_batch(
     if len(sentences) == 0:
         return []
 
-    cache_path = osp.expandvars(osp.expanduser(cache_path))
-    java_path = osp.expandvars(osp.expanduser(java_path))
-    tmp_path = osp.expandvars(osp.expanduser(tmp_path))
+    cache_path = _process_cache_path(cache_path)
+    java_path = _process_java_path(java_path)
+    tmp_path = _process_tmp_path(tmp_path)
 
     # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
 
@@ -173,9 +178,9 @@ def ptb_tokenize_batch(
 
 def preprocess_mono_sents(
     sentences: list[str],
-    cache_path: str = "~/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     verbose: int = 0,
 ) -> list[str]:
@@ -201,9 +206,9 @@ def preprocess_mono_sents(
 
 def preprocess_mult_sents(
     mult_sentences: list[list[str]],
-    cache_path: str = "~/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     verbose: int = 0,
 ) -> list[list[str]]:

@@ -15,6 +15,7 @@ from torch.hub import download_url_to_file
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.functional.meteor import FNAME_METEOR_JAR
 from aac_metrics.functional.spice import FNAME_SPICE_JAR, DNAME_SPICE_CACHE
+from aac_metrics.utils.path import _process_cache_path, _process_tmp_path
 from aac_metrics.utils.tokenization import FNAME_STANFORD_CORENLP_3_4_1_JAR
 
 
@@ -44,8 +45,8 @@ _FALSE_VALUES = ("false", "0", "f")
 
 
 def download(
-    cache_path: str = "~/.cache",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    tmp_path: str = ...,
     ptb_tokenizer: bool = True,
     meteor: bool = True,
     spice: bool = True,
@@ -62,8 +63,8 @@ def download(
     :param fense: If True, downloads the FENSE models. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     """
-    cache_path = osp.expandvars(osp.expanduser(cache_path))
-    tmp_path = osp.expandvars(osp.expanduser(tmp_path))
+    cache_path = _process_cache_path(cache_path)
+    tmp_path = _process_tmp_path(tmp_path)
 
     os.makedirs(cache_path, exist_ok=True)
     os.makedirs(tmp_path, exist_ok=True)

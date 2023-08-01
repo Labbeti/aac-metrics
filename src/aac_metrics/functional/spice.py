@@ -21,6 +21,11 @@ import torch
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_java_path
+from aac_metrics.utils.path import (
+    _process_cache_path,
+    _process_java_path,
+    _process_tmp_path,
+)
 
 
 pylog = logging.getLogger(__name__)
@@ -34,9 +39,9 @@ def spice(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    cache_path: str = "~/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
@@ -70,9 +75,9 @@ def spice(
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
 
-    cache_path = osp.expandvars(osp.expanduser(cache_path))
-    java_path = osp.expandvars(osp.expanduser(java_path))
-    tmp_path = osp.expandvars(osp.expanduser(tmp_path))
+    cache_path = _process_cache_path(cache_path)
+    java_path = _process_java_path(java_path)
+    tmp_path = _process_tmp_path(tmp_path)
 
     spice_fpath = osp.join(cache_path, FNAME_SPICE_JAR)
 

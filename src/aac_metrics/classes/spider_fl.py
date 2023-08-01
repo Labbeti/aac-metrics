@@ -41,9 +41,9 @@ class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
         n: int = 4,
         sigma: float = 6.0,
         # SPICE args
-        cache_path: str = "~/.cache",
-        java_path: str = "java",
-        tmp_path: str = "/tmp",
+        cache_path: str = ...,
+        java_path: str = ...,
+        tmp_path: str = ...,
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,

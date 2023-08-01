@@ -35,9 +35,9 @@ def spider_fl(
     tokenizer: Callable[[str], list[str]] = str.split,
     return_tfidf: bool = False,
     # SPICE args
-    cache_path: str = "~/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,

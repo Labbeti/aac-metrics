@@ -28,8 +28,8 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
     def __init__(
         self,
         return_all_scores: bool = True,
-        cache_path: str = "~/.cache",
-        java_path: str = "java",
+        cache_path: str = ...,
+        java_path: str = ...,
         java_max_memory: str = "2G",
         language: str = "en",
         verbose: int = 0,
