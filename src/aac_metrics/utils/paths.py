@@ -72,15 +72,15 @@ def set_default_tmp_path(tmp_path: Optional[str]) -> None:
     __set_default_path("tmp", tmp_path)
 
 
-def _process_cache_path(cache_path: Union[str, ellipsis, None]) -> str:
+def _process_cache_path(cache_path: Union[str, None]) -> str:
     return __process_path("cache", cache_path)
 
 
-def _process_java_path(java_path: Union[str, ellipsis, None]) -> str:
+def _process_java_path(java_path: Union[str, None]) -> str:
     return __process_path("java", java_path)
 
 
-def _process_tmp_path(tmp_path: Union[str, ellipsis, None]) -> str:
+def _process_tmp_path(tmp_path: Union[str, None]) -> str:
     return __process_path("tmp", tmp_path)
 
 
@@ -116,7 +116,7 @@ def __set_default_path(
     __DEFAULT_PATHS[path_name]["user"] = path
 
 
-def __process_path(path_name: str, path: Union[str, ellipsis, None]) -> str:
+def __process_path(path_name: str, path: Union[str, None]) -> str:
     if path is ... or path is None:
         return __get_default_path(path_name)
     else:

@@ -12,7 +12,7 @@ from typing import Any, Hashable, Iterable, Optional
 
 from aac_metrics.utils.checks import check_java_path
 from aac_metrics.utils.collections import flat_list, unflat_list
-from aac_metrics.utils.path import (
+from aac_metrics.utils.paths import (
     _process_cache_path,
     _process_java_path,
     _process_tmp_path,

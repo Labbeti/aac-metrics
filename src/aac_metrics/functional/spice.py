@@ -21,7 +21,7 @@ import torch
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_java_path
-from aac_metrics.utils.path import (
+from aac_metrics.utils.paths import (
     _process_cache_path,
     _process_java_path,
     _process_tmp_path,

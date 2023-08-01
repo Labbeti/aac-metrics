@@ -12,6 +12,12 @@ import yaml
 
 import aac_metrics
 
+from aac_metrics.utils.paths import (
+    get_default_cache_path,
+    get_default_java_path,
+    get_default_tmp_path,
+)
+
 
 def get_package_repository_path() -> str:
     return str(Path(__file__).parent.parent.parent)
@@ -26,6 +32,9 @@ def get_install_info() -> Dict[str, str]:
         "architecture": platform.architecture()[0],
         "torch": str(torch.__version__),
         "package_path": get_package_repository_path(),
+        "cache_path": get_default_cache_path(),
+        "java_path": get_default_java_path(),
+        "tmp_path": get_default_tmp_path(),
     }
 
 

@@ -15,7 +15,12 @@ from torch.hub import download_url_to_file
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.functional.meteor import FNAME_METEOR_JAR
 from aac_metrics.functional.spice import FNAME_SPICE_JAR, DNAME_SPICE_CACHE
-from aac_metrics.utils.path import _process_cache_path, _process_tmp_path
+from aac_metrics.utils.paths import (
+    _process_cache_path,
+    _process_tmp_path,
+    get_default_cache_path,
+    get_default_tmp_path,
+)
 from aac_metrics.utils.tokenization import FNAME_STANFORD_CORENLP_3_4_1_JAR
 
 
@@ -89,7 +94,7 @@ def download(
         if not osp.isfile(fpath):
             if verbose >= 1:
                 pylog.info(
-                    f"Downloading jar source for '{name}' in directory {stanford_nlp_dpath}."
+                    f"Downloading JAR source for '{name}' in directory {stanford_nlp_dpath}."
                 )
             download_url_to_file(url, fpath, progress=verbose >= 1)
         else:
@@ -111,7 +116,7 @@ def download(
             if not osp.isfile(fpath):
                 if verbose >= 1:
                     pylog.info(
-                        f"Downloading jar source for '{name}' in directory {meteor_dpath}."
+                        f"Downloading JAR source for '{name}' in directory {meteor_dpath}."
                     )
                 if subdir not in ("", "."):
                     os.makedirs(osp.join(meteor_dpath, subdir), exist_ok=True)
@@ -169,13 +174,13 @@ def _get_main_download_args() -> Namespace:
     parser.add_argument(
         "--cache_path",
         type=str,
-        default="~/.cache",
+        default=get_default_cache_path(),
         help="Cache directory path.",
     )
     parser.add_argument(
         "--tmp_path",
         type=str,
-        default="/tmp",
+        default=get_default_tmp_path(),
         help="Temporary directory path.",
     )
     parser.add_argument(
