@@ -42,7 +42,7 @@ class Evaluate(list[AACMetric], AACMetric[tuple[dict[str, Tensor], dict[str, Ten
         self,
         preprocess: bool = True,
         metrics: Union[str, Iterable[str], Iterable[AACMetric]] = "aac",
-        cache_path: str = "$HOME/.cache",
+        cache_path: str = "~/.cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
         device: Union[str, torch.device, None] = "auto",
@@ -114,7 +114,7 @@ class DCASE2023Evaluate(Evaluate):
     def __init__(
         self,
         preprocess: bool = True,
-        cache_path: str = "$HOME/.cache",
+        cache_path: str = "~/.cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
         device: Union[str, torch.device, None] = "auto",
@@ -133,7 +133,7 @@ class DCASE2023Evaluate(Evaluate):
 
 def _instantiate_metrics_classes(
     metrics: Union[str, Iterable[str], Iterable[AACMetric]] = "aac",
-    cache_path: str = "$HOME/.cache",
+    cache_path: str = "~/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     device: Union[str, torch.device, None] = "auto",
@@ -166,7 +166,7 @@ def _instantiate_metrics_classes(
 
 def _get_metric_factory_classes(
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache",
+    cache_path: str = "~/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     device: Union[str, torch.device, None] = "auto",

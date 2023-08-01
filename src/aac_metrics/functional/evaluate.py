@@ -74,7 +74,7 @@ def evaluate(
     metrics: Union[
         str, Iterable[str], Iterable[Callable[[list, list], tuple]]
     ] = "default",
-    cache_path: str = "$HOME/.cache",
+    cache_path: str = "~/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     device: Union[str, torch.device, None] = "auto",
@@ -86,7 +86,7 @@ def evaluate(
     :param mult_references: The list of list of sentences used as target.
     :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.defaults to True.
     :param metrics: The name of the metric list or the explicit list of metrics to compute. defaults to "default".
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
+    :param cache_path: The path to the external code directory. defaults to "~/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :param device: The PyTorch device used to run FENSE and SPIDErFL models.
@@ -157,7 +157,7 @@ def dcase2023_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
-    cache_path: str = "$HOME/.cache",
+    cache_path: str = "~/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     device: Union[str, torch.device, None] = "auto",
@@ -169,7 +169,7 @@ def dcase2023_evaluate(
     :param mult_references: The list of list of sentences used as target.
     :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
         defaults to True.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
+    :param cache_path: The path to the external code directory. defaults to "~/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :param device: The PyTorch device used to run FENSE and SPIDErFL models.
@@ -192,7 +192,7 @@ def dcase2023_evaluate(
 
 def _instantiate_metrics_functions(
     metrics: Union[str, Iterable[str], Iterable[Callable[[list, list], tuple]]] = "all",
-    cache_path: str = "$HOME/.cache",
+    cache_path: str = "~/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     device: Union[str, torch.device, None] = "auto",
@@ -230,7 +230,7 @@ def _instantiate_metrics_functions(
 
 def _get_metric_factory_functions(
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache",
+    cache_path: str = "~/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     device: Union[str, torch.device, None] = "auto",

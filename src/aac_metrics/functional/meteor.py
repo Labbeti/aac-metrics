@@ -28,7 +28,7 @@ def meteor(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache",
+    cache_path: str = "~/.cache",
     java_path: str = "java",
     java_max_memory: str = "2G",
     language: str = "en",
@@ -44,15 +44,15 @@ def meteor(
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
+    :param cache_path: The path to the external code directory. defaults to "~/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param java_max_memory: The maximal java memory used. defaults to "2G".
     :param language: The language used for stem, synonym and paraphrase matching. defaults to "en".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    cache_path = osp.expandvars(cache_path)
-    java_path = osp.expandvars(java_path)
+    cache_path = osp.expandvars(osp.expanduser(cache_path))
+    java_path = osp.expandvars(osp.expanduser(java_path))
 
     meteor_jar_fpath = osp.join(cache_path, FNAME_METEOR_JAR)
     language = "en"  # supported: en cz de es fr

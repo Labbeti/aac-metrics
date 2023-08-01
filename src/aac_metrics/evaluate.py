@@ -159,8 +159,8 @@ def _get_main_evaluate_args() -> Namespace:
     parser.add_argument(
         "--cache_path",
         type=str,
-        default="$HOME/.cache",
-        help="Cache directory path. defaults to '$HOME/.cache'.",
+        default="~/.cache",
+        help="Cache directory path. defaults to '~/.cache'.",
     )
     parser.add_argument(
         "--java_path",

@@ -44,7 +44,7 @@ _FALSE_VALUES = ("false", "0", "f")
 
 
 def download(
-    cache_path: str = "$HOME/.cache",
+    cache_path: str = "~/.cache",
     tmp_path: str = "/tmp",
     ptb_tokenizer: bool = True,
     meteor: bool = True,
@@ -54,7 +54,7 @@ def download(
 ) -> None:
     """Download the code needed for SPICE, METEOR and PTB Tokenizer.
 
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
+    :param cache_path: The path to the external code directory. defaults to "~/.cache".
     :param tmp_path: The path to a temporary directory. defaults to "/tmp".
     :param ptb_tokenizer: If True, downloads the PTBTokenizer code in cache directory. defaults to True.
     :param meteor: If True, downloads the METEOR code in cache directory. defaults to True.
@@ -62,8 +62,8 @@ def download(
     :param fense: If True, downloads the FENSE models. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     """
-    cache_path = osp.expandvars(cache_path)
-    tmp_path = osp.expandvars(tmp_path)
+    cache_path = osp.expandvars(osp.expanduser(cache_path))
+    tmp_path = osp.expandvars(osp.expanduser(tmp_path))
 
     os.makedirs(cache_path, exist_ok=True)
     os.makedirs(tmp_path, exist_ok=True)
@@ -168,7 +168,7 @@ def _get_main_download_args() -> Namespace:
     parser.add_argument(
         "--cache_path",
         type=str,
-        default="$HOME/.cache",
+        default="~/.cache",
         help="Cache directory path.",
     )
     parser.add_argument(

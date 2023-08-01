@@ -46,7 +46,7 @@ PTB_PUNCTUATIONS = (
 def ptb_tokenize_batch(
     sentences: Iterable[str],
     audio_ids: Optional[Iterable[Hashable]] = None,
-    cache_path: str = "$HOME/.cache",
+    cache_path: str = "~/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
@@ -56,7 +56,7 @@ def ptb_tokenize_batch(
 
     :param sentences: The sentences to tokenize.
     :param audio_ids: The optional audio names. None will use the audio index as name. defaults to None.
-    :param cache_path: The path to the external directory containing the JAR program. defaults to "$HOME/.cache".
+    :param cache_path: The path to the external directory containing the JAR program. defaults to "~/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: The path to a temporary directory. defaults to "/tmp".
     :param verbose: The verbose level. defaults to 0.
@@ -66,9 +66,9 @@ def ptb_tokenize_batch(
     if len(sentences) == 0:
         return []
 
-    cache_path = osp.expandvars(cache_path)
-    java_path = osp.expandvars(java_path)
-    tmp_path = osp.expandvars(tmp_path)
+    cache_path = osp.expandvars(osp.expanduser(cache_path))
+    java_path = osp.expandvars(osp.expanduser(java_path))
+    tmp_path = osp.expandvars(osp.expanduser(tmp_path))
 
     # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
 
@@ -173,7 +173,7 @@ def ptb_tokenize_batch(
 
 def preprocess_mono_sents(
     sentences: list[str],
-    cache_path: str = "$HOME/.cache",
+    cache_path: str = "~/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
@@ -187,7 +187,7 @@ def preprocess_mono_sents(
         If you want to process multiple sentences (list[list[str]]), use `preprocess_mult_sents` instead.
 
     :param sentences: The list of sentences to process.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
+    :param cache_path: The path to the external code directory. defaults to "~/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :returns: The sentences processed by the tokenizer.
@@ -201,7 +201,7 @@ def preprocess_mono_sents(
 
 def preprocess_mult_sents(
     mult_sentences: list[list[str]],
-    cache_path: str = "$HOME/.cache",
+    cache_path: str = "~/.cache",
     java_path: str = "java",
     tmp_path: str = "/tmp",
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
@@ -210,7 +210,7 @@ def preprocess_mult_sents(
     """Tokenize multiple sentences using PTB Tokenizer with only one call then merge them by space.
 
     :param mult_sentences: The list of list of sentences to process.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
+    :param cache_path: The path to the external code directory. defaults to "~/.cache".
     :param java_path: The path to the java executable. defaults to "java".
     :param tmp_path: Temporary directory path. defaults to "/tmp".
     :returns: The multiple sentences processed by the tokenizer.

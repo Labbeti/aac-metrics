@@ -32,7 +32,7 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
     def __init__(
         self,
         return_all_scores: bool = True,
-        cache_path: str = "$HOME/.cache",
+        cache_path: str = "~/.cache",
         java_path: str = "java",
         tmp_path: str = "/tmp",
         n_threads: Optional[int] = None,
