@@ -68,6 +68,11 @@ def download(
     os.makedirs(cache_path, exist_ok=True)
     os.makedirs(tmp_path, exist_ok=True)
 
+    if verbose >= 2:
+        pylog.debug("Setup:")
+        pylog.debug(f"\tCache directory: {cache_path}")
+        pylog.debug(f"\tTemporary directory: {cache_path}")
+
     if ptb_tokenizer:
         # Download JAR file for tokenization
         stanford_nlp_dpath = osp.join(
@@ -215,13 +220,13 @@ def _main_download() -> None:
     pkg_logger.setLevel(level)
 
     download(
-        args.cache_path,
-        args.tmp_path,
-        args.ptb_tokenizer,
-        args.meteor,
-        args.spice,
-        args.fense,
-        args.verbose,
+        cache_path=args.cache_path,
+        tmp_path=args.tmp_path,
+        ptb_tokenizer=args.ptb_tokenizer,
+        meteor=args.meteor,
+        spice=args.spice,
+        fense=args.fense,
+        verbose=args.verbose,
     )
 
 
