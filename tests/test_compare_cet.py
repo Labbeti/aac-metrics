@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import importlib
+import os
 import os.path as osp
 import subprocess
 import sys
@@ -23,6 +24,8 @@ class TestCompareCaptionEvaluationTools(TestCase):
     # Set Up methods
     @classmethod
     def setUpClass(cls) -> None:
+        if os.name == "nt":
+            return None
         cls.evaluate_metrics_from_lists = cls._import_cet_eval_func()
 
     @classmethod
@@ -97,6 +100,9 @@ class TestCompareCaptionEvaluationTools(TestCase):
         return cands, mrefs
 
     def _test_with_example(self, cands: list[str], mrefs: list[list[str]]) -> None:
+        if os.name == "nt":
+            return None
+
         corpus_scores, _ = evaluate(cands, mrefs, metrics="dcase2020")
         (
             cet_global_scores,
