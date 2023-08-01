@@ -42,7 +42,7 @@ jobs:
       shell: bash
       # note: ${GITHUB_REF##*/} gives the branch name
       run: |
-        python -m pip install "aac-metrics[dev] @ git+https://github.com/Labbeti/aac-metrics@${GITHUB_REF##*/}"
+        python -m pip install "aac-metrics[${GITHUB_REF_NAME}] @ git+https://github.com/Labbeti/aac-metrics@${GITHUB_REF##*/}"
   
     - name: Load cache of external code and data
       uses: actions/cache@master
