@@ -60,8 +60,8 @@ def download(
 ) -> None:
     """Download the code needed for SPICE, METEOR and PTB Tokenizer.
 
-    :param cache_path: The path to the external code directory. defaults to "~/.cache".
-    :param tmp_path: The path to a temporary directory. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param tmp_path: The path to a temporary directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :param ptb_tokenizer: If True, downloads the PTBTokenizer code in cache directory. defaults to True.
     :param meteor: If True, downloads the METEOR code in cache directory. defaults to True.
     :param spice: If True, downloads the SPICE code in cache directory. defaults to True.

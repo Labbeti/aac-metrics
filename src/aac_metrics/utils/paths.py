@@ -30,9 +30,9 @@ __DEFAULT_PATHS: dict[str, dict[str, Optional[str]]] = {
 def get_default_cache_path() -> str:
     """Returns the default cache directory path.
 
-    If :func:`~aac_metrics.utils.path.set_default_cache_path has been used before with a string argument, it will return the value given to this function.
+    If :func:`~aac_metrics.utils.path.set_default_cache_path` has been used before with a string argument, it will return the value given to this function.
     Else if the environment variable AAC_METRICS_CACHE_PATH has been set to a string, it will return its value.
-    Else it will be equal to "$HOME/.cache" by default.
+    Else it will be equal to "~/.cache" by default.
     """
     return __get_default_path("cache")
 
@@ -40,7 +40,7 @@ def get_default_cache_path() -> str:
 def get_default_java_path() -> str:
     """Returns the default java executable path.
 
-    If :func:`~aac_metrics.utils.path.set_default_java_path has been used before with a string argument, it will return the value given to this function.
+    If :func:`~aac_metrics.utils.path.set_default_java_path` has been used before with a string argument, it will return the value given to this function.
     Else if the environment variable AAC_METRICS_JAVA_PATH has been set to a string, it will return its value.
     Else it will be equal to "java" by default.
     """
@@ -50,9 +50,9 @@ def get_default_java_path() -> str:
 def get_default_tmp_path() -> str:
     """Returns the default temporary directory path.
 
-    If :func:`~aac_metrics.utils.path.set_default_tmp_path has been used before with a string argument, it will return the value given to this function.
+    If :func:`~aac_metrics.utils.path.set_default_tmp_path` has been used before with a string argument, it will return the value given to this function.
     Else if the environment variable AAC_METRICS_TMP_PATH has been set to a string, it will return its value.
-    Else it will be equal to "/tmp" by default.
+    Else it will be equal to the value returned by :func:`~tempfile.gettempdir()` by default.
     """
     return __get_default_path("tmp")
 

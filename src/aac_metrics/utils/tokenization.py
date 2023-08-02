@@ -61,9 +61,9 @@ def ptb_tokenize_batch(
 
     :param sentences: The sentences to tokenize.
     :param audio_ids: The optional audio names. None will use the audio index as name. defaults to None.
-    :param cache_path: The path to the external directory containing the JAR program. defaults to "~/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: The path to a temporary directory. defaults to "/tmp".
+    :param cache_path: The path to the external directory containing the JAR program. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: The path to a temporary directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :param verbose: The verbose level. defaults to 0.
     :returns: The sentences tokenized as list[list[str]].
     """
@@ -192,9 +192,9 @@ def preprocess_mono_sents(
         If you want to process multiple sentences (list[list[str]]), use `preprocess_mult_sents` instead.
 
     :param sentences: The list of sentences to process.
-    :param cache_path: The path to the external code directory. defaults to "~/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :returns: The sentences processed by the tokenizer.
     """
     tok_sents = ptb_tokenize_batch(
@@ -215,9 +215,9 @@ def preprocess_mult_sents(
     """Tokenize multiple sentences using PTB Tokenizer with only one call then merge them by space.
 
     :param mult_sentences: The list of list of sentences to process.
-    :param cache_path: The path to the external code directory. defaults to "~/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :returns: The multiple sentences processed by the tokenizer.
     """
 

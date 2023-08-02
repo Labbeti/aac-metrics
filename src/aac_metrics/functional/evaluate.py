@@ -86,9 +86,9 @@ def evaluate(
     :param mult_references: The list of list of sentences used as target.
     :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.defaults to True.
     :param metrics: The name of the metric list or the explicit list of metrics to compute. defaults to "default".
-    :param cache_path: The path to the external code directory. defaults to "~/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :param device: The PyTorch device used to run FENSE and SPIDErFL models.
         If None, it will try to detect use cuda if available. defaults to "auto".
     :param verbose: The verbose level. defaults to 0.
@@ -169,9 +169,9 @@ def dcase2023_evaluate(
     :param mult_references: The list of list of sentences used as target.
     :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
         defaults to True.
-    :param cache_path: The path to the external code directory. defaults to "~/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :param device: The PyTorch device used to run FENSE and SPIDErFL models.
         If None, it will try to detect use cuda if available. defaults to "auto".
     :param verbose: The verbose level. defaults to 0.

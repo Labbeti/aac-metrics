@@ -6,6 +6,7 @@ import os
 import os.path as osp
 import subprocess
 import sys
+import tempfile
 import unittest
 
 from pathlib import Path
@@ -58,8 +59,8 @@ class TestCompareCaptionEvaluationTools(TestCase):
         sys.path.append(cet_path)
         # Override cache and tmp dir to avoid outputs in source code.
         spice_module = importlib.import_module("coco_caption.pycocoevalcap.spice.spice")
-        spice_module.CACHE_DIR = "/tmp"  # type: ignore
-        spice_module.TEMP_DIR = "/tmp"  # type: ignore
+        spice_module.CACHE_DIR = tempfile.gettempdir()  # type: ignore
+        spice_module.TEMP_DIR = tempfile.gettempdir()  # type: ignore
         eval_metrics_module = importlib.import_module("eval_metrics")
         evaluate_metrics_from_lists = eval_metrics_module.evaluate_metrics_from_lists
         return evaluate_metrics_from_lists
