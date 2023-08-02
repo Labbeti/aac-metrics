@@ -23,6 +23,14 @@ from .classes.rouge_l import ROUGEL
 from .classes.spice import SPICE
 from .classes.spider import SPIDEr
 from .functional.evaluate import dcase2023_evaluate, evaluate
+from .utils.paths import (
+    get_default_cache_path,
+    get_default_java_path,
+    get_default_tmp_path,
+    set_default_cache_path,
+    set_default_java_path,
+    set_default_tmp_path,
+)
 
 
 __all__ = [
@@ -36,6 +44,13 @@ __all__ = [
     "SPIDEr",
     "dcase2023_evaluate",
     "evaluate",
+    "get_default_cache_path",
+    "get_default_java_path",
+    "get_default_tmp_path",
+    "set_default_cache_path",
+    "set_default_java_path",
+    "set_default_tmp_path",
+    "load_metric",
 ]
 
 
