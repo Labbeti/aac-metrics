@@ -10,11 +10,12 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Function `get_install_info` now returns `package_path`.
-- AACMetric now indicate the output type when using `__call__` method.
+- `AACMetric` now indicate the output type when using `__call__` method.
 - Rename `AACEvaluate` to `DCASE2023Evaluate` and use `dcase2023` metric set instead of `all` metric set.
 
 ### Fixed
 - `sbert_sim` name in internal instantiation functions.
+- Path management for Windows.
 
 ## [0.4.3] 2023-06-15
 ### Changed
