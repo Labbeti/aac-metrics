@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - `Evaluate` class now implements a `__hash__` and `tolist()` methods.
 - `BLEU` 1 to n classes and functions.
+- Get and set global user paths for cache, java and tmp.
 
 ### Changed
 - Function `get_install_info` now returns `package_path`.
