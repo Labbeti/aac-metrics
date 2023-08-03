@@ -119,7 +119,7 @@ def download(
                         f"Downloading JAR source for '{name}' in directory {meteor_dpath}."
                     )
                 if subdir not in ("", "."):
-                    os.makedirs(osp.join(meteor_dpath, subdir), exist_ok=True)
+                    os.makedirs(osp.dirname(fpath), exist_ok=True)
 
                 download_url_to_file(
                     url,
