@@ -38,6 +38,11 @@ Install the pip package:
 pip install aac-metrics
 ```
 
+If you want to check if the package has been installed and the version, you can use this command:
+```bash
+aac-metrics-info
+```
+
 Download the external code and models needed for METEOR, SPICE, SPIDEr, SPIDEr-max, PTBTokenizer, SBERTSim, FluencyError, FENSE and SPIDEr-FL:
 ```bash
 aac-metrics-download
