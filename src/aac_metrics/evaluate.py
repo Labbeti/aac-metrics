@@ -11,7 +11,11 @@ from typing import Iterable, Union
 
 import yaml
 
-from aac_metrics.functional.evaluate import evaluate, METRICS_SETS
+from aac_metrics.functional.evaluate import (
+    evaluate,
+    METRICS_SETS,
+    DEFAULT_METRICS_SET_NAME,
+)
 from aac_metrics.utils.checks import check_metric_inputs, check_java_path
 from aac_metrics.utils.paths import (
     get_default_cache_path,
@@ -157,7 +161,7 @@ def _get_main_evaluate_args() -> Namespace:
     parser.add_argument(
         "--metrics_set_name",
         type=str,
-        default="default",
+        default=DEFAULT_METRICS_SET_NAME,
         choices=tuple(METRICS_SETS.keys()),
         help=f"The metrics set to compute. Can be one of {tuple(METRICS_SETS.keys())}. defaults to 'default'.",
     )

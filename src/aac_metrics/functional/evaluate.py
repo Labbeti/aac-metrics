@@ -65,6 +65,7 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "spider_fl",  # includes cider_d, spice, spider, fluerr
     ),
 }
+DEFAULT_METRICS_SET_NAME = "default"
 
 
 def evaluate(
@@ -73,7 +74,7 @@ def evaluate(
     preprocess: bool = True,
     metrics: Union[
         str, Iterable[str], Iterable[Callable[[list, list], tuple]]
-    ] = "default",
+    ] = DEFAULT_METRICS_SET_NAME,
     cache_path: str = ...,
     java_path: str = ...,
     tmp_path: str = ...,

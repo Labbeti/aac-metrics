@@ -12,7 +12,7 @@ __DEFAULT_PATHS: dict[str, dict[str, Optional[str]]] = {
     "cache": {
         "user": None,
         "env": "AAC_METRICS_CACHE_PATH",
-        "default": osp.join("~", ".cache"),
+        "default": osp.expanduser(osp.join("~", ".cache")),
     },
     "java": {
         "user": None,
