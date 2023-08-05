@@ -171,8 +171,13 @@ def _get_metric_factory_classes(
     tmp_path: str = ...,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
+    **kwargs,
 ) -> dict[str, Callable[[], AACMetric]]:
     return {
+        "bleu": lambda: BLEU(
+            return_all_scores=return_all_scores,
+            **kwargs,
+        ),
         "bleu_1": lambda: BLEU(
             return_all_scores=return_all_scores,
             n=1,
