@@ -12,17 +12,17 @@ __DEFAULT_PATHS: dict[str, dict[str, Optional[str]]] = {
     "cache": {
         "user": None,
         "env": "AAC_METRICS_CACHE_PATH",
-        "default": osp.expanduser(osp.join("~", ".cache")),
+        "package": osp.expanduser(osp.join("~", ".cache")),
     },
     "java": {
         "user": None,
         "env": "AAC_METRICS_JAVA_PATH",
-        "default": "java",
+        "package": "java",
     },
     "tmp": {
         "user": None,
         "env": "AAC_METRICS_TMP_PATH",
-        "default": tempfile.gettempdir(),
+        "package": tempfile.gettempdir(),
     },
 }
 
@@ -72,35 +72,33 @@ def set_default_tmp_path(tmp_path: Optional[str]) -> None:
     __set_default_path("tmp", tmp_path)
 
 
-def _process_cache_path(cache_path: Union[str, None]) -> str:
-    return __process_path("cache", cache_path)
+def _get_cache_path(cache_path: Union[str, None] = ...) -> str:
+    return __get_path("cache", cache_path)
 
 
-def _process_java_path(java_path: Union[str, None]) -> str:
-    return __process_path("java", java_path)
+def _get_java_path(java_path: Union[str, None] = ...) -> str:
+    return __get_path("java", java_path)
 
 
-def _process_tmp_path(tmp_path: Union[str, None]) -> str:
-    return __process_path("tmp", tmp_path)
+def _get_tmp_path(tmp_path: Union[str, None] = ...) -> str:
+    return __get_path("tmp", tmp_path)
 
 
 def __get_default_path(path_name: str) -> str:
-    user_path = __DEFAULT_PATHS[path_name]["user"]
-    if user_path is not None:
-        user_path = osp.expandvars(osp.expanduser(user_path))
-        return user_path
+    paths = __DEFAULT_PATHS[path_name]
 
-    env_var_name = __DEFAULT_PATHS[path_name]["env"]
-    env_path = os.getenv(env_var_name)  # type: ignore
-    if env_path is not None:
-        env_path = osp.expandvars(osp.expanduser(env_path))
-        return env_path
+    for name, path_or_var in paths.items():
+        if path_or_var is None:
+            continue
 
-    default_path = __DEFAULT_PATHS[path_name]["default"]
+        if name.startswith("env"):
+            path = os.getenv(path_or_var, None)
+        else:
+            path = path_or_var
 
-    if default_path is not None:
-        default_path = osp.expandvars(osp.expanduser(default_path))
-        return default_path
+        if path is not None:
+            path = osp.expandvars(osp.expanduser(path))
+            return path
 
     raise RuntimeError(
         f"Invalid default path for {path_name=}. (all default paths are None)"
@@ -116,7 +114,7 @@ def __set_default_path(
     __DEFAULT_PATHS[path_name]["user"] = path
 
 
-def __process_path(path_name: str, path: Union[str, None]) -> str:
+def __get_path(path_name: str, path: Union[str, None] = ...) -> str:
     if path is ... or path is None:
         return __get_default_path(path_name)
     else:

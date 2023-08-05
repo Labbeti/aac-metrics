@@ -22,9 +22,9 @@ from torch import Tensor
 
 from aac_metrics.utils.checks import check_java_path
 from aac_metrics.utils.paths import (
-    _process_cache_path,
-    _process_java_path,
-    _process_tmp_path,
+    _get_cache_path,
+    _get_java_path,
+    _get_tmp_path,
 )
 
 
@@ -75,9 +75,9 @@ def spice(
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
 
-    cache_path = _process_cache_path(cache_path)
-    java_path = _process_java_path(java_path)
-    tmp_path = _process_tmp_path(tmp_path)
+    cache_path = _get_cache_path(cache_path)
+    java_path = _get_java_path(java_path)
+    tmp_path = _get_tmp_path(tmp_path)
 
     spice_fpath = osp.join(cache_path, FNAME_SPICE_JAR)
 

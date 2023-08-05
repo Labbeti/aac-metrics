@@ -13,9 +13,9 @@ from typing import Any, Hashable, Iterable, Optional
 from aac_metrics.utils.checks import check_java_path
 from aac_metrics.utils.collections import flat_list, unflat_list
 from aac_metrics.utils.paths import (
-    _process_cache_path,
-    _process_java_path,
-    _process_tmp_path,
+    _get_cache_path,
+    _get_java_path,
+    _get_tmp_path,
 )
 
 
@@ -71,9 +71,9 @@ def ptb_tokenize_batch(
     if len(sentences) == 0:
         return []
 
-    cache_path = _process_cache_path(cache_path)
-    java_path = _process_java_path(java_path)
-    tmp_path = _process_tmp_path(tmp_path)
+    cache_path = _get_cache_path(cache_path)
+    java_path = _get_java_path(java_path)
+    tmp_path = _get_tmp_path(tmp_path)
 
     # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
 

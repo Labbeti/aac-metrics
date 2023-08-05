@@ -16,8 +16,8 @@ from aac_metrics.classes.fense import FENSE
 from aac_metrics.functional.meteor import FNAME_METEOR_JAR
 from aac_metrics.functional.spice import FNAME_SPICE_JAR, DNAME_SPICE_CACHE
 from aac_metrics.utils.paths import (
-    _process_cache_path,
-    _process_tmp_path,
+    _get_cache_path,
+    _get_tmp_path,
     get_default_cache_path,
     get_default_tmp_path,
 )
@@ -68,8 +68,8 @@ def download(
     :param fense: If True, downloads the FENSE models. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     """
-    cache_path = _process_cache_path(cache_path)
-    tmp_path = _process_tmp_path(tmp_path)
+    cache_path = _get_cache_path(cache_path)
+    tmp_path = _get_tmp_path(tmp_path)
 
     os.makedirs(cache_path, exist_ok=True)
     os.makedirs(tmp_path, exist_ok=True)

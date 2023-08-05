@@ -15,7 +15,7 @@ import torch
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_java_path
-from aac_metrics.utils.paths import _process_cache_path, _process_java_path
+from aac_metrics.utils.paths import _get_cache_path, _get_java_path
 
 
 pylog = logging.getLogger(__name__)
@@ -54,8 +54,8 @@ def meteor(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    cache_path = _process_cache_path(cache_path)
-    java_path = _process_java_path(java_path)
+    cache_path = _get_cache_path(cache_path)
+    java_path = _get_java_path(java_path)
 
     meteor_jar_fpath = osp.join(cache_path, FNAME_METEOR_JAR)
 
