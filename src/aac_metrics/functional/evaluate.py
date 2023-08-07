@@ -21,6 +21,7 @@ from aac_metrics.functional.sbert_sim import sbert_sim
 from aac_metrics.functional.spice import spice
 from aac_metrics.functional.spider import spider
 from aac_metrics.functional.spider_fl import spider_fl
+from aac_metrics.utils.checks import check_metric_inputs
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
 
@@ -95,6 +96,8 @@ def evaluate(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores.
     """
+    check_metric_inputs(candidates, mult_references)
+
     metrics = _instantiate_metrics_functions(
         metrics, cache_path, java_path, tmp_path, device, verbose
     )
