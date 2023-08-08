@@ -48,6 +48,10 @@ DATA_URLS = {
         "url": "https://github.com/cmu-mtlab/meteor/raw/master/data/paraphrase-es.gz",
         "fname": osp.join("data", "paraphrase-es.gz"),
     },
+    "meteor_data_cz": {
+        "url": "https://github.com/cmu-mtlab/meteor/raw/master/data/paraphrase-cz.gz",
+        "fname": osp.join("data", "paraphrase-cz.gz"),
+    },
     "spice": {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/spice/spice-1.0.jar",
         "fname": "spice-1.0.jar",
