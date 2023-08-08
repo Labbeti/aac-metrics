@@ -103,19 +103,19 @@ def evaluate(
     )
 
     if preprocess:
+        common_kwds = dict(
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
+            verbose=verbose,
+        )
         candidates = preprocess_mono_sents(
             candidates,
-            cache_path,
-            java_path,
-            tmp_path,
-            verbose=verbose,
+            **common_kwds,
         )
         mult_references = preprocess_mult_sents(
             mult_references,
-            cache_path,
-            java_path,
-            tmp_path,
-            verbose=verbose,
+            **common_kwds,
         )
 
     outs_corpus = {}
@@ -182,15 +182,15 @@ def dcase2023_evaluate(
     :returns: A tuple of globals and locals scores.
     """
     return evaluate(
-        candidates,
-        mult_references,
-        preprocess,
-        "dcase2023",
-        cache_path,
-        java_path,
-        tmp_path,
-        device,
-        verbose,
+        candidates=candidates,
+        mult_references=mult_references,
+        preprocess=preprocess,
+        metrics="dcase2023",
+        cache_path=cache_path,
+        java_path=java_path,
+        tmp_path=tmp_path,
+        device=device,
+        verbose=verbose,
     )
 
 
@@ -216,12 +216,12 @@ def _instantiate_metrics_functions(
         )
 
     metric_factory = _get_metric_factory_functions(
-        True,
-        cache_path,
-        java_path,
-        tmp_path,
-        device,
-        verbose,
+        return_all_scores=True,
+        cache_path=cache_path,
+        java_path=java_path,
+        tmp_path=tmp_path,
+        device=device,
+        verbose=verbose,
     )
 
     metrics_inst: list[Callable] = []
@@ -239,37 +239,31 @@ def _get_metric_factory_functions(
     tmp_path: str = ...,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
-    **kwargs,
 ) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
     return {
         "bleu": partial(
             bleu,
             return_all_scores=return_all_scores,
-            **kwargs,
         ),
         "bleu_1": partial(
             bleu,
             return_all_scores=return_all_scores,
             n=1,
-            **kwargs,
         ),
         "bleu_2": partial(
             bleu,
             return_all_scores=return_all_scores,
             n=2,
-            **kwargs,
         ),
         "bleu_3": partial(
             bleu,
             return_all_scores=return_all_scores,
             n=3,
-            **kwargs,
         ),
         "bleu_4": partial(
             bleu,
             return_all_scores=return_all_scores,
             n=4,
-            **kwargs,
         ),
         "meteor": partial(
             meteor,
@@ -277,17 +271,14 @@ def _get_metric_factory_functions(
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
-            **kwargs,
         ),
         "rouge_l": partial(
             rouge_l,
             return_all_scores=return_all_scores,
-            **kwargs,
         ),
         "cider_d": partial(
             cider_d,
             return_all_scores=return_all_scores,
-            **kwargs,
         ),
         "spice": partial(
             spice,
@@ -296,7 +287,6 @@ def _get_metric_factory_functions(
             java_path=java_path,
             tmp_path=tmp_path,
             verbose=verbose,
-            **kwargs,
         ),
         "spider": partial(
             spider,
@@ -305,28 +295,24 @@ def _get_metric_factory_functions(
             java_path=java_path,
             tmp_path=tmp_path,
             verbose=verbose,
-            **kwargs,
         ),
         "sbert_sim": partial(
             sbert_sim,
             return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
-            **kwargs,
         ),
         "fluerr": partial(  # type: ignore
             fluerr,
             return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
-            **kwargs,
         ),
         "fense": partial(
             fense,
             return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
-            **kwargs,
         ),
         "spider_fl": partial(
             spider_fl,
@@ -336,6 +322,5 @@ def _get_metric_factory_functions(
             tmp_path=tmp_path,
             device=device,
             verbose=verbose,
-            **kwargs,
         ),
     }

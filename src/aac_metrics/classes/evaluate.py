@@ -49,12 +49,12 @@ class Evaluate(list[AACMetric], AACMetric[tuple[dict[str, Tensor], dict[str, Ten
         verbose: int = 0,
     ) -> None:
         metrics = _instantiate_metrics_classes(
-            metrics,
-            cache_path,
-            java_path,
-            tmp_path,
-            device,
-            verbose,
+            metrics=metrics,
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
+            device=device,
+            verbose=verbose,
         )
 
         list.__init__(self, metrics)
@@ -71,15 +71,15 @@ class Evaluate(list[AACMetric], AACMetric[tuple[dict[str, Tensor], dict[str, Ten
 
     def compute(self) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
         return evaluate(
-            self._candidates,
-            self._mult_references,
-            self._preprocess,
-            self,
-            self._cache_path,
-            self._java_path,
-            self._tmp_path,
-            self._device,
-            self._verbose,
+            candidates=self._candidates,
+            mult_references=self._mult_references,
+            preprocess=self._preprocess,
+            metrics=self,
+            cache_path=self._cache_path,
+            java_path=self._java_path,
+            tmp_path=self._tmp_path,
+            device=self._device,
+            verbose=self._verbose,
         )
 
     def reset(self) -> None:
@@ -121,13 +121,13 @@ class DCASE2023Evaluate(Evaluate):
         verbose: int = 0,
     ) -> None:
         super().__init__(
-            preprocess,
-            "dcase2023",
-            cache_path,
-            java_path,
-            tmp_path,
-            device,
-            verbose,
+            preprocess=preprocess,
+            metrics="dcase2023",
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
+            device=device,
+            verbose=verbose,
         )
 
 
@@ -148,12 +148,12 @@ def _instantiate_metrics_classes(
         metrics = list(metrics)  # type: ignore
 
     metric_factory = _get_metric_factory_classes(
-        True,
-        cache_path,
-        java_path,
-        tmp_path,
-        device,
-        verbose,
+        return_all_scores=True,
+        cache_path=cache_path,
+        java_path=java_path,
+        tmp_path=tmp_path,
+        device=device,
+        verbose=verbose,
     )
 
     metrics_inst: list[AACMetric] = []
@@ -171,12 +171,10 @@ def _get_metric_factory_classes(
     tmp_path: str = ...,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
-    **kwargs,
 ) -> dict[str, Callable[[], AACMetric]]:
     return {
         "bleu": lambda: BLEU(
             return_all_scores=return_all_scores,
-            **kwargs,
         ),
         "bleu_1": lambda: BLEU(
             return_all_scores=return_all_scores,
