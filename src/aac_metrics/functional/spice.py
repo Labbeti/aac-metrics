@@ -31,8 +31,9 @@ from aac_metrics.utils.paths import (
 pylog = logging.getLogger(__name__)
 
 
-DNAME_SPICE_CACHE = osp.join("aac-metrics", "spice", "cache")
-FNAME_SPICE_JAR = osp.join("aac-metrics", "spice", "spice-1.0.jar")
+DNAME_SPICE_CACHE = osp.join("aac-metrics", "spice")
+DNAME_SPICE_LOCAL_CACHE = osp.join(DNAME_SPICE_CACHE, "cache")
+FNAME_SPICE_JAR = osp.join(DNAME_SPICE_CACHE, "spice-1.0.jar")
 
 
 def spice(
@@ -99,7 +100,7 @@ def spice(
     if separate_cache_dir:
         spice_cache = tempfile.mkdtemp(dir=tmp_path)
     else:
-        spice_cache = osp.join(cache_path, DNAME_SPICE_CACHE)
+        spice_cache = osp.join(cache_path, DNAME_SPICE_LOCAL_CACHE)
     del cache_path
 
     if verbose >= 2:

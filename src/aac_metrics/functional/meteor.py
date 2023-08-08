@@ -21,7 +21,8 @@ from aac_metrics.utils.paths import _get_cache_path, _get_java_path
 pylog = logging.getLogger(__name__)
 
 
-FNAME_METEOR_JAR = osp.join("aac-metrics", "meteor", "meteor-1.5.jar")
+DNAME_METEOR_CACHE = osp.join("aac-metrics", "meteor")
+FNAME_METEOR_JAR = osp.join(DNAME_METEOR_CACHE, "meteor-1.5.jar")
 SUPPORTED_LANGUAGES = ("en", "cz", "de", "es", "fr")
 
 
