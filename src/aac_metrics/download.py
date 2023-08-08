@@ -27,7 +27,7 @@ from aac_metrics.utils.tokenization import FNAME_STANFORD_CORENLP_3_4_1_JAR
 pylog = logging.getLogger(__name__)
 
 
-JAR_URLS = {
+DATA_URLS = {
     "meteor": {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/meteor/meteor-1.5.jar",
         "fname": "meteor-1.5.jar",
@@ -35,6 +35,18 @@ JAR_URLS = {
     "meteor_data": {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/meteor/data/paraphrase-en.gz",
         "fname": osp.join("data", "paraphrase-en.gz"),
+    },
+    "meteor_data_fr": {
+        "url": "https://github.com/cmu-mtlab/meteor/raw/master/data/paraphrase-fr.gz",
+        "fname": osp.join("data", "paraphrase-fr.gz"),
+    },
+    "meteor_data_de": {
+        "url": "https://github.com/cmu-mtlab/meteor/raw/master/data/paraphrase-de.gz",
+        "fname": osp.join("data", "paraphrase-de.gz"),
+    },
+    "meteor_data_es": {
+        "url": "https://github.com/cmu-mtlab/meteor/raw/master/data/paraphrase-es.gz",
+        "fname": osp.join("data", "paraphrase-es.gz"),
     },
     "spice": {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/spice/spice-1.0.jar",
@@ -58,7 +70,7 @@ def download(
     fense: bool = True,
     verbose: int = 0,
 ) -> None:
-    """Download the code needed for SPICE, METEOR and PTB Tokenizer.
+    """Download the code needed for SPICE, METEOR, PTB Tokenizer and FENSE.
 
     :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
     :param tmp_path: The path to a temporary directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
@@ -77,7 +89,7 @@ def download(
     if verbose >= 2:
         pylog.debug("Setup:")
         pylog.debug(f"\tCache directory: {cache_path}")
-        pylog.debug(f"\tTemporary directory: {cache_path}")
+        pylog.debug(f"\tTemporary directory: {tmp_path}")
 
     if ptb_tokenizer:
         # Download JAR file for tokenization
@@ -87,7 +99,7 @@ def download(
         os.makedirs(stanford_nlp_dpath, exist_ok=True)
 
         name = "stanford_nlp"
-        info = JAR_URLS[name]
+        info = DATA_URLS[name]
         url = info["url"]
         fname = info["fname"]
         fpath = osp.join(stanford_nlp_dpath, fname)
@@ -106,29 +118,32 @@ def download(
         meteor_dpath = osp.join(cache_path, osp.dirname(FNAME_METEOR_JAR))
         os.makedirs(meteor_dpath, exist_ok=True)
 
-        for name in ("meteor", "meteor_data"):
-            info = JAR_URLS[name]
+        meteors_names = [name for name in DATA_URLS.keys() if name.startswith("meteor")]
+
+        for name in meteors_names:
+            info = DATA_URLS[name]
             url = info["url"]
             fname = info["fname"]
             subdir = osp.dirname(fname)
             fpath = osp.join(meteor_dpath, fname)
 
-            if not osp.isfile(fpath):
-                if verbose >= 1:
-                    pylog.info(
-                        f"Downloading JAR source for '{name}' in directory {meteor_dpath}."
-                    )
-                if subdir not in ("", "."):
-                    os.makedirs(osp.dirname(fpath), exist_ok=True)
-
-                download_url_to_file(
-                    url,
-                    fpath,
-                    progress=verbose >= 1,
-                )
-            else:
+            if osp.isfile(fpath):
                 if verbose >= 1:
                     pylog.info(f"Meteor file '{name}' is already downloaded.")
+                continue
+
+            if verbose >= 1:
+                pylog.info(
+                    f"Downloading source for '{fname}' in directory {meteor_dpath}."
+                )
+            if subdir not in ("", "."):
+                os.makedirs(osp.dirname(fpath), exist_ok=True)
+
+            download_url_to_file(
+                url,
+                fpath,
+                progress=verbose >= 1,
+            )
 
     if spice:
         # Download JAR files for SPICE metric
