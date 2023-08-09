@@ -199,13 +199,13 @@ arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 If you use **SPIDEr-max**, you can cite the following paper using BibTex :
 ```
 @inproceedings{Labbe2022,
-	title        = {Is my Automatic Audio Captioning System so Bad? SPIDEr-max: A Metric to Consider Several Caption Candidates},
-	author       = {Labb\'{e}, Etienne and Pellegrini, Thomas and Pinquier, Julien},
-	year         = 2022,
-	month        = {November},
-	booktitle    = {Proceedings of the 7th Detection and Classification of Acoustic Scenes and Events 2022 Workshop (DCASE2022)},
-	address      = {Nancy, France},
-	url          = {https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Labbe_46.pdf}
+    title        = {Is my Automatic Audio Captioning System so Bad? SPIDEr-max: A Metric to Consider Several Caption Candidates},
+    author       = {Labb\'{e}, Etienne and Pellegrini, Thomas and Pinquier, Julien},
+    year         = 2022,
+    month        = {November},
+    booktitle    = {Proceedings of the 7th Detection and Classification of Acoustic Scenes and Events 2022 Workshop (DCASE2022)},
+    address      = {Nancy, France},
+    url          = {https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Labbe_46.pdf}
 }
 ```
 
