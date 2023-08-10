@@ -20,6 +20,7 @@ from aac_metrics.utils.paths import (
 
 
 def get_package_repository_path() -> str:
+    """Return the absolute path where the source code of this package is installed."""
     return str(Path(__file__).parent.parent.parent)
 
 
