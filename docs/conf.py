@@ -101,3 +101,7 @@ intersphinx_mapping = {
 
 def setup(app) -> None:
     app.add_css_file("my_theme.css")
+
+
+# TODO: to be used with sphinx>=7.1
+maximum_signature_line_length = 10
