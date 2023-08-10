@@ -12,6 +12,25 @@ from typing import Optional, Union
 pylog = logging.getLogger(__name__)
 
 
+__DEFAULT_PATHS: dict[str, dict[str, Optional[str]]] = {
+    "cache": {
+        "user": None,
+        "env": "AAC_METRICS_CACHE_PATH",
+        "package": osp.expanduser(osp.join("~", ".cache")),
+    },
+    "java": {
+        "user": None,
+        "env": "AAC_METRICS_JAVA_PATH",
+        "package": "java",
+    },
+    "tmp": {
+        "user": None,
+        "env": "AAC_METRICS_TMP_PATH",
+        "package": tempfile.gettempdir(),
+    },
+}
+
+
 # Public functions
 def get_default_cache_path() -> str:
     """Returns the default cache directory path.
@@ -71,25 +90,6 @@ def _get_tmp_path(tmp_path: Union[str, None] = ...) -> str:
     return __get_path("tmp", tmp_path)
 
 
-__DEFAULT_PATHS: dict[str, dict[str, Optional[str]]] = {
-    "cache": {
-        "user": None,
-        "env": "AAC_METRICS_CACHE_PATH",
-        "package": osp.expanduser(osp.join("~", ".cache")),
-    },
-    "java": {
-        "user": None,
-        "env": "AAC_METRICS_JAVA_PATH",
-        "package": "java",
-    },
-    "tmp": {
-        "user": None,
-        "env": "AAC_METRICS_TMP_PATH",
-        "package": tempfile.gettempdir(),
-    },
-}
-
-
 def __get_default_path(path_name: str) -> str:
     paths = __DEFAULT_PATHS[path_name]
 
@@ -116,8 +116,8 @@ def __set_default_path(
     path_name: str,
     path: Optional[str],
 ) -> None:
-    if path is not None:
-        path = osp.expandvars(osp.expanduser(path))
+    if path is not ... and path is not None:
+        path = __process_path(path)
     __DEFAULT_PATHS[path_name]["user"] = path
 
 
