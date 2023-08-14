@@ -42,8 +42,8 @@ class ROUGEL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return _rouge_l_compute(
-            self._rouge_l_scores,
-            self._return_all_scores,
+            rouge_l_scs=self._rouge_l_scores,
+            return_all_scores=self._return_all_scores,
         )
 
     def extra_repr(self) -> str:
@@ -62,9 +62,9 @@ class ROUGEL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
         mult_references: list[list[str]],
     ) -> None:
         self._rouge_l_scores = _rouge_l_update(
-            candidates,
-            mult_references,
-            self._beta,
-            self._tokenizer,
-            self._rouge_l_scores,
+            candidates=candidates,
+            mult_references=mult_references,
+            beta=self._beta,
+            tokenizer=self._tokenizer,
+            prev_rouge_l_scores=self._rouge_l_scores,
         )

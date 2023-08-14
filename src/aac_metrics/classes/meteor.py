@@ -47,14 +47,14 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return meteor(
-            self._candidates,
-            self._mult_references,
-            self._return_all_scores,
-            self._cache_path,
-            self._java_path,
-            self._java_max_memory,
-            self._language,
-            self._verbose,
+            candidates=self._candidates,
+            mult_references=self._mult_references,
+            return_all_scores=self._return_all_scores,
+            cache_path=self._cache_path,
+            java_path=self._java_path,
+            java_max_memory=self._java_max_memory,
+            language=self._language,
+            verbose=self._verbose,
         )
 
     def extra_repr(self) -> str:

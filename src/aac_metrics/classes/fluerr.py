@@ -64,16 +64,16 @@ class FluErr(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return fluerr(
-            self._candidates,
-            self._return_all_scores,
-            self._echecker,
-            self._echecker_tokenizer,
-            self._error_threshold,
-            self._device,
-            self._batch_size,
-            self._reset_state,
-            self._return_probs,
-            self._verbose,
+            candidates=self._candidates,
+            return_all_scores=self._return_all_scores,
+            echecker=self._echecker,
+            echecker_tokenizer=self._echecker_tokenizer,
+            error_threshold=self._error_threshold,
+            device=self._device,
+            batch_size=self._batch_size,
+            reset_state=self._reset_state,
+            return_probs=self._return_probs,
+            verbose=self._verbose,
         )
 
     def extra_repr(self) -> str:

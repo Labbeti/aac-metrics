@@ -61,9 +61,9 @@ class SPIDEr(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return spider(
-            self._candidates,
-            self._mult_references,
-            self._return_all_scores,
+            candidates=self._candidates,
+            mult_references=self._mult_references,
+            return_all_scores=self._return_all_scores,
             # CIDEr args
             n=self._n,
             sigma=self._sigma,

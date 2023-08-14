@@ -108,7 +108,7 @@ class Evaluate(list[AACMetric], AACMetric[tuple[dict[str, Tensor], dict[str, Ten
 class DCASE2023Evaluate(Evaluate):
     """Evaluate candidates with multiple references with DCASE2023 Audio Captioning metrics.
 
-    For more information, see :func:`~aac_metrics.functional.evaluate.aac_evaluate`.
+    For more information, see :func:`~aac_metrics.functional.evaluate.dcase2023_evaluate`.
     """
 
     def __init__(

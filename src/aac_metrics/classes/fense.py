@@ -66,19 +66,19 @@ class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return fense(
-            self._candidates,
-            self._mult_references,
-            self._return_all_scores,
-            self._sbert_model,
-            self._echecker,
-            self._echecker_tokenizer,
-            self._error_threshold,
-            self._device,
-            self._batch_size,
-            self._reset_state,
-            self._return_probs,
-            self._penalty,
-            self._verbose,
+            candidates=self._candidates,
+            mult_references=self._mult_references,
+            return_all_scores=self._return_all_scores,
+            sbert_model=self._sbert_model,
+            echecker=self._echecker,
+            echecker_tokenizer=self._echecker_tokenizer,
+            error_threshold=self._error_threshold,
+            device=self._device,
+            batch_size=self._batch_size,
+            reset_state=self._reset_state,
+            return_probs=self._return_probs,
+            penalty=self._penalty,
+            verbose=self._verbose,
         )
 
     def extra_repr(self) -> str:

@@ -49,13 +49,13 @@ class CIDErD(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Any]], Tensor]])
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return _cider_d_compute(
-            self._cooked_cands,
-            self._cooked_mrefs,
-            self._return_all_scores,
-            self._n,
-            self._sigma,
-            self._return_tfidf,
-            self._scale,
+            cooked_cands=self._cooked_cands,
+            cooked_mrefs=self._cooked_mrefs,
+            return_all_scores=self._return_all_scores,
+            n=self._n,
+            sigma=self._sigma,
+            return_tfidf=self._return_tfidf,
+            scale=self._scale,
         )
 
     def extra_repr(self) -> str:
@@ -75,10 +75,10 @@ class CIDErD(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Any]], Tensor]])
         mult_references: list[list[str]],
     ) -> None:
         self._cooked_cands, self._cooked_mrefs = _cider_d_update(
-            candidates,
-            mult_references,
-            self._n,
-            self._tokenizer,
-            self._cooked_cands,
-            self._cooked_mrefs,
+            candidates=candidates,
+            mult_references=mult_references,
+            n=self._n,
+            tokenizer=self._tokenizer,
+            prev_cooked_cands=self._cooked_cands,
+            prev_cooked_mrefs=self._cooked_mrefs,
         )

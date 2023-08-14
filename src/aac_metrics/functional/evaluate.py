@@ -103,7 +103,7 @@ def evaluate(
     )
 
     if preprocess:
-        common_kwds = dict(
+        common_kwds: dict[str, Any] = dict(
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
