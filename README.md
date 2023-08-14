@@ -119,7 +119,9 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 | SPIDEr-FL [[9]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error |
 
 ## Requirements
+This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions.
 ### Python packages
+
 
 The pip requirements are automatically installed when using `pip install` on this repository.
 ```
@@ -129,8 +131,6 @@ pyyaml >= 6.0
 tqdm >= 4.64.0
 sentence-transformers >= 2.2.2
 ```
-
-This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions.
 
 ### External requirements
 - `java` **>= 1.8 and <= 1.13** is required to compute METEOR, SPICE and use the PTBTokenizer.
