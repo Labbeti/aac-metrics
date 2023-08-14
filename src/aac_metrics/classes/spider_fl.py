@@ -21,7 +21,7 @@ from aac_metrics.functional.spider_fl import spider_fl
 pylog = logging.getLogger(__name__)
 
 
-class SPIDErFL(AACMetric):
+class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """SPIDErFL class.
 
     For more information, see :func:`~aac_metrics.functional.spider_fl.spider_fl`.
@@ -41,9 +41,9 @@ class SPIDErFL(AACMetric):
         n: int = 4,
         sigma: float = 6.0,
         # SPICE args
-        cache_path: str = "$HOME/.cache",
-        java_path: str = "java",
-        tmp_path: str = "/tmp",
+        cache_path: str = ...,
+        java_path: str = ...,
+        tmp_path: str = ...,
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,

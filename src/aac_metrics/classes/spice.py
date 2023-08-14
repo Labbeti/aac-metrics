@@ -14,7 +14,7 @@ from aac_metrics.functional.spice import spice
 pylog = logging.getLogger(__name__)
 
 
-class SPICE(AACMetric):
+class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """Semantic Propositional Image Caption Evaluation class.
 
     - Paper: https://arxiv.org/pdf/1607.08822.pdf
@@ -32,9 +32,9 @@ class SPICE(AACMetric):
     def __init__(
         self,
         return_all_scores: bool = True,
-        cache_path: str = "$HOME/.cache",
-        java_path: str = "java",
-        tmp_path: str = "/tmp",
+        cache_path: str = ...,
+        java_path: str = ...,
+        tmp_path: str = ...,
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,

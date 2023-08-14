@@ -66,6 +66,90 @@ def bleu(
     )
 
 
+def bleu_1(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    return_all_scores: bool = True,
+    option: str = "closest",
+    verbose: int = 0,
+    tokenizer: Callable[[str], list[str]] = str.split,
+    return_1_to_n: bool = False,
+) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    return bleu(
+        candidates=candidates,
+        mult_references=mult_references,
+        return_all_scores=return_all_scores,
+        n=1,
+        option=option,
+        verbose=verbose,
+        tokenizer=tokenizer,
+        return_1_to_n=return_1_to_n,
+    )
+
+
+def bleu_2(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    return_all_scores: bool = True,
+    option: str = "closest",
+    verbose: int = 0,
+    tokenizer: Callable[[str], list[str]] = str.split,
+    return_1_to_n: bool = False,
+) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    return bleu(
+        candidates=candidates,
+        mult_references=mult_references,
+        return_all_scores=return_all_scores,
+        n=2,
+        option=option,
+        verbose=verbose,
+        tokenizer=tokenizer,
+        return_1_to_n=return_1_to_n,
+    )
+
+
+def bleu_3(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    return_all_scores: bool = True,
+    option: str = "closest",
+    verbose: int = 0,
+    tokenizer: Callable[[str], list[str]] = str.split,
+    return_1_to_n: bool = False,
+) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    return bleu(
+        candidates=candidates,
+        mult_references=mult_references,
+        return_all_scores=return_all_scores,
+        n=3,
+        option=option,
+        verbose=verbose,
+        tokenizer=tokenizer,
+        return_1_to_n=return_1_to_n,
+    )
+
+
+def bleu_4(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    return_all_scores: bool = True,
+    option: str = "closest",
+    verbose: int = 0,
+    tokenizer: Callable[[str], list[str]] = str.split,
+    return_1_to_n: bool = False,
+) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    return bleu(
+        candidates=candidates,
+        mult_references=mult_references,
+        return_all_scores=return_all_scores,
+        n=4,
+        option=option,
+        verbose=verbose,
+        tokenizer=tokenizer,
+        return_1_to_n=return_1_to_n,
+    )
+
+
 def _bleu_update(
     candidates: list[str],
     mult_references: list[list[str]],

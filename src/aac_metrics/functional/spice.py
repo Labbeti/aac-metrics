@@ -21,22 +21,28 @@ import torch
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_java_path
+from aac_metrics.utils.paths import (
+    _get_cache_path,
+    _get_java_path,
+    _get_tmp_path,
+)
 
 
 pylog = logging.getLogger(__name__)
 
 
-DNAME_SPICE_CACHE = osp.join("aac-metrics", "spice", "cache")
-FNAME_SPICE_JAR = osp.join("aac-metrics", "spice", "spice-1.0.jar")
+DNAME_SPICE_CACHE = osp.join("aac-metrics", "spice")
+DNAME_SPICE_LOCAL_CACHE = osp.join(DNAME_SPICE_CACHE, "cache")
+FNAME_SPICE_JAR = osp.join(DNAME_SPICE_CACHE, "spice-1.0.jar")
 
 
 def spice(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
@@ -52,9 +58,9 @@ def spice(
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :param n_threads: Number of threads used to compute SPICE.
         None value will use the default value of the java program.
         defaults to None.
@@ -70,9 +76,9 @@ def spice(
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
 
-    cache_path = osp.expandvars(cache_path)
-    java_path = osp.expandvars(java_path)
-    tmp_path = osp.expandvars(tmp_path)
+    cache_path = _get_cache_path(cache_path)
+    java_path = _get_java_path(java_path)
+    tmp_path = _get_tmp_path(tmp_path)
 
     spice_fpath = osp.join(cache_path, FNAME_SPICE_JAR)
 
@@ -94,7 +100,7 @@ def spice(
     if separate_cache_dir:
         spice_cache = tempfile.mkdtemp(dir=tmp_path)
     else:
-        spice_cache = osp.join(cache_path, DNAME_SPICE_CACHE)
+        spice_cache = osp.join(cache_path, DNAME_SPICE_LOCAL_CACHE)
     del cache_path
 
     if verbose >= 2:

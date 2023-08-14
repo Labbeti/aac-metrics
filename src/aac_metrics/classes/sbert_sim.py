@@ -17,7 +17,7 @@ from aac_metrics.functional.sbert_sim import sbert_sim, _load_sbert
 pylog = logging.getLogger(__name__)
 
 
-class SBERTSim(AACMetric):
+class SBERTSim(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """Cosine-similarity of the Sentence-BERT embeddings.
 
     - Paper: https://arxiv.org/abs/1908.10084

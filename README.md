@@ -38,6 +38,11 @@ Install the pip package:
 pip install aac-metrics
 ```
 
+If you want to check if the package has been installed and the version, you can use this command:
+```bash
+aac-metrics-info
+```
+
 Download the external code and models needed for METEOR, SPICE, SPIDEr, SPIDEr-max, PTBTokenizer, SBERTSim, FluencyError, FENSE and SPIDEr-FL:
 ```bash
 aac-metrics-download
@@ -114,7 +119,9 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 | SPIDEr-FL [[9]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error |
 
 ## Requirements
+This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions.
 ### Python packages
+
 
 The pip requirements are automatically installed when using `pip install` on this repository.
 ```
@@ -126,7 +133,7 @@ sentence-transformers >= 2.2.2
 ```
 
 ### External requirements
-- `java` **>= 1.8 and <= 1.11** is required to compute METEOR, SPICE and use the PTBTokenizer.
+- `java` **>= 1.8 and <= 1.13** is required to compute METEOR, SPICE and use the PTBTokenizer.
 Most of these functions can specify a java executable path with `java_path` argument.
 
 - `unzip` command to extract SPICE zipped files.
@@ -191,18 +198,14 @@ arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 ## Citation
 If you use **SPIDEr-max**, you can cite the following paper using BibTex :
 ```
-@inproceedings{labbe:hal-03810396,
-    TITLE = {{Is my automatic audio captioning system so bad? spider-max: a metric to consider several caption candidates}},
-    AUTHOR = {Labb{\'e}, Etienne and Pellegrini, Thomas and Pinquier, Julien},
-    URL = {https://hal.archives-ouvertes.fr/hal-03810396},
-    BOOKTITLE = {{Workshop DCASE}},
-    ADDRESS = {Nancy, France},
-    YEAR = {2022},
-    MONTH = Nov,
-    KEYWORDS = {audio captioning ; evaluation metric ; beam search ; multiple candidates},
-    PDF = {https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf},
-    HAL_ID = {hal-03810396},
-    HAL_VERSION = {v1},
+@inproceedings{Labbe2022,
+    title        = {Is my Automatic Audio Captioning System so Bad? SPIDEr-max: A Metric to Consider Several Caption Candidates},
+    author       = {Labb\'{e}, Etienne and Pellegrini, Thomas and Pinquier, Julien},
+    year         = 2022,
+    month        = {November},
+    booktitle    = {Proceedings of the 7th Detection and Classification of Acoustic Scenes and Events 2022 Workshop (DCASE2022)},
+    address      = {Nancy, France},
+    url          = {https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Labbe_46.pdf}
 }
 ```
 
@@ -212,10 +215,10 @@ If you use this software, please consider cite it as below :
     Labbe_aac-metrics_2023,
     author = {Labbé, Etienne},
     license = {MIT},
-    month = {6},
+    month = {8},
     title = {{aac-metrics}},
     url = {https://github.com/Labbeti/aac-metrics/},
-    version = {0.4.3},
+    version = {0.4.4},
     year = {2023},
 }
 ```

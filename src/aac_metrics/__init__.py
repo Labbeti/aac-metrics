@@ -10,25 +10,33 @@ __author_email__ = "labbeti.pub@gmail.com"
 __license__ = "MIT"
 __maintainer__ = "Etienne Labbé (Labbeti)"
 __status__ = "Development"
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 
 
 from .classes.base import AACMetric
 from .classes.bleu import BLEU
 from .classes.cider_d import CIDErD
-from .classes.evaluate import AACEvaluate, _get_metric_factory_classes
+from .classes.evaluate import DCASE2023Evaluate, _get_metric_factory_classes
 from .classes.fense import FENSE
 from .classes.meteor import METEOR
 from .classes.rouge_l import ROUGEL
 from .classes.spice import SPICE
 from .classes.spider import SPIDEr
 from .functional.evaluate import dcase2023_evaluate, evaluate
+from .utils.paths import (
+    get_default_cache_path,
+    get_default_java_path,
+    get_default_tmp_path,
+    set_default_cache_path,
+    set_default_java_path,
+    set_default_tmp_path,
+)
 
 
 __all__ = [
     "BLEU",
     "CIDErD",
-    "AACEvaluate",
+    "DCASE2023Evaluate",
     "FENSE",
     "METEOR",
     "ROUGEL",
@@ -36,6 +44,13 @@ __all__ = [
     "SPIDEr",
     "dcase2023_evaluate",
     "evaluate",
+    "get_default_cache_path",
+    "get_default_java_path",
+    "get_default_tmp_path",
+    "set_default_cache_path",
+    "set_default_java_path",
+    "set_default_tmp_path",
+    "load_metric",
 ]
 
 

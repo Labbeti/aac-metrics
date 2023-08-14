@@ -112,8 +112,3 @@ def _check_java_version(version: str, min_major: int, max_major: int) -> bool:
         major_version = minor_version
 
     return min_major <= major_version <= max_major
-
-
-@cache
-def _warn_once(msg: str) -> None:
-    pylog.warning(msg)

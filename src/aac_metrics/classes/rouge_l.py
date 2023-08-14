@@ -12,7 +12,7 @@ from aac_metrics.functional.rouge_l import (
 )
 
 
-class ROUGEL(AACMetric):
+class ROUGEL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """Recall-Oriented Understudy for Gisting Evaluation class.
 
     - Paper: https://aclanthology.org/W04-1013.pdf

@@ -20,7 +20,7 @@ from aac_metrics.functional.fluerr import (
 pylog = logging.getLogger(__name__)
 
 
-class FluErr(AACMetric):
+class FluErr(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """Return fluency error rate detected by a pre-trained BERT model.
 
     - Paper: https://arxiv.org/abs/2110.04684

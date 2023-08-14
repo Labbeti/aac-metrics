@@ -22,9 +22,9 @@ def spider_max(
     tokenizer: Callable[[str], list[str]] = str.split,
     return_tfidf: bool = False,
     # SPICE args
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
@@ -32,7 +32,7 @@ def spider_max(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """SPIDEr-max function.
 
-    - Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
+    - Paper: https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Labbe_46.pdf
 
     Compute the maximal SPIDEr score accross multiple candidates.
 
@@ -41,16 +41,16 @@ def spider_max(
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
-    :param return_all_cands_scores: If True, returns all multiple candidates scores in sents_scores outputs as tensor of shape (n_audoi, n_cands_per_audio).
+    :param return_all_cands_scores: If True, returns all multiple candidates scores in sents_scores outputs as tensor of shape (n_audio, n_cands_per_audio).
         defaults to False.
     :param n: Maximal number of n-grams taken into account. defaults to 4.
     :param sigma: Standard deviation parameter used for gaussian penalty. defaults to 6.0.
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
     :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the sents_score output.
         defaults to False.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :param java_max_memory: The maximal java memory used. defaults to "8G".
     :param n_threads: Number of threads used to compute SPICE.
         None value will use the default value of the java program.

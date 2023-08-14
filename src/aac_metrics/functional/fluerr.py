@@ -123,7 +123,7 @@ def fluerr(
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
     :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "auto".
     :param batch_size: The batch size of the echecker models. defaults to 32.
-    :param reset_state: If True, reset the state of the PyTorch global generator after the pre-trained model are built. defaults to True.
+    :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
@@ -193,7 +193,7 @@ def _load_echecker_and_tokenizer(
         echecker = __load_pretrain_echecker(echecker, device, verbose=verbose)
 
     if echecker_tokenizer is None:
-        echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)
+        echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)  # type: ignore
 
     echecker = echecker.eval()
     for p in echecker.parameters():
@@ -231,10 +231,10 @@ def __detect_error_sents(
         # batch_logits: (bsize, num_classes=6)
         # note: fix error in the original fense code: https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L69
         probs = logits.sigmoid().transpose(0, 1).cpu().numpy()
-        probs_dic = dict(zip(ERROR_NAMES, probs))
+        probs_dic: dict[str, np.ndarray] = dict(zip(ERROR_NAMES, probs))
 
     else:
-        probs_dic = {name: [] for name in ERROR_NAMES}
+        dic_lst_probs = {name: [] for name in ERROR_NAMES}
 
         for i in range(0, len(sents), batch_size):
             batch = __infer_preprocess(
@@ -251,10 +251,12 @@ def __detect_error_sents(
             # classes: add_tail, repeat_event, repeat_adv, remove_conj, remove_verb, error
             probs = batch_logits.sigmoid().cpu().numpy()
 
-            for j, name in enumerate(probs_dic.keys()):
-                probs_dic[name].append(probs[:, j])
+            for j, name in enumerate(dic_lst_probs.keys()):
+                dic_lst_probs[name].append(probs[:, j])
 
-        probs_dic = {name: np.concatenate(probs) for name, probs in probs_dic.items()}
+        probs_dic = {
+            name: np.concatenate(probs) for name, probs in dic_lst_probs.items()
+        }
 
     return probs_dic
 
@@ -412,6 +414,12 @@ def __load_pretrain_echecker(
         pylog.debug(f"Loading echecker model from '{file_path}'.")
 
     model_states = torch.load(file_path)
+
+    if verbose >= 2:
+        pylog.debug(
+            f"Loading echecker model type '{model_states['model_type']}' with '{model_states['num_classes']}' classes."
+        )
+
     echecker = BERTFlatClassifier(
         model_type=model_states["model_type"],
         num_classes=model_states["num_classes"],

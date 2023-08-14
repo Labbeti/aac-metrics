@@ -144,6 +144,7 @@ def __my_lcs(string: list[str], sub: list[str]) -> int:
         sub, string = string, sub
 
     lengths = [[0 for i in range(0, len(sub) + 1)] for j in range(0, len(string) + 1)]
+    # lengths shape: (len(string)+1, len(sub)+1)
 
     for j in range(1, len(sub) + 1):
         for i in range(1, len(string) + 1):

@@ -21,6 +21,7 @@ from aac_metrics.functional.sbert_sim import sbert_sim
 from aac_metrics.functional.spice import spice
 from aac_metrics.functional.spider import spider
 from aac_metrics.functional.spider_fl import spider_fl
+from aac_metrics.utils.checks import check_metric_inputs
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
 
@@ -65,6 +66,7 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "spider_fl",  # includes cider_d, spice, spider, fluerr
     ),
 }
+DEFAULT_METRICS_SET_NAME = "default"
 
 
 def evaluate(
@@ -73,10 +75,10 @@ def evaluate(
     preprocess: bool = True,
     metrics: Union[
         str, Iterable[str], Iterable[Callable[[list, list], tuple]]
-    ] = "default",
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    ] = DEFAULT_METRICS_SET_NAME,
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
@@ -86,32 +88,34 @@ def evaluate(
     :param mult_references: The list of list of sentences used as target.
     :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.defaults to True.
     :param metrics: The name of the metric list or the explicit list of metrics to compute. defaults to "default".
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :param device: The PyTorch device used to run FENSE and SPIDErFL models.
         If None, it will try to detect use cuda if available. defaults to "auto".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores.
     """
+    check_metric_inputs(candidates, mult_references)
+
     metrics = _instantiate_metrics_functions(
         metrics, cache_path, java_path, tmp_path, device, verbose
     )
 
     if preprocess:
+        common_kwds = dict(
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
+            verbose=verbose,
+        )
         candidates = preprocess_mono_sents(
             candidates,
-            cache_path,
-            java_path,
-            tmp_path,
-            verbose=verbose,
+            **common_kwds,
         )
         mult_references = preprocess_mult_sents(
             mult_references,
-            cache_path,
-            java_path,
-            tmp_path,
-            verbose=verbose,
+            **common_kwds,
         )
 
     outs_corpus = {}
@@ -157,44 +161,44 @@ def dcase2023_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
-    """Evaluate candidates with multiple references with all Audio Captioning metrics.
+    """Evaluate candidates with multiple references with the DCASE2023 Audio Captioning metrics.
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
     :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
         defaults to True.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :param device: The PyTorch device used to run FENSE and SPIDErFL models.
         If None, it will try to detect use cuda if available. defaults to "auto".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores.
     """
     return evaluate(
-        candidates,
-        mult_references,
-        preprocess,
-        "dcase2023",
-        cache_path,
-        java_path,
-        tmp_path,
-        device,
-        verbose,
+        candidates=candidates,
+        mult_references=mult_references,
+        preprocess=preprocess,
+        metrics="dcase2023",
+        cache_path=cache_path,
+        java_path=java_path,
+        tmp_path=tmp_path,
+        device=device,
+        verbose=verbose,
     )
 
 
 def _instantiate_metrics_functions(
     metrics: Union[str, Iterable[str], Iterable[Callable[[list, list], tuple]]] = "all",
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> list[Callable]:
@@ -212,12 +216,12 @@ def _instantiate_metrics_functions(
         )
 
     metric_factory = _get_metric_factory_functions(
-        True,
-        cache_path,
-        java_path,
-        tmp_path,
-        device,
-        verbose,
+        return_all_scores=True,
+        cache_path=cache_path,
+        java_path=java_path,
+        tmp_path=tmp_path,
+        device=device,
+        verbose=verbose,
     )
 
     metrics_inst: list[Callable] = []
@@ -230,13 +234,17 @@ def _instantiate_metrics_functions(
 
 def _get_metric_factory_functions(
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
     return {
+        "bleu": partial(
+            bleu,
+            return_all_scores=return_all_scores,
+        ),
         "bleu_1": partial(
             bleu,
             return_all_scores=return_all_scores,
@@ -288,13 +296,13 @@ def _get_metric_factory_functions(
             tmp_path=tmp_path,
             verbose=verbose,
         ),
-        "sbert": partial(
+        "sbert_sim": partial(
             sbert_sim,
             return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
         ),
-        "fluerr": partial(
+        "fluerr": partial(  # type: ignore
             fluerr,
             return_all_scores=return_all_scores,
             device=device,

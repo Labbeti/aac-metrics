@@ -15,12 +15,14 @@ import torch
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_java_path
+from aac_metrics.utils.paths import _get_cache_path, _get_java_path
 
 
 pylog = logging.getLogger(__name__)
 
 
-FNAME_METEOR_JAR = osp.join("aac-metrics", "meteor", "meteor-1.5.jar")
+DNAME_METEOR_CACHE = osp.join("aac-metrics", "meteor")
+FNAME_METEOR_JAR = osp.join(DNAME_METEOR_CACHE, "meteor-1.5.jar")
 SUPPORTED_LANGUAGES = ("en", "cz", "de", "es", "fr")
 
 
@@ -28,8 +30,8 @@ def meteor(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
+    cache_path: str = ...,
+    java_path: str = ...,
     java_max_memory: str = "2G",
     language: str = "en",
     verbose: int = 0,
@@ -44,18 +46,19 @@ def meteor(
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
     :param java_max_memory: The maximal java memory used. defaults to "2G".
-    :param language: The language used for stem, synonym and paraphrase matching. defaults to "en".
+    :param language: The language used for stem, synonym and paraphrase matching.
+        Can be one of ("en", "cz", "de", "es", "fr").
+        defaults to "en".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    cache_path = osp.expandvars(cache_path)
-    java_path = osp.expandvars(java_path)
+    cache_path = _get_cache_path(cache_path)
+    java_path = _get_java_path(java_path)
 
     meteor_jar_fpath = osp.join(cache_path, FNAME_METEOR_JAR)
-    language = "en"  # supported: en cz de es fr
 
     if __debug__:
         if not osp.isfile(meteor_jar_fpath):

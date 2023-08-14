@@ -2,14 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.4] UNRELEASED
+## [0.4.4] 2023-08-14
+### Added
+- `Evaluate` class now implements a `__hash__` and `tolist()` methods.
+- `BLEU` 1 to n classes and functions.
+- Get and set global user paths for cache, java and tmp.
+
 ### Changed
-- TODO
+- Function `get_install_info` now returns `package_path`.
+- `AACMetric` now indicate the output type when using `__call__` method.
+- Rename `AACEvaluate` to `DCASE2023Evaluate` and use `dcase2023` metric set instead of `all` metric set.
+
+### Fixed
+- `sbert_sim` name in internal instantiation functions.
+- Path management for Windows.
 
 ## [0.4.3] 2023-06-15
 ### Changed
-- `AACMetric` is no longer a subclass of `torchmetrics.Metric` even when it is installed. It avoid dependency to this package and remove potential errors due to Metric.
-- Java 12 and 13 are now allowed.
+- `AACMetric` is no longer a subclass of `torchmetrics.Metric` even when it is installed. It avoid dependency to this package and remove potential errors due to Metric base class.
+- Java 12 and 13 are now allowed in this package.
 
 ### Fixed
 - Output name `sbert_sim` in FENSE and SBERTSim classes.

@@ -35,9 +35,9 @@ def spider_fl(
     tokenizer: Callable[[str], list[str]] = str.split,
     return_tfidf: bool = False,
     # SPICE args
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
@@ -67,9 +67,9 @@ def spider_fl(
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
     :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the sents_score output.
         defaults to False.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :param java_max_memory: The maximal java memory used. defaults to "8G".
     :param n_threads: Number of threads used to compute SPICE.
         None value will use the default value of the java program.
@@ -83,7 +83,7 @@ def spider_fl(
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
     :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "auto".
     :param batch_size: The batch size of the sBERT and echecker models. defaults to 32.
-    :param reset_state: If True, reset the state of the PyTorch global generator after the pre-trained model are built. defaults to True.
+    :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to True.
     :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.9.
     :param verbose: The verbose level. defaults to 0.

@@ -11,8 +11,17 @@ from typing import Iterable, Union
 
 import yaml
 
-from aac_metrics.functional.evaluate import evaluate, METRICS_SETS
+from aac_metrics.functional.evaluate import (
+    evaluate,
+    METRICS_SETS,
+    DEFAULT_METRICS_SET_NAME,
+)
 from aac_metrics.utils.checks import check_metric_inputs, check_java_path
+from aac_metrics.utils.paths import (
+    get_default_cache_path,
+    get_default_java_path,
+    get_default_tmp_path,
+)
 
 
 pylog = logging.getLogger(__name__)
@@ -152,27 +161,27 @@ def _get_main_evaluate_args() -> Namespace:
     parser.add_argument(
         "--metrics_set_name",
         type=str,
-        default="default",
+        default=DEFAULT_METRICS_SET_NAME,
         choices=tuple(METRICS_SETS.keys()),
         help=f"The metrics set to compute. Can be one of {tuple(METRICS_SETS.keys())}. defaults to 'default'.",
     )
     parser.add_argument(
         "--cache_path",
         type=str,
-        default="$HOME/.cache",
-        help="Cache directory path. defaults to '$HOME/.cache'.",
+        default=get_default_cache_path(),
+        help=f"Cache directory path. defaults to '{get_default_cache_path()}'.",
     )
     parser.add_argument(
         "--java_path",
         type=str,
-        default="java",
-        help="Java executable path. defaults to 'java'.",
+        default=get_default_java_path(),
+        help=f"Java executable path. defaults to '{get_default_java_path()}'.",
     )
     parser.add_argument(
         "--tmp_path",
         type=str,
-        default="/tmp",
-        help="Temporary directory path. defaults to '/tmp'.",
+        default=get_default_tmp_path(),
+        help=f"Temporary directory path. defaults to '{get_default_tmp_path()}'.",
     )
     parser.add_argument("--verbose", type=int, default=0, help="Verbose level.")
 

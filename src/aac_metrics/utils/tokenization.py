@@ -12,6 +12,11 @@ from typing import Any, Hashable, Iterable, Optional
 
 from aac_metrics.utils.checks import check_java_path
 from aac_metrics.utils.collections import flat_list, unflat_list
+from aac_metrics.utils.paths import (
+    _get_cache_path,
+    _get_java_path,
+    _get_tmp_path,
+)
 
 
 pylog = logging.getLogger(__name__)
@@ -46,19 +51,21 @@ PTB_PUNCTUATIONS = (
 def ptb_tokenize_batch(
     sentences: Iterable[str],
     audio_ids: Optional[Iterable[Hashable]] = None,
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
+    normalize_apostrophe: bool = False,
     verbose: int = 0,
 ) -> list[list[str]]:
     """Use PTB Tokenizer to process sentences. Should be used only with all the sentences of a subset due to slow computation.
 
     :param sentences: The sentences to tokenize.
     :param audio_ids: The optional audio names. None will use the audio index as name. defaults to None.
-    :param cache_path: The path to the external directory containing the JAR program. defaults to "$HOME/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: The path to a temporary directory. defaults to "/tmp".
+    :param cache_path: The path to the external directory containing the JAR program. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: The path to a temporary directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
+    :param normalize_apostrophe: If True, add apostrophes for French language. defaults to False.
     :param verbose: The verbose level. defaults to 0.
     :returns: The sentences tokenized as list[list[str]].
     """
@@ -66,9 +73,9 @@ def ptb_tokenize_batch(
     if len(sentences) == 0:
         return []
 
-    cache_path = osp.expandvars(cache_path)
-    java_path = osp.expandvars(java_path)
-    tmp_path = osp.expandvars(tmp_path)
+    cache_path = _get_cache_path(cache_path)
+    java_path = _get_java_path(java_path)
+    tmp_path = _get_tmp_path(tmp_path)
 
     # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
 
@@ -105,7 +112,7 @@ def ptb_tokenize_batch(
     ]
 
     # ======================================================
-    # prepare data for PTB AACTokenizer
+    # Prepare data for PTB AACTokenizer
     # ======================================================
     if audio_ids is None:
         audio_ids = list(range(len(sentences)))
@@ -118,9 +125,18 @@ def ptb_tokenize_batch(
         )
 
     sentences = "\n".join(sentences)
+    if normalize_apostrophe:
+        replaces = {
+            " s ": " s'",
+            "'": "' ",
+            "'  ": "' ",
+            " '": "'",
+        }
+        for old, new in replaces.items():
+            sentences = sentences.replace(old, new)
 
     # ======================================================
-    # save sentences to temporary file
+    # Save sentences to temporary file
     # ======================================================
     tmp_file = tempfile.NamedTemporaryFile(
         delete=False,
@@ -132,7 +148,7 @@ def ptb_tokenize_batch(
     tmp_file.close()
 
     # ======================================================
-    # tokenize sentence
+    # Tokenize sentence
     # ======================================================
     cmd.append(osp.basename(tmp_file.name))
     p_tokenizer = subprocess.Popen(
@@ -148,7 +164,7 @@ def ptb_tokenize_batch(
     os.remove(tmp_file.name)
 
     # ======================================================
-    # create dictionary for tokenized captions
+    # Create dictionary for tokenized captions
     # ======================================================
     outs: Any = [None for _ in range(len(lines))]
     if len(audio_ids) != len(lines):
@@ -173,10 +189,11 @@ def ptb_tokenize_batch(
 
 def preprocess_mono_sents(
     sentences: list[str],
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
+    normalize_apostrophe: bool = False,
     verbose: int = 0,
 ) -> list[str]:
     """Tokenize sentences using PTB Tokenizer then merge them by space.
@@ -187,13 +204,22 @@ def preprocess_mono_sents(
         If you want to process multiple sentences (list[list[str]]), use `preprocess_mult_sents` instead.
 
     :param sentences: The list of sentences to process.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
+    :param normalize_apostrophe: If True, add apostrophes for French language. defaults to False.
+    :param verbose: The verbose level. defaults to 0.
     :returns: The sentences processed by the tokenizer.
     """
     tok_sents = ptb_tokenize_batch(
-        sentences, None, cache_path, java_path, tmp_path, punctuations, verbose
+        sentences=sentences,
+        audio_ids=None,
+        cache_path=cache_path,
+        java_path=java_path,
+        tmp_path=tmp_path,
+        punctuations=punctuations,
+        normalize_apostrophe=normalize_apostrophe,
+        verbose=verbose,
     )
     sentences = [" ".join(sent) for sent in tok_sents]
     return sentences
@@ -201,30 +227,34 @@ def preprocess_mono_sents(
 
 def preprocess_mult_sents(
     mult_sentences: list[list[str]],
-    cache_path: str = "$HOME/.cache",
-    java_path: str = "java",
-    tmp_path: str = "/tmp",
+    cache_path: str = ...,
+    java_path: str = ...,
+    tmp_path: str = ...,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
+    normalize_apostrophe: bool = False,
     verbose: int = 0,
 ) -> list[list[str]]:
     """Tokenize multiple sentences using PTB Tokenizer with only one call then merge them by space.
 
     :param mult_sentences: The list of list of sentences to process.
-    :param cache_path: The path to the external code directory. defaults to "$HOME/.cache".
-    :param java_path: The path to the java executable. defaults to "java".
-    :param tmp_path: Temporary directory path. defaults to "/tmp".
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
+    :param normalize_apostrophe: If True, add apostrophes for French language. defaults to False.
+    :param verbose: The verbose level. defaults to 0.
     :returns: The multiple sentences processed by the tokenizer.
     """
 
     # Flat list
     flatten_sents, sizes = flat_list(mult_sentences)
     flatten_sents = preprocess_mono_sents(
-        flatten_sents,
-        cache_path,
-        java_path,
-        tmp_path,
-        punctuations,
-        verbose,
+        sentences=flatten_sents,
+        cache_path=cache_path,
+        java_path=java_path,
+        tmp_path=tmp_path,
+        punctuations=punctuations,
+        normalize_apostrophe=normalize_apostrophe,
+        verbose=verbose,
     )
     mult_sentences = unflat_list(flatten_sents, sizes)
     return mult_sentences

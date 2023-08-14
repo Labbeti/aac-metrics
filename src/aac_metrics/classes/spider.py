@@ -14,7 +14,7 @@ from aac_metrics.functional.spider import spider
 pylog = logging.getLogger(__name__)
 
 
-class SPIDEr(AACMetric):
+class SPIDEr(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """SPIDEr class.
 
     - Paper: https://arxiv.org/pdf/1612.00370.pdf
@@ -36,9 +36,9 @@ class SPIDEr(AACMetric):
         n: int = 4,
         sigma: float = 6.0,
         # SPICE args
-        cache_path: str = "$HOME/.cache",
-        java_path: str = "java",
-        tmp_path: str = "/tmp",
+        cache_path: str = ...,
+        java_path: str = ...,
+        tmp_path: str = ...,
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,

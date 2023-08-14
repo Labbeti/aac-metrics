@@ -13,7 +13,7 @@ from aac_metrics.functional.bleu import (
 )
 
 
-class BLEU(AACMetric):
+class BLEU(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """BiLingual Evaluation Understudy metric class.
 
     - Paper: https://www.aclweb.org/anthology/P02-1040.pdf
@@ -85,3 +85,47 @@ class BLEU(AACMetric):
             self._cooked_cands,
             self._cooked_mrefs,
         )
+
+
+class BLEU1(BLEU):
+    def __init__(
+        self,
+        return_all_scores: bool = True,
+        option: str = "closest",
+        verbose: int = 0,
+        tokenizer: Callable[[str], list[str]] = str.split,
+    ) -> None:
+        super().__init__(return_all_scores, 1, option, verbose, tokenizer)
+
+
+class BLEU2(BLEU):
+    def __init__(
+        self,
+        return_all_scores: bool = True,
+        option: str = "closest",
+        verbose: int = 0,
+        tokenizer: Callable[[str], list[str]] = str.split,
+    ) -> None:
+        super().__init__(return_all_scores, 2, option, verbose, tokenizer)
+
+
+class BLEU3(BLEU):
+    def __init__(
+        self,
+        return_all_scores: bool = True,
+        option: str = "closest",
+        verbose: int = 0,
+        tokenizer: Callable[[str], list[str]] = str.split,
+    ) -> None:
+        super().__init__(return_all_scores, 3, option, verbose, tokenizer)
+
+
+class BLEU4(BLEU):
+    def __init__(
+        self,
+        return_all_scores: bool = True,
+        option: str = "closest",
+        verbose: int = 0,
+        tokenizer: Callable[[str], list[str]] = str.split,
+    ) -> None:
+        super().__init__(return_all_scores, 4, option, verbose, tokenizer)
