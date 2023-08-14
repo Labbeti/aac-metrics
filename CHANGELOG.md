@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.4] UNRELEASED
+## [0.4.4] 2023-08-14
 ### Added
 - `Evaluate` class now implements a `__hash__` and `tolist()` methods.
 - `BLEU` 1 to n classes and functions.

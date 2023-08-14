@@ -215,7 +215,7 @@ If you use this software, please consider cite it as below :
     Labbe_aac-metrics_2023,
     author = {Labbé, Etienne},
     license = {MIT},
-    month = {7},
+    month = {8},
     title = {{aac-metrics}},
     url = {https://github.com/Labbeti/aac-metrics/},
     version = {0.4.4},
