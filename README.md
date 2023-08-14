@@ -49,8 +49,8 @@ aac-metrics-download
 ```
 
 Notes:
-- The external code for SPICE, METEOR and PTBTokenizer is stored in `$HOME/.cache/aac-metrics`.
-- The weights of the FENSE fluency error detector and the the SBERT model are respectively stored by default in `$HOME/.cache/torch/hub/fense_data` and `$HOME/.cache/torch/sentence_transformers`.
+- The external code for SPICE, METEOR and PTBTokenizer is stored in `~/.cache/aac-metrics`.
+- The weights of the FENSE fluency error detector and the the SBERT model are respectively stored by default in `~/.cache/torch/hub/fense_data` and `~/.cache/torch/sentence_transformers`.
 
 ## Usage
 ### Evaluate default metrics
