@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.5] UNRELEASED
+### Fixed
+- Workflow on main branch.
+
 ## [0.4.4] 2023-08-14
 ### Added
 - `Evaluate` class now implements a `__hash__` and `tolist()` methods.
