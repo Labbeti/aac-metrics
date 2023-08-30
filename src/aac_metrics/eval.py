@@ -189,7 +189,7 @@ def _get_main_evaluate_args() -> Namespace:
     return args
 
 
-def _main_evaluate() -> None:
+def _main_eval() -> None:
     format_ = "[%(asctime)s][%(name)s][%(levelname)s] - %(message)s"
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(logging.Formatter(format_))
@@ -234,4 +234,4 @@ def _main_evaluate() -> None:
 
 
 if __name__ == "__main__":
-    _main_evaluate()
+    _main_eval()
