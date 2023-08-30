@@ -40,7 +40,7 @@ def fense(
     device: Union[str, torch.device, None] = "auto",
     batch_size: int = 32,
     reset_state: bool = True,
-    return_probs: bool = True,
+    return_probs: bool = False,
     # Other args
     penalty: float = 0.9,
     verbose: int = 0,
@@ -67,7 +67,7 @@ def fense(
     :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "auto".
     :param batch_size: The batch size of the sBERT and echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
-    :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to True.
+    :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to False.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
