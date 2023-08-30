@@ -32,9 +32,12 @@ def spider_max(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """SPIDEr-max function.
 
+    Compute the maximal SPIDEr score accross multiple candidates.
+
     - Paper: https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Labbe_46.pdf
 
-    Compute the maximal SPIDEr score accross multiple candidates.
+    .. warning::
+        This metric requires at least 2 candidates with 2 sets of references, otherwise it will raises a ValueError.
 
     :param mult_candidates: The list of list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.

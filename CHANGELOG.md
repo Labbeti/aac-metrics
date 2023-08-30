@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [0.4.5] UNRELEASED
 ### Fixed
 - Workflow on main branch.
+- Examples in README and doc with at least 2 sentences, and add a warning on all metrics that requires at least 2 candidates.
 
 ## [0.4.4] 2023-08-14
 ### Added

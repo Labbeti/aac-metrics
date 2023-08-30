@@ -31,6 +31,9 @@ def spider(
 
     - Paper: https://arxiv.org/pdf/1612.00370.pdf
 
+    .. warning::
+        This metric requires at least 2 candidates with 2 sets of references, otherwise it will raises a ValueError.
+
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
