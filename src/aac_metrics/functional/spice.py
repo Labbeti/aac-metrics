@@ -177,6 +177,7 @@ def spice(
                 stdout=stdout,
                 stderr=stderr,
                 timeout=timeout_i,
+                shell=True,
             )
             if stdout is not None:
                 stdout.close()

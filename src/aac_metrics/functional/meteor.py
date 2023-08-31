@@ -101,6 +101,7 @@ def meteor(
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        shell=True,
     )
 
     n_candidates = len(candidates)
