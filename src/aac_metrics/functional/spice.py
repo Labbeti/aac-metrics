@@ -220,16 +220,8 @@ def spice(
                 and osp.isfile(stdout.name)
                 and osp.isfile(stderr.name)
             ):
-                stdout_crashlog = stdout.name.replace(
-                    "spice_stdout", "CRASH_spice_stdout"
-                )
-                stderr_crashlog = stderr.name.replace(
-                    "spice_stderr", "CRASH_spice_stderr"
-                )
-                shutil.copy(stdout.name, stdout_crashlog)
-                shutil.copy(stderr.name, stderr_crashlog)
                 pylog.error(
-                    f"For more information, see temp files '{stdout_crashlog}' and '{stderr_crashlog}'."
+                    f"For more information, see temp files '{stdout.name}' and '{stderr.name}'."
                 )
             else:
                 pylog.info(
