@@ -137,7 +137,7 @@ def spice(
         timeout_lst = list(timeout)
 
     out_file = NamedTemporaryFile(
-        mode="rw", delete=False, dir=tmp_path, prefix="spice_outputs_", suffix=".json"
+        mode="r+", delete=False, dir=tmp_path, prefix="spice_outputs_", suffix=".json"
     )
     out_file.close()
 
@@ -147,14 +147,14 @@ def spice(
             stderr = None
         else:
             stdout = NamedTemporaryFile(
-                mode="rw",
+                mode="r+",
                 delete=True,
                 dir=tmp_path,
                 prefix="spice_stdout_",
                 suffix=".txt",
             )
             stderr = NamedTemporaryFile(
-                mode="rw",
+                mode="r+",
                 delete=True,
                 dir=tmp_path,
                 prefix="spice_stderr_",
