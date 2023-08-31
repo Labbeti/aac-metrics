@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.4.3] 2023-06-15
 ### Added
-- Argument `use_shell` for `METEOR` and `SPICE` metrics.
+- Argument `use_shell` for `METEOR` and `SPICE` metrics and `download` function to fix Windows-OS specific error.
 
 ### Changed
 - `AACMetric` is no longer a subclass of `torchmetrics.Metric` even when it is installed. It avoid dependency to this package and remove potential errors due to Metric base class.
