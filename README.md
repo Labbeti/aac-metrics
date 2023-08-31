@@ -120,6 +120,7 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 
 ## Requirements
 This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions.
+
 ### Python packages
 
 
@@ -130,6 +131,7 @@ numpy >= 1.21.2
 pyyaml >= 6.0
 tqdm >= 4.64.0
 sentence-transformers >= 2.2.2
+transformers < 4.31.0
 ```
 
 ### External requirements

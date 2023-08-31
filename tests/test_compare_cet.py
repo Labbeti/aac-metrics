@@ -106,11 +106,10 @@ class TestCompareCaptionEvaluationTools(TestCase):
             # Skip this setup on windows
             return None
 
+        cet_outs = self.__class__.evaluate_metrics_from_lists(cands, mrefs)
+        cet_global_scores, _cet_sents_scores = cet_outs
+
         corpus_scores, _ = evaluate(cands, mrefs, metrics="dcase2020")
-        (
-            cet_global_scores,
-            _cet_sents_scores,
-        ) = self.__class__.evaluate_metrics_from_lists(cands, mrefs)
 
         cet_global_scores = {k.lower(): v for k, v in cet_global_scores.items()}
         cet_global_scores = {
