@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Union
+from typing import Optional, Union
 
 from torch import Tensor
 
@@ -32,6 +32,7 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
         java_path: str = ...,
         java_max_memory: str = "2G",
         language: str = "en",
+        use_shell: Optional[bool] = None,
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -40,6 +41,7 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
         self._java_path = java_path
         self._java_max_memory = java_max_memory
         self._language = language
+        self._use_shell = use_shell
         self._verbose = verbose
 
         self._candidates = []
@@ -54,6 +56,7 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
             java_path=self._java_path,
             java_max_memory=self._java_max_memory,
             language=self._language,
+            use_shell=self._use_shell,
             verbose=self._verbose,
         )
 

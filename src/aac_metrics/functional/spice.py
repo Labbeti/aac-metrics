@@ -6,6 +6,7 @@ import logging
 import math
 import os
 import os.path as osp
+import platform
 import shutil
 import subprocess
 import tempfile
@@ -47,6 +48,7 @@ def spice(
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
     separate_cache_dir: bool = True,
+    use_shell: Optional[bool] = None,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Semantic Propositional Image Caption Evaluation function.
@@ -72,6 +74,9 @@ def spice(
     :param separate_cache_dir: If True, the SPICE cache files will be stored into in a new temporary directory.
         This removes potential freezes when multiple instances of SPICE are running in the same cache dir.
         defaults to True.
+    :param use_shell: Optional argument to force use os-specific shell for the java subprogram.
+        If None, it will use shell only on Windows OS.
+        defaults to None.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
@@ -81,6 +86,9 @@ def spice(
     tmp_path = _get_tmp_path(tmp_path)
 
     spice_fpath = osp.join(cache_path, FNAME_SPICE_JAR)
+
+    if use_shell is None:
+        use_shell = platform.system() == "Windows"
 
     if __debug__:
         if not osp.isfile(spice_fpath):
@@ -169,7 +177,9 @@ def spice(
             spice_cmd += ["-threads", str(n_threads)]
 
         if verbose >= 2:
-            pylog.debug(f"Run SPICE java code with: {' '.join(spice_cmd)}")
+            pylog.debug(
+                f"Run SPICE java code with: {' '.join(spice_cmd)} and {use_shell=}"
+            )
 
         try:
             subprocess.check_call(
@@ -177,7 +187,7 @@ def spice(
                 stdout=stdout,
                 stderr=stderr,
                 timeout=timeout_i,
-                shell=True,
+                shell=use_shell,
             )
             if stdout is not None:
                 stdout.close()

@@ -39,6 +39,7 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,
         separate_cache_dir: bool = True,
+        use_shell: Optional[bool] = None,
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -50,6 +51,7 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         self._java_max_memory = java_max_memory
         self._timeout = timeout
         self._separate_cache_dir = separate_cache_dir
+        self._use_shell = use_shell
         self._verbose = verbose
 
         self._candidates = []
@@ -67,6 +69,7 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
             java_max_memory=self._java_max_memory,
             timeout=self._timeout,
             separate_cache_dir=self._separate_cache_dir,
+            use_shell=self._use_shell,
             verbose=self._verbose,
         )
 
