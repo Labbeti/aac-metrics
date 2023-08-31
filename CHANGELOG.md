@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.4.5] UNRELEASED
+### Added
+- Argument `use_shell` for `METEOR` and `SPICE` metrics and `download` function to fix Windows-OS specific error.
+
 ### Fixed
 - Workflow on main branch.
 - Examples in README and doc with at least 2 sentences, and add a warning on all metrics that requires at least 2 candidates.
@@ -23,9 +26,6 @@ All notable changes to this project will be documented in this file.
 - Path management for Windows.
 
 ## [0.4.3] 2023-06-15
-### Added
-- Argument `use_shell` for `METEOR` and `SPICE` metrics and `download` function to fix Windows-OS specific error.
-
 ### Changed
 - `AACMetric` is no longer a subclass of `torchmetrics.Metric` even when it is installed. It avoid dependency to this package and remove potential errors due to Metric base class.
 - Java 12 and 13 are now allowed in this package.
