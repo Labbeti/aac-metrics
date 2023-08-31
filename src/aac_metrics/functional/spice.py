@@ -223,6 +223,15 @@ def spice(
                 pylog.error(
                     f"For more information, see temp files '{stdout.name}' and '{stderr.name}'."
                 )
+                with open(stdout.name, "r") as file:
+                    lines = file.readlines()
+                content = '\n'.join(lines)
+                pylog.error(f"Content of '{stdout.name}':\n{content}")
+
+                with open(stderr.name, "r") as file:
+                    lines = file.readlines()
+                content = '\n'.join(lines)
+                pylog.error(f"Content of '{stderr.name}':\n{content}")
             else:
                 pylog.info(
                     f"Note: No temp file recorded. (found {stdout=} and {stderr=})"
