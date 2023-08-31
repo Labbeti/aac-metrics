@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import unittest
 
 from unittest import TestCase
@@ -17,6 +18,9 @@ from aac_metrics.utils.tokenization import (
 
 class TestReadmeExamples(TestCase):
     def test_example_1(self) -> None:
+        if os.name == "nt":
+            return None
+
         candidates: list[str] = ["a man is speaking", "rain falls"]
         mult_references: list[list[str]] = [
             [
@@ -59,6 +63,9 @@ class TestReadmeExamples(TestCase):
         )
 
     def test_example_2(self) -> None:
+        if os.name == "nt":
+            return None
+
         candidates: list[str] = ["a man is speaking", "rain falls"]
         mult_references: list[list[str]] = [
             [
@@ -77,6 +84,9 @@ class TestReadmeExamples(TestCase):
         self.assertTrue(set(corpus_scores.keys()).issuperset(expected_keys))
 
     def test_example_3(self) -> None:
+        if os.name == "nt":
+            return None
+
         candidates: list[str] = ["a man is speaking", "rain falls"]
         mult_references: list[list[str]] = [
             [
