@@ -117,7 +117,7 @@ def download(
 
 
 def _download_ptb_tokenizer(
-    cache_path: str = ...,
+    cache_path: str,
     verbose: int = 0,
 ) -> None:
     # Download JAR file for tokenization
@@ -143,7 +143,7 @@ def _download_ptb_tokenizer(
 
 
 def _download_meteor(
-    cache_path: str = ...,
+    cache_path: str,
     verbose: int = 0,
 ) -> None:
     # Download JAR files for METEOR metric
@@ -177,7 +177,7 @@ def _download_meteor(
 
 
 def _download_spice(
-    cache_path: str = ...,
+    cache_path: str,
     verbose: int = 0,
 ) -> None:
     # Download JAR files for SPICE metric
@@ -214,9 +214,11 @@ def _download_spice(
             command,
             stdout=None if verbose >= 2 else subprocess.DEVNULL,
             stderr=None if verbose >= 2 else subprocess.DEVNULL,
+            shell=True,
         )
     except (CalledProcessError, PermissionError) as err:
-        pylog.error(err)
+        pylog.error("Cannot install SPICE java source code.")
+        raise err
 
 
 def _download_fense(
