@@ -119,7 +119,7 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 | SPIDEr-FL [[9]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error |
 
 ## Requirements
-This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions.
+This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions. Windows is not officially supported.
 
 ### Python packages
 
