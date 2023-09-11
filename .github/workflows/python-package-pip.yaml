@@ -10,6 +10,7 @@ on:
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
+  TMPDIR: '/tmp'
 
 # Cancel workflow if a new push occurs
 concurrency:
