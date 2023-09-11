@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import importlib
-import os
 import os.path as osp
+import platform
 import subprocess
 import sys
 import tempfile
@@ -17,6 +17,7 @@ from torch import Tensor
 
 from aac_metrics.functional.evaluate import evaluate
 from aac_metrics.eval import load_csv_file
+from aac_metrics.utils.paths import get_default_tmp_path
 
 
 class TestCompareCaptionEvaluationTools(TestCase):
@@ -25,9 +26,9 @@ class TestCompareCaptionEvaluationTools(TestCase):
     # Set Up methods
     @classmethod
     def setUpClass(cls) -> None:
-        if os.name == "nt":
-            # Skip this setup on windows
-            return None
+        # if os.name == "nt":
+        #     # Skip this setup on windows
+        #     return None
         cls.evaluate_metrics_from_lists = cls._import_cet_eval_func()
 
     @classmethod
@@ -38,6 +39,7 @@ class TestCompareCaptionEvaluationTools(TestCase):
         Tuple[Dict[str, float], Dict[int, Dict[str, float]]],
     ]:
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
+        use_shell = platform.system() == "Windows"
 
         stanford_fpath = osp.join(
             cet_path,
@@ -54,14 +56,15 @@ class TestCompareCaptionEvaluationTools(TestCase):
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 cwd=osp.join(cet_path, "coco_caption"),
+                shell=use_shell,
             )
 
         # Append cet_path to allow imports of "caption" in eval_metrics.py.
         sys.path.append(cet_path)
         # Override cache and tmp dir to avoid outputs in source code.
         spice_module = importlib.import_module("coco_caption.pycocoevalcap.spice.spice")
-        spice_module.CACHE_DIR = tempfile.gettempdir()  # type: ignore
-        spice_module.TEMP_DIR = tempfile.gettempdir()  # type: ignore
+        spice_module.CACHE_DIR = get_default_tmp_path()  # type: ignore
+        spice_module.TEMP_DIR = get_default_tmp_path()  # type: ignore
         eval_metrics_module = importlib.import_module("eval_metrics")
         evaluate_metrics_from_lists = eval_metrics_module.evaluate_metrics_from_lists
         return evaluate_metrics_from_lists
@@ -102,9 +105,9 @@ class TestCompareCaptionEvaluationTools(TestCase):
         return cands, mrefs
 
     def _test_with_example(self, cands: list[str], mrefs: list[list[str]]) -> None:
-        if os.name == "nt":
-            # Skip this setup on windows
-            return None
+        # if os.name == "nt":
+        #     # Skip this setup on windows
+        #     return None
 
         cet_outs = self.__class__.evaluate_metrics_from_lists(cands, mrefs)
         cet_global_scores, _cet_sents_scores = cet_outs
