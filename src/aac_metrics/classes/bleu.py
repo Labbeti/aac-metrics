@@ -53,12 +53,13 @@ class BLEU(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return _bleu_compute(
-            self._cooked_cands,
-            self._cooked_mrefs,
-            self._return_all_scores,
-            self._n,
-            self._option,
-            self._verbose,
+            cooked_cands=self._cooked_cands,
+            cooked_mrefs=self._cooked_mrefs,
+            return_all_scores=self._return_all_scores,
+            n=self._n,
+            option=self._option,
+            verbose=self._verbose,
+            return_1_to_n=False,
         )
 
     def extra_repr(self) -> str:

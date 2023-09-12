@@ -10,7 +10,7 @@ __author_email__ = "labbeti.pub@gmail.com"
 __license__ = "MIT"
 __maintainer__ = "Etienne Labbé (Labbeti)"
 __status__ = "Development"
-__version__ = "0.4.4"
+__version__ = "0.4.5"
 
 
 from .classes.base import AACMetric
@@ -65,9 +65,10 @@ def load_metric(name: str, **kwargs) -> AACMetric:
     name = name.lower().strip()
 
     factory = _get_metric_factory_classes(**kwargs)
-    if name in factory:
-        return factory[name]()
-    else:
+    if name not in factory:
         raise ValueError(
             f"Invalid argument {name=}. (expected one of {tuple(factory.keys())})"
         )
+
+    metric = factory[name]()
+    return metric

@@ -4,11 +4,13 @@
 import logging
 import os
 import os.path as osp
+import platform
 import subprocess
 import sys
 
 from argparse import ArgumentParser, Namespace
 from subprocess import CalledProcessError
+from typing import Optional
 
 from torch.hub import download_url_to_file
 
@@ -76,6 +78,7 @@ _FALSE_VALUES = ("false", "0", "f")
 def download(
     cache_path: str = ...,
     tmp_path: str = ...,
+    use_shell: Optional[bool] = None,
     ptb_tokenizer: bool = True,
     meteor: bool = True,
     spice: bool = True,
@@ -86,12 +89,18 @@ def download(
 
     :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
     :param tmp_path: The path to a temporary directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
+    :param use_shell: Optional argument to force use os-specific shell for the bash installation script program.
+        If None, it will use shell only on Windows OS.
+        defaults to None.
     :param ptb_tokenizer: If True, downloads the PTBTokenizer code in cache directory. defaults to True.
     :param meteor: If True, downloads the METEOR code in cache directory. defaults to True.
     :param spice: If True, downloads the SPICE code in cache directory. defaults to True.
     :param fense: If True, downloads the FENSE models. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     """
+    if verbose >= 1:
+        pylog.info(f"aac-metrics download started.")
+
     cache_path = _get_cache_path(cache_path)
     tmp_path = _get_tmp_path(tmp_path)
 
@@ -110,14 +119,17 @@ def download(
         _download_meteor(cache_path, verbose)
 
     if spice:
-        _download_spice(cache_path, verbose)
+        _download_spice(cache_path, use_shell, verbose)
 
     if fense:
         _download_fense(verbose)
 
+    if verbose >= 1:
+        pylog.info(f"aac-metrics download finished.")
+
 
 def _download_ptb_tokenizer(
-    cache_path: str = ...,
+    cache_path: str,
     verbose: int = 0,
 ) -> None:
     # Download JAR file for tokenization
@@ -143,7 +155,7 @@ def _download_ptb_tokenizer(
 
 
 def _download_meteor(
-    cache_path: str = ...,
+    cache_path: str,
     verbose: int = 0,
 ) -> None:
     # Download JAR files for METEOR metric
@@ -177,7 +189,8 @@ def _download_meteor(
 
 
 def _download_spice(
-    cache_path: str = ...,
+    cache_path: str,
+    use_shell: Optional[bool] = None,
     verbose: int = 0,
 ) -> None:
     # Download JAR files for SPICE metric
@@ -208,15 +221,20 @@ def _download_spice(
             f"Downloading JAR sources for SPICE metric into '{spice_jar_dpath}'..."
         )
 
+    if use_shell is None:
+        use_shell = platform.system() == "Windows"
+
     command = ["bash", script_path, spice_jar_dpath]
     try:
         subprocess.check_call(
             command,
             stdout=None if verbose >= 2 else subprocess.DEVNULL,
             stderr=None if verbose >= 2 else subprocess.DEVNULL,
+            shell=use_shell,
         )
     except (CalledProcessError, PermissionError) as err:
-        pylog.error(err)
+        pylog.error("Cannot install SPICE java source code.")
+        raise err
 
 
 def _download_fense(

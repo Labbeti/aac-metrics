@@ -5,10 +5,11 @@
 
 import logging
 import os.path as osp
+import platform
 import subprocess
 
 from subprocess import Popen
-from typing import Union
+from typing import Optional, Union
 
 import torch
 
@@ -34,6 +35,7 @@ def meteor(
     java_path: str = ...,
     java_max_memory: str = "2G",
     language: str = "en",
+    use_shell: Optional[bool] = None,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Metric for Evaluation of Translation with Explicit ORdering function.
@@ -52,6 +54,9 @@ def meteor(
     :param language: The language used for stem, synonym and paraphrase matching.
         Can be one of ("en", "cz", "de", "es", "fr").
         defaults to "en".
+    :param use_shell: Optional argument to force use os-specific shell for the java subprogram.
+        If None, it will use shell only on Windows OS.
+        defaults to None.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
@@ -59,6 +64,9 @@ def meteor(
     java_path = _get_java_path(java_path)
 
     meteor_jar_fpath = osp.join(cache_path, FNAME_METEOR_JAR)
+
+    if use_shell is None:
+        use_shell = platform.system() == "Windows"
 
     if __debug__:
         if not osp.isfile(meteor_jar_fpath):
@@ -94,13 +102,16 @@ def meteor(
     ]
 
     if verbose >= 2:
-        pylog.debug(f"Start METEOR process with command '{' '.join(meteor_cmd)}'...")
+        pylog.debug(
+            f"Run METEOR java code with: {' '.join(meteor_cmd)} and {use_shell=}"
+        )
 
     meteor_process = Popen(
         meteor_cmd,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        shell=use_shell,
     )
 
     n_candidates = len(candidates)

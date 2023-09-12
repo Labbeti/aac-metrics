@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.5] 2023-09-12
+### Added
+- Argument `use_shell` for `METEOR` and `SPICE` metrics and `download` function to fix Windows-OS specific error.
+
+### Changed
+- Rename `evaluate.py` script to `eval.py`.
+
+### Fixed
+- Workflow on main branch.
+- Examples in README and doc with at least 2 sentences, and add a warning on all metrics that requires at least 2 candidates.
+
 ## [0.4.4] 2023-08-14
 ### Added
 - `Evaluate` class now implements a `__hash__` and `tolist()` methods.

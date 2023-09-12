@@ -12,7 +12,7 @@ from unittest import TestCase
 
 from aac_metrics.classes.sbert_sim import SBERTSim
 from aac_metrics.classes.fense import FENSE
-from aac_metrics.evaluate import load_csv_file
+from aac_metrics.eval import load_csv_file
 
 
 class TestCompareFENSE(TestCase):

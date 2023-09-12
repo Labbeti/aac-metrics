@@ -39,6 +39,7 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,
         separate_cache_dir: bool = True,
+        use_shell: Optional[bool] = None,
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -50,6 +51,7 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         self._java_max_memory = java_max_memory
         self._timeout = timeout
         self._separate_cache_dir = separate_cache_dir
+        self._use_shell = use_shell
         self._verbose = verbose
 
         self._candidates = []
@@ -57,17 +59,18 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return spice(
-            self._candidates,
-            self._mult_references,
-            self._return_all_scores,
-            self._cache_path,
-            self._java_path,
-            self._tmp_path,
-            self._n_threads,
-            self._java_max_memory,
-            self._timeout,
-            self._separate_cache_dir,
-            self._verbose,
+            candidates=self._candidates,
+            mult_references=self._mult_references,
+            return_all_scores=self._return_all_scores,
+            cache_path=self._cache_path,
+            java_path=self._java_path,
+            tmp_path=self._tmp_path,
+            n_threads=self._n_threads,
+            java_max_memory=self._java_max_memory,
+            timeout=self._timeout,
+            separate_cache_dir=self._separate_cache_dir,
+            use_shell=self._use_shell,
+            verbose=self._verbose,
         )
 
     def extra_repr(self) -> str:

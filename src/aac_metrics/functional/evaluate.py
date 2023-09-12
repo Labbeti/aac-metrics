@@ -94,7 +94,7 @@ def evaluate(
     :param device: The PyTorch device used to run FENSE and SPIDErFL models.
         If None, it will try to detect use cuda if available. defaults to "auto".
     :param verbose: The verbose level. defaults to 0.
-    :returns: A tuple of globals and locals scores.
+    :returns: A tuple contains the corpus and sentences scores.
     """
     check_metric_inputs(candidates, mult_references)
 
@@ -103,7 +103,7 @@ def evaluate(
     )
 
     if preprocess:
-        common_kwds = dict(
+        common_kwds: dict[str, Any] = dict(
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
@@ -179,7 +179,7 @@ def dcase2023_evaluate(
     :param device: The PyTorch device used to run FENSE and SPIDErFL models.
         If None, it will try to detect use cuda if available. defaults to "auto".
     :param verbose: The verbose level. defaults to 0.
-    :returns: A tuple of globals and locals scores.
+    :returns: A tuple contains the corpus and sentences scores.
     """
     return evaluate(
         candidates=candidates,

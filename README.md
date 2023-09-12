@@ -49,8 +49,8 @@ aac-metrics-download
 ```
 
 Notes:
-- The external code for SPICE, METEOR and PTBTokenizer is stored in `$HOME/.cache/aac-metrics`.
-- The weights of the FENSE fluency error detector and the the SBERT model are respectively stored by default in `$HOME/.cache/torch/hub/fense_data` and `$HOME/.cache/torch/sentence_transformers`.
+- The external code for SPICE, METEOR and PTBTokenizer is stored in `~/.cache/aac-metrics`.
+- The weights of the FENSE fluency error detector and the the SBERT model are respectively stored by default in `~/.cache/torch/hub/fense_data` and `~/.cache/torch/sentence_transformers`.
 
 ## Usage
 ### Evaluate default metrics
@@ -59,13 +59,13 @@ The full evaluation pipeline to compute AAC metrics can be done with `aac_metric
 ```python
 from aac_metrics import evaluate
 
-candidates: list[str] = ["a man is speaking"]
-mult_references: list[list[str]] = [["a man speaks.", "someone speaks.", "a man is speaking while a bird is chirping in the background"]]
+candidates: list[str] = ["a man is speaking", "rain falls"]
+mult_references: list[list[str]] = [["a man speaks.", "someone speaks.", "a man is speaking while a bird is chirping in the background"], ["rain is falling hard on a surface"]]
 
 corpus_scores, _ = evaluate(candidates, mult_references)
 print(corpus_scores)
 # dict containing the score of each metric: "bleu_1", "bleu_2", "bleu_3", "bleu_4", "rouge_l", "meteor", "cider_d", "spice", "spider"
-# {"bleu_1": tensor(0.7), "bleu_2": ..., ...}
+# {"bleu_1": tensor(0.4278), "bleu_2": ..., ...}
 ```
 ### Evaluate DCASE2023 metrics
 To compute metrics for the DCASE2023 challenge, just set the argument `metrics="dcase2023"` in `evaluate` function call.
@@ -83,17 +83,17 @@ Evaluate a specific metric can be done using the `aac_metrics.functional.<metric
 from aac_metrics.functional import cider_d
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
-candidates: list[str] = ["a man is speaking"]
-mult_references: list[list[str]] = [["a man speaks.", "someone speaks.", "a man is speaking while a bird is chirping in the background"]]
+candidates: list[str] = ["a man is speaking", "rain falls"]
+mult_references: list[list[str]] = [["a man speaks.", "someone speaks.", "a man is speaking while a bird is chirping in the background"], ["rain is falling hard on a surface"]]
 
 candidates = preprocess_mono_sents(candidates)
 mult_references = preprocess_mult_sents(mult_references)
 
 corpus_scores, sents_scores = cider_d(candidates, mult_references)
 print(corpus_scores)
-# {"cider_d": tensor(0.1)}
+# {"cider_d": tensor(0.9614)}
 print(sents_scores)
-# {"cider_d": tensor([0.9, ...])}
+# {"cider_d": tensor([1.3641, 0.5587])}
 ```
 
 Each metrics also exists as a python class version, like `aac_metrics.classes.cider_d.CIDErD`.
@@ -119,7 +119,8 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 | SPIDEr-FL [[9]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error |
 
 ## Requirements
-This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions.
+This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions. Windows is not officially supported.
+
 ### Python packages
 
 
@@ -130,6 +131,7 @@ numpy >= 1.21.2
 pyyaml >= 6.0
 tqdm >= 4.64.0
 sentence-transformers >= 2.2.2
+transformers < 4.31.0
 ```
 
 ### External requirements
@@ -215,10 +217,10 @@ If you use this software, please consider cite it as below :
     Labbe_aac-metrics_2023,
     author = {Labbé, Etienne},
     license = {MIT},
-    month = {8},
+    month = {9},
     title = {{aac-metrics}},
     url = {https://github.com/Labbeti/aac-metrics/},
-    version = {0.4.4},
+    version = {0.4.5},
     year = {2023},
 }
 ```

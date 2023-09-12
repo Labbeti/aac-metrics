@@ -63,10 +63,10 @@ class SPIDErMax(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Ten
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return spider_max(
-            self._mult_candidates,
-            self._mult_references,
-            self._return_all_scores,
-            self._return_all_cands_scores,
+            mult_candidates=self._mult_candidates,
+            mult_references=self._mult_references,
+            return_all_scores=self._return_all_scores,
+            return_all_cands_scores=self._return_all_cands_scores,
             n=self._n,
             sigma=self._sigma,
             cache_path=self._cache_path,

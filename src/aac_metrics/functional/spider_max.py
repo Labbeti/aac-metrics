@@ -32,9 +32,12 @@ def spider_max(
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """SPIDEr-max function.
 
+    Compute the maximal SPIDEr score accross multiple candidates.
+
     - Paper: https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Labbe_46.pdf
 
-    Compute the maximal SPIDEr score accross multiple candidates.
+    .. warning::
+        This metric requires at least 2 candidates with 2 sets of references, otherwise it will raises a ValueError.
 
     :param mult_candidates: The list of list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
@@ -54,6 +57,10 @@ def spider_max(
     :param java_max_memory: The maximal java memory used. defaults to "8G".
     :param n_threads: Number of threads used to compute SPICE.
         None value will use the default value of the java program.
+        defaults to None.
+    :param timeout: The number of seconds before killing the java subprogram.
+        If a list is given, it will restart the program if the i-th timeout is reached.
+        If None, no timeout will be used.
         defaults to None.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.

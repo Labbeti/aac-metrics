@@ -57,14 +57,14 @@ class SBERTSim(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return sbert_sim(
-            self._candidates,
-            self._mult_references,
-            self._return_all_scores,
-            self._sbert_model,
-            self._device,
-            self._batch_size,
-            self._reset_state,
-            self._verbose,
+            candidates=self._candidates,
+            mult_references=self._mult_references,
+            return_all_scores=self._return_all_scores,
+            sbert_model=self._sbert_model,
+            device=self._device,
+            batch_size=self._batch_size,
+            reset_state=self._reset_state,
+            verbose=self._verbose,
         )
 
     def extra_repr(self) -> str:
