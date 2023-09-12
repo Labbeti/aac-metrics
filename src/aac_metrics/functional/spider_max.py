@@ -58,6 +58,10 @@ def spider_max(
     :param n_threads: Number of threads used to compute SPICE.
         None value will use the default value of the java program.
         defaults to None.
+    :param timeout: The number of seconds before killing the java subprogram.
+        If a list is given, it will restart the program if the i-th timeout is reached.
+        If None, no timeout will be used.
+        defaults to None.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """

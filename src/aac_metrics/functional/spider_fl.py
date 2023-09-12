@@ -73,9 +73,13 @@ def spider_fl(
     :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
     :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
     :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
-    :param java_max_memory: The maximal java memory used. defaults to "8G".
     :param n_threads: Number of threads used to compute SPICE.
         None value will use the default value of the java program.
+        defaults to None.
+    :param java_max_memory: The maximal java memory used. defaults to "8G".
+    :param timeout: The number of seconds before killing the java subprogram.
+        If a list is given, it will restart the program if the i-th timeout is reached.
+        If None, no timeout will be used.
         defaults to None.
     :param echecker: The echecker model used to detect fluency errors.
         Can be "echecker_clotho_audiocaps_base", "echecker_clotho_audiocaps_tiny", "none" or None.
