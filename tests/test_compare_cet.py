@@ -102,28 +102,29 @@ class TestCompareCaptionEvaluationTools(TestCase):
         return cands, mrefs
 
     def _test_with_example(self, cands: list[str], mrefs: list[list[str]]) -> None:
-        if os.name == "nt":
+        corpus_scores, _ = evaluate(cands, mrefs, metrics="dcase2020")
+
+        self.assertIsInstance(corpus_scores, dict)
+
+        for name, score in corpus_scores.items():
+            self.assertIsInstance(score, Tensor, f"Invalid score type for {name=}")
+            self.assertEqual(score.ndim, 0, f"Invalid score ndim for {name=}")
+
+        if platform.system() == "Windows":
             # Skip this setup on windows
             return None
 
         cet_outs = self.__class__.evaluate_metrics_from_lists(cands, mrefs)
         cet_global_scores, _cet_sents_scores = cet_outs
 
-        corpus_scores, _ = evaluate(cands, mrefs, metrics="dcase2020")
-
         cet_global_scores = {k.lower(): v for k, v in cet_global_scores.items()}
         cet_global_scores = {
             (k if k != "cider" else "cider_d"): v for k, v in cet_global_scores.items()
         }
 
-        self.assertIsInstance(corpus_scores, dict)
         self.assertIsInstance(cet_global_scores, dict)
-
-        for name, score in corpus_scores.items():
-            self.assertIsInstance(score, Tensor, f"Invalid score type for {name=}")
-            self.assertEqual(score.ndim, 0, f"Invalid score ndim for {name=}")
-
         self.assertListEqual(list(corpus_scores.keys()), list(cet_global_scores.keys()))
+
         for metric_name, v1 in corpus_scores.items():
             v1 = v1.item()
             v2 = cet_global_scores[metric_name]
