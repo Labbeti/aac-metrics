@@ -216,13 +216,19 @@ def spice(
             pylog.error(f"Full command: '{' '.join(spice_cmd)}'")
             pylog.error(f"Error: {err}")
 
-            for fpath in (
+            fpaths = [
                 java_path,
                 spice_fpath,
                 in_file.name,
                 spice_cache,
                 out_file.name,
-            ):
+            ]
+            if stdout is not None:
+                fpaths.append(stdout.name)
+            if stderr is not None:
+                fpaths.append(stderr.name)
+
+            for fpath in fpaths:
                 info = {"t": "-", "r": "-", "w": "-", "x": "-"}
                 if osp.isfile(fpath):
                     info["t"] = "f"
