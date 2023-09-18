@@ -215,6 +215,29 @@ def spice(
             pylog.error("Invalid SPICE call.")
             pylog.error(f"Full command: '{' '.join(spice_cmd)}'")
             pylog.error(f"Error: {err}")
+
+            for fpath in (
+                java_path,
+                spice_fpath,
+                in_file.name,
+                spice_cache,
+                out_file.name,
+            ):
+                info = {"t": "-", "r": "-", "w": "-", "x": "-"}
+                if osp.isfile(fpath):
+                    info["t"] = "f"
+                elif osp.isdir(fpath):
+                    info["t"] = "d"
+
+                if os.access(fpath, os.R_OK):
+                    info["r"] = "r"
+                if os.access(fpath, os.W_OK):
+                    info["w"] = "w"
+                if os.access(fpath, os.X_OK):
+                    info["x"] = "x"
+
+                pylog.error(f"{fpath} :\t {''.join(info.values())}")
+
             if (
                 stdout is not None
                 and stderr is not None
