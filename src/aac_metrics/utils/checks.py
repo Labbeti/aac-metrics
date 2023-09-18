@@ -5,7 +5,6 @@ import logging
 import re
 import subprocess
 
-from functools import cache
 from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Any, Union
@@ -54,17 +53,19 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
 
 
 def is_mono_sents(sents: Any) -> bool:
-    """Returns True if input is list[str]."""
-    return isinstance(sents, list) and all(isinstance(sent, str) for sent in sents)
+    """Returns True if input is list[str] containing sentences."""
+    valid = isinstance(sents, list) and all(isinstance(sent, str) for sent in sents)
+    return valid
 
 
 def is_mult_sents(mult_sents: Any) -> bool:
-    """Returns True if input is list[list[str]]."""
-    return (
+    """Returns True if input is list[list[str]] containing multiple sentences."""
+    valid = (
         isinstance(mult_sents, list)
         and all(isinstance(sents, list) for sents in mult_sents)
         and all(isinstance(sent, str) for sents in mult_sents for sent in sents)
     )
+    return valid
 
 
 def _get_java_version(java_path: str) -> str:
@@ -106,9 +107,8 @@ def _check_java_version(version: str, min_major: int, max_major: int) -> bool:
     major_version = int(result["major"])
     minor_version = int(result["minor"])
 
-    if (
-        major_version == 1 and minor_version <= 8
-    ):  # java <= 8 use versioning "1.MAJOR.MINOR" and > 8 use "MAJOR.MINOR.PATCH"
+    if major_version == 1 and minor_version <= 8:
+        # java <= 8 use versioning "1.MAJOR.MINOR" and > 8 use "MAJOR.MINOR.PATCH"
         major_version = minor_version
 
     return min_major <= major_version <= max_major
