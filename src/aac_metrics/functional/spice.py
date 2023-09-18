@@ -214,6 +214,7 @@ def spice(
         except (CalledProcessError, PermissionError) as err:
             pylog.error("Invalid SPICE call.")
             pylog.error(f"Full command: '{' '.join(spice_cmd)}'")
+            pylog.error(f"Error: {err}")
             if (
                 stdout is not None
                 and stderr is not None
@@ -223,15 +224,15 @@ def spice(
                 pylog.error(
                     f"For more information, see temp files '{stdout.name}' and '{stderr.name}'."
                 )
-                with open(stdout.name, "r") as file:
-                    lines = file.readlines()
-                content = "\n".join(lines)
-                pylog.error(f"Content of '{stdout.name}':\n{content}")
 
-                with open(stderr.name, "r") as file:
-                    lines = file.readlines()
-                content = "\n".join(lines)
-                pylog.error(f"Content of '{stderr.name}':\n{content}")
+                for fpath in (stdout.name, stderr.name):
+                    try:
+                        with open(fpath, "r") as file:
+                            lines = file.readlines()
+                        content = "\n".join(lines)
+                        pylog.error(f"Content of '{fpath}':\n{content}")
+                    except PermissionError:
+                        pass
             else:
                 pylog.info(
                     f"Note: No temp file recorded. (found {stdout=} and {stderr=})"

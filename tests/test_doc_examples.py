@@ -28,10 +28,6 @@ class TestReadmeExamples(TestCase):
             os.makedirs(tmp_path, exist_ok=True)
             set_default_tmp_path(tmp_path)
 
-            cache_path = osp.join(".", "cache")
-            os.makedirs(cache_path, exist_ok=True)
-            set_default_cache_path(cache_path)
-
     def test_example_1(self) -> None:
         candidates: list[str] = ["a man is speaking", "rain falls"]
         mult_references: list[list[str]] = [

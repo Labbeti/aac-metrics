@@ -35,10 +35,6 @@ class TestCompareCaptionEvaluationTools(TestCase):
             os.makedirs(tmp_path, exist_ok=True)
             set_default_tmp_path(tmp_path)
 
-            cache_path = osp.join(".", "cache")
-            os.makedirs(cache_path, exist_ok=True)
-            set_default_cache_path(cache_path)
-
         cls.evaluate_metrics_from_lists = cls._import_cet_eval_func()
 
     @classmethod
