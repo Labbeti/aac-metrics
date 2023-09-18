@@ -17,7 +17,7 @@ from torch import Tensor
 
 from aac_metrics.functional.evaluate import evaluate
 from aac_metrics.eval import load_csv_file
-from aac_metrics.utils.paths import get_default_tmp_path
+from aac_metrics.utils.paths import get_default_tmp_path, set_default_tmp_path
 
 
 class TestCompareCaptionEvaluationTools(TestCase):
@@ -26,6 +26,10 @@ class TestCompareCaptionEvaluationTools(TestCase):
     # Set Up methods
     @classmethod
     def setUpClass(cls) -> None:
+        if platform.system() == "Windows":
+            tmp_path = osp.join(".", "tmp")
+            os.makedirs(tmp_path, exist_ok=True)
+            set_default_tmp_path(tmp_path)
         cls.evaluate_metrics_from_lists = cls._import_cet_eval_func()
 
     @classmethod
