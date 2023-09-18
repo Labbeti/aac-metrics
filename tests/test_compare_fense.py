@@ -60,7 +60,8 @@ class TestCompareFENSE(TestCase):
         cands, mrefs = load_csv_file(fpath)
 
         self.new_fense._return_all_scores = True
-        corpus_scores, sents_scores = self.new_fense(cands, mrefs)
+        outs: tuple = self.new_fense(cands, mrefs)  # type: ignore
+        corpus_scores, sents_scores = outs
         self.new_fense._return_all_scores = False
 
         for name, score in corpus_scores.items():
@@ -79,7 +80,8 @@ class TestCompareFENSE(TestCase):
         src_sbert_sim_score = self.src_sbert_sim.corpus_score(cands, mrefs).item()
         src_fense_score = self.src_fense.corpus_score(cands, mrefs).item()
 
-        corpus_outs, _sents_outs = self.new_fense(cands, mrefs)
+        outs: tuple = self.new_fense(cands, mrefs)  # type: ignore
+        corpus_outs, _sents_outs = outs
         new_sbert_sim_score = corpus_outs["sbert_sim"].item()
         new_fense_score = corpus_outs["fense"].item()
 
