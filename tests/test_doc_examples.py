@@ -16,7 +16,7 @@ from aac_metrics.utils.tokenization import (
     preprocess_mono_sents,
     preprocess_mult_sents,
 )
-from aac_metrics.utils.paths import set_default_cache_path, set_default_tmp_path
+from aac_metrics.utils.paths import set_default_tmp_path
 
 
 class TestReadmeExamples(TestCase):
