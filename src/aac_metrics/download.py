@@ -70,6 +70,10 @@ DATA_URLS = {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/tokenizer/stanford-corenlp-3.4.1.jar",
         "fname": "stanford-corenlp-3.4.1.jar",
     },
+    "core_nlp": {
+        "url": "http://nlp.stanford.edu/software/stanford-corenlp-full-2015-12-09.zip",
+        "fname": osp.join("SPICE-1.0", "stanford-corenlp-full-2015-12-09.zip"),
+    },
 }
 _TRUE_VALUES = ("true", "1", "t")
 _FALSE_VALUES = ("false", "0", "f")
@@ -202,16 +206,21 @@ def _download_spice(
     os.makedirs(spice_jar_dpath, exist_ok=True)
     os.makedirs(spice_local_cache_path, exist_ok=True)
 
-    spice_zip_url = DATA_URLS["spice_zip"]["url"]
-    spice_zip_fpath = osp.join(spice_cache_dpath, DATA_URLS["spice_zip"]["fname"])
+    for name in ("spice_zip", "core_nlp"):
+        url = DATA_URLS[name]["url"]
+        fname = DATA_URLS[name]["fname"]
+        fpath = osp.join(spice_cache_dpath, fname)
 
-    if osp.isfile(spice_zip_fpath):
-        if verbose >= 1:
-            pylog.info(f"SPICE ZIP file '{spice_zip_fpath}' is already downloaded.")
-    else:
-        if verbose >= 1:
-            pylog.info(f"Downloading SPICE ZIP file '{spice_zip_fpath}'...")
-        download_url_to_file(spice_zip_url, spice_zip_fpath, progress=verbose > 0)
+        if osp.isfile(fpath):
+            if verbose >= 1:
+                pylog.info(f"File '{fpath}' is already downloaded for SPICE.")
+        else:
+            if verbose >= 1:
+                pylog.info(f"Downloading file '{fpath}' for SPICE...")
+
+            dpath = osp.dirname(fpath)
+            os.makedirs(dpath, exist_ok=True)
+            download_url_to_file(url, fpath, progress=verbose > 0)
 
     script_fname = "install_spice.sh"
     script_fpath = osp.join(osp.dirname(__file__), script_fname)
