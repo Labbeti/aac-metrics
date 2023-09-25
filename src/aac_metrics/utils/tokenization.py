@@ -74,7 +74,7 @@ def ptb_tokenize_batch(
     sentences = list(sentences)
 
     if not is_mono_sents(sentences):
-        raise ValueError(f"Invalid argument sentences. (not a list[str] of sentences)")
+        raise ValueError("Invalid argument sentences. (not a list[str] of sentences)")
 
     if len(sentences) == 0:
         return []
@@ -180,7 +180,7 @@ def ptb_tokenize_batch(
         outs[k] = tokenized_caption
     assert all(
         out is not None for out in outs
-    ), f"INTERNAL ERROR: PTB tokenizer output."
+    ), "INTERNAL ERROR: PTB tokenizer output is invalid."
 
     if verbose >= 2:
         duration = time.perf_counter() - start_time

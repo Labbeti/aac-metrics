@@ -107,7 +107,7 @@ def download(
     :param verbose: The verbose level. defaults to 0.
     """
     if verbose >= 1:
-        pylog.info(f"aac-metrics download started.")
+        pylog.info("aac-metrics download started.")
 
     cache_path = _get_cache_path(cache_path)
     tmp_path = _get_tmp_path(tmp_path)
@@ -133,7 +133,7 @@ def download(
         _download_fense(verbose)
 
     if verbose >= 1:
-        pylog.info(f"aac-metrics download finished.")
+        pylog.info("aac-metrics download finished.")
 
 
 def _download_ptb_tokenizer(
@@ -202,6 +202,42 @@ def _download_spice(
     use_shell: Optional[bool] = None,
     verbose: int = 0,
 ) -> None:
+    """
+
+    Default SPICE directory tree:
+
+    spice
+    ├── cache
+    │   ├── data.mdb
+    │   └── lock.mdb
+    ├── lib
+    │   ├── ejml-0.23.jar
+    │   ├── fst-2.47.jar
+    │   ├── guava-19.0.jar
+    │   ├── hamcrest-core-1.3.jar
+    │   ├── jackson-core-2.5.3.jar
+    │   ├── javassist-3.19.0-GA.jar
+    │   ├── json-simple-1.1.1.jar
+    │   ├── junit-4.12.jar
+    │   ├── lmdbjni-0.4.6.jar
+    │   ├── lmdbjni-linux64-0.4.6.jar
+    │   ├── lmdbjni-osx64-0.4.6.jar
+    │   ├── lmdbjni-win64-0.4.6.jar
+    │   ├── Meteor-1.5.jar
+    │   ├── objenesis-2.4.jar
+    │   ├── SceneGraphParser-1.0.jar
+    │   ├── slf4j-api-1.7.12.jar
+    │   ├── slf4j-simple-1.7.21.jar
+    │   ├── stanford-corenlp-3.6.0.jar
+    │   └── stanford-corenlp-3.6.0-models.jar
+    ├── SPICE-1.0
+    │   ├── get_stanford_models.sh
+    │   └── Readme.txt
+    ├── spice-1.0.jar
+    └── SPICE-1.0.zip
+    """
+    # TODO: rm use_shell arg ?
+
     # Download JAR files for SPICE metric
     spice_cache_dpath = osp.join(cache_path, DNAME_SPICE_CACHE)
     spice_jar_dpath = osp.join(cache_path, osp.dirname(FNAME_SPICE_JAR))
@@ -227,12 +263,16 @@ def _download_spice(
             download_url_to_file(url, fpath, progress=verbose > 0)
 
         if fname.endswith(".zip"):
-            parent_target_dpath = osp.join(
+            parent_tgt_dpath = osp.join(
                 spice_cache_dpath, DATA_URLS[name]["extract_to"]
             )
-            os.makedirs(parent_target_dpath, exist_ok=True)
+            os.makedirs(parent_tgt_dpath, exist_ok=True)
+
+            if verbose >= 1:
+                pylog.info(f"Extracting {fname} to {parent_tgt_dpath}...")
+
             with ZipFile(fpath, "r") as file:
-                file.extractall(parent_target_dpath)
+                file.extractall(parent_tgt_dpath)
 
     # TODO: rm
     # mv $SPICELIB/$CORENLP/stanford-corenlp-3.6.0.jar $SPICELIB/
@@ -244,24 +284,41 @@ def _download_spice(
     spice_lib_dpath = osp.join(spice_cache_dpath, "lib")
     spice_unzip_dpath = osp.join(spice_cache_dpath, "SPICE-1.0")
     corenlp_dname = "stanford-corenlp-full-2015-12-09"
+    corenlp_dpath = osp.join(spice_lib_dpath, corenlp_dname)
 
-    to_move = {
-        osp.join(
-            spice_lib_dpath, corenlp_dname, "stanford-corenlp-3.6.0.jar"
-        ): spice_lib_dpath,
-        osp.join(
-            spice_lib_dpath, corenlp_dname, "stanford-corenlp-3.6.0-models.jar"
-        ): spice_lib_dpath,
-        osp.join(spice_unzip_dpath, "lib"): spice_cache_dpath,
-        osp.join(spice_unzip_dpath, "spice-1.0.jar"): spice_cache_dpath,
-    }
-    for source_path, parent_target_dpath in to_move.items():
-        target_path = osp.join(parent_target_dpath, osp.basename(source_path))
-        if osp.exists(target_path):
-            pylog.info(f"Target '{target_path}' already exists.")
+    to_move = [
+        ("f", osp.join(corenlp_dpath, "stanford-corenlp-3.6.0.jar"), spice_lib_dpath),
+        (
+            "f",
+            osp.join(corenlp_dpath, "stanford-corenlp-3.6.0-models.jar"),
+            spice_lib_dpath,
+        ),
+        ("d", osp.join(spice_unzip_dpath, "lib"), spice_cache_dpath),
+        ("f", osp.join(spice_unzip_dpath, "spice-1.0.jar"), spice_cache_dpath),
+    ]
+    for src_type, src_path, parent_tgt_dpath in to_move:
+        tgt_path = osp.join(parent_tgt_dpath, osp.basename(src_path))
+
+        if osp.exists(tgt_path):
+            if src_type == "f":
+                if verbose >= 1:
+                    pylog.info(f"Target file '{tgt_path}' already exists.")
+            elif src_type == "d":
+                if verbose >= 1:
+                    pylog.info(f"Moving all objects in '{src_path}' to '{tgt_path}'...")
+                for name in os.listdir(src_path):
+                    shutil.move(osp.join(src_path, name), tgt_path)
+                os.rmdir(src_path)
+            else:
+                raise ValueError(f"Invalid type value {src_type}.")
         else:
-            pylog.info(f"Moving '{source_path}' to '{parent_target_dpath}'...")
-            shutil.move(source_path, parent_target_dpath)
+            pylog.info(f"Moving '{src_path}' to '{parent_tgt_dpath}'...")
+            shutil.move(src_path, parent_tgt_dpath)
+
+    # TODO: rm
+    # rm -f stanford-corenlp-full-2015-12-09.zip
+    # rm -rf $SPICELIB/$CORENLP/
+    shutil.rmtree(corenlp_dpath)
 
     # TODO: rm
     # script_fname = "install_spice.sh"
@@ -348,17 +405,22 @@ def _get_main_download_args() -> Namespace:
     return args
 
 
-def _main_download() -> None:
+def _setup_logging(verbose: int = 1) -> None:
     format_ = "[%(asctime)s][%(name)s][%(levelname)s] - %(message)s"
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(logging.Formatter(format_))
     pkg_logger = logging.getLogger("aac_metrics")
-    pkg_logger.addHandler(handler)
+    if handler not in pkg_logger.handlers:
+        pkg_logger.addHandler(handler)
 
+    level = logging.INFO if verbose <= 1 else logging.DEBUG
+    pkg_logger.setLevel(level)
+
+
+def _main_download() -> None:
     args = _get_main_download_args()
 
-    level = logging.INFO if args.verbose <= 1 else logging.DEBUG
-    pkg_logger.setLevel(level)
+    _setup_logging(args.verbose)
 
     download(
         cache_path=args.cache_path,
