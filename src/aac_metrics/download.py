@@ -254,7 +254,8 @@ def _download_spice(
         osp.join(spice_unzip_dpath, "spice-1.0.jar"): spice_cache_dpath,
     }
     for source, target in to_move.items():
-        shutil.move(source, target)
+        if not osp.exists(target):
+            shutil.move(source, target)
 
     # TODO: rm
     # script_fname = "install_spice.sh"
