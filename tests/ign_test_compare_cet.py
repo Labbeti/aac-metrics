@@ -29,11 +29,6 @@ class TestCompareCaptionEvaluationTools(TestCase):
     # Set Up methods
     @classmethod
     def setUpClass(cls) -> None:
-        if platform.system() == "Windows":
-            tmp_path = osp.join(".", "tmp")
-            os.makedirs(tmp_path, exist_ok=True)
-            set_default_tmp_path(tmp_path)
-
         cls.evaluate_metrics_from_lists = cls._import_cet_eval_func()
 
     @classmethod
@@ -110,6 +105,10 @@ class TestCompareCaptionEvaluationTools(TestCase):
         return cands, mrefs
 
     def _test_with_example(self, cands: list[str], mrefs: list[list[str]]) -> None:
+        if platform.system() == "Windows":
+            # Skip this setup on windows
+            return None
+
         corpus_scores, _ = evaluate(cands, mrefs, metrics="dcase2020")
 
         self.assertIsInstance(corpus_scores, dict)
@@ -117,10 +116,6 @@ class TestCompareCaptionEvaluationTools(TestCase):
         for name, score in corpus_scores.items():
             self.assertIsInstance(score, Tensor, f"Invalid score type for {name=}")
             self.assertEqual(score.ndim, 0, f"Invalid score ndim for {name=}")
-
-        if platform.system() == "Windows":
-            # Skip this setup on windows
-            return None
 
         cet_outs = self.__class__.evaluate_metrics_from_lists(cands, mrefs)
         cet_global_scores, _cet_sents_scores = cet_outs

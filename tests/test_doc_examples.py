@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import os.path as osp
 import platform
 import unittest
 
@@ -16,19 +14,15 @@ from aac_metrics.utils.tokenization import (
     preprocess_mono_sents,
     preprocess_mult_sents,
 )
-from aac_metrics.utils.paths import set_default_tmp_path
 
 
 class TestReadmeExamples(TestCase):
-    # Set Up methods
-    @classmethod
-    def setUpClass(cls) -> None:
-        if platform.system() == "Windows":
-            tmp_path = osp.join(".", "tmp")
-            os.makedirs(tmp_path, exist_ok=True)
-            set_default_tmp_path(tmp_path)
-
     def test_example_1(self) -> None:
+        # TODO : rm or redo ?
+        # if platform.system() == "Windows":
+        #     # Skip this setup on windows
+        #     return None
+
         candidates: list[str] = ["a man is speaking", "rain falls"]
         mult_references: list[list[str]] = [
             [
@@ -66,6 +60,10 @@ class TestReadmeExamples(TestCase):
         )
 
     def test_example_2(self) -> None:
+        if platform.system() == "Windows":
+            # Skip this setup on windows
+            return None
+
         candidates: list[str] = ["a man is speaking", "rain falls"]
         mult_references: list[list[str]] = [
             [

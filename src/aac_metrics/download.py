@@ -5,12 +5,14 @@ import logging
 import os
 import os.path as osp
 import platform
+import shutil
 import subprocess
 import sys
 
 from argparse import ArgumentParser, Namespace
 from subprocess import CalledProcessError
 from typing import Optional
+from zipfile import ZipFile
 
 from torch.hub import download_url_to_file
 
@@ -62,17 +64,19 @@ DATA_URLS = {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/spice/spice-1.0.jar",
         "fname": "spice-1.0.jar",
     },
-    "spice_zip": {
-        "url": "https://panderson.me/images/SPICE-1.0.zip",
-        "fname": "SPICE-1.0.zip",
-    },
     "stanford_nlp": {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/tokenizer/stanford-corenlp-3.4.1.jar",
         "fname": "stanford-corenlp-3.4.1.jar",
     },
-    "core_nlp": {
+    "spice_zip": {
+        "url": "https://panderson.me/images/SPICE-1.0.zip",
+        "fname": "SPICE-1.0.zip",
+        "extract_to": ".",
+    },
+    "spice_corenlp_zip": {
         "url": "http://nlp.stanford.edu/software/stanford-corenlp-full-2015-12-09.zip",
         "fname": osp.join("SPICE-1.0", "stanford-corenlp-full-2015-12-09.zip"),
+        "extract_to": "lib",
     },
 }
 _TRUE_VALUES = ("true", "1", "t")
@@ -206,7 +210,7 @@ def _download_spice(
     os.makedirs(spice_jar_dpath, exist_ok=True)
     os.makedirs(spice_local_cache_path, exist_ok=True)
 
-    for name in ("spice_zip", "core_nlp"):
+    for name in ("spice_zip", "spice_corenlp_zip"):
         url = DATA_URLS[name]["url"]
         fname = DATA_URLS[name]["fname"]
         fpath = osp.join(spice_cache_dpath, fname)
@@ -222,32 +226,63 @@ def _download_spice(
             os.makedirs(dpath, exist_ok=True)
             download_url_to_file(url, fpath, progress=verbose > 0)
 
-    script_fname = "install_spice.sh"
-    script_fpath = osp.join(osp.dirname(__file__), script_fname)
-    if not osp.isfile(script_fpath):
-        raise FileNotFoundError(f"Cannot find script '{osp.basename(script_fpath)}'.")
+        if fname.endswith(".zip"):
+            target_dpath = osp.join(spice_cache_dpath, DATA_URLS[name]["extract_to"])
+            os.makedirs(target_dpath, exist_ok=True)
+            with ZipFile(fpath, "r") as file:
+                file.extractall(target_dpath)
 
-    if verbose >= 1:
-        pylog.info(
-            f"Downloading JAR sources for SPICE metric into '{spice_jar_dpath}'..."
-        )
+    # TODO: rm
+    # mv $SPICELIB/$CORENLP/stanford-corenlp-3.6.0.jar $SPICELIB/
+    # mv $SPICELIB/$CORENLP/stanford-corenlp-3.6.0-models.jar $SPICELIB/
+    # dpath_unzip="$dpath_spice/SPICE-1.0"
+    # mv "$dpath_unzip/lib" "$dpath_spice"
+    # mv "$dpath_unzip/spice-1.0.jar" "$dpath_spice"
 
-    if use_shell is None:
-        use_shell = platform.system() == "Windows"
+    spice_lib_dpath = osp.join(spice_cache_dpath, "lib")
+    spice_unzip_dpath = osp.join(spice_cache_dpath, "SPICE-1.0")
+    corenlp_dname = "stanford-corenlp-full-2015-12-09"
 
-    command = ["bash", script_fpath, spice_jar_dpath]
-    try:
-        subprocess.check_call(
-            command,
-            stdout=None if verbose >= 1 else subprocess.DEVNULL,
-            stderr=None if verbose >= 1 else subprocess.DEVNULL,
-            shell=use_shell,
-        )
-    except (CalledProcessError, PermissionError) as err:
-        pylog.error(
-            f"Cannot install SPICE java source code from '{script_fname}' script."
-        )
-        raise err
+    to_move = {
+        osp.join(
+            spice_lib_dpath, corenlp_dname, "stanford-corenlp-3.6.0.jar"
+        ): spice_lib_dpath,
+        osp.join(
+            spice_lib_dpath, corenlp_dname, "stanford-corenlp-3.6.0-models.jar"
+        ): spice_lib_dpath,
+        osp.join(spice_unzip_dpath, "lib"): spice_cache_dpath,
+        osp.join(spice_unzip_dpath, "spice-1.0.jar"): spice_cache_dpath,
+    }
+    for source, target in to_move.items():
+        shutil.move(source, target)
+
+    # TODO: rm
+    # script_fname = "install_spice.sh"
+    # script_fpath = osp.join(osp.dirname(__file__), script_fname)
+    # if not osp.isfile(script_fpath):
+    #     raise FileNotFoundError(f"Cannot find script '{osp.basename(script_fpath)}'.")
+
+    # if verbose >= 1:
+    #     pylog.info(
+    #         f"Downloading JAR sources for SPICE metric into '{spice_jar_dpath}'..."
+    #     )
+
+    # if use_shell is None:
+    #     use_shell = platform.system() == "Windows"
+
+    # command = ["bash", script_fpath, spice_jar_dpath]
+    # try:
+    #     subprocess.check_call(
+    #         command,
+    #         stdout=None if verbose >= 1 else subprocess.DEVNULL,
+    #         stderr=None if verbose >= 1 else subprocess.DEVNULL,
+    #         shell=use_shell,
+    #     )
+    # except (CalledProcessError, PermissionError) as err:
+    #     pylog.error(
+    #         f"Cannot install SPICE java source code from '{script_fname}' script."
+    #     )
+    #     raise err
 
 
 def _download_fense(
