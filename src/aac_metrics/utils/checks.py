@@ -7,7 +7,7 @@ import subprocess
 
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Any, Union
+from typing import Any, TypeGuard, Union
 
 
 pylog = logging.getLogger(__name__)
@@ -22,11 +22,18 @@ def check_metric_inputs(
     mult_references: Any,
 ) -> None:
     """Raises ValueError if candidates and mult_references does not have a valid type and size."""
+
+    error_msgs = []
     if not is_mono_sents(candidates):
-        raise ValueError("Invalid candidates type. (expected list[str])")
+        error_msg = "Invalid candidates type. (expected list[str])"
+        error_msgs.append(error_msg)
 
     if not is_mult_sents(mult_references):
-        raise ValueError("Invalid mult_references type. (expected list[list[str]])")
+        error_msg = "Invalid mult_references type. (expected list[list[str]])"
+        error_msgs.append(error_msg)
+
+    if len(error_msgs) > 0:
+        raise ValueError("\n".join(error_msgs))
 
     same_len = len(candidates) == len(mult_references)
     if not same_len:
@@ -52,13 +59,13 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
     return valid
 
 
-def is_mono_sents(sents: Any) -> bool:
+def is_mono_sents(sents: Any) -> TypeGuard[list[str]]:
     """Returns True if input is list[str] containing sentences."""
     valid = isinstance(sents, list) and all(isinstance(sent, str) for sent in sents)
     return valid
 
 
-def is_mult_sents(mult_sents: Any) -> bool:
+def is_mult_sents(mult_sents: Any) -> TypeGuard[list[list[str]]]:
     """Returns True if input is list[list[str]] containing multiple sentences."""
     valid = (
         isinstance(mult_sents, list)

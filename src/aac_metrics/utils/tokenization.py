@@ -69,6 +69,8 @@ def ptb_tokenize_batch(
     :param verbose: The verbose level. defaults to 0.
     :returns: The sentences tokenized as list[list[str]].
     """
+    # Originally based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
+
     sentences = list(sentences)
 
     if not is_mono_sents(sentences):
@@ -82,12 +84,16 @@ def ptb_tokenize_batch(
     tmp_path = _get_tmp_path(tmp_path)
     punctuations = list(punctuations)
 
-    # Based on https://github.com/audio-captioning/caption-evaluation-tools/blob/c1798df4c91e29fe689b1ccd4ce45439ec966417/caption/pycocoevalcap/tokenizer/ptbtokenizer.py#L30
-
     stanford_fpath = osp.join(cache_path, FNAME_STANFORD_CORENLP_3_4_1_JAR)
 
     # Sanity checks
     if __debug__:
+        newlines_count = sum(sent.count("\n") for sent in sentences)
+        if newlines_count > 0:
+            raise ValueError(
+                f"Invalid argument sentences for tokenization. (found {newlines_count} newlines character '\\n')"
+            )
+
         if not osp.isdir(cache_path):
             raise RuntimeError(f"Cannot find cache directory at {cache_path=}.")
         if not osp.isdir(tmp_path):
