@@ -2,9 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.5] UNRELEASED
+## [0.4.6] UNRELEASED
+### Changed
+- Check if newline character is in the sentences before ptb tokenization. ([#6](https://github.com/Labbeti/aac-metrics/issues/6))
+
 ### Fixed
-- Maximal version of `transformers` dependancy set to 4.31.0.
+- Maximal version of `transformers` dependancy set to 4.31.0 to avoid error with `FENSE` and `FluErr` metrics.
 
 ## [0.4.5] 2023-09-12
 ### Added
