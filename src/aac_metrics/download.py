@@ -4,14 +4,10 @@
 import logging
 import os
 import os.path as osp
-import platform
 import shutil
-import subprocess
 import sys
 
 from argparse import ArgumentParser, Namespace
-from subprocess import CalledProcessError
-from typing import Optional
 from zipfile import ZipFile
 
 from torch.hub import download_url_to_file
