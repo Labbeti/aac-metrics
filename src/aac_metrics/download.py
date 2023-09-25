@@ -227,10 +227,10 @@ def _download_spice(
             download_url_to_file(url, fpath, progress=verbose > 0)
 
         if fname.endswith(".zip"):
-            target_dpath = osp.join(spice_cache_dpath, DATA_URLS[name]["extract_to"])
-            os.makedirs(target_dpath, exist_ok=True)
+            parent_target_dpath = osp.join(spice_cache_dpath, DATA_URLS[name]["extract_to"])
+            os.makedirs(parent_target_dpath, exist_ok=True)
             with ZipFile(fpath, "r") as file:
-                file.extractall(target_dpath)
+                file.extractall(parent_target_dpath)
 
     # TODO: rm
     # mv $SPICELIB/$CORENLP/stanford-corenlp-3.6.0.jar $SPICELIB/
@@ -253,9 +253,13 @@ def _download_spice(
         osp.join(spice_unzip_dpath, "lib"): spice_cache_dpath,
         osp.join(spice_unzip_dpath, "spice-1.0.jar"): spice_cache_dpath,
     }
-    for source, target in to_move.items():
-        if not osp.exists(target):
-            shutil.move(source, target)
+    for source_path, parent_target_dpath in to_move.items():
+        target_path = osp.join(parent_target_dpath, osp.basename(source_path))
+        if osp.exists(target_path):
+            pylog.info(f"Target '{target_path}' already exists.")
+        else:
+            pylog.info(f"Moving '{source_path}' to '{parent_target_dpath}'...")
+            shutil.move(source_path, parent_target_dpath)
 
     # TODO: rm
     # script_fname = "install_spice.sh"
