@@ -7,7 +7,8 @@ import subprocess
 
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Any, TypeGuard, Union
+from typing import Any, Union
+from typing_extensions import TypeGuard
 
 
 pylog = logging.getLogger(__name__)
