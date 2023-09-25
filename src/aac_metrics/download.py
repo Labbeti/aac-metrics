@@ -86,7 +86,7 @@ _FALSE_VALUES = ("false", "0", "f")
 def download(
     cache_path: str = ...,
     tmp_path: str = ...,
-    use_shell: Optional[bool] = None,
+    clean_archives: bool = True,
     ptb_tokenizer: bool = True,
     meteor: bool = True,
     spice: bool = True,
@@ -97,9 +97,7 @@ def download(
 
     :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
     :param tmp_path: The path to a temporary directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
-    :param use_shell: Optional argument to force use os-specific shell for the bash installation script program.
-        If None, it will use shell only on Windows OS.
-        defaults to None.
+    :param clean_archives: If True, remove all archives files. defaults to True.
     :param ptb_tokenizer: If True, downloads the PTBTokenizer code in cache directory. defaults to True.
     :param meteor: If True, downloads the METEOR code in cache directory. defaults to True.
     :param spice: If True, downloads the SPICE code in cache directory. defaults to True.
@@ -127,7 +125,7 @@ def download(
         _download_meteor(cache_path, verbose)
 
     if spice:
-        _download_spice(cache_path, use_shell, verbose)
+        _download_spice(cache_path, clean_archives, verbose)
 
     if fense:
         _download_fense(verbose)
@@ -199,17 +197,15 @@ def _download_meteor(
 
 def _download_spice(
     cache_path: str,
-    use_shell: Optional[bool] = None,
+    clean_archives: bool = True,
     verbose: int = 0,
 ) -> None:
     """
 
-    Default SPICE directory tree:
+    Target SPICE directory tree:
 
     spice
     ├── cache
-    │   ├── data.mdb
-    │   └── lock.mdb
     ├── lib
     │   ├── ejml-0.23.jar
     │   ├── fst-2.47.jar
@@ -230,11 +226,7 @@ def _download_spice(
     │   ├── slf4j-simple-1.7.21.jar
     │   ├── stanford-corenlp-3.6.0.jar
     │   └── stanford-corenlp-3.6.0-models.jar
-    ├── SPICE-1.0
-    │   ├── get_stanford_models.sh
-    │   └── Readme.txt
-    ├── spice-1.0.jar
-    └── SPICE-1.0.zip
+    └── spice-1.0.jar
     """
     # TODO: rm use_shell arg ?
 
@@ -318,35 +310,14 @@ def _download_spice(
     # TODO: rm
     # rm -f stanford-corenlp-full-2015-12-09.zip
     # rm -rf $SPICELIB/$CORENLP/
+
     shutil.rmtree(corenlp_dpath)
+    if clean_archives:
+        spice_zip_fname = DATA_URLS["spice_zip"]["fname"]
+        spice_zip_fpath = osp.join(spice_cache_dpath, spice_zip_fname)
 
-    # TODO: rm
-    # script_fname = "install_spice.sh"
-    # script_fpath = osp.join(osp.dirname(__file__), script_fname)
-    # if not osp.isfile(script_fpath):
-    #     raise FileNotFoundError(f"Cannot find script '{osp.basename(script_fpath)}'.")
-
-    # if verbose >= 1:
-    #     pylog.info(
-    #         f"Downloading JAR sources for SPICE metric into '{spice_jar_dpath}'..."
-    #     )
-
-    # if use_shell is None:
-    #     use_shell = platform.system() == "Windows"
-
-    # command = ["bash", script_fpath, spice_jar_dpath]
-    # try:
-    #     subprocess.check_call(
-    #         command,
-    #         stdout=None if verbose >= 1 else subprocess.DEVNULL,
-    #         stderr=None if verbose >= 1 else subprocess.DEVNULL,
-    #         shell=use_shell,
-    #     )
-    # except (CalledProcessError, PermissionError) as err:
-    #     pylog.error(
-    #         f"Cannot install SPICE java source code from '{script_fname}' script."
-    #     )
-    #     raise err
+        shutil.rmtree(spice_zip_fpath)
+        shutil.rmtree(spice_unzip_dpath)
 
 
 def _download_fense(
@@ -374,6 +345,12 @@ def _get_main_download_args() -> Namespace:
         type=str,
         default=get_default_tmp_path(),
         help="Temporary directory path.",
+    )
+    parser.add_argument(
+        "--clean_archives",
+        type=_str_to_bool,
+        default=True,
+        help="If True, remove all archives files. defaults to True.",
     )
     parser.add_argument(
         "--ptb_tokenizer",
@@ -425,6 +402,7 @@ def _main_download() -> None:
     download(
         cache_path=args.cache_path,
         tmp_path=args.tmp_path,
+        clean_archives=args.clean_archives,
         ptb_tokenizer=args.ptb_tokenizer,
         meteor=args.meteor,
         spice=args.spice,
