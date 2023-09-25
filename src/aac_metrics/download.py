@@ -315,7 +315,7 @@ def _download_spice(
         spice_zip_fpath = osp.join(spice_cache_dpath, spice_zip_fname)
 
         os.remove(spice_zip_fpath)
-        os.remove(spice_unzip_dpath)
+        shutil.rmtree(spice_unzip_dpath)
 
 
 def _download_fense(
