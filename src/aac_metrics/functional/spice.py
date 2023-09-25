@@ -230,7 +230,9 @@ def spice(
 
             for fpath in fpaths:
                 info = {"t": "-", "r": "-", "w": "-", "x": "-"}
-                if osp.isfile(fpath):
+                if osp.islink(fpath):
+                    info["t"] = "l"
+                elif osp.isfile(fpath):
                     info["t"] = "f"
                 elif osp.isdir(fpath):
                     info["t"] = "d"
@@ -261,7 +263,7 @@ def spice(
                         content = "\n".join(lines)
                         pylog.error(f"Content of '{fpath}':\n{content}")
                     except PermissionError:
-                        pass
+                        pylog.warning(f"Cannot open file '{fpath}'.")
             else:
                 pylog.info(
                     f"Note: No temp file recorded. (found {stdout=} and {stderr=})"
