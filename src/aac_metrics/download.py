@@ -200,7 +200,7 @@ def _download_spice(
     clean_archives: bool = True,
     verbose: int = 0,
 ) -> None:
-    """
+    """Download SPICE java code.
 
     Target SPICE directory tree:
 
@@ -228,8 +228,6 @@ def _download_spice(
     │   └── stanford-corenlp-3.6.0-models.jar
     └── spice-1.0.jar
     """
-    # TODO: rm use_shell arg ?
-
     # Download JAR files for SPICE metric
     spice_cache_dpath = osp.join(cache_path, DNAME_SPICE_CACHE)
     spice_jar_dpath = osp.join(cache_path, osp.dirname(FNAME_SPICE_JAR))
@@ -316,8 +314,8 @@ def _download_spice(
         spice_zip_fname = DATA_URLS["spice_zip"]["fname"]
         spice_zip_fpath = osp.join(spice_cache_dpath, spice_zip_fname)
 
-        shutil.rmtree(spice_zip_fpath)
-        shutil.rmtree(spice_unzip_dpath)
+        os.remove(spice_zip_fpath)
+        os.remove(spice_unzip_dpath)
 
 
 def _download_fense(

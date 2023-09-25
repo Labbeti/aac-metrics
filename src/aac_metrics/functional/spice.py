@@ -99,10 +99,8 @@ def spice(
         use_shell = platform.system() == "Windows"
 
     if __debug__:
-        if not osp.isfile(spice_fpath):
-            raise FileNotFoundError(
-                f"Cannot find JAR file '{spice_fpath}' for SPICE metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
-            )
+        check_spice_install(cache_path)
+
         if not check_java_path(java_path):
             raise RuntimeError(
                 f"Invalid Java executable to compute SPICE score. ({java_path})"
@@ -219,6 +217,45 @@ def spice(
         return spice_outs_corpus, spice_outs_sents
     else:
         return spice_score
+
+
+def check_spice_install(cache_path: str) -> None:
+    spice_fpath = osp.join(cache_path, FNAME_SPICE_JAR)
+    if not osp.isfile(spice_fpath):
+        raise FileNotFoundError(
+            f"Cannot find JAR file '{spice_fpath}' for SPICE metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
+        )
+
+    expected_jar_in_lib = [
+        "ejml-0.23.jar",
+        "fst-2.47.jar",
+        "guava-19.0.jar",
+        "hamcrest-core-1.3.jar",
+        "jackson-core-2.5.3.jar",
+        "javassist-3.19.0-GA.jar",
+        "json-simple-1.1.1.jar",
+        "junit-4.12.jar",
+        "lmdbjni-0.4.6.jar",
+        "lmdbjni-linux64-0.4.6.jar",
+        "lmdbjni-osx64-0.4.6.jar",
+        "lmdbjni-win64-0.4.6.jar",
+        "Meteor-1.5.jar",
+        "objenesis-2.4.jar",
+        "SceneGraphParser-1.0.jar",
+        "slf4j-api-1.7.12.jar",
+        "slf4j-simple-1.7.21.jar",
+        "stanford-corenlp-3.6.0.jar",
+        "stanford-corenlp-3.6.0-models.jar",
+    ]
+    names = os.listdir(osp.join(cache_path, DNAME_SPICE_CACHE, "lib"))
+    files_not_found = []
+    for fname in expected_jar_in_lib:
+        if fname not in names:
+            files_not_found.append(fname)
+    if len(files_not_found) > 0:
+        raise FileNotFoundError(
+            f"Missing {len(files_not_found)} files in SPICE lib directory. (missing {', '.join(files_not_found)})"
+        )
 
 
 def __run_spice(
