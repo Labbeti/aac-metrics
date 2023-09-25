@@ -143,6 +143,7 @@ def _download_ptb_tokenizer(
     url = info["url"]
     fname = info["fname"]
     fpath = osp.join(stanford_nlp_dpath, fname)
+
     if not osp.isfile(fpath):
         if verbose >= 1:
             pylog.info(
@@ -212,9 +213,10 @@ def _download_spice(
             pylog.info(f"Downloading SPICE ZIP file '{spice_zip_fpath}'...")
         download_url_to_file(spice_zip_url, spice_zip_fpath, progress=verbose > 0)
 
-    script_path = osp.join(osp.dirname(__file__), "install_spice.sh")
-    if not osp.isfile(script_path):
-        raise FileNotFoundError(f"Cannot find script '{osp.basename(script_path)}'.")
+    script_fname = "install_spice.sh"
+    script_fpath = osp.join(osp.dirname(__file__), script_fname)
+    if not osp.isfile(script_fpath):
+        raise FileNotFoundError(f"Cannot find script '{osp.basename(script_fpath)}'.")
 
     if verbose >= 1:
         pylog.info(
@@ -224,16 +226,18 @@ def _download_spice(
     if use_shell is None:
         use_shell = platform.system() == "Windows"
 
-    command = ["bash", script_path, spice_jar_dpath]
+    command = ["bash", script_fpath, spice_jar_dpath]
     try:
         subprocess.check_call(
             command,
-            stdout=None if verbose >= 2 else subprocess.DEVNULL,
-            stderr=None if verbose >= 2 else subprocess.DEVNULL,
+            stdout=None if verbose >= 1 else subprocess.DEVNULL,
+            stderr=None if verbose >= 1 else subprocess.DEVNULL,
             shell=use_shell,
         )
     except (CalledProcessError, PermissionError) as err:
-        pylog.error("Cannot install SPICE java source code.")
+        pylog.error(
+            f"Cannot install SPICE java source code from '{script_fname}' script."
+        )
         raise err
 
 

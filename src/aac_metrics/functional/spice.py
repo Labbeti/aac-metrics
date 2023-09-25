@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import copy
 import json
 import logging
 import math
@@ -85,6 +86,13 @@ def spice(
     java_path = _get_java_path(java_path)
     tmp_path = _get_tmp_path(tmp_path)
 
+    # Sometimes the java program can freeze, so timeout has been added to avoid using job time.
+    if timeout is None or isinstance(timeout, (int, float)):
+        timeout_lst = [timeout]
+    else:
+        timeout_lst = list(timeout)
+    timeout_lst: list[Optional[int]]
+
     spice_fpath = osp.join(cache_path, FNAME_SPICE_JAR)
 
     if use_shell is None:
@@ -134,150 +142,46 @@ def spice(
     json.dump(input_data, in_file, indent=2)
     in_file.close()
 
-    # Sometimes the java program can freeze, so timeout has been added to avoid using job time.
-    if timeout is None or isinstance(timeout, (int, float)):
-        timeout_lst = [timeout]
-    else:
-        timeout_lst = list(timeout)
-
     out_file = NamedTemporaryFile(prefix="spice_outputs_", **json_kwds)
     out_file.close()
 
-    txt_kwds: dict[str, Any] = dict(
-        mode="w",
-        delete=False,
-        dir=tmp_path,
-        suffix=".txt",
-    )
+    spice_cmd = [
+        java_path,
+        "-jar",
+        f"-Xmx{java_max_memory}",
+        spice_fpath,
+        in_file.name,
+        "-cache",
+        spice_cache,
+        "-out",
+        out_file.name,
+        "-subset",
+    ]
+    if n_threads is not None:
+        spice_cmd += ["-threads", str(n_threads)]
+
+    fpaths = [
+        java_path,
+        spice_fpath,
+        in_file.name,
+        spice_cache,
+        out_file.name,
+    ]
 
     for i, timeout_i in enumerate(timeout_lst):
-        if verbose >= 3:
-            stdout = None
-            stderr = None
-        else:
-            stdout = NamedTemporaryFile(
-                prefix="spice_stdout_",
-                **txt_kwds,
-            )
-            stderr = NamedTemporaryFile(
-                prefix="spice_stderr_",
-                **txt_kwds,
-            )
-
-        spice_cmd = [
-            java_path,
-            "-jar",
-            f"-Xmx{java_max_memory}",
-            spice_fpath,
-            in_file.name,
-            "-cache",
-            spice_cache,
-            "-out",
+        success = __run_spice(
+            i,
+            timeout_i,
+            timeout_lst,
+            spice_cmd,
+            tmp_path,
             out_file.name,
-            "-subset",
-        ]
-        if n_threads is not None:
-            spice_cmd += ["-threads", str(n_threads)]
-
-        if verbose >= 2:
-            pylog.debug(
-                f"Run SPICE java code with: {' '.join(spice_cmd)} and {use_shell=}"
-            )
-
-        try:
-            subprocess.check_call(
-                spice_cmd,
-                stdout=stdout,
-                stderr=stderr,
-                timeout=timeout_i,
-                shell=use_shell,
-            )
-            if stdout is not None:
-                stdout.close()
-                os.remove(stdout.name)
-            if stderr is not None:
-                stderr.close()
-                os.remove(stderr.name)
+            fpaths,
+            use_shell,
+            verbose,
+        )
+        if success:
             break
-
-        except subprocess.TimeoutExpired as err:
-            pylog.warning(
-                f"Timeout SPICE java program with {timeout_i=}s (nb timeouts done={i+1}/{len(timeout_lst)})."
-            )
-
-            if i < len(timeout_lst) - 1:
-                # Clear out files
-                open(out_file.name, "w").close()
-                if stdout is not None:
-                    stdout.close()
-                    open(stdout.name, "w").close()
-                if stderr is not None:
-                    stderr.close()
-                    open(stderr.name, "w").close()
-                time.sleep(1.0)
-            else:
-                raise err
-
-        except (CalledProcessError, PermissionError) as err:
-            pylog.error("Invalid SPICE call.")
-            pylog.error(f"Full command: '{' '.join(spice_cmd)}'")
-            pylog.error(f"Error: {err}")
-
-            fpaths = [
-                java_path,
-                spice_fpath,
-                in_file.name,
-                spice_cache,
-                out_file.name,
-            ]
-            if stdout is not None:
-                stdout.close()
-                fpaths.append(stdout.name)
-            if stderr is not None:
-                stderr.close()
-                fpaths.append(stderr.name)
-
-            for fpath in fpaths:
-                info = {"t": "-", "r": "-", "w": "-", "x": "-"}
-                if osp.islink(fpath):
-                    info["t"] = "l"
-                elif osp.isfile(fpath):
-                    info["t"] = "f"
-                elif osp.isdir(fpath):
-                    info["t"] = "d"
-
-                if os.access(fpath, os.R_OK):
-                    info["r"] = "r"
-                if os.access(fpath, os.W_OK):
-                    info["w"] = "w"
-                if os.access(fpath, os.X_OK):
-                    info["x"] = "x"
-
-                pylog.error(f"{fpath} :\t {''.join(info.values())}")
-
-            if (
-                stdout is not None
-                and stderr is not None
-                and osp.isfile(stdout.name)
-                and osp.isfile(stderr.name)
-            ):
-                pylog.error(
-                    f"For more information, see temp files '{stdout.name}' and '{stderr.name}'."
-                )
-
-                for fpath in (stdout.name, stderr.name):
-                    try:
-                        with open(fpath, "r") as file:
-                            lines = file.readlines()
-                        content = "\n".join(lines)
-                        pylog.error(f"Content of '{fpath}':\n{content}")
-                    except PermissionError as err2:
-                        pylog.warning(f"Cannot open file '{fpath}'. ({err2})")
-            else:
-                pylog.info(
-                    f"Note: No temp file recorded. (found {stdout=} and {stderr=})"
-                )
-            raise err
 
     if verbose >= 2:
         pylog.debug("SPICE java code finished.")
@@ -291,11 +195,11 @@ def spice(
     if separate_cache_dir:
         shutil.rmtree(spice_cache)
 
-    imgId_to_scores = {}
     spice_scores = []
     for item in results:
-        imgId_to_scores[item["image_id"]] = item["scores"]
-        spice_scores.append(__float_convert(item["scores"]["All"]["f"]))
+        # item keys: "image_id", "scores"
+        spice_scores_i = __float_convert(item["scores"]["All"]["f"])
+        spice_scores.append(spice_scores_i)
 
     spice_scores = np.array(spice_scores)
     # Note: use numpy to compute mean because np.mean and torch.mean can give very small differences
@@ -315,6 +219,138 @@ def spice(
         return spice_outs_corpus, spice_outs_sents
     else:
         return spice_score
+
+
+def __run_spice(
+    i: int,
+    timeout_i: Optional[int],
+    timeout_lst: list[Optional[int]],
+    spice_cmd: list[str],
+    tmp_path: str,
+    out_path: str,
+    paths: list[str],
+    use_shell: bool,
+    verbose: int,
+) -> bool:
+    success = False
+    txt_kwds: dict[str, Any] = dict(
+        mode="w",
+        delete=False,
+        dir=tmp_path,
+        suffix=".txt",
+    )
+
+    if verbose >= 3:
+        stdout = None
+        stderr = None
+    else:
+        stdout = NamedTemporaryFile(
+            prefix="spice_stdout_",
+            **txt_kwds,
+        )
+        stderr = NamedTemporaryFile(
+            prefix="spice_stderr_",
+            **txt_kwds,
+        )
+
+    if verbose >= 2:
+        pylog.debug(f"Run SPICE java code with: {' '.join(spice_cmd)} and {use_shell=}")
+
+    try:
+        subprocess.check_call(
+            spice_cmd,
+            stdout=stdout,
+            stderr=stderr,
+            timeout=timeout_i,
+            shell=use_shell,
+        )
+        if stdout is not None:
+            stdout.close()
+            os.remove(stdout.name)
+        if stderr is not None:
+            stderr.close()
+            os.remove(stderr.name)
+
+        success = True
+
+    except subprocess.TimeoutExpired as err:
+        pylog.warning(
+            f"Timeout SPICE java program with {timeout_i=}s (nb timeouts done={i+1}/{len(timeout_lst)})."
+        )
+
+        if i < len(timeout_lst) - 1:
+            # Clear out files
+            open(out_path, "w").close()
+            if stdout is not None:
+                stdout.close()
+                open(stdout.name, "w").close()
+            if stderr is not None:
+                stderr.close()
+                open(stderr.name, "w").close()
+            time.sleep(1.0)
+        else:
+            raise err
+
+    except (CalledProcessError, PermissionError) as err:
+        pylog.error("Invalid SPICE call.")
+        pylog.error(f"Full command: '{' '.join(spice_cmd)}'")
+        pylog.error(f"Error: {err}")
+
+        paths = copy.copy(paths)
+        if stdout is not None:
+            stdout.close()
+            paths.append(stdout.name)
+        if stderr is not None:
+            stderr.close()
+            paths.append(stderr.name)
+
+        for path in paths:
+            rights = __get_access_rights(path)
+            pylog.error(f"{path} :\t {rights}")
+
+        if (
+            stdout is not None
+            and stderr is not None
+            and osp.isfile(stdout.name)
+            and osp.isfile(stderr.name)
+        ):
+            pylog.error(
+                f"For more information, see temp files '{stdout.name}' and '{stderr.name}'."
+            )
+
+            for path in (stdout.name, stderr.name):
+                try:
+                    with open(path, "r") as file:
+                        lines = file.readlines()
+                    content = "\n".join(lines)
+                    pylog.error(f"Content of '{path}':\n{content}")
+                except PermissionError as err2:
+                    pylog.warning(f"Cannot open file '{path}'. ({err2})")
+        else:
+            pylog.info(f"Note: No temp file recorded. (found {stdout=} and {stderr=})")
+        raise err
+
+    return success
+
+
+def __get_access_rights(path: str) -> str:
+    info = {"t": "-", "r": "-", "w": "-", "x": "-"}
+    if osp.islink(path):
+        info["t"] = "l"
+    elif osp.isfile(path):
+        info["t"] = "f"
+    elif osp.isdir(path):
+        info["t"] = "d"
+
+    if os.access(path, os.R_OK):
+        info["r"] = "r"
+    if os.access(path, os.W_OK):
+        info["w"] = "w"
+    if os.access(path, os.X_OK):
+        info["x"] = "x"
+
+    rights = "".join(info.values())
+    return rights
 
 
 def __float_convert(obj: Any) -> float:
