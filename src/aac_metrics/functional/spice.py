@@ -124,9 +124,13 @@ def spice(
         for i, (cand, refs) in enumerate(zip(candidates, mult_references))
     ]
 
-    in_file = NamedTemporaryFile(
-        mode="w", delete=False, dir=tmp_path, prefix="spice_inputs_", suffix=".json"
+    json_kwds: dict[str, Any] = dict(
+        mode="w",
+        delete=False,
+        dir=tmp_path,
+        suffix=".json",
     )
+    in_file = NamedTemporaryFile(prefix="spice_inputs_", **json_kwds)
     json.dump(input_data, in_file, indent=2)
     in_file.close()
 
@@ -136,29 +140,28 @@ def spice(
     else:
         timeout_lst = list(timeout)
 
-    out_file = NamedTemporaryFile(
-        mode="w", delete=False, dir=tmp_path, prefix="spice_outputs_", suffix=".json"
-    )
+    out_file = NamedTemporaryFile(prefix="spice_outputs_", **json_kwds)
     out_file.close()
+
+    txt_kwds: dict[str, Any] = dict(
+        mode="w",
+        delete=False,
+        dir=tmp_path,
+        suffix=".txt",
+    )
 
     for i, timeout_i in enumerate(timeout_lst):
         if verbose >= 3:
             stdout = None
             stderr = None
         else:
-            common_kwds: dict[str, Any] = dict(
-                mode="w",
-                delete=True,
-                dir=tmp_path,
-                suffix=".txt",
-            )
             stdout = NamedTemporaryFile(
                 prefix="spice_stdout_",
-                **common_kwds,
+                **txt_kwds,
             )
             stderr = NamedTemporaryFile(
                 prefix="spice_stderr_",
-                **common_kwds,
+                **txt_kwds,
             )
 
         spice_cmd = [
@@ -191,8 +194,10 @@ def spice(
             )
             if stdout is not None:
                 stdout.close()
+                os.remove(stdout.name)
             if stderr is not None:
                 stderr.close()
+                os.remove(stderr.name)
             break
 
         except subprocess.TimeoutExpired as err:
@@ -205,8 +210,10 @@ def spice(
                 open(out_file.name, "w").close()
                 if stdout is not None:
                     stdout.close()
+                    open(stdout.name, "w").close()
                 if stderr is not None:
                     stderr.close()
+                    open(stderr.name, "w").close()
                 time.sleep(1.0)
             else:
                 raise err
@@ -224,8 +231,10 @@ def spice(
                 out_file.name,
             ]
             if stdout is not None:
+                stdout.close()
                 fpaths.append(stdout.name)
             if stderr is not None:
+                stderr.close()
                 fpaths.append(stderr.name)
 
             for fpath in fpaths:
@@ -262,8 +271,8 @@ def spice(
                             lines = file.readlines()
                         content = "\n".join(lines)
                         pylog.error(f"Content of '{fpath}':\n{content}")
-                    except PermissionError:
-                        pylog.warning(f"Cannot open file '{fpath}'.")
+                    except PermissionError as err2:
+                        pylog.warning(f"Cannot open file '{fpath}'. ({err2})")
             else:
                 pylog.info(
                     f"Note: No temp file recorded. (found {stdout=} and {stderr=})"
