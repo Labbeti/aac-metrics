@@ -227,7 +227,9 @@ def _download_spice(
             download_url_to_file(url, fpath, progress=verbose > 0)
 
         if fname.endswith(".zip"):
-            parent_target_dpath = osp.join(spice_cache_dpath, DATA_URLS[name]["extract_to"])
+            parent_target_dpath = osp.join(
+                spice_cache_dpath, DATA_URLS[name]["extract_to"]
+            )
             os.makedirs(parent_target_dpath, exist_ok=True)
             with ZipFile(fpath, "r") as file:
                 file.extractall(parent_target_dpath)
