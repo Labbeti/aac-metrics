@@ -106,7 +106,6 @@ class TestCompareCaptionEvaluationTools(TestCase):
 
     def _test_with_example(self, cands: list[str], mrefs: list[list[str]]) -> None:
         if platform.system() == "Windows":
-            # Skip this setup on windows
             return None
 
         corpus_scores, _ = evaluate(cands, mrefs, metrics="dcase2020")

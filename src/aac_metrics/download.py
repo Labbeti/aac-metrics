@@ -260,13 +260,6 @@ def _download_spice(
             with ZipFile(fpath, "r") as file:
                 file.extractall(parent_tgt_dpath)
 
-    # TODO: rm
-    # mv $SPICELIB/$CORENLP/stanford-corenlp-3.6.0.jar $SPICELIB/
-    # mv $SPICELIB/$CORENLP/stanford-corenlp-3.6.0-models.jar $SPICELIB/
-    # dpath_unzip="$dpath_spice/SPICE-1.0"
-    # mv "$dpath_unzip/lib" "$dpath_spice"
-    # mv "$dpath_unzip/spice-1.0.jar" "$dpath_spice"
-
     spice_lib_dpath = osp.join(spice_cache_dpath, "lib")
     spice_unzip_dpath = osp.join(spice_cache_dpath, "SPICE-1.0")
     corenlp_dname = "stanford-corenlp-full-2015-12-09"
@@ -300,10 +293,6 @@ def _download_spice(
         else:
             pylog.info(f"Moving '{src_path}' to '{parent_tgt_dpath}'...")
             shutil.move(src_path, parent_tgt_dpath)
-
-    # TODO: rm
-    # rm -f stanford-corenlp-full-2015-12-09.zip
-    # rm -rf $SPICELIB/$CORENLP/
 
     shutil.rmtree(corenlp_dpath)
     if clean_archives:

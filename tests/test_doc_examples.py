@@ -18,10 +18,8 @@ from aac_metrics.utils.tokenization import (
 
 class TestReadmeExamples(TestCase):
     def test_example_1(self) -> None:
-        # TODO : rm or redo ?
-        # if platform.system() == "Windows":
-        #     # Skip this setup on windows
-        #     return None
+        if platform.system() == "Windows":
+            return None
 
         candidates: list[str] = ["a man is speaking", "rain falls"]
         mult_references: list[list[str]] = [
@@ -61,7 +59,6 @@ class TestReadmeExamples(TestCase):
 
     def test_example_2(self) -> None:
         if platform.system() == "Windows":
-            # Skip this setup on windows
             return None
 
         candidates: list[str] = ["a man is speaking", "rain falls"]
