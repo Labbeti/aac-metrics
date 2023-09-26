@@ -103,10 +103,10 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 | Metric | Python Class | Origin | Range | Short description |
 |:---|:---|:---|:---|:---|
 | BLEU [[1]](#bleu) | `BLEU` | machine translation | [0, 1] | Precision of n-grams |
-| ROUGE-L [[2]](#rouge-l) | `ROUGEL` | machine translation | [0, 1] | FScore of the longest common subsequence |
+| ROUGE-L [[2]](#rouge-l) | `ROUGEL` | text summarization | [0, 1] | FScore of the longest common subsequence |
 | METEOR [[3]](#meteor) | `METEOR` | machine translation | [0, 1] | Cosine-similarity of frequencies with synonyms matching |
 | CIDEr-D [[4]](#cider) | `CIDErD` | image captioning | [0, 10] | Cosine-similarity of TF-IDF computed on n-grams |
-| SPICE [[5]](#spice) | `SPICE` | image captioning | [0, 1] | FScore of semantic graph |
+| SPICE [[5]](#spice) | `SPICE` | image captioning | [0, 1] | FScore of a semantic graph |
 | SPIDEr [[6]](#spider) | `SPIDEr` | image captioning | [0, 5.5] | Mean of CIDEr-D and SPICE |
 
 ### AAC-specific metrics
@@ -114,9 +114,9 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 |:---|:---|:---|:---|:---|
 | SPIDEr-max [[7]](#spider-max) | `SPIDErMax` | audio captioning | [0, 5.5] | Max of SPIDEr scores for multiples candidates |
 | SBERT-sim [[8]](#spider-max) | `SBERTSim` | audio captioning | [-1, 1] | Cosine-similarity of **Sentence-BERT embeddings** |
-| Fluency Error [[8]](#spider-max) | `FluErr` | audio captioning | [0, 1] | Use a pretrained model to detect fluency errors in sentences |
-| FENSE [[8]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines SBERT-sim and Fluency Error |
-| SPIDEr-FL [[9]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error |
+| Fluency error rate [[8]](#spider-max) | `FluErr` | audio captioning | [0, 1] | Detect fluency errors in sentences with a pretrained model |
+| FENSE [[8]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines SBERT-sim and Fluency Error rate |
+| SPIDEr-FL [[9]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error rate |
 
 ### AAC metrics not implemented
 - CB-Score [[10]](#cb-score)
