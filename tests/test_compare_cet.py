@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import importlib
-import os
 import os.path as osp
 import platform
 import subprocess
@@ -19,7 +18,6 @@ from aac_metrics.functional.evaluate import evaluate
 from aac_metrics.eval import load_csv_file
 from aac_metrics.utils.paths import (
     get_default_tmp_path,
-    set_default_tmp_path,
 )
 
 

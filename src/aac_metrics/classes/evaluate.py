@@ -176,47 +176,40 @@ def _get_metric_factory_classes(
     if init_kwds is ...:
         init_kwds = {}
 
+    init_kwds = init_kwds | dict(return_all_scores=return_all_scores)
+
     factory = {
         "bleu": lambda: BLEU(
-            return_all_scores=return_all_scores,
             **init_kwds,
         ),
         "bleu_1": lambda: BLEU(
-            return_all_scores=return_all_scores,
             n=1,
             **init_kwds,
         ),
         "bleu_2": lambda: BLEU(
-            return_all_scores=return_all_scores,
             n=2,
         ),
         "bleu_3": lambda: BLEU(
-            return_all_scores=return_all_scores,
             n=3,
             **init_kwds,
         ),
         "bleu_4": lambda: BLEU(
-            return_all_scores=return_all_scores,
             n=4,
             **init_kwds,
         ),
         "meteor": lambda: METEOR(
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
             **init_kwds,
         ),
         "rouge_l": lambda: ROUGEL(
-            return_all_scores=return_all_scores,
             **init_kwds,
         ),
         "cider_d": lambda: CIDErD(
-            return_all_scores=return_all_scores,
             **init_kwds,
         ),
         "spice": lambda: SPICE(
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
@@ -224,7 +217,6 @@ def _get_metric_factory_classes(
             **init_kwds,
         ),
         "spider": lambda: SPIDEr(
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
@@ -232,24 +224,20 @@ def _get_metric_factory_classes(
             **init_kwds,
         ),
         "sbert_sim": lambda: SBERTSim(
-            return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
             **init_kwds,
         ),
         "fluerr": lambda: FluErr(
-            return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
         ),
         "fense": lambda: FENSE(
-            return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
             **init_kwds,
         ),
         "spider_fl": lambda: SPIDErFL(
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,

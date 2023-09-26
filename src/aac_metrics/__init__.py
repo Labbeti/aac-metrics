@@ -8,13 +8,17 @@
 from .classes.base import AACMetric
 from .classes.bleu import BLEU
 from .classes.cider_d import CIDErD
-from .classes.evaluate import DCASE2023Evaluate, _get_metric_factory_classes
+from .classes.evaluate import Evaluate, DCASE2023Evaluate, _get_metric_factory_classes
+from .classes.fluerr import FluErr
 from .classes.fense import FENSE
 from .classes.meteor import METEOR
 from .classes.rouge_l import ROUGEL
+from .classes.sbert_sim import SBERTSim
 from .classes.spice import SPICE
 from .classes.spider import SPIDEr
-from .functional.evaluate import dcase2023_evaluate, evaluate
+from .classes.spider_fl import SPIDErFL
+from .classes.spider_max import SPIDErMax
+from .functional.evaluate import evaluate, dcase2023_evaluate
 from .utils.paths import (
     get_default_cache_path,
     get_default_java_path,
@@ -24,6 +28,35 @@ from .utils.paths import (
     set_default_tmp_path,
 )
 from . import download, eval, info
+
+
+__all__ = [
+    "AACMetric",
+    "BLEU",
+    "CIDErD",
+    "Evaluate",
+    "DCASE2023Evaluate",
+    "FENSE",
+    "FluErr",
+    "METEOR",
+    "ROUGEL",
+    "SBERTSim",
+    "SPICE",
+    "SPIDEr",
+    "SPIDErFL",
+    "SPIDErMax",
+    "evaluate",
+    "dcase2023_evaluate",
+    "get_default_cache_path",
+    "get_default_java_path",
+    "get_default_tmp_path",
+    "set_default_cache_path",
+    "set_default_java_path",
+    "set_default_tmp_path",
+    "download",
+    "eval",
+    "info",
+]
 
 
 __name__ = "aac-metrics"
@@ -39,7 +72,7 @@ def load_metric(name: str, **kwargs) -> AACMetric:
     """Load a metric class by name.
 
     :param name: The name of the metric.
-        Must be one of ("bleu_1", "bleu_2", "bleu_3", "bleu_4", "meteor", "rouge_l", "cider_d", "spice", "spider", "fense").
+        Can be one of ("bleu_1", "bleu_2", "bleu_3", "bleu_4", "meteor", "rouge_l", "cider_d", "spice", "spider", "fense").
     :param **kwargs: The keyword optional arguments passed to the metric factory.
     :returns: The Metric object built.
     """
