@@ -244,39 +244,35 @@ def _get_metric_factory_functions(
     if init_kwds is ...:
         init_kwds = {}
 
+    init_kwds = init_kwds | dict(return_all_scores=return_all_scores)
+
     factory = {
         "bleu": partial(
             bleu,
-            return_all_scores=return_all_scores,
             **init_kwds,
         ),
         "bleu_1": partial(
             bleu,
-            return_all_scores=return_all_scores,
             n=1,
             **init_kwds,
         ),
         "bleu_2": partial(
             bleu,
-            return_all_scores=return_all_scores,
             n=2,
             **init_kwds,
         ),
         "bleu_3": partial(
             bleu,
-            return_all_scores=return_all_scores,
             n=3,
             **init_kwds,
         ),
         "bleu_4": partial(
             bleu,
-            return_all_scores=return_all_scores,
             n=4,
             **init_kwds,
         ),
         "meteor": partial(
             meteor,
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
@@ -284,17 +280,14 @@ def _get_metric_factory_functions(
         ),
         "rouge_l": partial(
             rouge_l,
-            return_all_scores=return_all_scores,
             **init_kwds,
         ),
         "cider_d": partial(
             cider_d,
-            return_all_scores=return_all_scores,
             **init_kwds,
         ),
         "spice": partial(
             spice,
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
@@ -303,7 +296,6 @@ def _get_metric_factory_functions(
         ),
         "spider": partial(
             spider,
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
@@ -312,28 +304,24 @@ def _get_metric_factory_functions(
         ),
         "sbert_sim": partial(
             sbert_sim,
-            return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
             **init_kwds,
         ),
-        "fluerr": partial(  # type: ignore
+        "fluerr": partial(
             fluerr,
-            return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
             **init_kwds,
         ),
         "fense": partial(
             fense,
-            return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
             **init_kwds,
         ),
         "spider_fl": partial(
             spider_fl,
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
