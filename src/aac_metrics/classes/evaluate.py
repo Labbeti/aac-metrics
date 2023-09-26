@@ -22,7 +22,11 @@ from aac_metrics.classes.sbert_sim import SBERTSim
 from aac_metrics.classes.spice import SPICE
 from aac_metrics.classes.spider import SPIDEr
 from aac_metrics.classes.spider_fl import SPIDErFL
-from aac_metrics.functional.evaluate import METRICS_SETS, evaluate
+from aac_metrics.functional.evaluate import (
+    DEFAULT_METRICS_SET_NAME,
+    METRICS_SETS,
+    evaluate,
+)
 
 
 pylog = logging.getLogger(__name__)
@@ -41,7 +45,9 @@ class Evaluate(list[AACMetric], AACMetric[tuple[dict[str, Tensor], dict[str, Ten
     def __init__(
         self,
         preprocess: bool = True,
-        metrics: Union[str, Iterable[str], Iterable[AACMetric]] = "aac",
+        metrics: Union[
+            str, Iterable[str], Iterable[AACMetric]
+        ] = DEFAULT_METRICS_SET_NAME,
         cache_path: str = ...,
         java_path: str = ...,
         tmp_path: str = ...,
