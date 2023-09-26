@@ -18,6 +18,7 @@ from aac_metrics.functional.spice import (
     FNAME_SPICE_JAR,
     DNAME_SPICE_LOCAL_CACHE,
     DNAME_SPICE_CACHE,
+    check_spice_install,
 )
 from aac_metrics.utils.paths import (
     _get_cache_path,
@@ -67,19 +68,17 @@ DATA_URLS = {
     "spice_zip": {
         "url": "https://panderson.me/images/SPICE-1.0.zip",
         "fname": "SPICE-1.0.zip",
-        "extract_to": ".",
     },
     "spice_corenlp_zip": {
         "url": "http://nlp.stanford.edu/software/stanford-corenlp-full-2015-12-09.zip",
         "fname": osp.join("SPICE-1.0", "stanford-corenlp-full-2015-12-09.zip"),
-        "extract_to": "lib",
     },
 }
 _TRUE_VALUES = ("true", "1", "t")
 _FALSE_VALUES = ("false", "0", "f")
 
 
-def download(
+def download_metrics(
     cache_path: str = ...,
     tmp_path: str = ...,
     clean_archives: bool = True,
@@ -224,6 +223,12 @@ def _download_spice(
     │   └── stanford-corenlp-3.6.0-models.jar
     └── spice-1.0.jar
     """
+    try:
+        check_spice_install(cache_path)
+        return None
+    except (FileNotFoundError, NotADirectoryError):
+        pass
+
     # Download JAR files for SPICE metric
     spice_cache_dpath = osp.join(cache_path, DNAME_SPICE_CACHE)
     spice_jar_dpath = osp.join(cache_path, osp.dirname(FNAME_SPICE_JAR))
@@ -249,47 +254,42 @@ def _download_spice(
             download_url_to_file(url, fpath, progress=verbose > 0)
 
         if fname.endswith(".zip"):
-            parent_tgt_dpath = osp.join(
-                spice_cache_dpath, DATA_URLS[name]["extract_to"]
-            )
-            os.makedirs(parent_tgt_dpath, exist_ok=True)
-
             if verbose >= 1:
-                pylog.info(f"Extracting {fname} to {parent_tgt_dpath}...")
+                pylog.info(f"Extracting {fname} to {spice_cache_dpath}...")
 
             with ZipFile(fpath, "r") as file:
-                file.extractall(parent_tgt_dpath)
+                file.extractall(spice_cache_dpath)
 
     spice_lib_dpath = osp.join(spice_cache_dpath, "lib")
     spice_unzip_dpath = osp.join(spice_cache_dpath, "SPICE-1.0")
-    corenlp_dname = "stanford-corenlp-full-2015-12-09"
-    corenlp_dpath = osp.join(spice_lib_dpath, corenlp_dname)
+    corenlp_dpath = osp.join(spice_cache_dpath, "stanford-corenlp-full-2015-12-09")
 
+    # Note: order matter here
     to_move = [
+        ("f", osp.join(spice_unzip_dpath, "spice-1.0.jar"), spice_cache_dpath),
+        ("d", osp.join(spice_unzip_dpath, "lib"), spice_cache_dpath),
         ("f", osp.join(corenlp_dpath, "stanford-corenlp-3.6.0.jar"), spice_lib_dpath),
         (
             "f",
             osp.join(corenlp_dpath, "stanford-corenlp-3.6.0-models.jar"),
             spice_lib_dpath,
         ),
-        ("d", osp.join(spice_unzip_dpath, "lib"), spice_cache_dpath),
-        ("f", osp.join(spice_unzip_dpath, "spice-1.0.jar"), spice_cache_dpath),
     ]
     for src_type, src_path, parent_tgt_dpath in to_move:
         tgt_path = osp.join(parent_tgt_dpath, osp.basename(src_path))
 
         if osp.exists(tgt_path):
-            if src_type == "f":
-                if verbose >= 1:
-                    pylog.info(f"Target file '{tgt_path}' already exists.")
-            elif src_type == "d":
-                if verbose >= 1:
-                    pylog.info(f"Moving all objects in '{src_path}' to '{tgt_path}'...")
-                for name in os.listdir(src_path):
-                    shutil.move(osp.join(src_path, name), tgt_path)
-                os.rmdir(src_path)
-            else:
-                raise ValueError(f"Invalid type value {src_type}.")
+            if verbose >= 1:
+                pylog.info(f"Target '{tgt_path}' already exists.")
+            # if src_type == "f":
+            # elif src_type == "d":
+            #     if verbose >= 1:
+            #         pylog.info(f"Moving all objects in '{src_path}' to '{tgt_path}'...")
+            #     for name in os.listdir(src_path):
+            #         shutil.move(osp.join(src_path, name), tgt_path)
+            #     os.rmdir(src_path)
+            # else:
+            #     raise ValueError(f"Invalid type value {src_type}.")
         else:
             pylog.info(f"Moving '{src_path}' to '{parent_tgt_dpath}'...")
             shutil.move(src_path, parent_tgt_dpath)
@@ -370,10 +370,21 @@ def _setup_logging(verbose: int = 1) -> None:
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(logging.Formatter(format_))
     pkg_logger = logging.getLogger("aac_metrics")
-    if handler not in pkg_logger.handlers:
+
+    found = False
+    for handler in pkg_logger.handlers:
+        if isinstance(handler, logging.StreamHandler) and handler.stream is sys.stdout:
+            found = True
+            break
+    if not found:
         pkg_logger.addHandler(handler)
 
-    level = logging.INFO if verbose <= 1 else logging.DEBUG
+    if verbose <= 0:
+        level = logging.WARNING
+    elif verbose == 1:
+        level = logging.INFO
+    else:
+        level = logging.DEBUG
     pkg_logger.setLevel(level)
 
 
@@ -382,7 +393,7 @@ def _main_download() -> None:
 
     _setup_logging(args.verbose)
 
-    download(
+    download_metrics(
         cache_path=args.cache_path,
         tmp_path=args.tmp_path,
         clean_archives=args.clean_archives,

@@ -220,10 +220,20 @@ def spice(
 
 
 def check_spice_install(cache_path: str) -> None:
+    """Check if SPICE is installed in cache directory.
+
+    Raises FileNotFoundError or NotADirectoryError exception if something is missing.
+    """
     spice_fpath = osp.join(cache_path, FNAME_SPICE_JAR)
     if not osp.isfile(spice_fpath):
         raise FileNotFoundError(
             f"Cannot find JAR file '{spice_fpath}' for SPICE metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
+        )
+
+    local_cache_dpath = osp.join(cache_path, DNAME_SPICE_CACHE, "cache")
+    if not osp.isdir(local_cache_dpath):
+        raise NotADirectoryError(
+            f"Cannot find cache local directory '{local_cache_dpath}' for SPICE metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
         )
 
     expected_jar_in_lib = [
