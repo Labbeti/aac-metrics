@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Maximal version of `transformers` dependancy set to 4.31.0 to avoid error with `FENSE` and `FluErr` metrics.
 - `SPICE` crash message and error output files.
+- Default value for `Evaluate` `metrics` argument.
 
 ## [0.4.5] 2023-09-12
 ### Added
