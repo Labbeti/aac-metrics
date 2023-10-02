@@ -267,7 +267,6 @@ def _download_spice(
     # Note: order matter here
     to_move = [
         ("f", osp.join(spice_unzip_dpath, "spice-1.0.jar"), spice_cache_dpath),
-        ("d", osp.join(spice_unzip_dpath, "lib"), spice_cache_dpath),
         ("f", osp.join(corenlp_dpath, "stanford-corenlp-3.6.0.jar"), spice_lib_dpath),
         (
             "f",
@@ -275,23 +274,27 @@ def _download_spice(
             spice_lib_dpath,
         ),
     ]
-    for src_type, src_path, parent_tgt_dpath in to_move:
+    for name in os.listdir(osp.join(spice_unzip_dpath, "lib")):
+        if not name.endswith(".jar"):
+            continue
+        fpath = osp.join(spice_unzip_dpath, "lib", name)
+        to_move.append(("f", fpath, spice_lib_dpath))
+
+    os.makedirs(spice_lib_dpath, exist_ok=True)
+
+    for i, (_src_type, src_path, parent_tgt_dpath) in enumerate(to_move):
         tgt_path = osp.join(parent_tgt_dpath, osp.basename(src_path))
 
         if osp.exists(tgt_path):
             if verbose >= 1:
-                pylog.info(f"Target '{tgt_path}' already exists.")
-            # if src_type == "f":
-            # elif src_type == "d":
-            #     if verbose >= 1:
-            #         pylog.info(f"Moving all objects in '{src_path}' to '{tgt_path}'...")
-            #     for name in os.listdir(src_path):
-            #         shutil.move(osp.join(src_path, name), tgt_path)
-            #     os.rmdir(src_path)
-            # else:
-            #     raise ValueError(f"Invalid type value {src_type}.")
+                pylog.info(
+                    f"Target '{tgt_path}' already exists. ({i+1}/{len(to_move)})"
+                )
         else:
-            pylog.info(f"Moving '{src_path}' to '{parent_tgt_dpath}'...")
+            if verbose >= 1:
+                pylog.info(
+                    f"Moving '{src_path}' to '{parent_tgt_dpath}'... ({i+1}/{len(to_move)})"
+                )
             shutil.move(src_path, parent_tgt_dpath)
 
     shutil.rmtree(corenlp_dpath)
