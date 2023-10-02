@@ -12,6 +12,7 @@ import yaml
 
 import aac_metrics
 
+from aac_metrics.utils.checks import _get_java_version
 from aac_metrics.utils.paths import (
     get_default_cache_path,
     get_default_java_path,
@@ -24,8 +25,17 @@ def get_package_repository_path() -> str:
     return str(Path(__file__).parent.parent.parent)
 
 
+def get_java_version() -> str:
+    try:
+        java_version = _get_java_version(get_default_java_path())
+        return java_version
+    except ValueError:
+        return "UNKNOWN"
+
+
 def get_install_info() -> Dict[str, str]:
     """Return a dictionary containing the version python, the os name, the architecture name and the versions of the following packages: aac_datasets, torch, torchaudio."""
+
     return {
         "aac_metrics": aac_metrics.__version__,
         "python": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
@@ -36,6 +46,7 @@ def get_install_info() -> Dict[str, str]:
         "cache_path": get_default_cache_path(),
         "java_path": get_default_java_path(),
         "tmp_path": get_default_tmp_path(),
+        "java_version": get_java_version(),
     }
 
 
