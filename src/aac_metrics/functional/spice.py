@@ -236,6 +236,12 @@ def check_spice_install(cache_path: str) -> None:
             f"Cannot find cache local directory '{local_cache_dpath}' for SPICE metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
         )
 
+    lib_dpath = osp.join(cache_path, DNAME_SPICE_CACHE, "lib")
+    if not osp.isdir(lib_dpath):
+        raise NotADirectoryError(
+            f"Cannot find lib directory '{lib_dpath}' for SPICE metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
+        )
+
     expected_jar_in_lib = [
         "ejml-0.23.jar",
         "fst-2.47.jar",
@@ -257,7 +263,7 @@ def check_spice_install(cache_path: str) -> None:
         "stanford-corenlp-3.6.0.jar",
         "stanford-corenlp-3.6.0-models.jar",
     ]
-    names = os.listdir(osp.join(cache_path, DNAME_SPICE_CACHE, "lib"))
+    names = os.listdir(lib_dpath)
     files_not_found = []
     for fname in expected_jar_in_lib:
         if fname not in names:
