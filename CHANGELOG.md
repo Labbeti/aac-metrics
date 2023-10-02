@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [0.4.6] UNRELEASED
 ### Changed
 - Check if newline character is in the sentences before ptb tokenization. ([#6](https://github.com/Labbeti/aac-metrics/issues/6))
+- SPICE no longer requires bash script files for installation.
 
 ### Fixed
 - Maximal version of `transformers` dependancy set to 4.31.0 to avoid error with `FENSE` and `FluErr` metrics.
