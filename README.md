@@ -151,7 +151,7 @@ The CIDEr metric differs from CIDEr-D because it applies a stemmer to each word 
 ### Do metrics work on multi-GPU?
 No. Most of these metrics use numpy or external java programs to run, which prevents multi-GPU testing in parallel.
 
-### Do metrics work on Windows OS?
+### Do metrics work on Windows/Mac OS?
 Maybe. Most of the metrics only need python to run, which can be done on Windows. However, you might expect errors with METEOR metric, SPICE-based metrics and PTB tokenizer, since they requires an external java program to run.
 
 ## SPIDEr-max metric
