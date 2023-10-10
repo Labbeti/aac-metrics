@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
-"""
+"""Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch. """
+
+
+__author__ = "Etienne Labbé (Labbeti)"
+__author_email__ = "labbeti.pub@gmail.com"
+__license__ = "MIT"
+__maintainer__ = "Etienne Labbé (Labbeti)"
+__name__ = "aac-metrics"
+__status__ = "Development"
+__version__ = "0.4.6"
 
 
 from .classes.base import AACMetric
@@ -56,16 +64,8 @@ __all__ = [
     "download",
     "eval",
     "info",
+    "load_metric",
 ]
-
-
-__name__ = "aac-metrics"
-__author__ = "Etienne Labbé (Labbeti)"
-__author_email__ = "labbeti.pub@gmail.com"
-__license__ = "MIT"
-__maintainer__ = "Etienne Labbé (Labbeti)"
-__status__ = "Development"
-__version__ = "0.4.5"
 
 
 def load_metric(name: str, **kwargs) -> AACMetric:

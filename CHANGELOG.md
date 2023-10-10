@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.6] UNRELEASED
+## [0.4.6] 2023-10-10
 ### Added
 - Argument `clean_archives` for `SPICE` download.
 
