@@ -5,7 +5,7 @@ import logging
 import pickle
 import zlib
 
-from typing import Callable, Iterable, Union
+from typing import Any, Callable, Iterable, Union
 
 import torch
 
@@ -22,7 +22,11 @@ from aac_metrics.classes.sbert_sim import SBERTSim
 from aac_metrics.classes.spice import SPICE
 from aac_metrics.classes.spider import SPIDEr
 from aac_metrics.classes.spider_fl import SPIDErFL
-from aac_metrics.functional.evaluate import METRICS_SETS, evaluate
+from aac_metrics.functional.evaluate import (
+    DEFAULT_METRICS_SET_NAME,
+    METRICS_SETS,
+    evaluate,
+)
 
 
 pylog = logging.getLogger(__name__)
@@ -41,7 +45,9 @@ class Evaluate(list[AACMetric], AACMetric[tuple[dict[str, Tensor], dict[str, Ten
     def __init__(
         self,
         preprocess: bool = True,
-        metrics: Union[str, Iterable[str], Iterable[AACMetric]] = "aac",
+        metrics: Union[
+            str, Iterable[str], Iterable[AACMetric]
+        ] = DEFAULT_METRICS_SET_NAME,
         cache_path: str = ...,
         java_path: str = ...,
         tmp_path: str = ...,
@@ -171,74 +177,79 @@ def _get_metric_factory_classes(
     tmp_path: str = ...,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
+    init_kwds: dict[str, Any] = ...,
 ) -> dict[str, Callable[[], AACMetric]]:
-    return {
+    if init_kwds is ...:
+        init_kwds = {}
+
+    init_kwds = init_kwds | dict(return_all_scores=return_all_scores)
+
+    factory = {
         "bleu": lambda: BLEU(
-            return_all_scores=return_all_scores,
+            **init_kwds,
         ),
         "bleu_1": lambda: BLEU(
-            return_all_scores=return_all_scores,
             n=1,
+            **init_kwds,
         ),
         "bleu_2": lambda: BLEU(
-            return_all_scores=return_all_scores,
             n=2,
         ),
         "bleu_3": lambda: BLEU(
-            return_all_scores=return_all_scores,
             n=3,
+            **init_kwds,
         ),
         "bleu_4": lambda: BLEU(
-            return_all_scores=return_all_scores,
             n=4,
+            **init_kwds,
         ),
         "meteor": lambda: METEOR(
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             verbose=verbose,
+            **init_kwds,
         ),
         "rouge_l": lambda: ROUGEL(
-            return_all_scores=return_all_scores,
+            **init_kwds,
         ),
         "cider_d": lambda: CIDErD(
-            return_all_scores=return_all_scores,
+            **init_kwds,
         ),
         "spice": lambda: SPICE(
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
             verbose=verbose,
+            **init_kwds,
         ),
         "spider": lambda: SPIDEr(
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
             verbose=verbose,
+            **init_kwds,
         ),
         "sbert_sim": lambda: SBERTSim(
-            return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
+            **init_kwds,
         ),
         "fluerr": lambda: FluErr(
-            return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
         ),
         "fense": lambda: FENSE(
-            return_all_scores=return_all_scores,
             device=device,
             verbose=verbose,
+            **init_kwds,
         ),
         "spider_fl": lambda: SPIDErFL(
-            return_all_scores=return_all_scores,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
             device=device,
             verbose=verbose,
+            **init_kwds,
         ),
     }
+    return factory

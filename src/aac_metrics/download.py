@@ -4,13 +4,11 @@
 import logging
 import os
 import os.path as osp
-import platform
-import subprocess
+import shutil
 import sys
 
 from argparse import ArgumentParser, Namespace
-from subprocess import CalledProcessError
-from typing import Optional
+from zipfile import ZipFile
 
 from torch.hub import download_url_to_file
 
@@ -20,6 +18,7 @@ from aac_metrics.functional.spice import (
     FNAME_SPICE_JAR,
     DNAME_SPICE_LOCAL_CACHE,
     DNAME_SPICE_CACHE,
+    check_spice_install,
 )
 from aac_metrics.utils.paths import (
     _get_cache_path,
@@ -62,23 +61,27 @@ DATA_URLS = {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/spice/spice-1.0.jar",
         "fname": "spice-1.0.jar",
     },
+    "stanford_nlp": {
+        "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/tokenizer/stanford-corenlp-3.4.1.jar",
+        "fname": "stanford-corenlp-3.4.1.jar",
+    },
     "spice_zip": {
         "url": "https://panderson.me/images/SPICE-1.0.zip",
         "fname": "SPICE-1.0.zip",
     },
-    "stanford_nlp": {
-        "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/tokenizer/stanford-corenlp-3.4.1.jar",
-        "fname": "stanford-corenlp-3.4.1.jar",
+    "spice_corenlp_zip": {
+        "url": "http://nlp.stanford.edu/software/stanford-corenlp-full-2015-12-09.zip",
+        "fname": osp.join("SPICE-1.0", "stanford-corenlp-full-2015-12-09.zip"),
     },
 }
 _TRUE_VALUES = ("true", "1", "t")
 _FALSE_VALUES = ("false", "0", "f")
 
 
-def download(
+def download_metrics(
     cache_path: str = ...,
     tmp_path: str = ...,
-    use_shell: Optional[bool] = None,
+    clean_archives: bool = True,
     ptb_tokenizer: bool = True,
     meteor: bool = True,
     spice: bool = True,
@@ -89,9 +92,7 @@ def download(
 
     :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
     :param tmp_path: The path to a temporary directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
-    :param use_shell: Optional argument to force use os-specific shell for the bash installation script program.
-        If None, it will use shell only on Windows OS.
-        defaults to None.
+    :param clean_archives: If True, remove all archives files. defaults to True.
     :param ptb_tokenizer: If True, downloads the PTBTokenizer code in cache directory. defaults to True.
     :param meteor: If True, downloads the METEOR code in cache directory. defaults to True.
     :param spice: If True, downloads the SPICE code in cache directory. defaults to True.
@@ -99,7 +100,7 @@ def download(
     :param verbose: The verbose level. defaults to 0.
     """
     if verbose >= 1:
-        pylog.info(f"aac-metrics download started.")
+        pylog.info("aac-metrics download started.")
 
     cache_path = _get_cache_path(cache_path)
     tmp_path = _get_tmp_path(tmp_path)
@@ -119,13 +120,13 @@ def download(
         _download_meteor(cache_path, verbose)
 
     if spice:
-        _download_spice(cache_path, use_shell, verbose)
+        _download_spice(cache_path, clean_archives, verbose)
 
     if fense:
         _download_fense(verbose)
 
     if verbose >= 1:
-        pylog.info(f"aac-metrics download finished.")
+        pylog.info("aac-metrics download finished.")
 
 
 def _download_ptb_tokenizer(
@@ -143,6 +144,7 @@ def _download_ptb_tokenizer(
     url = info["url"]
     fname = info["fname"]
     fpath = osp.join(stanford_nlp_dpath, fname)
+
     if not osp.isfile(fpath):
         if verbose >= 1:
             pylog.info(
@@ -190,9 +192,43 @@ def _download_meteor(
 
 def _download_spice(
     cache_path: str,
-    use_shell: Optional[bool] = None,
+    clean_archives: bool = True,
     verbose: int = 0,
 ) -> None:
+    """Download SPICE java code.
+
+    Target SPICE directory tree:
+
+    spice
+    ├── cache
+    ├── lib
+    │   ├── ejml-0.23.jar
+    │   ├── fst-2.47.jar
+    │   ├── guava-19.0.jar
+    │   ├── hamcrest-core-1.3.jar
+    │   ├── jackson-core-2.5.3.jar
+    │   ├── javassist-3.19.0-GA.jar
+    │   ├── json-simple-1.1.1.jar
+    │   ├── junit-4.12.jar
+    │   ├── lmdbjni-0.4.6.jar
+    │   ├── lmdbjni-linux64-0.4.6.jar
+    │   ├── lmdbjni-osx64-0.4.6.jar
+    │   ├── lmdbjni-win64-0.4.6.jar
+    │   ├── Meteor-1.5.jar
+    │   ├── objenesis-2.4.jar
+    │   ├── SceneGraphParser-1.0.jar
+    │   ├── slf4j-api-1.7.12.jar
+    │   ├── slf4j-simple-1.7.21.jar
+    │   ├── stanford-corenlp-3.6.0.jar
+    │   └── stanford-corenlp-3.6.0-models.jar
+    └── spice-1.0.jar
+    """
+    try:
+        check_spice_install(cache_path)
+        return None
+    except (FileNotFoundError, NotADirectoryError):
+        pass
+
     # Download JAR files for SPICE metric
     spice_cache_dpath = osp.join(cache_path, DNAME_SPICE_CACHE)
     spice_jar_dpath = osp.join(cache_path, osp.dirname(FNAME_SPICE_JAR))
@@ -201,40 +237,73 @@ def _download_spice(
     os.makedirs(spice_jar_dpath, exist_ok=True)
     os.makedirs(spice_local_cache_path, exist_ok=True)
 
-    spice_zip_url = DATA_URLS["spice_zip"]["url"]
-    spice_zip_fpath = osp.join(spice_cache_dpath, DATA_URLS["spice_zip"]["fname"])
+    for name in ("spice_zip", "spice_corenlp_zip"):
+        url = DATA_URLS[name]["url"]
+        fname = DATA_URLS[name]["fname"]
+        fpath = osp.join(spice_cache_dpath, fname)
 
-    if osp.isfile(spice_zip_fpath):
-        if verbose >= 1:
-            pylog.info(f"SPICE ZIP file '{spice_zip_fpath}' is already downloaded.")
-    else:
-        if verbose >= 1:
-            pylog.info(f"Downloading SPICE ZIP file '{spice_zip_fpath}'...")
-        download_url_to_file(spice_zip_url, spice_zip_fpath, progress=verbose > 0)
+        if osp.isfile(fpath):
+            if verbose >= 1:
+                pylog.info(f"File '{fpath}' is already downloaded for SPICE.")
+        else:
+            if verbose >= 1:
+                pylog.info(f"Downloading file '{fpath}' for SPICE...")
 
-    script_path = osp.join(osp.dirname(__file__), "install_spice.sh")
-    if not osp.isfile(script_path):
-        raise FileNotFoundError(f"Cannot find script '{osp.basename(script_path)}'.")
+            dpath = osp.dirname(fpath)
+            os.makedirs(dpath, exist_ok=True)
+            download_url_to_file(url, fpath, progress=verbose > 0)
 
-    if verbose >= 1:
-        pylog.info(
-            f"Downloading JAR sources for SPICE metric into '{spice_jar_dpath}'..."
-        )
+        if fname.endswith(".zip"):
+            if verbose >= 1:
+                pylog.info(f"Extracting {fname} to {spice_cache_dpath}...")
 
-    if use_shell is None:
-        use_shell = platform.system() == "Windows"
+            with ZipFile(fpath, "r") as file:
+                file.extractall(spice_cache_dpath)
 
-    command = ["bash", script_path, spice_jar_dpath]
-    try:
-        subprocess.check_call(
-            command,
-            stdout=None if verbose >= 2 else subprocess.DEVNULL,
-            stderr=None if verbose >= 2 else subprocess.DEVNULL,
-            shell=use_shell,
-        )
-    except (CalledProcessError, PermissionError) as err:
-        pylog.error("Cannot install SPICE java source code.")
-        raise err
+    spice_lib_dpath = osp.join(spice_cache_dpath, "lib")
+    spice_unzip_dpath = osp.join(spice_cache_dpath, "SPICE-1.0")
+    corenlp_dpath = osp.join(spice_cache_dpath, "stanford-corenlp-full-2015-12-09")
+
+    # Note: order matter here
+    to_move = [
+        ("f", osp.join(spice_unzip_dpath, "spice-1.0.jar"), spice_cache_dpath),
+        ("f", osp.join(corenlp_dpath, "stanford-corenlp-3.6.0.jar"), spice_lib_dpath),
+        (
+            "f",
+            osp.join(corenlp_dpath, "stanford-corenlp-3.6.0-models.jar"),
+            spice_lib_dpath,
+        ),
+    ]
+    for name in os.listdir(osp.join(spice_unzip_dpath, "lib")):
+        if not name.endswith(".jar"):
+            continue
+        fpath = osp.join(spice_unzip_dpath, "lib", name)
+        to_move.append(("f", fpath, spice_lib_dpath))
+
+    os.makedirs(spice_lib_dpath, exist_ok=True)
+
+    for i, (_src_type, src_path, parent_tgt_dpath) in enumerate(to_move):
+        tgt_path = osp.join(parent_tgt_dpath, osp.basename(src_path))
+
+        if osp.exists(tgt_path):
+            if verbose >= 1:
+                pylog.info(
+                    f"Target '{tgt_path}' already exists. ({i+1}/{len(to_move)})"
+                )
+        else:
+            if verbose >= 1:
+                pylog.info(
+                    f"Moving '{src_path}' to '{parent_tgt_dpath}'... ({i+1}/{len(to_move)})"
+                )
+            shutil.move(src_path, parent_tgt_dpath)
+
+    shutil.rmtree(corenlp_dpath)
+    if clean_archives:
+        spice_zip_fname = DATA_URLS["spice_zip"]["fname"]
+        spice_zip_fpath = osp.join(spice_cache_dpath, spice_zip_fname)
+
+        os.remove(spice_zip_fpath)
+        shutil.rmtree(spice_unzip_dpath)
 
 
 def _download_fense(
@@ -262,6 +331,12 @@ def _get_main_download_args() -> Namespace:
         type=str,
         default=get_default_tmp_path(),
         help="Temporary directory path.",
+    )
+    parser.add_argument(
+        "--clean_archives",
+        type=_str_to_bool,
+        default=True,
+        help="If True, remove all archives files. defaults to True.",
     )
     parser.add_argument(
         "--ptb_tokenizer",
@@ -293,21 +368,38 @@ def _get_main_download_args() -> Namespace:
     return args
 
 
-def _main_download() -> None:
+def _setup_logging(verbose: int = 1) -> None:
     format_ = "[%(asctime)s][%(name)s][%(levelname)s] - %(message)s"
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(logging.Formatter(format_))
     pkg_logger = logging.getLogger("aac_metrics")
-    pkg_logger.addHandler(handler)
 
-    args = _get_main_download_args()
+    found = False
+    for handler in pkg_logger.handlers:
+        if isinstance(handler, logging.StreamHandler) and handler.stream is sys.stdout:
+            found = True
+            break
+    if not found:
+        pkg_logger.addHandler(handler)
 
-    level = logging.INFO if args.verbose <= 1 else logging.DEBUG
+    if verbose <= 0:
+        level = logging.WARNING
+    elif verbose == 1:
+        level = logging.INFO
+    else:
+        level = logging.DEBUG
     pkg_logger.setLevel(level)
 
-    download(
+
+def _main_download() -> None:
+    args = _get_main_download_args()
+
+    _setup_logging(args.verbose)
+
+    download_metrics(
         cache_path=args.cache_path,
         tmp_path=args.tmp_path,
+        clean_archives=args.clean_archives,
         ptb_tokenizer=args.ptb_tokenizer,
         meteor=args.meteor,
         spice=args.spice,

@@ -3,5 +3,4 @@ recursive-include src *.py
 global-exclude *.pyc
 global-exclude __pycache__
 
-include src/aac_metrics/install_spice.sh
 recursive-include data *.csv

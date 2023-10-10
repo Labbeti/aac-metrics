@@ -26,3 +26,4 @@ The python requirements are automatically installed when using pip on this repos
     pyyaml>=6.0
     tqdm>=4.64.0
     sentence-transformers>=2.2.2
+    transformers<4.31.0

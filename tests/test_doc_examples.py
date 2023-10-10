@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+import platform
 import unittest
 
 from unittest import TestCase
@@ -18,7 +18,7 @@ from aac_metrics.utils.tokenization import (
 
 class TestReadmeExamples(TestCase):
     def test_example_1(self) -> None:
-        if os.name == "nt":
+        if platform.system() == "Windows":
             return None
 
         candidates: list[str] = ["a man is speaking", "rain falls"]
@@ -48,11 +48,6 @@ class TestReadmeExamples(TestCase):
             "spider",
         ]
         self.assertSetEqual(set(corpus_scores.keys()), set(expected_keys))
-
-        # print(corpus_scores["bleu_1"])
-        # print(torch.as_tensor(0.4278, dtype=torch.float64))
-        # print("END")
-
         self.assertTrue(
             torch.allclose(
                 corpus_scores["bleu_1"],
@@ -63,7 +58,7 @@ class TestReadmeExamples(TestCase):
         )
 
     def test_example_2(self) -> None:
-        if os.name == "nt":
+        if platform.system() == "Windows":
             return None
 
         candidates: list[str] = ["a man is speaking", "rain falls"]
@@ -84,9 +79,6 @@ class TestReadmeExamples(TestCase):
         self.assertTrue(set(corpus_scores.keys()).issuperset(expected_keys))
 
     def test_example_3(self) -> None:
-        if os.name == "nt":
-            return None
-
         candidates: list[str] = ["a man is speaking", "rain falls"]
         mult_references: list[list[str]] = [
             [
@@ -110,17 +102,19 @@ class TestReadmeExamples(TestCase):
         self.assertTrue(set(corpus_scores.keys()).issuperset({"cider_d"}))
         self.assertTrue(set(sents_scores.keys()).issuperset({"cider_d"}))
 
+        dtype = torch.float64
+
         self.assertTrue(
             torch.allclose(
                 corpus_scores["cider_d"],
-                torch.as_tensor(0.9614, dtype=torch.float64),
+                torch.as_tensor(0.9614, dtype=dtype),
                 atol=0.0001,
             )
         )
         self.assertTrue(
             torch.allclose(
                 sents_scores["cider_d"],
-                torch.as_tensor([1.3641, 0.5587], dtype=torch.float64),
+                torch.as_tensor([1.3641, 0.5587], dtype=dtype),
                 atol=0.0001,
             )
         )

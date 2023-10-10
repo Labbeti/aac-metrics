@@ -3,7 +3,6 @@
 
 import csv
 import logging
-import sys
 
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
@@ -22,6 +21,7 @@ from aac_metrics.utils.paths import (
     get_default_java_path,
     get_default_tmp_path,
 )
+from aac_metrics.download import _setup_logging
 
 
 pylog = logging.getLogger(__name__)
@@ -190,19 +190,12 @@ def _get_main_evaluate_args() -> Namespace:
 
 
 def _main_eval() -> None:
-    format_ = "[%(asctime)s][%(name)s][%(levelname)s] - %(message)s"
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(format_))
-    pkg_logger = logging.getLogger("aac_metrics")
-    pkg_logger.addHandler(handler)
-
     args = _get_main_evaluate_args()
+
+    _setup_logging(args.verbose)
 
     if not check_java_path(args.java_path):
         raise RuntimeError(f"Invalid Java executable. ({args.java_path})")
-
-    level = logging.INFO if args.verbose <= 1 else logging.DEBUG
-    pkg_logger.setLevel(level)
 
     if args.verbose >= 1:
         pylog.info(f"Load file {args.input_file}...")

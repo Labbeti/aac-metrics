@@ -64,19 +64,21 @@ def spider(
             f"Number of candidates and mult_references are different (found {len(candidates)} != {len(mult_references)})."
         )
 
-    cider_d_outs: tuple = cider_d(  # type: ignore
-        candidates,
-        mult_references,
-        True,
+    return_all_scores = True
+
+    cider_d_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = cider_d(  # type: ignore
+        candidates=candidates,
+        mult_references=mult_references,
+        return_all_scores=return_all_scores,
         n=n,
         sigma=sigma,
         tokenizer=tokenizer,
         return_tfidf=return_tfidf,
     )
-    spice_outs: tuple = spice(  # type: ignore
-        candidates,
-        mult_references,
-        True,
+    spice_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = spice(  # type: ignore
+        candidates=candidates,
+        mult_references=mult_references,
+        return_all_scores=return_all_scores,
         cache_path=cache_path,
         java_path=java_path,
         tmp_path=tmp_path,
