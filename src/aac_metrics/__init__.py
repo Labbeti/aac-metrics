@@ -35,7 +35,6 @@ from .utils.paths import (
     set_default_java_path,
     set_default_tmp_path,
 )
-from . import download, eval, info
 
 
 __all__ = [
@@ -61,9 +60,6 @@ __all__ = [
     "set_default_cache_path",
     "set_default_java_path",
     "set_default_tmp_path",
-    "download",
-    "eval",
-    "info",
     "load_metric",
 ]
 
