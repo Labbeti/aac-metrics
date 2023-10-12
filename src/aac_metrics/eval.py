@@ -129,7 +129,7 @@ def _load_columns(data: list[dict[str, str]], columns: list[str]) -> list[list[s
 
 
 def _get_main_evaluate_args() -> Namespace:
-    parser = ArgumentParser(description="Evaluate an output file.")
+    parser = ArgumentParser(description="Evaluate candidates from a file.")
 
     parser.add_argument(
         "--input",
