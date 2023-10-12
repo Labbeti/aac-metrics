@@ -12,7 +12,7 @@ import torch
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.classes.bleu import BLEU
+from aac_metrics.classes.bleu import BLEU, BLEU1, BLEU2, BLEU3, BLEU4
 from aac_metrics.classes.cider_d import CIDErD
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.classes.fluerr import FluErr
@@ -189,19 +189,16 @@ def _get_metric_factory_classes(
         "bleu": lambda: BLEU(
             **init_kwds,
         ),
-        "bleu_1": lambda: BLEU(
-            n=1,
+        "bleu_1": lambda: BLEU1(
             **init_kwds,
         ),
-        "bleu_2": lambda: BLEU(
-            n=2,
-        ),
-        "bleu_3": lambda: BLEU(
-            n=3,
+        "bleu_2": lambda: BLEU2(
             **init_kwds,
         ),
-        "bleu_4": lambda: BLEU(
-            n=4,
+        "bleu_3": lambda: BLEU3(
+            **init_kwds,
+        ),
+        "bleu_4": lambda: BLEU4(
             **init_kwds,
         ),
         "meteor": lambda: METEOR(
@@ -252,7 +249,7 @@ def _get_metric_factory_classes(
             verbose=verbose,
             **init_kwds,
         ),
-        "vocab_stats": lambda: Vocab(
+        "vocab": lambda: Vocab(
             **init_kwds,
         ),
     }

@@ -11,7 +11,7 @@ import torch
 
 from torch import Tensor
 
-from aac_metrics.functional.bleu import bleu
+from aac_metrics.functional.bleu import bleu, bleu_1, bleu_2, bleu_3, bleu_4
 from aac_metrics.functional.cider_d import cider_d
 from aac_metrics.functional.fense import fense
 from aac_metrics.functional.fluerr import fluerr
@@ -65,7 +65,7 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "rouge_l",
         "fense",  # includes sbert, fluerr
         "spider_fl",  # includes cider_d, spice, spider, fluerr
-        "vocab_stats",
+        "vocab",
     ),
 }
 DEFAULT_METRICS_SET_NAME = "default"
@@ -256,23 +256,19 @@ def _get_metric_factory_functions(
             **init_kwds,
         ),
         "bleu_1": partial(
-            bleu,
-            n=1,
+            bleu_1,
             **init_kwds,
         ),
         "bleu_2": partial(
-            bleu,
-            n=2,
+            bleu_2,
             **init_kwds,
         ),
         "bleu_3": partial(
-            bleu,
-            n=3,
+            bleu_3,
             **init_kwds,
         ),
         "bleu_4": partial(
-            bleu,
-            n=4,
+            bleu_4,
             **init_kwds,
         ),
         "meteor": partial(
@@ -333,7 +329,7 @@ def _get_metric_factory_functions(
             verbose=verbose,
             **init_kwds,
         ),
-        "vocab_stats": partial(
+        "vocab": partial(
             vocab,
             **init_kwds,
         ),
