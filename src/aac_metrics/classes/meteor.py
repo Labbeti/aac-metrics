@@ -61,7 +61,9 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
         )
 
     def extra_repr(self) -> str:
-        return f"java_max_memory={self._java_max_memory}, language={self._language}"
+        hparams = {"java_max_memory": self._java_max_memory, "language": self._language}
+        repr_ = ", ".join(f"{k}={v}" for k, v in hparams.items())
+        return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
         return ("meteor",)

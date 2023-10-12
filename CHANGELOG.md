@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] UNRELEASED
+### Added
+- New `Vocab` metric to compute vocabulary size and vocabulary ratio.
+
 ## [0.4.6] 2023-10-10
 ### Added
 - Argument `clean_archives` for `SPICE` download.

@@ -47,7 +47,9 @@ class ROUGEL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
         )
 
     def extra_repr(self) -> str:
-        return f"beta={self._beta}"
+        hparams = {"beta": self._beta}
+        repr_ = ", ".join(f"{k}={v}" for k, v in hparams.items())
+        return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
         return ("rouge_l",)

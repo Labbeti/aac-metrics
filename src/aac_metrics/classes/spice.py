@@ -74,7 +74,9 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         )
 
     def extra_repr(self) -> str:
-        return f"java_max_memory={self._java_max_memory}"
+        hparams = {"java_max_memory": self._java_max_memory}
+        repr_ = ", ".join(f"{k}={v}" for k, v in hparams.items())
+        return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
         return ("spice",)

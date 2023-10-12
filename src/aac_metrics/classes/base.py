@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, Optional, TypeVar, Union
 
-from torch import nn
+from torch import nn, Tensor
 
+
+DefaultOutType = Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
 OutType = TypeVar("OutType")
 
 

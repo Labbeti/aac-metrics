@@ -63,7 +63,9 @@ class BLEU(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]
         )
 
     def extra_repr(self) -> str:
-        return f"n={self._n}"
+        hparams = {"n": self._n}
+        repr_ = ", ".join(f"{k}={v}" for k, v in hparams.items())
+        return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
         return (f"bleu_{self._n}",)

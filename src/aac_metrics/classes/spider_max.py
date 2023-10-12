@@ -79,9 +79,13 @@ class SPIDErMax(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Ten
         )
 
     def extra_repr(self) -> str:
-        return (
-            f"n={self._n}, sigma={self._sigma}, java_max_memory={self._java_max_memory}"
-        )
+        hparams = {
+            "n": self._n,
+            "sigma": self._sigma,
+            "java_max_memory": self._java_max_memory,
+        }
+        repr_ = ", ".join(f"{k}={v}" for k, v in hparams.items())
+        return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
         return ("spider_max",)

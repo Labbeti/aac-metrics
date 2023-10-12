@@ -21,6 +21,7 @@ from aac_metrics.functional.sbert_sim import sbert_sim
 from aac_metrics.functional.spice import spice
 from aac_metrics.functional.spider import spider
 from aac_metrics.functional.spider_fl import spider_fl
+from aac_metrics.functional.vocab import vocab
 from aac_metrics.utils.checks import check_metric_inputs
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
@@ -64,6 +65,7 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "rouge_l",
         "fense",  # includes sbert, fluerr
         "spider_fl",  # includes cider_d, spice, spider, fluerr
+        "vocab_stats",
     ),
 }
 DEFAULT_METRICS_SET_NAME = "default"
@@ -122,7 +124,9 @@ def evaluate(
     outs_sents = {}
 
     for i, metric in enumerate(metrics):
-        if hasattr(metric, "__qualname__"):
+        if isinstance(metric, partial):
+            name = metric.func.__qualname__
+        elif hasattr(metric, "__qualname__"):
             name = metric.__qualname__
         else:
             name = metric.__class__.__qualname__
@@ -327,6 +331,10 @@ def _get_metric_factory_functions(
             tmp_path=tmp_path,
             device=device,
             verbose=verbose,
+            **init_kwds,
+        ),
+        "vocab_stats": partial(
+            vocab,
             **init_kwds,
         ),
     }

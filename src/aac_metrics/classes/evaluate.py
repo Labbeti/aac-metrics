@@ -22,6 +22,7 @@ from aac_metrics.classes.sbert_sim import SBERTSim
 from aac_metrics.classes.spice import SPICE
 from aac_metrics.classes.spider import SPIDEr
 from aac_metrics.classes.spider_fl import SPIDErFL
+from aac_metrics.classes.vocab import Vocab
 from aac_metrics.functional.evaluate import (
     DEFAULT_METRICS_SET_NAME,
     METRICS_SETS,
@@ -179,7 +180,7 @@ def _get_metric_factory_classes(
     verbose: int = 0,
     init_kwds: dict[str, Any] = ...,
 ) -> dict[str, Callable[[], AACMetric]]:
-    if init_kwds is ...:
+    if init_kwds is ... or init_kwds is None:
         init_kwds = {}
 
     init_kwds = init_kwds | dict(return_all_scores=return_all_scores)
@@ -249,6 +250,9 @@ def _get_metric_factory_classes(
             tmp_path=tmp_path,
             device=device,
             verbose=verbose,
+            **init_kwds,
+        ),
+        "vocab_stats": lambda: Vocab(
             **init_kwds,
         ),
     }

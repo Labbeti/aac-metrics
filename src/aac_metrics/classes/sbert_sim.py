@@ -68,7 +68,9 @@ class SBERTSim(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
         )
 
     def extra_repr(self) -> str:
-        return f"device={self._device}, batch_size={self._batch_size}"
+        hparams = {"device": self._device, "batch_size": self._batch_size}
+        repr_ = ", ".join(f"{k}={v}" for k, v in hparams.items())
+        return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
         return ("sbert_sim",)

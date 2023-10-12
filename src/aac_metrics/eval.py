@@ -6,7 +6,7 @@ import logging
 
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import Iterable, Union
+from typing import Iterable, Optional, Union
 
 import yaml
 
@@ -25,6 +25,10 @@ from aac_metrics.download import _setup_logging
 
 
 pylog = logging.getLogger(__name__)
+
+
+_TRUE_VALUES = ("true", "1", "t", "yes", "y")
+_FALSE_VALUES = ("false", "0", "f", "no", "n")
 
 
 def load_csv_file(
@@ -128,7 +132,7 @@ def _get_main_evaluate_args() -> Namespace:
     parser = ArgumentParser(description="Evaluate an output file.")
 
     parser.add_argument(
-        "--input_file",
+        "--input",
         "-i",
         type=str,
         default="",
@@ -137,7 +141,7 @@ def _get_main_evaluate_args() -> Namespace:
     )
     parser.add_argument(
         "--cand_columns",
-        "-cc",
+        "-cands",
         type=str,
         nargs="+",
         default=("caption_predicted", "preds", "cands"),
@@ -145,7 +149,7 @@ def _get_main_evaluate_args() -> Namespace:
     )
     parser.add_argument(
         "--mrefs_columns",
-        "-rc",
+        "-mrefs",
         type=str,
         nargs="+",
         default=(
@@ -159,7 +163,15 @@ def _get_main_evaluate_args() -> Namespace:
         help="The column names of the candidates in the CSV file. defaults to ('caption_1', 'caption_2', 'caption_3', 'caption_4', 'caption_5', 'captions').",
     )
     parser.add_argument(
-        "--metrics_set_name",
+        "--strict",
+        "-s",
+        type=_str_to_bool,
+        default=False,
+        help="If True, assume that all columns must be in CSV file. defaults to False.",
+    )
+    parser.add_argument(
+        "--metrics",
+        "-m",
         type=str,
         default=DEFAULT_METRICS_SET_NAME,
         choices=tuple(METRICS_SETS.keys()),
@@ -167,26 +179,69 @@ def _get_main_evaluate_args() -> Namespace:
     )
     parser.add_argument(
         "--cache_path",
+        "-cache",
         type=str,
         default=get_default_cache_path(),
         help=f"Cache directory path. defaults to '{get_default_cache_path()}'.",
     )
     parser.add_argument(
         "--java_path",
+        "-java",
         type=str,
         default=get_default_java_path(),
         help=f"Java executable path. defaults to '{get_default_java_path()}'.",
     )
     parser.add_argument(
         "--tmp_path",
+        "-tmp",
         type=str,
         default=get_default_tmp_path(),
         help=f"Temporary directory path. defaults to '{get_default_tmp_path()}'.",
     )
-    parser.add_argument("--verbose", type=int, default=0, help="Verbose level.")
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        type=int,
+        default=1,
+        help="Verbose level. defaults to 1.",
+    )
+    parser.add_argument(
+        "--corpus_out",
+        "-co",
+        type=_str_to_opt_str,
+        default=None,
+        help="Output YAML path containing corpus scores. defaults to None.",
+    )
 
+    parser.add_argument(
+        "--sentences_out",
+        "-so",
+        type=_str_to_opt_str,
+        default=None,
+        help="Output CSV path containing sentences scores. defaults to None.",
+    )
     args = parser.parse_args()
     return args
+
+
+def _str_to_bool(s: str) -> bool:
+    s = str(s).strip().lower()
+    if s in _TRUE_VALUES:
+        return True
+    elif s in _FALSE_VALUES:
+        return False
+    else:
+        raise ValueError(
+            f"Invalid argument s={s}. (expected one of {_TRUE_VALUES + _FALSE_VALUES})"
+        )
+
+
+def _str_to_opt_str(s: str) -> Optional[str]:
+    s = str(s)
+    if s.lower() == "none":
+        return None
+    else:
+        return s
 
 
 def _main_eval() -> None:
@@ -198,10 +253,13 @@ def _main_eval() -> None:
         raise RuntimeError(f"Invalid Java executable. ({args.java_path})")
 
     if args.verbose >= 1:
-        pylog.info(f"Load file {args.input_file}...")
+        pylog.info(f"Load file {args.input}...")
 
     candidates, mult_references = load_csv_file(
-        args.input_file, args.cand_columns, args.mrefs_columns
+        fpath=args.input,
+        cands_columns=args.cand_columns,
+        mrefs_columns=args.mrefs_columns,
+        strict=args.strict,
     )
     check_metric_inputs(candidates, mult_references)
 
@@ -211,11 +269,11 @@ def _main_eval() -> None:
             f"Found {len(candidates)} candidates, {len(mult_references)} references and [{min(refs_lens)}, {max(refs_lens)}] references per candidate."
         )
 
-    corpus_scores, _sents_scores = evaluate(
+    corpus_scores, sents_scores = evaluate(
         candidates=candidates,
         mult_references=mult_references,
         preprocess=True,
-        metrics=args.metrics_set_name,
+        metrics=args.metrics,
         cache_path=args.cache_path,
         java_path=args.java_path,
         tmp_path=args.tmp_path,
@@ -223,7 +281,31 @@ def _main_eval() -> None:
     )
 
     corpus_scores = {k: v.item() for k, v in corpus_scores.items()}
+    sents_scores = {k: v.tolist() for k, v in sents_scores.items()}
     pylog.info(f"Global scores:\n{yaml.dump(corpus_scores, sort_keys=False)}")
+
+    if args.corpus_out is not None:
+        with open(args.corpus_out, "w") as file:
+            yaml.dump(corpus_scores, file, indent=4)
+        pylog.info(f"Corpus scores saved in '{args.corpus_out}'.")
+
+    if args.sentences_out is not None:
+        fieldnames = ["index", "candidate"] + list(sents_scores.keys())
+
+        n_cands = len(next(iter(sents_scores.values())))
+        rows = [
+            (
+                {"index": i, "candidate": candidates[i]}
+                | {k: sents_scores[k][i] for k in sents_scores.keys()}
+            )
+            for i in range(n_cands)
+        ]
+        with open(args.sentences_out, "w") as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        pylog.info(f"Sentences scores saved in '{args.sentences_out}'.")
 
 
 if __name__ == "__main__":
