@@ -75,7 +75,9 @@ def vocab(
             max_n_refs_per_audio = pop_strategy
         else:
             POP_STRATEGIES = ("max", "min")
-            raise ValueError(f"Invalid argument {pop_strategy=}. (expected one of {POP_STRATEGIES} or integer value)")
+            raise ValueError(
+                f"Invalid argument {pop_strategy=}. (expected one of {POP_STRATEGIES} or integer value)"
+            )
 
         vocab_mrefs_lens = torch.empty((max_n_refs_per_audio,), dtype=dtype)
 
