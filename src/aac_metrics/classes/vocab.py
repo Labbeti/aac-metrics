@@ -36,12 +36,14 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         seed: Union[None, int, torch.Generator] = 1234,
         tokenizer: Callable[[str], list[str]] = str.split,
         dtype: torch.dtype = torch.float64,
+        pop_strategy: str = "max",
     ) -> None:
         super().__init__()
         self._return_all_scores = return_all_scores
         self._seed = seed
         self._tokenizer = tokenizer
         self._dtype = dtype
+        self._pop_strategy = pop_strategy
 
         self._candidates = []
         self._mult_references = []
@@ -54,6 +56,7 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
             seed=self._seed,
             tokenizer=self._tokenizer,
             dtype=self._dtype,
+            pop_strategy=self._pop_strategy,
         )
 
     def get_output_names(self) -> tuple[str, ...]:

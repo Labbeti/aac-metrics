@@ -20,6 +20,7 @@ def vocab(
     seed: Union[None, int, torch.Generator] = 1234,
     tokenizer: Callable[[str], list[str]] = str.split,
     dtype: torch.dtype = torch.float64,
+    pop_strategy: str = "max",
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Compute vocabulary statistics.
 
@@ -33,6 +34,7 @@ def vocab(
     :param seed: Random seed used to compute average vocabulary length for multiple references. defaults to 1234.
     :param tokenizer: The function used to split a sentence into tokens. defaults to str.split.
     :param dtype: Torch floating point dtype for numerical precision. defaults to torch.float64.
+    :param pop_strategy: Strategy to compute average reference vocab. defaults to "max".
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     tok_cands = list(map(tokenizer, candidates))
@@ -65,7 +67,16 @@ def vocab(
         else:
             generator = seed
 
-        max_n_refs_per_audio = max(len(refs) for refs in tok_mrefs)
+        if pop_strategy == "max":
+            max_n_refs_per_audio = max(len(refs) for refs in tok_mrefs)
+        elif pop_strategy == "min":
+            max_n_refs_per_audio = min(len(refs) for refs in tok_mrefs)
+        elif isinstance(pop_strategy, int):
+            max_n_refs_per_audio = pop_strategy
+        else:
+            POP_STRATEGIES = ("max", "min")
+            raise ValueError(f"Invalid argument {pop_strategy=}. (expected one of {POP_STRATEGIES} or integer value)")
+
         vocab_mrefs_lens = torch.empty((max_n_refs_per_audio,), dtype=dtype)
 
         for i in range(max_n_refs_per_audio):
