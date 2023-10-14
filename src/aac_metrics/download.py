@@ -5,12 +5,13 @@ import logging
 import os
 import os.path as osp
 import shutil
-import sys
 
 from argparse import ArgumentParser, Namespace
 from zipfile import ZipFile
 
 from torch.hub import download_url_to_file
+
+import aac_metrics
 
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.functional.meteor import DNAME_METEOR_CACHE
@@ -20,7 +21,7 @@ from aac_metrics.functional.spice import (
     FNAME_SPICE_JAR,
     check_spice_install,
 )
-from aac_metrics.utils.args import str_to_bool
+from aac_metrics.utils.cmdline import str_to_bool, setup_logging
 from aac_metrics.utils.paths import (
     _get_cache_path,
     _get_tmp_path,
@@ -367,33 +368,9 @@ def _get_main_download_args() -> Namespace:
     return args
 
 
-def _setup_logging(verbose: int = 1) -> None:
-    format_ = "[%(asctime)s][%(name)s][%(levelname)s] - %(message)s"
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(format_))
-    pkg_logger = logging.getLogger("aac_metrics")
-
-    found = False
-    for handler in pkg_logger.handlers:
-        if isinstance(handler, logging.StreamHandler) and handler.stream is sys.stdout:
-            found = True
-            break
-    if not found:
-        pkg_logger.addHandler(handler)
-
-    if verbose <= 0:
-        level = logging.WARNING
-    elif verbose == 1:
-        level = logging.INFO
-    else:
-        level = logging.DEBUG
-    pkg_logger.setLevel(level)
-
-
 def _main_download() -> None:
     args = _get_main_download_args()
-
-    _setup_logging(args.verbose)
+    setup_logging(aac_metrics.__package__, args.verbose)
 
     download_metrics(
         cache_path=args.cache_path,

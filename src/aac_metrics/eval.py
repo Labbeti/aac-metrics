@@ -10,19 +10,20 @@ from typing import Iterable, Union
 
 import yaml
 
+import aac_metrics
+
 from aac_metrics.functional.evaluate import (
     evaluate,
     DEFAULT_METRICS_SET_NAME,
     METRICS_SETS,
 )
-from aac_metrics.utils.args import str_to_bool, str_to_opt_str
 from aac_metrics.utils.checks import check_metric_inputs, check_java_path
+from aac_metrics.utils.cmdline import str_to_bool, str_to_opt_str, setup_logging
 from aac_metrics.utils.paths import (
     get_default_cache_path,
     get_default_java_path,
     get_default_tmp_path,
 )
-from aac_metrics.download import _setup_logging
 
 
 pylog = logging.getLogger(__name__)
@@ -196,6 +197,12 @@ def _get_main_evaluate_args() -> Namespace:
         help=f"Temporary directory path. defaults to '{get_default_tmp_path()}'.",
     )
     parser.add_argument(
+        "--device",
+        type=str,
+        default="auto",
+        help="Device used for model-based metrics. defaults to 'auto'.",
+    )
+    parser.add_argument(
         "--verbose",
         "-v",
         type=int,
@@ -223,8 +230,7 @@ def _get_main_evaluate_args() -> Namespace:
 
 def _main_eval() -> None:
     args = _get_main_evaluate_args()
-
-    _setup_logging(args.verbose)
+    setup_logging(aac_metrics.__package__, args.verbose)
 
     if not check_java_path(args.java_path):
         raise RuntimeError(f"Invalid Java executable. ({args.java_path})")
@@ -254,6 +260,7 @@ def _main_eval() -> None:
         cache_path=args.cache_path,
         java_path=args.java_path,
         tmp_path=args.tmp_path,
+        device=args.device,
         verbose=args.verbose,
     )
 
