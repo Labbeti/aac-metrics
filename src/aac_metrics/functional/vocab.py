@@ -44,14 +44,9 @@ def vocab(
     if not return_all_scores:
         return vocab_cands_len
 
-    sent_vocab_cands_len, sent_vocab_cands_lens = _sent_vocab(tok_cands, dtype)
-
-    sents_scores = {
-        "sent_vocab.cands": sent_vocab_cands_lens,
-    }
+    sents_scores = {}
     corpus_scores = {
         "vocab.cands": vocab_cands_len,
-        "sent_vocab.cands": sent_vocab_cands_len,
     }
 
     if mult_references is not None:
@@ -85,7 +80,6 @@ def vocab(
             )
 
         vocab_mrefs_lens = torch.empty((n_samples,), dtype=dtype)
-        sent_vocab_mrefs_lens = torch.empty((n_samples,), dtype=dtype)
 
         for i in range(n_samples):
             indexes = [
@@ -96,24 +90,14 @@ def vocab(
             vocab_mrefs_len_i = _corpus_vocab(popped_refs)
             vocab_mrefs_lens[i] = vocab_mrefs_len_i
 
-            _sent_vocab_mrefs_lens_i, sent_vocab_mrefs_len_i = _sent_vocab(
-                popped_refs, dtype
-            )
-            sent_vocab_mrefs_lens[i] = sent_vocab_mrefs_len_i
-
         vocab_mrefs_avg = vocab_mrefs_lens.mean()
-        sent_vocab_mrefs_avg = sent_vocab_mrefs_lens.mean()
-
         vocab_len_ratio_avg = vocab_cands_len / vocab_mrefs_avg
-        sent_vocab_len_ratio_avg = sent_vocab_cands_len / sent_vocab_mrefs_avg
 
         corpus_scores |= {
             "vocab.mrefs_full": vocab_mrefs_len_full,
             "vocab.ratio_full": vocab_ratio_len_full,
             "vocab.mrefs_avg": vocab_mrefs_avg,
             "vocab.ratio_avg": vocab_len_ratio_avg,
-            "sent_vocab.mrefs_avg": sent_vocab_mrefs_avg,
-            "sent_vocab.ratio_avg": sent_vocab_len_ratio_avg,
         }
 
     return corpus_scores, sents_scores
