@@ -18,7 +18,7 @@ from aac_metrics.functional.evaluate import (
     METRICS_SETS,
 )
 from aac_metrics.utils.checks import check_metric_inputs, check_java_path
-from aac_metrics.utils.cmdline import str_to_bool, str_to_opt_str, setup_logging
+from aac_metrics.utils.cmdline import _str_to_bool, _str_to_opt_str, _setup_logging
 from aac_metrics.utils.paths import (
     get_default_cache_path,
     get_default_java_path,
@@ -163,7 +163,7 @@ def _get_main_evaluate_args() -> Namespace:
     parser.add_argument(
         "--strict",
         "-s",
-        type=str_to_bool,
+        type=_str_to_bool,
         default=False,
         help="If True, assume that all columns must be in CSV file. defaults to False.",
     )
@@ -212,14 +212,14 @@ def _get_main_evaluate_args() -> Namespace:
     parser.add_argument(
         "--corpus_out",
         "-co",
-        type=str_to_opt_str,
+        type=_str_to_opt_str,
         default=None,
         help="Output YAML path containing corpus scores. defaults to None.",
     )
     parser.add_argument(
         "--sentences_out",
         "-so",
-        type=str_to_opt_str,
+        type=_str_to_opt_str,
         default=None,
         help="Output CSV path containing sentences scores. defaults to None.",
     )
@@ -230,7 +230,7 @@ def _get_main_evaluate_args() -> Namespace:
 
 def _main_eval() -> None:
     args = _get_main_evaluate_args()
-    setup_logging(aac_metrics.__package__, args.verbose)
+    _setup_logging(aac_metrics.__package__, args.verbose)
 
     if not check_java_path(args.java_path):
         raise RuntimeError(f"Invalid Java executable. ({args.java_path})")

@@ -21,7 +21,7 @@ from aac_metrics.functional.spice import (
     FNAME_SPICE_JAR,
     check_spice_install,
 )
-from aac_metrics.utils.cmdline import str_to_bool, setup_logging
+from aac_metrics.utils.cmdline import _str_to_bool, _setup_logging
 from aac_metrics.utils.paths import (
     _get_cache_path,
     _get_tmp_path,
@@ -334,31 +334,31 @@ def _get_main_download_args() -> Namespace:
     )
     parser.add_argument(
         "--clean_archives",
-        type=str_to_bool,
+        type=_str_to_bool,
         default=True,
         help="If True, remove all archives files. defaults to True.",
     )
     parser.add_argument(
         "--ptb_tokenizer",
-        type=str_to_bool,
+        type=_str_to_bool,
         default=True,
         help="Download PTBTokenizer Java source code.",
     )
     parser.add_argument(
         "--meteor",
-        type=str_to_bool,
+        type=_str_to_bool,
         default=True,
         help="Download METEOR Java source code.",
     )
     parser.add_argument(
         "--spice",
-        type=str_to_bool,
+        type=_str_to_bool,
         default=True,
         help="Download SPICE Java source code.",
     )
     parser.add_argument(
         "--fense",
-        type=str_to_bool,
+        type=_str_to_bool,
         default=True,
         help="Download FENSE models.",
     )
@@ -370,7 +370,7 @@ def _get_main_download_args() -> Namespace:
 
 def _main_download() -> None:
     args = _get_main_download_args()
-    setup_logging(aac_metrics.__package__, args.verbose)
+    _setup_logging(aac_metrics.__package__, args.verbose)
 
     download_metrics(
         cache_path=args.cache_path,
