@@ -6,15 +6,16 @@ import logging
 
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import Iterable, Optional, Union
+from typing import Iterable, Union
 
 import yaml
 
 from aac_metrics.functional.evaluate import (
     evaluate,
-    METRICS_SETS,
     DEFAULT_METRICS_SET_NAME,
+    METRICS_SETS,
 )
+from aac_metrics.utils.args import str_to_bool, str_to_opt_str
 from aac_metrics.utils.checks import check_metric_inputs, check_java_path
 from aac_metrics.utils.paths import (
     get_default_cache_path,
@@ -25,10 +26,6 @@ from aac_metrics.download import _setup_logging
 
 
 pylog = logging.getLogger(__name__)
-
-
-_TRUE_VALUES = ("true", "1", "t", "yes", "y")
-_FALSE_VALUES = ("false", "0", "f", "no", "n")
 
 
 def load_csv_file(
@@ -165,7 +162,7 @@ def _get_main_evaluate_args() -> Namespace:
     parser.add_argument(
         "--strict",
         "-s",
-        type=_str_to_bool,
+        type=str_to_bool,
         default=False,
         help="If True, assume that all columns must be in CSV file. defaults to False.",
     )
@@ -208,40 +205,20 @@ def _get_main_evaluate_args() -> Namespace:
     parser.add_argument(
         "--corpus_out",
         "-co",
-        type=_str_to_opt_str,
+        type=str_to_opt_str,
         default=None,
         help="Output YAML path containing corpus scores. defaults to None.",
     )
-
     parser.add_argument(
         "--sentences_out",
         "-so",
-        type=_str_to_opt_str,
+        type=str_to_opt_str,
         default=None,
         help="Output CSV path containing sentences scores. defaults to None.",
     )
+
     args = parser.parse_args()
     return args
-
-
-def _str_to_bool(s: str) -> bool:
-    s = str(s).strip().lower()
-    if s in _TRUE_VALUES:
-        return True
-    elif s in _FALSE_VALUES:
-        return False
-    else:
-        raise ValueError(
-            f"Invalid argument s={s}. (expected one of {_TRUE_VALUES + _FALSE_VALUES})"
-        )
-
-
-def _str_to_opt_str(s: str) -> Optional[str]:
-    s = str(s)
-    if s.lower() == "none":
-        return None
-    else:
-        return s
 
 
 def _main_eval() -> None:

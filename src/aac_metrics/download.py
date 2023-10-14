@@ -15,11 +15,12 @@ from torch.hub import download_url_to_file
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.functional.meteor import DNAME_METEOR_CACHE
 from aac_metrics.functional.spice import (
-    FNAME_SPICE_JAR,
-    DNAME_SPICE_LOCAL_CACHE,
     DNAME_SPICE_CACHE,
+    DNAME_SPICE_LOCAL_CACHE,
+    FNAME_SPICE_JAR,
     check_spice_install,
 )
+from aac_metrics.utils.args import str_to_bool
 from aac_metrics.utils.paths import (
     _get_cache_path,
     _get_tmp_path,
@@ -74,8 +75,6 @@ DATA_URLS = {
         "fname": osp.join("SPICE-1.0", "stanford-corenlp-full-2015-12-09.zip"),
     },
 }
-_TRUE_VALUES = ("true", "1", "t")
-_FALSE_VALUES = ("false", "0", "f")
 
 
 def download_metrics(
@@ -334,31 +333,31 @@ def _get_main_download_args() -> Namespace:
     )
     parser.add_argument(
         "--clean_archives",
-        type=_str_to_bool,
+        type=str_to_bool,
         default=True,
         help="If True, remove all archives files. defaults to True.",
     )
     parser.add_argument(
         "--ptb_tokenizer",
-        type=_str_to_bool,
+        type=str_to_bool,
         default=True,
         help="Download PTBTokenizer Java source code.",
     )
     parser.add_argument(
         "--meteor",
-        type=_str_to_bool,
+        type=str_to_bool,
         default=True,
         help="Download METEOR Java source code.",
     )
     parser.add_argument(
         "--spice",
-        type=_str_to_bool,
+        type=str_to_bool,
         default=True,
         help="Download SPICE Java source code.",
     )
     parser.add_argument(
         "--fense",
-        type=_str_to_bool,
+        type=str_to_bool,
         default=True,
         help="Download FENSE models.",
     )
@@ -406,18 +405,6 @@ def _main_download() -> None:
         fense=args.fense,
         verbose=args.verbose,
     )
-
-
-def _str_to_bool(s: str) -> bool:
-    s = str(s).strip().lower()
-    if s in _TRUE_VALUES:
-        return True
-    elif s in _FALSE_VALUES:
-        return False
-    else:
-        raise ValueError(
-            f"Invalid argument {s=}. (expected one of {_TRUE_VALUES + _FALSE_VALUES})"
-        )
 
 
 if __name__ == "__main__":
