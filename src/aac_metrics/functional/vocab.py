@@ -44,9 +44,14 @@ def vocab(
     if not return_all_scores:
         return vocab_cands_len
 
-    sents_scores = {}
+    sent_vocab_cands_len, sent_vocab_cands_lens = _sent_vocab(tok_cands, dtype)
+
+    sents_scores = {
+        "sent_vocab.cands": sent_vocab_cands_lens,
+    }
     corpus_scores = {
         "vocab.cands": vocab_cands_len,
+        "sent_vocab.cands": sent_vocab_cands_len,
     }
 
     if mult_references is not None:
@@ -68,38 +73,47 @@ def vocab(
             generator = seed
 
         if pop_strategy == "max":
-            max_n_refs_per_audio = max(len(refs) for refs in tok_mrefs)
+            n_samples = max(len(refs) for refs in tok_mrefs)
         elif pop_strategy == "min":
-            max_n_refs_per_audio = min(len(refs) for refs in tok_mrefs)
+            n_samples = min(len(refs) for refs in tok_mrefs)
         elif isinstance(pop_strategy, int):
-            max_n_refs_per_audio = pop_strategy
+            n_samples = pop_strategy
         else:
             POP_STRATEGIES = ("max", "min")
             raise ValueError(
-                f"Invalid argument {pop_strategy=}. (expected one of {POP_STRATEGIES} or integer value)"
+                f"Invalid argument {pop_strategy=}. (expected one of {POP_STRATEGIES} or an integer value)"
             )
 
-        vocab_mrefs_lens = torch.empty((max_n_refs_per_audio,), dtype=dtype)
+        vocab_mrefs_lens = torch.empty((n_samples,), dtype=dtype)
+        sent_vocab_mrefs_lens = torch.empty((n_samples,), dtype=dtype)
 
-        for i in range(max_n_refs_per_audio):
+        for i in range(n_samples):
             indexes = [
                 int(torch.randint(0, len(refs), (), generator=generator).item())
                 for refs in tok_mrefs
             ]
             popped_refs = [refs[idx] for idx, refs in zip(indexes, tok_mrefs)]
-            vocab_mrefs_len_i = len(set(token for ref in popped_refs for token in ref))
+            vocab_mrefs_len_i = _corpus_vocab(popped_refs)
             vocab_mrefs_lens[i] = vocab_mrefs_len_i
 
+            _sent_vocab_mrefs_lens_i, sent_vocab_mrefs_len_i = _sent_vocab(
+                popped_refs, dtype
+            )
+            sent_vocab_mrefs_lens[i] = sent_vocab_mrefs_len_i
+
         vocab_mrefs_avg = vocab_mrefs_lens.mean()
-        vocab_mrefs_std = vocab_mrefs_lens.std()
+        sent_vocab_mrefs_avg = sent_vocab_mrefs_lens.mean()
+
         vocab_len_ratio_avg = vocab_cands_len / vocab_mrefs_avg
+        sent_vocab_len_ratio_avg = sent_vocab_cands_len / sent_vocab_mrefs_avg
 
         corpus_scores |= {
             "vocab.mrefs_full": vocab_mrefs_len_full,
             "vocab.ratio_full": vocab_ratio_len_full,
             "vocab.mrefs_avg": vocab_mrefs_avg,
-            "vocab.mrefs_std": vocab_mrefs_std,
             "vocab.ratio_avg": vocab_len_ratio_avg,
+            "sent_vocab.mrefs_avg": sent_vocab_mrefs_avg,
+            "sent_vocab.ratio_avg": sent_vocab_len_ratio_avg,
         }
 
     return corpus_scores, sents_scores
@@ -109,3 +123,14 @@ def _corpus_vocab(tok_sents: list[list[str]], dtype: torch.dtype) -> Tensor:
     corpus_cands_vocab = set(token for sent in tok_sents for token in sent)
     vocab_len = torch.as_tensor(len(corpus_cands_vocab), dtype=dtype)
     return vocab_len
+
+
+def _sent_vocab(
+    tok_sents: list[list[str]], dtype: torch.dtype
+) -> tuple[Tensor, Tensor]:
+    sents_cands_vocabs = [set(sent) for sent in tok_sents]
+    sent_cands_vocabs_lens = torch.as_tensor(
+        list(map(len, sents_cands_vocabs)), dtype=dtype
+    )
+    sent_cands_vocab_len = sent_cands_vocabs_lens.mean()
+    return sent_cands_vocab_len, sent_cands_vocabs_lens
