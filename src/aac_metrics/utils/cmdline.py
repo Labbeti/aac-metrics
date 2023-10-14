@@ -47,7 +47,7 @@ def _setup_logging(pkg_name: str, verbose: int) -> None:
 
     if verbose < 0:
         level = logging.ERROR
-    if verbose == 0:
+    elif verbose == 0:
         level = logging.WARNING
     elif verbose == 1:
         level = logging.INFO
