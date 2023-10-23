@@ -227,10 +227,11 @@ If you use **SPIDEr-max**, you can cite the following paper using BibTex :
 }
 ```
 
-If you use this software, please consider cite it as below :
+If you use this software, please consider cite it as "Labbe, E. (2013). aac-metrics: Metrics for evaluating Automated Audio Captioning systems for PyTorch.", or use the following BibTeX citation:
+
 ```
 @software{
-    Labbe_aac-metrics_2023,
+    Labbe_aac_metrics_2023,
     author = {Labbé, Etienne},
     license = {MIT},
     month = {10},
