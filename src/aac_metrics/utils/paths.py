@@ -6,6 +6,7 @@ import os
 import os.path as osp
 import tempfile
 
+from pathlib import Path
 from typing import Optional, Union
 
 
@@ -62,31 +63,31 @@ def get_default_tmp_path() -> str:
     return __get_default_path("tmp")
 
 
-def set_default_cache_path(cache_path: Optional[str]) -> None:
+def set_default_cache_path(cache_path: Union[str, Path, None]) -> None:
     """Override default cache directory path."""
     __set_default_path("cache", cache_path)
 
 
-def set_default_java_path(java_path: Optional[str]) -> None:
+def set_default_java_path(java_path: Union[str, Path, None]) -> None:
     """Override default java executable path."""
     __set_default_path("java", java_path)
 
 
-def set_default_tmp_path(tmp_path: Optional[str]) -> None:
+def set_default_tmp_path(tmp_path: Union[str, Path, None]) -> None:
     """Override default temporary directory path."""
     __set_default_path("tmp", tmp_path)
 
 
 # Private functions
-def _get_cache_path(cache_path: Union[str, None] = ...) -> str:
+def _get_cache_path(cache_path: Union[str, Path, None] = None) -> str:
     return __get_path("cache", cache_path)
 
 
-def _get_java_path(java_path: Union[str, None] = ...) -> str:
+def _get_java_path(java_path: Union[str, Path, None] = None) -> str:
     return __get_path("java", java_path)
 
 
-def _get_tmp_path(tmp_path: Union[str, None] = ...) -> str:
+def _get_tmp_path(tmp_path: Union[str, Path, None] = None) -> str:
     return __get_path("tmp", tmp_path)
 
 
@@ -114,14 +115,14 @@ def __get_default_path(path_name: str) -> str:
 
 def __set_default_path(
     path_name: str,
-    path: Optional[str],
+    path: Union[str, Path, None],
 ) -> None:
     if path is not ... and path is not None:
         path = __process_path(path)
     __DEFAULT_PATHS[path_name]["user"] = path
 
 
-def __get_path(path_name: str, path: Union[str, None] = ...) -> str:
+def __get_path(path_name: str, path: Union[str, Path, None] = None) -> str:
     if path is ... or path is None:
         return __get_default_path(path_name)
     else:
@@ -129,7 +130,8 @@ def __get_path(path_name: str, path: Union[str, None] = ...) -> str:
         return path
 
 
-def __process_path(path: str) -> str:
+def __process_path(path: Union[str, Path]) -> str:
+    path = str(path)
     path = osp.expanduser(path)
     path = osp.expandvars(path)
     return path
