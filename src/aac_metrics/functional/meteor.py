@@ -9,7 +9,7 @@ import platform
 import subprocess
 
 from subprocess import Popen
-from typing import Optional, Union
+from typing import Iterable, Optional, Union
 
 import torch
 
@@ -36,6 +36,8 @@ def meteor(
     java_max_memory: str = "2G",
     language: str = "en",
     use_shell: Optional[bool] = None,
+    params: Optional[Iterable[float]] = None,
+    weights: Optional[Iterable[float]] = None,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Metric for Evaluation of Translation with Explicit ORdering function.
@@ -56,6 +58,12 @@ def meteor(
         defaults to "en".
     :param use_shell: Optional argument to force use os-specific shell for the java subprogram.
         If None, it will use shell only on Windows OS.
+        defaults to None.
+    :param params: List of 4 parameters (alpha, beta gamma delta) used in METEOR metric.
+        If None, it will use the default of the java program, which is (0.85, 0.2, 0.6, 0.75).
+        defaults to None.
+    :param weights: List of 4 parameters (w1, w2, w3, w4) used in METEOR metric.
+        If None, it will use the default of the java program, which is (1.0 1.0 0.6 0.8).
         defaults to None.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
@@ -100,6 +108,24 @@ def meteor(
         language,
         "-norm",
     ]
+
+    if params is not None:
+        params = list(params)
+        if len(params) != 4:
+            raise ValueError(
+                f"Invalid argument {params=}. (expected 4 params but found {len(params)})"
+            )
+        params_arg = " ".join(map(str, params))
+        meteor_cmd += ["-p", f"{params_arg}"]
+
+    if weights is not None:
+        weights = list(weights)
+        if len(weights) != 4:
+            raise ValueError(
+                f"Invalid argument {weights=}. (expected 4 params but found {len(weights)})"
+            )
+        weights_arg = " ".join(map(str, weights))
+        meteor_cmd += ["-w", f"{weights_arg}"]
 
     if verbose >= 2:
         pylog.debug(

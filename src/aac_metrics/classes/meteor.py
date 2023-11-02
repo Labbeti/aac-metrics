@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Optional, Union
+from typing import Iterable, Optional, Union
 
 from torch import Tensor
 
@@ -33,6 +33,8 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
         java_max_memory: str = "2G",
         language: str = "en",
         use_shell: Optional[bool] = None,
+        params: Optional[Iterable[float]] = None,
+        weights: Optional[Iterable[float]] = None,
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -42,6 +44,8 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
         self._java_max_memory = java_max_memory
         self._language = language
         self._use_shell = use_shell
+        self._params = params
+        self._weights = weights
         self._verbose = verbose
 
         self._candidates = []
@@ -57,6 +61,8 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
             java_max_memory=self._java_max_memory,
             language=self._language,
             use_shell=self._use_shell,
+            params=self._params,
+            weights=self._weights,
             verbose=self._verbose,
         )
 
