@@ -24,7 +24,9 @@ pylog = logging.getLogger(__name__)
 
 # Path to the stanford corenlp jar
 FNAME_STANFORD_CORENLP_3_4_1_JAR = osp.join(
-    "aac-metrics", "stanford_nlp", "stanford-corenlp-3.4.1.jar"
+    "aac-metrics",
+    "stanford_nlp",
+    "stanford-corenlp-3.4.1.jar",
 )
 # Punctuations to be removed from the sentences
 PTB_PUNCTUATIONS = (
@@ -61,7 +63,7 @@ def ptb_tokenize_batch(
     """Use PTB Tokenizer to process sentences. Should be used only with all the sentences of a subset due to slow computation.
 
     :param sentences: The sentences to tokenize.
-    :param audio_ids: The optional audio names. None will use the audio index as name. defaults to None.
+    :param audio_ids: The optional audio names for the PTB Tokenizer program. None will use the audio index as name. defaults to None.
     :param cache_path: The path to the external directory containing the JAR program. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
     :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
     :param tmp_path: The path to a temporary directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
@@ -246,8 +248,6 @@ def preprocess_mult_sents(
     :param verbose: The verbose level. defaults to 0.
     :returns: The multiple sentences processed by the tokenizer.
     """
-
-    # Flat list
     flatten_sents, sizes = flat_list(mult_sentences)
     flatten_sents = preprocess_mono_sents(
         sentences=flatten_sents,

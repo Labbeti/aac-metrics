@@ -53,4 +53,5 @@ def _setup_logging(pkg_name: str, verbose: int) -> None:
         level = logging.INFO
     else:
         level = logging.DEBUG
+
     pkg_logger.setLevel(level)
