@@ -61,7 +61,7 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
 
     def get_output_names(self) -> tuple[str, ...]:
         return (
-            "vocab.cands",
+            "vocab",
             "vocab.mrefs_full",
             "vocab.ratio_full",
             "vocab.mrefs_avg",

@@ -145,7 +145,7 @@ def _spider_fl_from_outputs(
     fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
     penalty: float = 0.9,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
-    """Combines SPIDEr and FluErr outputs.
+    """Combines SPIDEr and FER outputs.
 
     Based on https://github.com/felixgontier/dcase-2023-baseline/blob/main/metrics.py#L48
     """

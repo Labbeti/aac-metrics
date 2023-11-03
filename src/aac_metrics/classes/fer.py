@@ -26,7 +26,7 @@ class FER(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]])
     - Paper: https://arxiv.org/abs/2110.04684
     - Original implementation: https://github.com/blmoistawinde/fense
 
-    For more information, see :func:`~aac_metrics.functional.fluerr.fluerr`.
+    For more information, see :func:`~aac_metrics.functional.fer.fer`.
     """
 
     full_state_update = False

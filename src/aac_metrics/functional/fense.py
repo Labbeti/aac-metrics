@@ -116,7 +116,7 @@ def _fense_from_outputs(
     fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
     penalty: float = 0.9,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
-    """Combines SBERT and FluErr outputs.
+    """Combines SBERT and FER outputs.
 
     Based on https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L121
     """

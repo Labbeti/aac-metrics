@@ -87,7 +87,7 @@ def vocab(
                 for refs in tok_mrefs
             ]
             popped_refs = [refs[idx] for idx, refs in zip(indexes, tok_mrefs)]
-            vocab_mrefs_len_i = _corpus_vocab(popped_refs)
+            vocab_mrefs_len_i = _corpus_vocab(popped_refs, dtype)
             vocab_mrefs_lens[i] = vocab_mrefs_len_i
 
         vocab_mrefs_avg = vocab_mrefs_lens.mean()

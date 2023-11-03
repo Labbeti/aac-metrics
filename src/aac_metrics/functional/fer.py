@@ -144,7 +144,7 @@ def fer(
     )
     fer_scores = (probs_outs_sents["error"] > error_threshold).astype(float)
 
-    fer_scores = torch.from_numpy(fluerr_scores)
+    fer_scores = torch.from_numpy(fer_scores)
     fer_score = fer_scores.mean()
 
     if return_all_scores:
