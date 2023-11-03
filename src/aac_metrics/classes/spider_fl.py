@@ -11,7 +11,7 @@ from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.fluerr import (
+from aac_metrics.functional.fer import (
     BERTFlatClassifier,
     _load_echecker_and_tokenizer,
 )
@@ -126,7 +126,7 @@ class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
         return extra
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("cider_d", "spice", "spider", "spider_fl", "fluerr")
+        return ("cider_d", "spice", "spider", "spider_fl", "fer")
 
     def reset(self) -> None:
         self._candidates = []

@@ -92,7 +92,7 @@ class BERTFlatClassifier(nn.Module):
         return logits
 
 
-def fluerr(
+def fer(
     candidates: list[str],
     return_all_scores: bool = True,
     echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
@@ -104,7 +104,7 @@ def fluerr(
     return_probs: bool = False,
     verbose: int = 0,
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
-    """Return fluency error detected by a pre-trained BERT model.
+    """Return Fluency Error Rate (FER) detected by a pre-trained BERT model.
 
     - Paper: https://arxiv.org/abs/2110.04684
     - Original implementation: https://github.com/blmoistawinde/fense
@@ -142,36 +142,34 @@ def fluerr(
         batch_size,
         device,
     )
-    fluerr_scores = (probs_outs_sents["error"] > error_threshold).astype(float)
+    fer_scores = (probs_outs_sents["error"] > error_threshold).astype(float)
 
-    fluerr_scores = torch.from_numpy(fluerr_scores)
-    fluerr_score = fluerr_scores.mean()
+    fer_scores = torch.from_numpy(fluerr_scores)
+    fer_score = fer_scores.mean()
 
     if return_all_scores:
-        fluerr_outs_corpus = {
-            "fluerr": fluerr_score,
+        fer_outs_corpus = {
+            "fer": fer_score,
         }
-        fluerr_outs_sents = {
-            "fluerr": fluerr_scores,
+        fer_outs_sents = {
+            "fer": fer_scores,
         }
 
         if return_probs:
-            probs_outs_sents = {
-                f"fluerr.{k}_prob": v for k, v in probs_outs_sents.items()
-            }
+            probs_outs_sents = {f"fer.{k}_prob": v for k, v in probs_outs_sents.items()}
             probs_outs_sents = {
                 k: torch.from_numpy(v) for k, v in probs_outs_sents.items()
             }
             probs_outs_corpus = {k: v.mean() for k, v in probs_outs_sents.items()}
 
-            fluerr_outs_corpus = probs_outs_corpus | fluerr_outs_corpus
-            fluerr_outs_sents = probs_outs_sents | fluerr_outs_sents
+            fer_outs_corpus = probs_outs_corpus | fer_outs_corpus
+            fer_outs_sents = probs_outs_sents | fer_outs_sents
 
-        fluerr_outs = fluerr_outs_corpus, fluerr_outs_sents
+        fer_outs = fer_outs_corpus, fer_outs_sents
 
-        return fluerr_outs
+        return fer_outs
     else:
-        return fluerr_score
+        return fer_score
 
 
 # - Private functions

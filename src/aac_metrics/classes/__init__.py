@@ -5,7 +5,7 @@ from .bleu import BLEU
 from .cider_d import CIDErD
 from .evaluate import DCASE2023Evaluate, Evaluate
 from .fense import FENSE
-from .fluerr import FluErr
+from .fer import FER
 from .meteor import METEOR
 from .rouge_l import ROUGEL
 from .sbert_sim import SBERTSim
@@ -21,7 +21,7 @@ __all__ = [
     "DCASE2023Evaluate",
     "Evaluate",
     "FENSE",
-    "FluErr",
+    "FER",
     "METEOR",
     "ROUGEL",
     "SBERTSim",

@@ -28,7 +28,7 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
     - SPIDEr [[6]](#spider)
     - SPIDEr-max [[7]](#spider-max)
     - SBERT-sim [[8]](#fense)
-    - Fluency Error [[8]](#fense)
+    - FER [[8]](#fense)
     - FENSE [[8]](#fense)
     - SPIDEr-FL [[9]](#spider-fl)
 
@@ -113,8 +113,8 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 | Metric name | Python Class | Origin | Range | Short description |
 |:---|:---|:---|:---|:---|
 | SPIDEr-max [[7]](#spider-max) | `SPIDErMax` | audio captioning | [0, 5.5] | Max of SPIDEr scores for multiples candidates |
-| SBERT-sim [[8]](#spider-max) | `SBERTSim` | audio captioning | [-1, 1] | Cosine-similarity of **Sentence-BERT embeddings** |
-| Fluency error rate [[8]](#spider-max) | `FluErr` | audio captioning | [0, 1] | Detect fluency errors in sentences with a pretrained model |
+| SBERT-sim [[8]](#fense) | `SBERTSim` | audio captioning | [-1, 1] | Cosine-similarity of **Sentence-BERT embeddings** |
+| Fluency Error Rate [[8]](#fense) | `FER` | audio captioning | [0, 1] | Detect fluency errors in sentences with a pretrained model |
 | FENSE [[8]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines SBERT-sim and Fluency Error rate |
 | SPIDEr-FL [[9]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error rate |
 

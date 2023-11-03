@@ -10,8 +10,8 @@ import torch
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.fluerr import (
-    fluerr,
+from aac_metrics.functional.fer import (
+    fer,
     _load_echecker_and_tokenizer,
     ERROR_NAMES,
 )
@@ -20,8 +20,8 @@ from aac_metrics.functional.fluerr import (
 pylog = logging.getLogger(__name__)
 
 
-class FluErr(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
-    """Return fluency error rate detected by a pre-trained BERT model.
+class FER(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+    """Return Fluency Error Rate (FER) detected by a pre-trained BERT model.
 
     - Paper: https://arxiv.org/abs/2110.04684
     - Original implementation: https://github.com/blmoistawinde/fense
@@ -63,7 +63,7 @@ class FluErr(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
         self._candidates = []
 
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
-        return fluerr(
+        return fer(
             candidates=self._candidates,
             return_all_scores=self._return_all_scores,
             echecker=self._echecker,
@@ -82,7 +82,7 @@ class FluErr(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
         return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("fluerr",) + tuple(f"fluerr.{name}_prob" for name in ERROR_NAMES)
+        return ("fer",) + tuple(f"fer.{name}_prob" for name in ERROR_NAMES)
 
     def reset(self) -> None:
         self._candidates = []

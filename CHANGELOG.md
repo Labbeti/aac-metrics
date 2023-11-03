@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 ## [0.5.0] UNRELEASED
 ### Added
 - New `Vocab` metric to compute vocabulary size and vocabulary ratio.
+  
+### Changed
+- Rename metric `FluErr` to `FER`.
 
 ## [0.4.6] 2023-10-10
 ### Added

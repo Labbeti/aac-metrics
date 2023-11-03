@@ -15,7 +15,7 @@ from aac_metrics.classes.base import AACMetric
 from aac_metrics.classes.bleu import BLEU, BLEU1, BLEU2, BLEU3, BLEU4
 from aac_metrics.classes.cider_d import CIDErD
 from aac_metrics.classes.fense import FENSE
-from aac_metrics.classes.fluerr import FluErr
+from aac_metrics.classes.fer import FER
 from aac_metrics.classes.meteor import METEOR
 from aac_metrics.classes.rouge_l import ROUGEL
 from aac_metrics.classes.sbert_sim import SBERTSim
@@ -232,7 +232,7 @@ def _get_metric_factory_classes(
             verbose=verbose,
             **init_kwds,
         ),
-        "fluerr": lambda: FluErr(
+        "fer": lambda: FER(
             device=device,
             verbose=verbose,
         ),

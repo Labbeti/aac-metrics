@@ -5,7 +5,7 @@ from .bleu import bleu
 from .cider_d import cider_d
 from .evaluate import dcase2023_evaluate, evaluate
 from .fense import fense
-from .fluerr import fluerr
+from .fer import fer
 from .meteor import meteor
 from .rouge_l import rouge_l
 from .sbert_sim import sbert_sim
@@ -21,7 +21,7 @@ __all__ = [
     "dcase2023_evaluate",
     "evaluate",
     "fense",
-    "fluerr",
+    "fer",
     "meteor",
     "rouge_l",
     "sbert_sim",

@@ -17,7 +17,7 @@ from .classes.base import AACMetric
 from .classes.bleu import BLEU
 from .classes.cider_d import CIDErD
 from .classes.evaluate import Evaluate, DCASE2023Evaluate, _get_metric_factory_classes
-from .classes.fluerr import FluErr
+from .classes.fer import FER
 from .classes.fense import FENSE
 from .classes.meteor import METEOR
 from .classes.rouge_l import ROUGEL
@@ -44,7 +44,7 @@ __all__ = [
     "Evaluate",
     "DCASE2023Evaluate",
     "FENSE",
-    "FluErr",
+    "FER",
     "METEOR",
     "ROUGEL",
     "SBERTSim",

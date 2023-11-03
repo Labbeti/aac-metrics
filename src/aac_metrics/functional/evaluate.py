@@ -14,7 +14,7 @@ from torch import Tensor
 from aac_metrics.functional.bleu import bleu, bleu_1, bleu_2, bleu_3, bleu_4
 from aac_metrics.functional.cider_d import cider_d
 from aac_metrics.functional.fense import fense
-from aac_metrics.functional.fluerr import fluerr
+from aac_metrics.functional.fer import fer
 from aac_metrics.functional.meteor import meteor
 from aac_metrics.functional.rouge_l import rouge_l
 from aac_metrics.functional.sbert_sim import sbert_sim
@@ -308,8 +308,8 @@ def _get_metric_factory_functions(
             verbose=verbose,
             **init_kwds,
         ),
-        "fluerr": partial(
-            fluerr,
+        "fer": partial(
+            fer,
             device=device,
             verbose=verbose,
             **init_kwds,
