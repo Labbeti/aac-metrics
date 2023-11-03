@@ -5,7 +5,7 @@ import logging
 import pickle
 import zlib
 
-from typing import Any, Callable, Iterable, Union
+from typing import Any, Callable, Iterable, Optional, Union
 
 import torch
 
@@ -178,9 +178,9 @@ def _get_metric_factory_classes(
     tmp_path: str = ...,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
-    init_kwds: dict[str, Any] = ...,
+    init_kwds: Optional[dict[str, Any]] = None,
 ) -> dict[str, Callable[[], AACMetric]]:
-    if init_kwds is ... or init_kwds is None:
+    if init_kwds is None or init_kwds is ...:
         init_kwds = {}
 
     init_kwds = init_kwds | dict(return_all_scores=return_all_scores)

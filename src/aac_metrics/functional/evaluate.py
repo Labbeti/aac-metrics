@@ -243,7 +243,7 @@ def _get_metric_factory_functions(
     tmp_path: str = ...,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
-    init_kwds: Optional[dict[str, Any]] = ...,
+    init_kwds: Optional[dict[str, Any]] = None,
 ) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
     if init_kwds is None or init_kwds is ...:
         init_kwds = {}
