@@ -7,6 +7,7 @@ Original based on https://github.com/blmoistawinde/fense/
 
 import logging
 
+from pathlib import Path
 from typing import Callable, Iterable, Optional, Union
 
 import torch
@@ -35,9 +36,9 @@ def spider_fl(
     tokenizer: Callable[[str], list[str]] = str.split,
     return_tfidf: bool = False,
     # SPICE args
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,

@@ -7,6 +7,8 @@ import os.path as osp
 import shutil
 
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
+from typing import Union
 from zipfile import ZipFile
 
 from torch.hub import download_url_to_file
@@ -79,8 +81,8 @@ DATA_URLS = {
 
 
 def download_metrics(
-    cache_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     clean_archives: bool = True,
     ptb_tokenizer: bool = True,
     meteor: bool = True,

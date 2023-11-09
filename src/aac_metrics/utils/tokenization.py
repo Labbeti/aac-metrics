@@ -53,9 +53,9 @@ PTB_PUNCTUATIONS = (
 def ptb_tokenize_batch(
     sentences: Iterable[str],
     audio_ids: Optional[Iterable[Hashable]] = None,
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     normalize_apostrophe: bool = False,
     verbose: int = 0,
@@ -193,9 +193,9 @@ def ptb_tokenize_batch(
 
 def preprocess_mono_sents(
     sentences: list[str],
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     normalize_apostrophe: bool = False,
     verbose: int = 0,
@@ -231,9 +231,9 @@ def preprocess_mono_sents(
 
 def preprocess_mult_sents(
     mult_sentences: list[list[str]],
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     normalize_apostrophe: bool = False,
     verbose: int = 0,

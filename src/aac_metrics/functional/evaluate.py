@@ -5,6 +5,7 @@ import logging
 import time
 
 from functools import partial
+from pathlib import Path
 from typing import Any, Callable, Iterable, Optional, Union
 
 import torch
@@ -78,9 +79,9 @@ def evaluate(
     metrics: Union[
         str, Iterable[str], Iterable[Callable[[list, list], tuple]]
     ] = DEFAULT_METRICS_SET_NAME,
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
@@ -165,9 +166,9 @@ def dcase2023_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
@@ -200,9 +201,9 @@ def dcase2023_evaluate(
 
 def _instantiate_metrics_functions(
     metrics: Union[str, Iterable[str], Iterable[Callable[[list, list], tuple]]] = "all",
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> list[Callable]:
@@ -238,9 +239,9 @@ def _instantiate_metrics_functions(
 
 def _get_metric_factory_functions(
     return_all_scores: bool = True,
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
     init_kwds: Optional[dict[str, Any]] = None,

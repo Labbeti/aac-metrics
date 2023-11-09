@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from pathlib import Path
 from typing import Iterable, Optional, Union
 
 from torch import Tensor
@@ -28,8 +29,8 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
     def __init__(
         self,
         return_all_scores: bool = True,
-        cache_path: str = ...,
-        java_path: str = ...,
+        cache_path: Union[str, Path, None] = None,
+        java_path: Union[str, Path, None] = None,
         java_max_memory: str = "2G",
         language: str = "en",
         use_shell: Optional[bool] = None,

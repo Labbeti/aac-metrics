@@ -8,6 +8,7 @@ import os.path as osp
 import platform
 import subprocess
 
+from pathlib import Path
 from subprocess import Popen
 from typing import Iterable, Optional, Union
 
@@ -31,8 +32,8 @@ def meteor(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    cache_path: str = ...,
-    java_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
     java_max_memory: str = "2G",
     language: str = "en",
     use_shell: Optional[bool] = None,
@@ -161,16 +162,33 @@ def meteor(
     assert meteor_process.stdin is not None, "INTERNAL METEOR process error"
     if verbose >= 3:
         pylog.debug(f"Write line {eval_line=}.")
-    meteor_process.stdin.write("{}\n".format(eval_line).encode())
+
+    process_inputs = "{}\n".format(eval_line).encode()
+    meteor_process.stdin.write(process_inputs)
     meteor_process.stdin.flush()
 
     # Read scores
     assert meteor_process.stdout is not None, "INTERNAL METEOR process error"
     meteor_scores = []
-    for _ in range(n_candidates):
-        meteor_scores_i = float(meteor_process.stdout.readline().strip())
+    for i in range(n_candidates):
+        process_out_i = meteor_process.stdout.readline().strip()
+        try:
+            meteor_scores_i = float(process_out_i)
+        except ValueError as err:
+            pylog.error(
+                f"Invalid METEOR stdout. (cannot convert sentence score to float {process_out_i=} with {i=})"
+            )
+            raise err
         meteor_scores.append(meteor_scores_i)
-    meteor_score = float(meteor_process.stdout.readline().strip())
+
+    process_out = meteor_process.stdout.readline().strip()
+    try:
+        meteor_score = float(process_out)
+    except ValueError as err:
+        pylog.error(
+            f"Invalid METEOR stdout. (cannot convert global score to float {process_out=})"
+        )
+        raise err
 
     meteor_process.stdin.close()
     meteor_process.kill()

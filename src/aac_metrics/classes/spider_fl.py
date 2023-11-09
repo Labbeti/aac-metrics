@@ -3,6 +3,7 @@
 
 import logging
 
+from pathlib import Path
 from typing import Iterable, Optional, Union
 
 import torch
@@ -41,9 +42,9 @@ class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
         n: int = 4,
         sigma: float = 6.0,
         # SPICE args
-        cache_path: str = ...,
-        java_path: str = ...,
-        tmp_path: str = ...,
+        cache_path: Union[str, Path, None] = None,
+        java_path: Union[str, Path, None] = None,
+        tmp_path: Union[str, Path, None] = None,
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,
