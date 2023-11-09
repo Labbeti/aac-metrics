@@ -143,7 +143,7 @@ def meteor(
 
     n_candidates = len(candidates)
     encoded_cands_and_mrefs = [
-        encore_cand_and_refs(cand, refs)
+        _encode_cand_and_refs(cand, refs)
         for cand, refs in zip(candidates, mult_references)
     ]
     del candidates, mult_references
@@ -211,7 +211,7 @@ def meteor(
         return meteor_score
 
 
-def encore_cand_and_refs(candidate: str, references: list[str]) -> bytes:
+def _encode_cand_and_refs(candidate: str, references: list[str]) -> bytes:
     # SCORE ||| reference 1 words ||| ... ||| reference N words ||| candidate words
     candidate = candidate.replace("|||", "").replace("  ", " ")
     score_line = " ||| ".join(("SCORE", " ||| ".join(references), candidate))
