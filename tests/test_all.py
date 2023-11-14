@@ -11,9 +11,6 @@ from aac_metrics.functional.evaluate import evaluate
 
 class TestAll(TestCase):
     def test_example_1(self) -> None:
-        if platform.system() == "Windows":
-            return None
-
         cands = ["many green trees are in two sides of a curved green river."]
         mrefs = [
             [
