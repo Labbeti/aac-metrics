@@ -97,6 +97,7 @@ def meteor(
             f"Invalid argument {language=}. (expected one of {SUPPORTED_LANGUAGES})"
         )
 
+    # TODO : override localization settings ? -Duser.country=US -Duser.language=en ?
     meteor_cmd = [
         java_path,
         "-jar",

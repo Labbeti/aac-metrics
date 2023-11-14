@@ -31,10 +31,12 @@ def _str_to_opt_str(s: str) -> Optional[str]:
         return s
 
 
-def _setup_logging(pkg_name: str, verbose: int) -> None:
-    format_ = "[%(asctime)s][%(name)s][%(levelname)s] - %(message)s"
+def _setup_logging(pkg_name: str, verbose: int, set_format: bool = True) -> None:
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(format_))
+    if set_format:
+        format_ = "[%(asctime)s][%(name)s][%(levelname)s] - %(message)s"
+        handler.setFormatter(logging.Formatter(format_))
+
     pkg_logger = logging.getLogger(pkg_name)
 
     found = False
