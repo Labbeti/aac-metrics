@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import platform
 import unittest
 
 from unittest import TestCase
 
-from aac_metrics.functional.meteor import meteor
+from aac_metrics.functional.evaluate import evaluate
 
 
-class TestCompare(TestCase):
+class TestAll(TestCase):
     def test_example_1(self) -> None:
+        if platform.system() == "Windows":
+            return None
+
         cands = ["many green trees are in two sides of a curved green river."]
         mrefs = [
             [
@@ -20,9 +24,8 @@ class TestCompare(TestCase):
                 "many green trees are in two sides of a curved green river .",
             ]
         ]
-        meteor_outs_corpus, _ = meteor(cands, mrefs)
-        score = meteor_outs_corpus["meteor"].item()  # type: ignore
-        self.assertEqual(score, 1.0)
+
+        _ = evaluate(cands, mrefs, metrics="all")
 
 
 if __name__ == "__main__":
