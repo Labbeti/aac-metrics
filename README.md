@@ -118,10 +118,12 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 | FENSE [[8]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines SBERT-sim and Fluency Error rate |
 | SPIDEr-FL [[9]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error rate |
 
-### AAC metrics not implemented
+### AAC metrics not implemented in this package
 - CB-Score [[10]](#cb-score)
 - SPICE+ [[11]](#spice-plus)
 - ACES [[12]](#aces) (can be found here: https://github.com/GlJS/ACES)
+- SBF [[13]](#sbf)
+- s2v [[14]](#s2v)
 
 ## Requirements
 This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions. Windows is not officially supported.
@@ -212,6 +214,12 @@ arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 
 #### ACES
 [12] G. Wijngaard, E. Formisano, B. L. Giordano, M. Dumontier, “ACES: Evaluating Automated Audio Captioning Models on the Semantics of Sounds”, in EUSIPCO 2023, 2023.
+
+#### SBF
+[13] R. Mahfuz, Y. Guo, A. K. Sridhar, and E. Visser, Detecting False Alarms and Misses in Audio Captions. 2023. [Online]. Available: https://arxiv.org/pdf/2309.03326.pdf 
+
+#### s2v
+[14] S. Bhosale, R. Chakraborty, and S. K. Kopparapu, “A Novel Metric For Evaluating Audio Caption Similarity,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10096526. 
 
 ## Citation
 If you use **SPIDEr-max**, you can cite the following paper using BibTex :
