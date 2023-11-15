@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import platform
 import unittest
 
 from unittest import TestCase
@@ -11,15 +10,14 @@ from aac_metrics.functional.evaluate import evaluate
 
 class TestAll(TestCase):
     def test_example_1(self) -> None:
-        cands = ["many green trees are in two sides of a curved green river."]
-        mrefs = [
+        cands: list[str] = ["a man is speaking", "rain falls"]
+        mrefs: list[list[str]] = [
             [
-                "many green trees are in two sides of a curved green river .",
-                "many green trees are in two sides of a curved green river .",
-                "many green trees are in two sides of a curved green river .",
-                "many green trees are in two sides of a curved green river .",
-                "many green trees are in two sides of a curved green river .",
-            ]
+                "a man speaks.",
+                "someone speaks.",
+                "a man is speaking while a bird is chirping in the background",
+            ],
+            ["rain is falling hard on a surface"],
         ]
 
         _ = evaluate(cands, mrefs, metrics="all")
