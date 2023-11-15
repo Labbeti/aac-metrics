@@ -97,9 +97,11 @@ def meteor(
             f"Invalid argument {language=}. (expected one of {SUPPORTED_LANGUAGES})"
         )
 
-    # TODO : override localization settings ? -Duser.country=US -Duser.language=en ?
+    # Note: override localization to avoid errors due to double conversion (https://github.com/Labbeti/aac-metrics/issues/9)
     meteor_cmd = [
         java_path,
+        "-Duser.country=US",
+        "-Duser.language=en",
         "-jar",
         f"-Xmx{java_max_memory}",
         meteor_jar_fpath,
