@@ -15,6 +15,7 @@ from torch.hub import download_url_to_file
 
 import aac_metrics
 
+from aac_metrics.classes.bert_score_mrefs import BERTScoreMRefs
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.functional.meteor import DNAME_METEOR_CACHE
 from aac_metrics.functional.spice import (
@@ -88,6 +89,7 @@ def download_metrics(
     meteor: bool = True,
     spice: bool = True,
     fense: bool = True,
+    bert_score: bool = True,
     verbose: int = 0,
 ) -> None:
     """Download the code needed for SPICE, METEOR, PTB Tokenizer and FENSE.
@@ -99,6 +101,7 @@ def download_metrics(
     :param meteor: If True, downloads the METEOR code in cache directory. defaults to True.
     :param spice: If True, downloads the SPICE code in cache directory. defaults to True.
     :param fense: If True, downloads the FENSE models. defaults to True.
+    :param bert_score: If True, downloads the BERTScore model. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     """
     if verbose >= 1:
@@ -126,6 +129,9 @@ def download_metrics(
 
     if fense:
         _download_fense(verbose)
+
+    if bert_score:
+        _download_bert_score(verbose)
 
     if verbose >= 1:
         pylog.info("aac-metrics download finished.")
@@ -315,6 +321,15 @@ def _download_fense(
     if verbose >= 1:
         pylog.info("Downloading SBERT and BERT error detector for FENSE metric...")
     _ = FENSE(device="cpu")
+
+
+def _download_bert_score(
+    verbose: int = 0,
+) -> None:
+    # Download models files for BERTScore metric
+    if verbose >= 1:
+        pylog.info("Downloading BERT model for BERTScore metric...")
+    _ = BERTScoreMRefs(device="cpu")
 
 
 def _get_main_download_args() -> Namespace:
