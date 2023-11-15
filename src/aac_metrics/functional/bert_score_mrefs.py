@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Optional, TypeVar, Union
+from typing import Callable, Optional, Union
 
 import torch
 
@@ -12,9 +12,6 @@ from transformers.models.auto.tokenization_auto import AutoTokenizer
 from transformers import logging as tfmers_logging
 
 from aac_metrics.utils.collections import flat_list, unflat_list, duplicate_list
-
-
-T = TypeVar("T")
 
 
 def bert_score_mrefs(

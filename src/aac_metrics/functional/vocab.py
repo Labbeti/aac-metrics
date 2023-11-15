@@ -21,6 +21,7 @@ def vocab(
     tokenizer: Callable[[str], list[str]] = str.split,
     dtype: torch.dtype = torch.float64,
     pop_strategy: str = "max",
+    verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Compute vocabulary statistics.
 
@@ -35,6 +36,7 @@ def vocab(
     :param tokenizer: The function used to split a sentence into tokens. defaults to str.split.
     :param dtype: Torch floating point dtype for numerical precision. defaults to torch.float64.
     :param pop_strategy: Strategy to compute average reference vocab. defaults to "max".
+    :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     tok_cands = list(map(tokenizer, candidates))
@@ -78,6 +80,9 @@ def vocab(
             raise ValueError(
                 f"Invalid argument {pop_strategy=}. (expected one of {POP_STRATEGIES} or an integer value)"
             )
+
+        if verbose >= 2:
+            pylog.debug(f"Found {n_samples=} with {pop_strategy=}.")
 
         vocab_mrefs_lens = torch.empty((n_samples,), dtype=dtype)
 

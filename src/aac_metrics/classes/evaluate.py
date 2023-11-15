@@ -13,6 +13,7 @@ import torch
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
+from aac_metrics.classes.bert_score_mrefs import BERTScoreMRefs
 from aac_metrics.classes.bleu import BLEU, BLEU1, BLEU2, BLEU3, BLEU4
 from aac_metrics.classes.cider_d import CIDErD
 from aac_metrics.classes.fense import FENSE
@@ -251,6 +252,11 @@ def _get_metric_factory_classes(
             **init_kwds,
         ),
         "vocab": lambda: Vocab(
+            verbose=verbose,
+            **init_kwds,
+        ),
+        "bert_score": lambda: BERTScoreMRefs(
+            verbose=verbose,
             **init_kwds,
         ),
     }

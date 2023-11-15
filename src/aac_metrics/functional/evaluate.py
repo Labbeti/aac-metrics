@@ -12,6 +12,7 @@ import torch
 
 from torch import Tensor
 
+from aac_metrics.functional.bert_score_mrefs import bert_score_mrefs
 from aac_metrics.functional.bleu import bleu, bleu_1, bleu_2, bleu_3, bleu_4
 from aac_metrics.functional.cider_d import cider_d
 from aac_metrics.functional.fense import fense
@@ -67,6 +68,7 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "fense",  # includes sbert, fer
         "spider_fl",  # includes cider_d, spice, spider, fer
         "vocab",
+        "bert_score",
     ),
 }
 DEFAULT_METRICS_SET_NAME = "default"
@@ -332,6 +334,11 @@ def _get_metric_factory_functions(
         ),
         "vocab": partial(
             vocab,
+            verbose=verbose,
+            **init_kwds,
+        ),
+        "bert_score": partial(
+            bert_score_mrefs,
             **init_kwds,
         ),
     }

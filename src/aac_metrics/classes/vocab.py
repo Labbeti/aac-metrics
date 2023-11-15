@@ -37,6 +37,7 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         tokenizer: Callable[[str], list[str]] = str.split,
         dtype: torch.dtype = torch.float64,
         pop_strategy: str = "max",
+        verbose: int = 0,
     ) -> None:
         super().__init__()
         self._return_all_scores = return_all_scores
@@ -44,6 +45,7 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         self._tokenizer = tokenizer
         self._dtype = dtype
         self._pop_strategy = pop_strategy
+        self._verbose = verbose
 
         self._candidates = []
         self._mult_references = []
@@ -57,6 +59,7 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
             tokenizer=self._tokenizer,
             dtype=self._dtype,
             pop_strategy=self._pop_strategy,
+            verbose=self._verbose,
         )
 
     def get_output_names(self) -> tuple[str, ...]:
