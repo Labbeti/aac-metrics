@@ -43,6 +43,7 @@ class BERTScoreMRefs(AACMetric):
         reset_state: bool = True,
         idf: bool = False,
         reduction: str = "max",
+        filter_nan: bool = True,
         verbose: int = 0,
     ) -> None:
         model, tokenizer = _load_model_and_tokenizer(
@@ -60,6 +61,7 @@ class BERTScoreMRefs(AACMetric):
         self._reset_state = reset_state
         self._idf = idf
         self._reduction = reduction
+        self._filter_nan = filter_nan
         self._verbose = verbose
 
         self._candidates = []
@@ -79,6 +81,7 @@ class BERTScoreMRefs(AACMetric):
             reset_state=self._reset_state,
             idf=self._idf,
             reduction=self._reduction,
+            filter_nan=self._filter_nan,
             verbose=self._verbose,
         )
 

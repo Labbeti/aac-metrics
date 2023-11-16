@@ -27,6 +27,7 @@ def bert_score_mrefs(
     reset_state: bool = True,
     idf: bool = False,
     reduction: str = "max",
+    filter_nan: bool = True,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """BERTScore metric which supports multiple references.
@@ -51,6 +52,7 @@ def bert_score_mrefs(
     :param max_length: Max length when encoding sentences to tensor ids. defaults to 64.
     :param idf: Whether or not using Inverse document frequency to ponderate the BERTScores. defaults to False.
     :param reduction: The reduction function to apply between multiple references for each audio. defaults to "mean".
+    :param filter_nan: If True, replace NaN scores by 0.0. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
@@ -135,8 +137,12 @@ def bert_score_mrefs(
         }
 
     sents_scores = {f"bert_score.{k}": v for k, v in sents_scores.items()}
-    # avoid NaN that can occur in some cases
-    sents_scores = {k: v.masked_fill(v.isnan(), 0.0) for k, v in sents_scores.items()}
+
+    if filter_nan:
+        # avoid NaN that can occur in some cases
+        sents_scores = {
+            k: v.masked_fill(v.isnan(), 0.0) for k, v in sents_scores.items()
+        }
 
     corpus_scores = {k: v.mean() for k, v in sents_scores.items()}
 
