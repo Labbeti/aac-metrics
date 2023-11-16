@@ -10,6 +10,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Rename metric `FluErr` to `FER`.
 
+### Fixed
+- METEOR localization issue. ([#9](https://github.com/Labbeti/aac-metrics/issues/9))
+
 ## [0.4.6] 2023-10-10
 ### Added
 - Argument `clean_archives` for `SPICE` download.
