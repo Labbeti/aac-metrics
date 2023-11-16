@@ -26,11 +26,12 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
     - CIDEr-D [[4]](#cider)
     - SPICE [[5]](#spice)
     - SPIDEr [[6]](#spider)
-    - SPIDEr-max [[7]](#spider-max)
-    - SBERT-sim [[8]](#fense)
-    - FER [[8]](#fense)
-    - FENSE [[8]](#fense)
-    - SPIDEr-FL [[9]](#spider-fl)
+    - BERTScore [[7]](#bertscore)
+    - SPIDEr-max [[8]](#spider-max)
+    - SBERT-sim [[9]](#fense)
+    - FER [[9]](#fense)
+    - FENSE [[9]](#fense)
+    - SPIDEr-FL [[10]](#spider-fl)
 
 ## Installation
 Install the pip package:
