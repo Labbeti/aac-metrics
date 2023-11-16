@@ -17,9 +17,9 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
 </div>
 
 ## Why using this package?
-- **Easy installation and download**
-- **Same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense) repositories**
-- **Provides the following metrics:**
+- **Easy to install and download**
+- **Produces same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense) repositories**
+- **Provides 12 different metrics:**
     - BLEU [[1]](#bleu)
     - ROUGE-L [[2]](#rouge-l)
     - METEOR [[3]](#meteor)
@@ -140,6 +140,7 @@ pyyaml >= 6.0
 tqdm >= 4.64.0
 sentence-transformers >= 2.2.2
 transformers < 4.31.0
+torchmetrics >= 0.11.4
 ```
 
 ### External requirements
