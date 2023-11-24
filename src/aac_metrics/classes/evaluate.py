@@ -23,6 +23,7 @@ from aac_metrics.classes.rouge_l import ROUGEL
 from aac_metrics.classes.sbert_sim import SBERTSim
 from aac_metrics.classes.spice import SPICE
 from aac_metrics.classes.spider import SPIDEr
+from aac_metrics.classes.spider_max import SPIDErMax
 from aac_metrics.classes.spider_fl import SPIDErFL
 from aac_metrics.classes.vocab import Vocab
 from aac_metrics.functional.evaluate import (
@@ -188,6 +189,10 @@ def _get_metric_factory_classes(
     init_kwds = init_kwds | dict(return_all_scores=return_all_scores)
 
     factory = {
+        "bert_score": lambda: BERTScoreMRefs(
+            verbose=verbose,
+            **init_kwds,
+        ),
         "bleu": lambda: BLEU(
             **init_kwds,
         ),
@@ -203,6 +208,18 @@ def _get_metric_factory_classes(
         "bleu_4": lambda: BLEU4(
             **init_kwds,
         ),
+        "cider_d": lambda: CIDErD(
+            **init_kwds,
+        ),
+        "fense": lambda: FENSE(
+            device=device,
+            verbose=verbose,
+            **init_kwds,
+        ),
+        "fer": lambda: FER(
+            device=device,
+            verbose=verbose,
+        ),
         "meteor": lambda: METEOR(
             cache_path=cache_path,
             java_path=java_path,
@@ -212,7 +229,9 @@ def _get_metric_factory_classes(
         "rouge_l": lambda: ROUGEL(
             **init_kwds,
         ),
-        "cider_d": lambda: CIDErD(
+        "sbert_sim": lambda: SBERTSim(
+            device=device,
+            verbose=verbose,
             **init_kwds,
         ),
         "spice": lambda: SPICE(
@@ -229,20 +248,6 @@ def _get_metric_factory_classes(
             verbose=verbose,
             **init_kwds,
         ),
-        "sbert_sim": lambda: SBERTSim(
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "fer": lambda: FER(
-            device=device,
-            verbose=verbose,
-        ),
-        "fense": lambda: FENSE(
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
         "spider_fl": lambda: SPIDErFL(
             cache_path=cache_path,
             java_path=java_path,
@@ -251,11 +256,14 @@ def _get_metric_factory_classes(
             verbose=verbose,
             **init_kwds,
         ),
-        "vocab": lambda: Vocab(
+        "spider_max": lambda: SPIDErMax(
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
             verbose=verbose,
             **init_kwds,
         ),
-        "bert_score": lambda: BERTScoreMRefs(
+        "vocab": lambda: Vocab(
             verbose=verbose,
             **init_kwds,
         ),

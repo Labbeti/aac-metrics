@@ -23,6 +23,7 @@ from aac_metrics.functional.sbert_sim import sbert_sim
 from aac_metrics.functional.spice import spice
 from aac_metrics.functional.spider import spider
 from aac_metrics.functional.spider_fl import spider_fl
+from aac_metrics.functional.spider_max import spider_max
 from aac_metrics.functional.vocab import vocab
 from aac_metrics.utils.checks import check_metric_inputs
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
@@ -254,6 +255,10 @@ def _get_metric_factory_functions(
     init_kwds = init_kwds | dict(return_all_scores=return_all_scores)
 
     factory = {
+        "bert_score": partial(
+            bert_score_mrefs,
+            **init_kwds,
+        ),
         "bleu": partial(
             bleu,
             **init_kwds,
@@ -274,6 +279,22 @@ def _get_metric_factory_functions(
             bleu_4,
             **init_kwds,
         ),
+        "cider_d": partial(
+            cider_d,
+            **init_kwds,
+        ),
+        "fer": partial(
+            fer,
+            device=device,
+            verbose=verbose,
+            **init_kwds,
+        ),
+        "fense": partial(
+            fense,
+            device=device,
+            verbose=verbose,
+            **init_kwds,
+        ),
         "meteor": partial(
             meteor,
             cache_path=cache_path,
@@ -285,8 +306,10 @@ def _get_metric_factory_functions(
             rouge_l,
             **init_kwds,
         ),
-        "cider_d": partial(
-            cider_d,
+        "sbert_sim": partial(
+            sbert_sim,
+            device=device,
+            verbose=verbose,
             **init_kwds,
         ),
         "spice": partial(
@@ -305,21 +328,11 @@ def _get_metric_factory_functions(
             verbose=verbose,
             **init_kwds,
         ),
-        "sbert_sim": partial(
-            sbert_sim,
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "fer": partial(
-            fer,
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "fense": partial(
-            fense,
-            device=device,
+        "spider_max": partial(
+            spider_max,
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
             verbose=verbose,
             **init_kwds,
         ),
@@ -335,10 +348,6 @@ def _get_metric_factory_functions(
         "vocab": partial(
             vocab,
             verbose=verbose,
-            **init_kwds,
-        ),
-        "bert_score": partial(
-            bert_score_mrefs,
             **init_kwds,
         ),
     }
