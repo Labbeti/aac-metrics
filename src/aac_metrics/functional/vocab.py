@@ -115,7 +115,8 @@ def _corpus_vocab(tok_sents: list[list[str]], dtype: torch.dtype) -> Tensor:
 
 
 def _sent_vocab(
-    tok_sents: list[list[str]], dtype: torch.dtype
+    tok_sents: list[list[str]],
+    dtype: torch.dtype,
 ) -> tuple[Tensor, Tensor]:
     sents_cands_vocabs = [set(sent) for sent in tok_sents]
     sent_cands_vocabs_lens = torch.as_tensor(

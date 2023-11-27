@@ -20,7 +20,7 @@ pylog = logging.getLogger(__name__)
 class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
     """VocabStats class.
 
-    For more information, see :func:`~aac_metrics.functional.vocab_stats.vocab_stats`.
+    For more information, see :func:`~aac_metrics.functional.vocab.vocab`.
     """
 
     full_state_update = False
