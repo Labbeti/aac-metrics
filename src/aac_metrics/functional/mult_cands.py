@@ -9,6 +9,9 @@ import tqdm
 from torch import Tensor
 
 
+SELECTIONS = ("max", "min", "mean")
+
+
 def mult_cands_metric(
     metric: Callable,
     metric_out_name: str,
@@ -31,7 +34,6 @@ def mult_cands_metric(
     :param **kwargs: The keywords arguments given to the metric call.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    SELECTIONS = ("max", "min", "mean")
     if selection not in SELECTIONS:
         raise ValueError(
             f"Invalid argument {selection=}. (expected one of {SELECTIONS})"
@@ -106,4 +108,5 @@ def mult_cands_metric(
     if return_all_scores:
         return outs_corpus, outs_sents
     else:
-        return outs_corpus[metric_out_name]
+        out_key = f"{metric_out_name}_{selection}"
+        return outs_corpus[out_key]

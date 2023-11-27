@@ -67,14 +67,14 @@ def spider_max(
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     return mult_cands_metric(
-        spider,
-        "spider",
-        mult_candidates,
-        mult_references,
-        return_all_scores,
-        return_all_cands_scores,
-        "max",
-        torch.mean,
+        metric=spider,
+        metric_out_name="spider",
+        mult_candidates=mult_candidates,
+        mult_references=mult_references,
+        return_all_scores=return_all_scores,
+        return_all_cands_scores=return_all_cands_scores,
+        selection="max",
+        reduction=torch.mean,
         # CIDEr args
         n=n,
         sigma=sigma,
