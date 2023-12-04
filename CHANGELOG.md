@@ -5,8 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [0.5.0] UNRELEASED
 ### Added
 - New `Vocab` metric to compute vocabulary size and vocabulary ratio.
-- New `BERTScoreMRefs` metric to compute BERTScore with multiple references.
-  
+- New `BERTScoreMRefs` metric wrapper to compute BERTScore with multiple references.
+
 ### Changed
 - Rename metric `FluErr` to `FER`.
 
