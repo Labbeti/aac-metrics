@@ -21,16 +21,7 @@ classifiers = [
 maintainers = [
     {name = "Etienne Labbé (Labbeti)", email = "labbeti.pub@gmail.com"},
 ]
-dependencies = [
-    "torch>=1.10.1",
-    "numpy>=1.21.2",
-    "pyyaml>=6.0",
-    "tqdm>=4.64.0",
-    "sentence-transformers>=2.2.2",
-    "transformers<4.31.0",
-    "torchmetrics>=0.11.4",
-]
-dynamic = ["version"]
+dynamic = ["version", "dependencies", "optional-dependencies"]
 
 [project.urls]
 Homepage = "https://pypi.org/project/aac-metrics/"
@@ -44,19 +35,11 @@ aac-metrics-download = "aac_metrics.download:_main_download"
 aac-metrics-eval = "aac_metrics.eval:_main_eval"
 aac-metrics-info = "aac_metrics.info:print_install_info"
 
-[project.optional-dependencies]
-dev = [
-    "pytest==7.1.2",
-    "flake8==4.0.1",
-    "black==22.8.0",
-    "scikit-image==0.19.2",
-    "matplotlib==3.5.2",
-    "torchmetrics>=0.10",
-]
-
 [tool.setuptools.packages.find]
 where = ["src"]  # list of folders that contain the packages (["."] by default)
 include = ["aac_metrics*"]  # package names should match these glob patterns (["*"] by default)
 
 [tool.setuptools.dynamic]
 version = {attr = "aac_metrics.__version__"}
+dependencies = {file = ["requirements.txt"]}
+optional-dependencies = {dev = { file = ["requirements-dev.txt"] }}
