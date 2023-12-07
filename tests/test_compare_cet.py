@@ -19,6 +19,7 @@ from aac_metrics.eval import load_csv_file
 from aac_metrics.utils.paths import (
     get_default_tmp_path,
 )
+from aac_metrics.download import _download_spice
 
 
 class TestCompareCaptionEvaluationTools(TestCase):
@@ -37,25 +38,31 @@ class TestCompareCaptionEvaluationTools(TestCase):
         Tuple[Dict[str, float], Dict[int, Dict[str, float]]],
     ]:
         cet_path = osp.join(osp.dirname(__file__), "caption-evaluation-tools")
-        use_shell = platform.system() == "Windows"
+        on_windows = platform.system() == "Windows"
 
-        stanford_fpath = osp.join(
+        cet_cache_path = Path(
             cet_path,
             "coco_caption",
             "pycocoevalcap",
+        )
+        stanford_fpath = cet_cache_path.joinpath(
             "spice",
             "lib",
             "stanford-corenlp-3.6.0.jar",
         )
         if not osp.isfile(stanford_fpath):
-            command = "bash get_stanford_models.sh"
-            subprocess.check_call(
-                command.split(),
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                cwd=osp.join(cet_path, "coco_caption"),
-                shell=use_shell,
-            )
+            if not on_windows:
+                # Use CET installation
+                command = ["bash", "get_stanford_models.sh"]
+                subprocess.check_call(
+                    command,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    cwd=osp.join(cet_path, "coco_caption"),
+                    shell=on_windows,
+                )
+            else:
+                _download_spice(str(cet_cache_path), clean_archives=True, verbose=2)
 
         # Append cet_path to allow imports of "caption" in eval_metrics.py.
         sys.path.append(cet_path)
