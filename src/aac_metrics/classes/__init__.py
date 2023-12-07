@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from .bleu import BLEU
+from .bleu import BLEU, BLEU1, BLEU2, BLEU3, BLEU4
 from .cider_d import CIDErD
 from .evaluate import DCASE2023Evaluate, Evaluate
 from .fense import FENSE
@@ -13,10 +13,15 @@ from .spice import SPICE
 from .spider import SPIDEr
 from .spider_fl import SPIDErFL
 from .spider_max import SPIDErMax
+from .vocab import Vocab
 
 
 __all__ = [
     "BLEU",
+    "BLEU1",
+    "BLEU2",
+    "BLEU3",
+    "BLEU4",
     "CIDErD",
     "DCASE2023Evaluate",
     "Evaluate",
@@ -29,4 +34,5 @@ __all__ = [
     "SPIDEr",
     "SPIDErFL",
     "SPIDErMax",
+    "Vocab",
 ]
