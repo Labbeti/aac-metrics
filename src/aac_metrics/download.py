@@ -234,7 +234,7 @@ def _download_spice(
     try:
         check_spice_install(cache_path)
         return None
-    except (FileNotFoundError, NotADirectoryError):
+    except (FileNotFoundError, NotADirectoryError, PermissionError):
         pass
 
     # Download JAR files for SPICE metric

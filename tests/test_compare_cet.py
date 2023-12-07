@@ -4,6 +4,7 @@
 import importlib
 import os.path as osp
 import platform
+import shutil
 import subprocess
 import sys
 import unittest
@@ -62,7 +63,14 @@ class TestCompareCaptionEvaluationTools(TestCase):
                     shell=on_windows,
                 )
             else:
+                # Use aac-metrics SPICE installation, but it requires to move some files after
                 _download_spice(str(cet_cache_path), clean_archives=True, verbose=2)
+                shutil.copytree(
+                    cet_cache_path.joinpath("aac-metrics", "spice"),
+                    cet_cache_path.joinpath("spice"),
+                    dirs_exist_ok=True,
+                )
+                shutil.rmtree(cet_cache_path.joinpath("aac-metrics"))
 
         # Append cet_path to allow imports of "caption" in eval_metrics.py.
         sys.path.append(cet_path)
@@ -114,7 +122,7 @@ class TestCompareCaptionEvaluationTools(TestCase):
         # if platform.system() == "Windows":
         #     return None
 
-        corpus_scores, _ = evaluate(cands, mrefs, metrics="dcase2020")
+        corpus_scores, _ = evaluate(cands, mrefs, metrics="dcase2020", preprocess=True)
 
         self.assertIsInstance(corpus_scores, dict)
 
