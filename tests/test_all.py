@@ -11,10 +11,6 @@ from aac_metrics.functional.evaluate import evaluate
 
 class TestAll(TestCase):
     def test_example_1(self) -> None:
-        # TODO : remove old check
-        # if platform.system() == "Windows":
-        #     return None
-
         cands: list[str] = ["a man is speaking", "rain falls"]
         mrefs: list[list[str]] = [
             [

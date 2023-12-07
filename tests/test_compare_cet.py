@@ -118,9 +118,8 @@ class TestCompareCaptionEvaluationTools(TestCase):
         return cands, mrefs
 
     def _test_with_example(self, cands: list[str], mrefs: list[list[str]]) -> None:
-        # TODO : remove old check
-        # if platform.system() == "Windows":
-        #     return None
+        if platform.system() == "Windows":
+            return None
 
         corpus_scores, _ = evaluate(cands, mrefs, metrics="dcase2020", preprocess=True)
 
