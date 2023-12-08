@@ -13,7 +13,7 @@ from typing import Any, Hashable, Iterable, Optional, Union
 
 from aac_metrics.utils.checks import check_java_path, is_mono_sents
 from aac_metrics.utils.collections import flat_list, unflat_list
-from aac_metrics.utils.paths import (
+from aac_metrics.utils.globals import (
     _get_cache_path,
     _get_java_path,
     _get_tmp_path,

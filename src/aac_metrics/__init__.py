@@ -28,7 +28,7 @@ from .classes.spider_fl import SPIDErFL
 from .classes.spider_max import SPIDErMax
 from .classes.vocab import Vocab
 from .functional.evaluate import evaluate, dcase2023_evaluate
-from .utils.paths import (
+from .utils.globals import (
     get_default_cache_path,
     get_default_java_path,
     get_default_tmp_path,

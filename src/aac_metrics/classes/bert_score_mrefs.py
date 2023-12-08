@@ -47,7 +47,11 @@ class BERTScoreMRefs(AACMetric):
         verbose: int = 0,
     ) -> None:
         model, tokenizer = _load_model_and_tokenizer(
-            model, None, device, reset_state, verbose
+            model=model,
+            tokenizer=None,
+            device=device,
+            reset_state=reset_state,
+            verbose=verbose,
         )
 
         super().__init__()

@@ -15,6 +15,8 @@ import torch
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
 
+from aac_metrics.utils.globals import _get_device
+
 
 pylog = logging.getLogger(__name__)
 
@@ -91,11 +93,7 @@ def _load_sbert(
 ) -> SentenceTransformer:
     state = torch.random.get_rng_state()
 
-    if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(device, str):
-        device = torch.device(device)
-
+    device = _get_device(device)
     if isinstance(sbert_model, str):
         sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
     sbert_model.to(device=device)

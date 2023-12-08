@@ -19,7 +19,7 @@ from aac_metrics.functional.evaluate import (
 )
 from aac_metrics.utils.checks import check_metric_inputs, check_java_path
 from aac_metrics.utils.cmdline import _str_to_bool, _str_to_opt_str, _setup_logging
-from aac_metrics.utils.paths import (
+from aac_metrics.utils.globals import (
     get_default_cache_path,
     get_default_java_path,
     get_default_tmp_path,

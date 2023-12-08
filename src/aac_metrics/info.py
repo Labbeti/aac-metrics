@@ -13,7 +13,7 @@ import yaml
 import aac_metrics
 
 from aac_metrics.utils.checks import _get_java_version
-from aac_metrics.utils.paths import (
+from aac_metrics.utils.globals import (
     get_default_cache_path,
     get_default_java_path,
     get_default_tmp_path,

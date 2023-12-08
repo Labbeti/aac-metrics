@@ -25,7 +25,7 @@ from aac_metrics.functional.spice import (
     check_spice_install,
 )
 from aac_metrics.utils.cmdline import _str_to_bool, _setup_logging
-from aac_metrics.utils.paths import (
+from aac_metrics.utils.globals import (
     _get_cache_path,
     _get_tmp_path,
     get_default_cache_path,
