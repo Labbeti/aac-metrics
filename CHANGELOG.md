@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.5.0] UNRELEASED
+## [0.5.0] 2023-12-08
 ### Added
 - New `Vocab` metric to compute vocabulary size and vocabulary ratio.
 - New `BERTScoreMRefs` metric wrapper to compute BERTScore with multiple references.

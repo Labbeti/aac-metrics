@@ -1,7 +1,7 @@
-aac\_metrics.classes.fluerr module
+aac\_metrics.functional.fer module
 ==================================
 
-.. automodule:: aac_metrics.classes.fluerr
+.. automodule:: aac_metrics.functional.fer
    :members:
    :undoc-members:
    :show-inheritance:
