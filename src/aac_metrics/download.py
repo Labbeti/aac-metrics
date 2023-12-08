@@ -5,21 +5,26 @@ import logging
 import os
 import os.path as osp
 import shutil
-import sys
 
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
+from typing import Union
 from zipfile import ZipFile
 
 from torch.hub import download_url_to_file
 
+import aac_metrics
+
+from aac_metrics.classes.bert_score_mrefs import BERTScoreMRefs
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.functional.meteor import DNAME_METEOR_CACHE
 from aac_metrics.functional.spice import (
-    FNAME_SPICE_JAR,
-    DNAME_SPICE_LOCAL_CACHE,
     DNAME_SPICE_CACHE,
+    DNAME_SPICE_LOCAL_CACHE,
+    FNAME_SPICE_JAR,
     check_spice_install,
 )
+from aac_metrics.utils.cmdline import _str_to_bool, _setup_logging
 from aac_metrics.utils.paths import (
     _get_cache_path,
     _get_tmp_path,
@@ -74,18 +79,17 @@ DATA_URLS = {
         "fname": osp.join("SPICE-1.0", "stanford-corenlp-full-2015-12-09.zip"),
     },
 }
-_TRUE_VALUES = ("true", "1", "t")
-_FALSE_VALUES = ("false", "0", "f")
 
 
 def download_metrics(
-    cache_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     clean_archives: bool = True,
     ptb_tokenizer: bool = True,
     meteor: bool = True,
     spice: bool = True,
     fense: bool = True,
+    bert_score: bool = True,
     verbose: int = 0,
 ) -> None:
     """Download the code needed for SPICE, METEOR, PTB Tokenizer and FENSE.
@@ -97,6 +101,7 @@ def download_metrics(
     :param meteor: If True, downloads the METEOR code in cache directory. defaults to True.
     :param spice: If True, downloads the SPICE code in cache directory. defaults to True.
     :param fense: If True, downloads the FENSE models. defaults to True.
+    :param bert_score: If True, downloads the BERTScore model. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     """
     if verbose >= 1:
@@ -124,6 +129,9 @@ def download_metrics(
 
     if fense:
         _download_fense(verbose)
+
+    if bert_score:
+        _download_bert_score(verbose)
 
     if verbose >= 1:
         pylog.info("aac-metrics download finished.")
@@ -226,7 +234,7 @@ def _download_spice(
     try:
         check_spice_install(cache_path)
         return None
-    except (FileNotFoundError, NotADirectoryError):
+    except (FileNotFoundError, NotADirectoryError, PermissionError):
         pass
 
     # Download JAR files for SPICE metric
@@ -315,6 +323,15 @@ def _download_fense(
     _ = FENSE(device="cpu")
 
 
+def _download_bert_score(
+    verbose: int = 0,
+) -> None:
+    # Download models files for BERTScore metric
+    if verbose >= 1:
+        pylog.info("Downloading BERT model for BERTScore metric...")
+    _ = BERTScoreMRefs(device="cpu")
+
+
 def _get_main_download_args() -> Namespace:
     parser = ArgumentParser(
         description="Download models and external code to evaluate captions."
@@ -368,33 +385,9 @@ def _get_main_download_args() -> Namespace:
     return args
 
 
-def _setup_logging(verbose: int = 1) -> None:
-    format_ = "[%(asctime)s][%(name)s][%(levelname)s] - %(message)s"
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(format_))
-    pkg_logger = logging.getLogger("aac_metrics")
-
-    found = False
-    for handler in pkg_logger.handlers:
-        if isinstance(handler, logging.StreamHandler) and handler.stream is sys.stdout:
-            found = True
-            break
-    if not found:
-        pkg_logger.addHandler(handler)
-
-    if verbose <= 0:
-        level = logging.WARNING
-    elif verbose == 1:
-        level = logging.INFO
-    else:
-        level = logging.DEBUG
-    pkg_logger.setLevel(level)
-
-
 def _main_download() -> None:
     args = _get_main_download_args()
-
-    _setup_logging(args.verbose)
+    _setup_logging(aac_metrics.__package__, args.verbose)
 
     download_metrics(
         cache_path=args.cache_path,
@@ -406,18 +399,6 @@ def _main_download() -> None:
         fense=args.fense,
         verbose=args.verbose,
     )
-
-
-def _str_to_bool(s: str) -> bool:
-    s = str(s).strip().lower()
-    if s in _TRUE_VALUES:
-        return True
-    elif s in _FALSE_VALUES:
-        return False
-    else:
-        raise ValueError(
-            f"Invalid argument {s=}. (expected one of {_TRUE_VALUES + _FALSE_VALUES})"
-        )
 
 
 if __name__ == "__main__":

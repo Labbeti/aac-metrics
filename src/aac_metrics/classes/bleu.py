@@ -63,7 +63,9 @@ class BLEU(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]
         )
 
     def extra_repr(self) -> str:
-        return f"n={self._n}"
+        hparams = {"n": self._n}
+        repr_ = ", ".join(f"{k}={v}" for k, v in hparams.items())
+        return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
         return (f"bleu_{self._n}",)
@@ -96,7 +98,13 @@ class BLEU1(BLEU):
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
-        super().__init__(return_all_scores, 1, option, verbose, tokenizer)
+        super().__init__(
+            return_all_scores=return_all_scores,
+            n=1,
+            option=option,
+            verbose=verbose,
+            tokenizer=tokenizer,
+        )
 
 
 class BLEU2(BLEU):
@@ -107,7 +115,13 @@ class BLEU2(BLEU):
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
-        super().__init__(return_all_scores, 2, option, verbose, tokenizer)
+        super().__init__(
+            return_all_scores=return_all_scores,
+            n=2,
+            option=option,
+            verbose=verbose,
+            tokenizer=tokenizer,
+        )
 
 
 class BLEU3(BLEU):
@@ -118,7 +132,13 @@ class BLEU3(BLEU):
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
-        super().__init__(return_all_scores, 3, option, verbose, tokenizer)
+        super().__init__(
+            return_all_scores=return_all_scores,
+            n=3,
+            option=option,
+            verbose=verbose,
+            tokenizer=tokenizer,
+        )
 
 
 class BLEU4(BLEU):
@@ -129,4 +149,10 @@ class BLEU4(BLEU):
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
-        super().__init__(return_all_scores, 4, option, verbose, tokenizer)
+        super().__init__(
+            return_all_scores=return_all_scores,
+            n=4,
+            option=option,
+            verbose=verbose,
+            tokenizer=tokenizer,
+        )

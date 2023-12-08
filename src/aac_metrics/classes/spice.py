@@ -3,6 +3,7 @@
 
 import logging
 
+from pathlib import Path
 from typing import Iterable, Optional, Union
 
 from torch import Tensor
@@ -32,9 +33,9 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
     def __init__(
         self,
         return_all_scores: bool = True,
-        cache_path: str = ...,
-        java_path: str = ...,
-        tmp_path: str = ...,
+        cache_path: Union[str, Path, None] = None,
+        java_path: Union[str, Path, None] = None,
+        tmp_path: Union[str, Path, None] = None,
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,
@@ -74,7 +75,9 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         )
 
     def extra_repr(self) -> str:
-        return f"java_max_memory={self._java_max_memory}"
+        hparams = {"java_max_memory": self._java_max_memory}
+        repr_ = ", ".join(f"{k}={v}" for k, v in hparams.items())
+        return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
         return ("spice",)

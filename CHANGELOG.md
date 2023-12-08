@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] 2023-12-08
+### Added
+- New `Vocab` metric to compute vocabulary size and vocabulary ratio.
+- New `BERTScoreMRefs` metric wrapper to compute BERTScore with multiple references.
+
+### Changed
+- Rename metric `FluErr` to `FER`.
+
+### Fixed
+- `METEOR` localization issue. ([#9](https://github.com/Labbeti/aac-metrics/issues/9))
+- `SPIDErMax` output when `return_all_scores=False`.
+
 ## [0.4.6] 2023-10-10
 ### Added
 - Argument `clean_archives` for `SPICE` download.

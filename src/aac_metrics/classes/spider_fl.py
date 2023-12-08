@@ -3,6 +3,7 @@
 
 import logging
 
+from pathlib import Path
 from typing import Iterable, Optional, Union
 
 import torch
@@ -11,7 +12,7 @@ from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.fluerr import (
+from aac_metrics.functional.fer import (
     BERTFlatClassifier,
     _load_echecker_and_tokenizer,
 )
@@ -41,9 +42,9 @@ class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
         n: int = 4,
         sigma: float = 6.0,
         # SPICE args
-        cache_path: str = ...,
-        java_path: str = ...,
-        tmp_path: str = ...,
+        cache_path: Union[str, Path, None] = None,
+        java_path: Union[str, Path, None] = None,
+        tmp_path: Union[str, Path, None] = None,
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,
@@ -126,7 +127,7 @@ class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
         return extra
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("cider_d", "spice", "spider", "spider_fl", "fluerr")
+        return ("cider_d", "spice", "spider", "spider_fl", "fer")
 
     def reset(self) -> None:
         self._candidates = []

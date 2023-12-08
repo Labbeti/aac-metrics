@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import platform
 import unittest
 
 from unittest import TestCase
@@ -18,9 +17,6 @@ from aac_metrics.utils.tokenization import (
 
 class TestReadmeExamples(TestCase):
     def test_example_1(self) -> None:
-        if platform.system() == "Windows":
-            return None
-
         candidates: list[str] = ["a man is speaking", "rain falls"]
         mult_references: list[list[str]] = [
             [
@@ -58,9 +54,6 @@ class TestReadmeExamples(TestCase):
         )
 
     def test_example_2(self) -> None:
-        if platform.system() == "Windows":
-            return None
-
         candidates: list[str] = ["a man is speaking", "rain falls"]
         mult_references: list[list[str]] = [
             [
@@ -73,9 +66,9 @@ class TestReadmeExamples(TestCase):
 
         corpus_scores, _ = evaluate(candidates, mult_references, metrics="dcase2023")
         # print(corpus_scores)
-        # dict containing the score of each metric: "meteor", "cider_d", "spice", "spider", "spider_fl", "fluerr"
+        # dict containing the score of each metric: "meteor", "cider_d", "spice", "spider", "spider_fl", "fer"
 
-        expected_keys = ["meteor", "cider_d", "spice", "spider", "spider_fl", "fluerr"]
+        expected_keys = ["meteor", "cider_d", "spice", "spider", "spider_fl", "fer"]
         self.assertTrue(set(corpus_scores.keys()).issuperset(expected_keys))
 
     def test_example_3(self) -> None:

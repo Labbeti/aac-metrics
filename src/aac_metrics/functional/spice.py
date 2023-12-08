@@ -13,6 +13,7 @@ import subprocess
 import tempfile
 import time
 
+from pathlib import Path
 from subprocess import CalledProcessError
 from tempfile import NamedTemporaryFile
 from typing import Any, Iterable, Optional, Union
@@ -42,9 +43,9 @@ def spice(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,

@@ -3,6 +3,7 @@
 
 import logging
 
+from pathlib import Path
 from typing import Iterable, Optional, Union
 
 from torch import Tensor
@@ -37,9 +38,9 @@ class SPIDErMax(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Ten
         n: int = 4,
         sigma: float = 6.0,
         # SPICE args
-        cache_path: str = ...,
-        java_path: str = ...,
-        tmp_path: str = ...,
+        cache_path: Union[str, Path, None] = None,
+        java_path: Union[str, Path, None] = None,
+        tmp_path: Union[str, Path, None] = None,
         n_threads: Optional[int] = None,
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,
@@ -79,9 +80,13 @@ class SPIDErMax(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Ten
         )
 
     def extra_repr(self) -> str:
-        return (
-            f"n={self._n}, sigma={self._sigma}, java_max_memory={self._java_max_memory}"
-        )
+        hparams = {
+            "n": self._n,
+            "sigma": self._sigma,
+            "java_max_memory": self._java_max_memory,
+        }
+        repr_ = ", ".join(f"{k}={v}" for k, v in hparams.items())
+        return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
         return ("spider_max",)

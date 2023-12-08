@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-BASED ON https://github.com/blmoistawinde/fense/
+Original based on https://github.com/blmoistawinde/fense/
 """
 
 import logging
 
+from pathlib import Path
 from typing import Callable, Iterable, Optional, Union
 
 import torch
@@ -14,8 +15,8 @@ import torch
 from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
-from aac_metrics.functional.fluerr import (
-    fluerr,
+from aac_metrics.functional.fer import (
+    fer,
     _load_echecker_and_tokenizer,
     BERTFlatClassifier,
 )
@@ -35,9 +36,9 @@ def spider_fl(
     tokenizer: Callable[[str], list[str]] = str.split,
     return_tfidf: bool = False,
     # SPICE args
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
@@ -96,15 +97,43 @@ def spider_fl(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-
     # Init models
     echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
-        echecker, echecker_tokenizer, device, reset_state, verbose
+        echecker=echecker,
+        echecker_tokenizer=echecker_tokenizer,
+        device=device,
+        reset_state=reset_state,
+        verbose=verbose,
     )
-
-    spider_outs: tuple = spider(candidates, mult_references, True, n, sigma, tokenizer, return_tfidf, cache_path, java_path, tmp_path, n_threads, java_max_memory, timeout, verbose)  # type: ignore
-    fluerr_outs: tuple = fluerr(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, reset_state, return_probs, verbose)  # type: ignore
-    spider_fl_outs = _spider_fl_from_outputs(spider_outs, fluerr_outs, penalty)
+    spider_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = spider(  # type: ignore
+        candidates=candidates,
+        mult_references=mult_references,
+        return_all_scores=True,
+        n=n,
+        sigma=sigma,
+        tokenizer=tokenizer,
+        return_tfidf=return_tfidf,
+        cache_path=cache_path,
+        java_path=java_path,
+        tmp_path=tmp_path,
+        n_threads=n_threads,
+        java_max_memory=java_max_memory,
+        timeout=timeout,
+        verbose=verbose,
+    )
+    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = fer(  # type: ignore
+        candidates=candidates,
+        return_all_scores=True,
+        echecker=echecker,
+        echecker_tokenizer=echecker_tokenizer,
+        error_threshold=error_threshold,
+        device=device,
+        batch_size=batch_size,
+        reset_state=reset_state,
+        return_probs=return_probs,
+        verbose=verbose,
+    )
+    spider_fl_outs = _spider_fl_from_outputs(spider_outs, fer_outs, penalty)
 
     if return_all_scores:
         return spider_fl_outs
@@ -114,26 +143,26 @@ def spider_fl(
 
 def _spider_fl_from_outputs(
     spider_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
-    fluerr_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
     penalty: float = 0.9,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
-    """Combines SPIDEr and FluErr outputs.
+    """Combines SPIDEr and FER outputs.
 
     Based on https://github.com/felixgontier/dcase-2023-baseline/blob/main/metrics.py#L48
     """
     spider_outs_corpus, spider_outs_sents = spider_outs
-    fluerr_outs_corpus, fluerr_outs_sents = fluerr_outs
+    fer_outs_corpus, fer_outs_sents = fer_outs
 
     spider_scores = spider_outs_sents["spider"]
-    fluerr_scores = fluerr_outs_sents["fluerr"]
-    spider_fl_scores = spider_scores * (1.0 - penalty * fluerr_scores)
+    fer_scores = fer_outs_sents["fer"]
+    spider_fl_scores = spider_scores * (1.0 - penalty * fer_scores)
     spider_fl_score = spider_fl_scores.mean()
 
     spider_fl_outs_corpus = (
-        spider_outs_corpus | fluerr_outs_corpus | {"spider_fl": spider_fl_score}
+        spider_outs_corpus | fer_outs_corpus | {"spider_fl": spider_fl_score}
     )
     spider_fl_outs_sents = (
-        spider_outs_sents | fluerr_outs_sents | {"spider_fl": spider_fl_scores}
+        spider_outs_sents | fer_outs_sents | {"spider_fl": spider_fl_scores}
     )
     spider_fl_outs = spider_fl_outs_corpus, spider_fl_outs_sents
 

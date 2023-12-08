@@ -8,7 +8,8 @@ import subprocess
 import tempfile
 import time
 
-from typing import Any, Hashable, Iterable, Optional
+from pathlib import Path
+from typing import Any, Hashable, Iterable, Optional, Union
 
 from aac_metrics.utils.checks import check_java_path, is_mono_sents
 from aac_metrics.utils.collections import flat_list, unflat_list
@@ -24,7 +25,9 @@ pylog = logging.getLogger(__name__)
 
 # Path to the stanford corenlp jar
 FNAME_STANFORD_CORENLP_3_4_1_JAR = osp.join(
-    "aac-metrics", "stanford_nlp", "stanford-corenlp-3.4.1.jar"
+    "aac-metrics",
+    "stanford_nlp",
+    "stanford-corenlp-3.4.1.jar",
 )
 # Punctuations to be removed from the sentences
 PTB_PUNCTUATIONS = (
@@ -51,9 +54,9 @@ PTB_PUNCTUATIONS = (
 def ptb_tokenize_batch(
     sentences: Iterable[str],
     audio_ids: Optional[Iterable[Hashable]] = None,
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     normalize_apostrophe: bool = False,
     verbose: int = 0,
@@ -61,7 +64,7 @@ def ptb_tokenize_batch(
     """Use PTB Tokenizer to process sentences. Should be used only with all the sentences of a subset due to slow computation.
 
     :param sentences: The sentences to tokenize.
-    :param audio_ids: The optional audio names. None will use the audio index as name. defaults to None.
+    :param audio_ids: The optional audio names for the PTB Tokenizer program. None will use the audio index as name. defaults to None.
     :param cache_path: The path to the external directory containing the JAR program. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
     :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
     :param tmp_path: The path to a temporary directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
@@ -191,9 +194,9 @@ def ptb_tokenize_batch(
 
 def preprocess_mono_sents(
     sentences: list[str],
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     normalize_apostrophe: bool = False,
     verbose: int = 0,
@@ -229,9 +232,9 @@ def preprocess_mono_sents(
 
 def preprocess_mult_sents(
     mult_sentences: list[list[str]],
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     punctuations: Iterable[str] = PTB_PUNCTUATIONS,
     normalize_apostrophe: bool = False,
     verbose: int = 0,
@@ -246,8 +249,6 @@ def preprocess_mult_sents(
     :param verbose: The verbose level. defaults to 0.
     :returns: The multiple sentences processed by the tokenizer.
     """
-
-    # Flat list
     flatten_sents, sizes = flat_list(mult_sentences)
     flatten_sents = preprocess_mono_sents(
         sentences=flatten_sents,

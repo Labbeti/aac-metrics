@@ -16,8 +16,8 @@ from sentence_transformers import SentenceTransformer
 from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
-from aac_metrics.functional.fluerr import (
-    fluerr,
+from aac_metrics.functional.fer import (
+    fer,
     _load_echecker_and_tokenizer,
     BERTFlatClassifier,
 )
@@ -74,12 +74,36 @@ def fense(
 
     # Init models
     sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(
-        sbert_model, echecker, echecker_tokenizer, device, reset_state, verbose
+        sbert_model=sbert_model,
+        echecker=echecker,
+        echecker_tokenizer=echecker_tokenizer,
+        device=device,
+        reset_state=reset_state,
+        verbose=verbose,
     )
-
-    sbert_sim_outs: tuple = sbert_sim(candidates, mult_references, True, sbert_model, device, batch_size, reset_state, verbose)  # type: ignore
-    fluerr_outs: tuple = fluerr(candidates, True, echecker, echecker_tokenizer, error_threshold, device, batch_size, reset_state, return_probs, verbose)  # type: ignore
-    fense_outs = _fense_from_outputs(sbert_sim_outs, fluerr_outs, penalty)
+    sbert_sim_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = sbert_sim(  # type: ignore
+        candidates=candidates,
+        mult_references=mult_references,
+        return_all_scores=True,
+        sbert_model=sbert_model,
+        device=device,
+        batch_size=batch_size,
+        reset_state=reset_state,
+        verbose=verbose,
+    )
+    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = fer(  # type: ignore
+        candidates=candidates,
+        return_all_scores=True,
+        echecker=echecker,
+        echecker_tokenizer=echecker_tokenizer,
+        error_threshold=error_threshold,
+        device=device,
+        batch_size=batch_size,
+        reset_state=reset_state,
+        return_probs=return_probs,
+        verbose=verbose,
+    )
+    fense_outs = _fense_from_outputs(sbert_sim_outs, fer_outs, penalty)
 
     if return_all_scores:
         return fense_outs
@@ -89,30 +113,28 @@ def fense(
 
 def _fense_from_outputs(
     sbert_sim_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
-    fluerr_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
-    penalty: float,
+    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    penalty: float = 0.9,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
-    """Combines SBERT and FluErr outputs.
+    """Combines SBERT and FER outputs.
 
     Based on https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L121
     """
     sbert_sim_outs_corpus, sbert_sim_outs_sents = sbert_sim_outs
-    fluerr_outs_corpus, fluerr_outs_sents = fluerr_outs
+    fer_outs_corpus, fer_outs_sents = fer_outs
 
     sbert_sims_scores = sbert_sim_outs_sents["sbert_sim"]
-    fluerr_scores = fluerr_outs_sents["fluerr"]
-    fense_scores = sbert_sims_scores * (1.0 - penalty * fluerr_scores)
+    fer_scores = fer_outs_sents["fer"]
+    fense_scores = sbert_sims_scores * (1.0 - penalty * fer_scores)
     fense_score = torch.as_tensor(
-        fense_scores.cpu().numpy().mean(),
+        fense_scores.cpu()
+        .numpy()
+        .mean(),  # note: use numpy mean to keep the same values than the original fense
         device=fense_scores.device,
     )
 
-    fense_outs_corpus = (
-        sbert_sim_outs_corpus | fluerr_outs_corpus | {"fense": fense_score}
-    )
-    fense_outs_sents = (
-        sbert_sim_outs_sents | fluerr_outs_sents | {"fense": fense_scores}
-    )
+    fense_outs_corpus = sbert_sim_outs_corpus | fer_outs_corpus | {"fense": fense_score}
+    fense_outs_sents = sbert_sim_outs_sents | fer_outs_sents | {"fense": fense_scores}
     fense_outs = fense_outs_corpus, fense_outs_sents
 
     return fense_outs

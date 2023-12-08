@@ -33,7 +33,7 @@ class TestBleu(TestCase):
         n = 2
 
         bleu_v1 = BLEU(n=n, return_all_scores=False)
-        score_v1 = bleu_v1(cands, mrefs)
+        score_v1: Tensor = bleu_v1(cands, mrefs)  # type: ignore
 
         bleu_v2 = BLEUScore(n_gram=n, smooth=False)
         score_v2 = bleu_v2(cands, mrefs)

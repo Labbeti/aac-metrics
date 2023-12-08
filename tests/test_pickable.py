@@ -18,7 +18,7 @@ class TestCompare(TestCase):
             try:
                 pickle.dumps(metric)
             except pickle.PicklingError:
-                self.assert_(False, f"Cannot pickle {metric.__class__.__name__}.")
+                self.assertTrue(False, f"Cannot pickle {metric.__class__.__name__}.")
 
 
 if __name__ == "__main__":

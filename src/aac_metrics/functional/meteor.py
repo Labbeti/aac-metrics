@@ -8,8 +8,9 @@ import os.path as osp
 import platform
 import subprocess
 
+from pathlib import Path
 from subprocess import Popen
-from typing import Optional, Union
+from typing import Iterable, Optional, Union
 
 import torch
 
@@ -31,11 +32,13 @@ def meteor(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    cache_path: str = ...,
-    java_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
     java_max_memory: str = "2G",
     language: str = "en",
     use_shell: Optional[bool] = None,
+    params: Optional[Iterable[float]] = None,
+    weights: Optional[Iterable[float]] = None,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Metric for Evaluation of Translation with Explicit ORdering function.
@@ -56,6 +59,12 @@ def meteor(
         defaults to "en".
     :param use_shell: Optional argument to force use os-specific shell for the java subprogram.
         If None, it will use shell only on Windows OS.
+        defaults to None.
+    :param params: List of 4 parameters (alpha, beta gamma delta) used in METEOR metric.
+        If None, it will use the default of the java program, which is (0.85, 0.2, 0.6, 0.75).
+        defaults to None.
+    :param weights: List of 4 parameters (w1, w2, w3, w4) used in METEOR metric.
+        If None, it will use the default of the java program, which is (1.0 1.0 0.6 0.8).
         defaults to None.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
@@ -88,8 +97,11 @@ def meteor(
             f"Invalid argument {language=}. (expected one of {SUPPORTED_LANGUAGES})"
         )
 
+    # Note: override localization to avoid errors due to double conversion (https://github.com/Labbeti/aac-metrics/issues/9)
     meteor_cmd = [
         java_path,
+        "-Duser.country=US",
+        "-Duser.language=en",
         "-jar",
         f"-Xmx{java_max_memory}",
         meteor_jar_fpath,
@@ -100,6 +112,24 @@ def meteor(
         language,
         "-norm",
     ]
+
+    if params is not None:
+        params = list(params)
+        if len(params) != 4:
+            raise ValueError(
+                f"Invalid argument {params=}. (expected 4 params but found {len(params)})"
+            )
+        params_arg = " ".join(map(str, params))
+        meteor_cmd += ["-p", f"{params_arg}"]
+
+    if weights is not None:
+        weights = list(weights)
+        if len(weights) != 4:
+            raise ValueError(
+                f"Invalid argument {weights=}. (expected 4 params but found {len(weights)})"
+            )
+        weights_arg = " ".join(map(str, weights))
+        meteor_cmd += ["-w", f"{weights_arg}"]
 
     if verbose >= 2:
         pylog.debug(
@@ -116,7 +146,7 @@ def meteor(
 
     n_candidates = len(candidates)
     encoded_cands_and_mrefs = [
-        encore_cand_and_refs(cand, refs)
+        _encode_cand_and_refs(cand, refs)
         for cand, refs in zip(candidates, mult_references)
     ]
     del candidates, mult_references
@@ -135,16 +165,33 @@ def meteor(
     assert meteor_process.stdin is not None, "INTERNAL METEOR process error"
     if verbose >= 3:
         pylog.debug(f"Write line {eval_line=}.")
-    meteor_process.stdin.write("{}\n".format(eval_line).encode())
+
+    process_inputs = "{}\n".format(eval_line).encode()
+    meteor_process.stdin.write(process_inputs)
     meteor_process.stdin.flush()
 
     # Read scores
     assert meteor_process.stdout is not None, "INTERNAL METEOR process error"
     meteor_scores = []
-    for _ in range(n_candidates):
-        meteor_scores_i = float(meteor_process.stdout.readline().strip())
+    for i in range(n_candidates):
+        process_out_i = meteor_process.stdout.readline().strip()
+        try:
+            meteor_scores_i = float(process_out_i)
+        except ValueError as err:
+            pylog.error(
+                f"Invalid METEOR stdout. (cannot convert sentence score to float {process_out_i=} with {i=})"
+            )
+            raise err
         meteor_scores.append(meteor_scores_i)
-    meteor_score = float(meteor_process.stdout.readline().strip())
+
+    process_out = meteor_process.stdout.readline().strip()
+    try:
+        meteor_score = float(process_out)
+    except ValueError as err:
+        pylog.error(
+            f"Invalid METEOR stdout. (cannot convert global score to float {process_out=})"
+        )
+        raise err
 
     meteor_process.stdin.close()
     meteor_process.kill()
@@ -167,7 +214,7 @@ def meteor(
         return meteor_score
 
 
-def encore_cand_and_refs(candidate: str, references: list[str]) -> bytes:
+def _encode_cand_and_refs(candidate: str, references: list[str]) -> bytes:
     # SCORE ||| reference 1 words ||| ... ||| reference N words ||| candidate words
     candidate = candidate.replace("|||", "").replace("  ", " ")
     score_line = " ||| ".join(("SCORE", " ||| ".join(references), candidate))

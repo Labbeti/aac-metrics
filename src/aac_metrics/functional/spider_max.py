@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from pathlib import Path
 from typing import Callable, Iterable, Optional, Union
 
 import torch
@@ -22,9 +23,9 @@ def spider_max(
     tokenizer: Callable[[str], list[str]] = str.split,
     return_tfidf: bool = False,
     # SPICE args
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     n_threads: Optional[int] = None,
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
@@ -66,14 +67,14 @@ def spider_max(
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     return mult_cands_metric(
-        spider,
-        "spider",
-        mult_candidates,
-        mult_references,
-        return_all_scores,
-        return_all_cands_scores,
-        "max",
-        torch.mean,
+        metric=spider,
+        metric_out_name="spider",
+        mult_candidates=mult_candidates,
+        mult_references=mult_references,
+        return_all_scores=return_all_scores,
+        return_all_cands_scores=return_all_cands_scores,
+        selection="max",
+        reduction=torch.mean,
         # CIDEr args
         n=n,
         sigma=sigma,

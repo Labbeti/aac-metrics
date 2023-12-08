@@ -7,7 +7,7 @@ from importlib.util import find_spec
 
 @cache
 def _package_is_available(package_name: str) -> bool:
-    """Returns True if package is installed."""
+    """Returns True if package is installed in the current python environment."""
     try:
         return find_spec(package_name) is not None
     except AttributeError:

@@ -10,14 +10,14 @@ __license__ = "MIT"
 __maintainer__ = "Etienne Labbé (Labbeti)"
 __name__ = "aac-metrics"
 __status__ = "Development"
-__version__ = "0.4.6"
+__version__ = "0.5.0"
 
 
 from .classes.base import AACMetric
 from .classes.bleu import BLEU
 from .classes.cider_d import CIDErD
 from .classes.evaluate import Evaluate, DCASE2023Evaluate, _get_metric_factory_classes
-from .classes.fluerr import FluErr
+from .classes.fer import FER
 from .classes.fense import FENSE
 from .classes.meteor import METEOR
 from .classes.rouge_l import ROUGEL
@@ -26,6 +26,7 @@ from .classes.spice import SPICE
 from .classes.spider import SPIDEr
 from .classes.spider_fl import SPIDErFL
 from .classes.spider_max import SPIDErMax
+from .classes.vocab import Vocab
 from .functional.evaluate import evaluate, dcase2023_evaluate
 from .utils.paths import (
     get_default_cache_path,
@@ -44,7 +45,7 @@ __all__ = [
     "Evaluate",
     "DCASE2023Evaluate",
     "FENSE",
-    "FluErr",
+    "FER",
     "METEOR",
     "ROUGEL",
     "SBERTSim",
@@ -52,6 +53,7 @@ __all__ = [
     "SPIDEr",
     "SPIDErFL",
     "SPIDErMax",
+    "Vocab",
     "evaluate",
     "dcase2023_evaluate",
     "get_default_cache_path",

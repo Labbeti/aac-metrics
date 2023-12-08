@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, ClassVar, Generic, Optional, TypeVar, Union
 
-from torch import nn
+from torch import nn, Tensor
 
+
+DefaultOutType = Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
 OutType = TypeVar("OutType")
 
 
@@ -12,14 +14,14 @@ class AACMetric(nn.Module, Generic[OutType]):
     """Base Metric module for AAC metrics. Similar to torchmetrics.Metric."""
 
     # Global values
-    full_state_update: Optional[bool] = False
-    higher_is_better: Optional[bool] = None
-    is_differentiable: Optional[bool] = False
+    full_state_update: ClassVar[Optional[bool]] = False
+    higher_is_better: ClassVar[Optional[bool]] = None
+    is_differentiable: ClassVar[Optional[bool]] = False
 
     # The theorical minimal value of the main global score of the metric.
-    min_value: Optional[float] = None
+    min_value: ClassVar[Optional[float]] = None
     # The theorical maximal value of the main global score of the metric.
-    max_value: Optional[float] = None
+    max_value: ClassVar[Optional[float]] = None
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)

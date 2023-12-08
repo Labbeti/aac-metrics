@@ -59,7 +59,9 @@ class CIDErD(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Any]], Tensor]])
         )
 
     def extra_repr(self) -> str:
-        return f"n={self._n}, sigma={self._sigma}"
+        hparams = {"n": self._n, "sigma": self._sigma}
+        repr_ = ", ".join(f"{k}={v}" for k, v in hparams.items())
+        return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
         return ("cider_d",)

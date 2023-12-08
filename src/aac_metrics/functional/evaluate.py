@@ -5,22 +5,26 @@ import logging
 import time
 
 from functools import partial
-from typing import Any, Callable, Iterable, Union
+from pathlib import Path
+from typing import Any, Callable, Iterable, Optional, Union
 
 import torch
 
 from torch import Tensor
 
-from aac_metrics.functional.bleu import bleu
+from aac_metrics.functional.bert_score_mrefs import bert_score_mrefs
+from aac_metrics.functional.bleu import bleu, bleu_1, bleu_2, bleu_3, bleu_4
 from aac_metrics.functional.cider_d import cider_d
 from aac_metrics.functional.fense import fense
-from aac_metrics.functional.fluerr import fluerr
+from aac_metrics.functional.fer import fer
 from aac_metrics.functional.meteor import meteor
 from aac_metrics.functional.rouge_l import rouge_l
 from aac_metrics.functional.sbert_sim import sbert_sim
 from aac_metrics.functional.spice import spice
 from aac_metrics.functional.spider import spider
 from aac_metrics.functional.spider_fl import spider_fl
+from aac_metrics.functional.spider_max import spider_max
+from aac_metrics.functional.vocab import vocab
 from aac_metrics.utils.checks import check_metric_inputs
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
@@ -52,7 +56,7 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
     # DCASE challenge task6a metrics for 2023
     "dcase2023": (
         "meteor",
-        "spider_fl",  # includes cider_d, spice, spider, fluerr
+        "spider_fl",  # includes cider_d, spice, spider, fer
     ),
     # All metrics
     "all": (
@@ -62,8 +66,10 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "bleu_4",
         "meteor",
         "rouge_l",
-        "fense",  # includes sbert, fluerr
-        "spider_fl",  # includes cider_d, spice, spider, fluerr
+        "fense",  # includes sbert, fer
+        "spider_fl",  # includes cider_d, spice, spider, fer
+        "vocab",
+        "bert_score",
     ),
 }
 DEFAULT_METRICS_SET_NAME = "default"
@@ -76,9 +82,9 @@ def evaluate(
     metrics: Union[
         str, Iterable[str], Iterable[Callable[[list, list], tuple]]
     ] = DEFAULT_METRICS_SET_NAME,
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
@@ -122,7 +128,9 @@ def evaluate(
     outs_sents = {}
 
     for i, metric in enumerate(metrics):
-        if hasattr(metric, "__qualname__"):
+        if isinstance(metric, partial):
+            name = metric.func.__qualname__
+        elif hasattr(metric, "__qualname__"):
             name = metric.__qualname__
         else:
             name = metric.__class__.__qualname__
@@ -161,9 +169,9 @@ def dcase2023_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
     preprocess: bool = True,
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
@@ -196,9 +204,9 @@ def dcase2023_evaluate(
 
 def _instantiate_metrics_functions(
     metrics: Union[str, Iterable[str], Iterable[Callable[[list, list], tuple]]] = "all",
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
 ) -> list[Callable]:
@@ -234,41 +242,57 @@ def _instantiate_metrics_functions(
 
 def _get_metric_factory_functions(
     return_all_scores: bool = True,
-    cache_path: str = ...,
-    java_path: str = ...,
-    tmp_path: str = ...,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
     device: Union[str, torch.device, None] = "auto",
     verbose: int = 0,
-    init_kwds: dict[str, Any] = ...,
+    init_kwds: Optional[dict[str, Any]] = None,
 ) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
-    if init_kwds is ...:
+    if init_kwds is None or init_kwds is ...:
         init_kwds = {}
 
     init_kwds = init_kwds | dict(return_all_scores=return_all_scores)
 
     factory = {
+        "bert_score": partial(
+            bert_score_mrefs,
+            **init_kwds,
+        ),
         "bleu": partial(
             bleu,
             **init_kwds,
         ),
         "bleu_1": partial(
-            bleu,
-            n=1,
+            bleu_1,
             **init_kwds,
         ),
         "bleu_2": partial(
-            bleu,
-            n=2,
+            bleu_2,
             **init_kwds,
         ),
         "bleu_3": partial(
-            bleu,
-            n=3,
+            bleu_3,
             **init_kwds,
         ),
         "bleu_4": partial(
-            bleu,
-            n=4,
+            bleu_4,
+            **init_kwds,
+        ),
+        "cider_d": partial(
+            cider_d,
+            **init_kwds,
+        ),
+        "fer": partial(
+            fer,
+            device=device,
+            verbose=verbose,
+            **init_kwds,
+        ),
+        "fense": partial(
+            fense,
+            device=device,
+            verbose=verbose,
             **init_kwds,
         ),
         "meteor": partial(
@@ -282,8 +306,10 @@ def _get_metric_factory_functions(
             rouge_l,
             **init_kwds,
         ),
-        "cider_d": partial(
-            cider_d,
+        "sbert_sim": partial(
+            sbert_sim,
+            device=device,
+            verbose=verbose,
             **init_kwds,
         ),
         "spice": partial(
@@ -302,21 +328,11 @@ def _get_metric_factory_functions(
             verbose=verbose,
             **init_kwds,
         ),
-        "sbert_sim": partial(
-            sbert_sim,
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "fluerr": partial(
-            fluerr,
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "fense": partial(
-            fense,
-            device=device,
+        "spider_max": partial(
+            spider_max,
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
             verbose=verbose,
             **init_kwds,
         ),
@@ -326,6 +342,11 @@ def _get_metric_factory_functions(
             java_path=java_path,
             tmp_path=tmp_path,
             device=device,
+            verbose=verbose,
+            **init_kwds,
+        ),
+        "vocab": partial(
+            vocab,
             verbose=verbose,
             **init_kwds,
         ),
