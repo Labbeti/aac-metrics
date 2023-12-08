@@ -32,7 +32,7 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
     - FER [[9]](#fense)
     - FENSE [[9]](#fense)
     - SPIDEr-FL [[10]](#spider-fl)
-    - Vocab
+    - Vocab (unique word vocabulary)
 
 ## Installation
 Install the pip package:
