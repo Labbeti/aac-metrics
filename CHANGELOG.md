@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] UNRELEASED
+### Added
+- `AAC_METRICS_DEVICE` environment variable to define default device for model-bsaed metrics.
+
 ## [0.5.0] 2023-12-08
 ### Added
 - New `Vocab` metric to compute vocabulary size and vocabulary ratio.
