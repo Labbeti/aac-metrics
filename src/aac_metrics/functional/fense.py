@@ -148,8 +148,14 @@ def _load_models_and_tokenizer(
     reset_state: bool = True,
     verbose: int = 0,
 ) -> tuple[SentenceTransformer, BERTFlatClassifier, AutoTokenizer]:
-    sbert_model = _load_sbert(sbert_model, device, reset_state)
+    sbert_model = _load_sbert(
+        sbert_model=sbert_model, device=device, reset_state=reset_state
+    )
     echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
-        echecker, echecker_tokenizer, device, reset_state, verbose
+        echecker=echecker,
+        echecker_tokenizer=echecker_tokenizer,
+        device=device,
+        reset_state=reset_state,
+        verbose=verbose,
     )
     return sbert_model, echecker, echecker_tokenizer

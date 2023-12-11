@@ -46,7 +46,14 @@ class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         penalty: float = 0.9,
         verbose: int = 0,
     ) -> None:
-        sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(sbert_model, echecker, None, device, reset_state, verbose)  # type: ignore
+        sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(
+            sbert_model=sbert_model,
+            echecker=echecker,
+            echecker_tokenizer=None,
+            device=device,
+            reset_state=reset_state,
+            verbose=verbose,
+        )
 
         super().__init__()
         self._return_all_scores = return_all_scores

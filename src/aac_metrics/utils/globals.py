@@ -87,9 +87,6 @@ def __get_default_value(value_name: str) -> Any:
     values = __DEFAULT_GLOBALS[value_name]["values"]
     process_func = __DEFAULT_GLOBALS[value_name]["process"]
     for source, value_or_env_varname in values.items():
-        if value_or_env_varname is None:
-            continue
-
         if source.startswith("env"):
             value = os.getenv(value_or_env_varname, None)
         else:
@@ -148,6 +145,13 @@ __DEFAULT_GLOBALS = {
             "package": osp.join("~", ".cache"),
         },
         "process": __process_path,
+    },
+    "device": {
+        "values": {
+            "env": "AAC_METRICS_DEVICE",
+            "package": "auto",
+        },
+        "process": __process_device,
     },
     "java": {
         "values": {
