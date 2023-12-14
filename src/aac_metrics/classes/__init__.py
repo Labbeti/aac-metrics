@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from .bert_score_mrefs import BERTScoreMRefs
 from .bleu import BLEU, BLEU1, BLEU2, BLEU3, BLEU4
 from .cider_d import CIDErD
 from .evaluate import DCASE2023Evaluate, Evaluate
@@ -17,6 +18,7 @@ from .vocab import Vocab
 
 
 __all__ = [
+    "BERTScoreMRefs",
     "BLEU",
     "BLEU1",
     "BLEU2",

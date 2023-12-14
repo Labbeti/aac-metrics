@@ -14,6 +14,7 @@ __version__ = "0.5.0"
 
 
 from .classes.base import AACMetric
+from .classes.bert_score_mrefs import BERTScoreMRefs
 from .classes.bleu import BLEU
 from .classes.cider_d import CIDErD
 from .classes.evaluate import Evaluate, DCASE2023Evaluate, _get_metric_factory_classes
@@ -40,6 +41,7 @@ from .utils.globals import (
 
 __all__ = [
     "AACMetric",
+    "BERTScoreMRefs",
     "BLEU",
     "CIDErD",
     "Evaluate",
