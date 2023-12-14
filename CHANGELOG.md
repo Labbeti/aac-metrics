@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Minor refactoring with `_get_device` function.
 
+### Fixed
+- Fix `BERTScoreMRefs` metric with 1 candidate and 1 reference.
+
 ## [0.5.0] 2023-12-08
 ### Added
 - New `Vocab` metric to compute vocabulary size and vocabulary ratio.

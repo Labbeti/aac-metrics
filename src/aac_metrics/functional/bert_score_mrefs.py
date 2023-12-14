@@ -85,14 +85,15 @@ def bert_score_mrefs(
     device = _get_device(device)
     flat_mrefs, sizes = flat_list(mult_references)
     duplicated_cands = duplicate_list(candidates, sizes)
+    assert len(duplicated_cands) == len(flat_mrefs)
 
     tfmers_verbosity = tfmers_logging.get_verbosity()
     if verbose <= 1:
         tfmers_logging.set_verbosity_error()
 
     sents_scores = bert_score(
-        duplicated_cands,
-        flat_mrefs,
+        preds=duplicated_cands,
+        target=flat_mrefs,
         model_name_or_path=None,
         model=model,  # type: ignore
         user_tokenizer=tokenizer,
@@ -106,6 +107,10 @@ def bert_score_mrefs(
     if verbose <= 1:
         # Restore previous verbosity level
         tfmers_logging.set_verbosity(tfmers_verbosity)
+
+    # note: torchmetrics returns a float if input contains 1 cand and 1 ref, even in list
+    if len(duplicated_cands) == 1 and all(isinstance(v, float) for v in sents_scores.values()):
+        sents_scores = {k: [v] for k, v in sents_scores.items()}
 
     # sents_scores keys: "precision", "recall", "f1"
     sents_scores = {k: unflat_list(v, sizes) for k, v in sents_scores.items()}  # type: ignore
