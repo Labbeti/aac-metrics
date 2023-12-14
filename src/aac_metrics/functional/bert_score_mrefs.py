@@ -109,7 +109,9 @@ def bert_score_mrefs(
         tfmers_logging.set_verbosity(tfmers_verbosity)
 
     # note: torchmetrics returns a float if input contains 1 cand and 1 ref, even in list
-    if len(duplicated_cands) == 1 and all(isinstance(v, float) for v in sents_scores.values()):
+    if len(duplicated_cands) == 1 and all(
+        isinstance(v, float) for v in sents_scores.values()
+    ):
         sents_scores = {k: [v] for k, v in sents_scores.items()}
 
     # sents_scores keys: "precision", "recall", "f1"
