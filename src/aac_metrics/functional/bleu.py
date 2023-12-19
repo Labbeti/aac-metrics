@@ -11,6 +11,8 @@ import torch
 
 from torch import Tensor
 
+from aac_metrics.utils.checks import check_metric_inputs
+
 
 pylog = logging.getLogger(__name__)
 
@@ -158,10 +160,8 @@ def _bleu_update(
     prev_cooked_cands: list,
     prev_cooked_mrefs: list,
 ) -> tuple[list, list[tuple]]:
-    if len(candidates) != len(mult_references):
-        raise ValueError(
-            f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
-        )
+    check_metric_inputs(candidates, mult_references)
+
     new_cooked_mrefs = [
         __cook_references(refs, None, n, tokenizer) for refs in mult_references
     ]

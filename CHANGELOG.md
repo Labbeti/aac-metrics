@@ -3,9 +3,6 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.5.1] UNRELEASED
-### Changed
-- Minor refactoring with `_get_device` function.
-
 ### Fixed
 - Fix `BERTScoreMRefs` metric with 1 candidate and 1 reference.
 

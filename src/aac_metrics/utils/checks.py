@@ -38,15 +38,13 @@ def check_metric_inputs(
 
     same_len = len(candidates) == len(mult_references)
     if not same_len:
-        raise ValueError(
-            f"Invalid number of candidates ({len(candidates)}) with the number of references ({len(mult_references)})."
-        )
+        error_msg = f"Invalid number of candidates ({len(candidates)}) with the number of references ({len(mult_references)})."
+        raise ValueError(error_msg)
 
     at_least_1_ref_per_cand = all(len(refs) > 0 for refs in mult_references)
     if not at_least_1_ref_per_cand:
-        raise ValueError(
-            "Invalid number of references per candidate. (found at least 1 empty list of references)"
-        )
+        error_msg = "Invalid number of references per candidate. (found at least 1 empty list of references)"
+        raise ValueError(error_msg)
 
 
 def check_java_path(java_path: Union[str, Path]) -> bool:

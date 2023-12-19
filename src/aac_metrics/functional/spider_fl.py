@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Original based on https://github.com/blmoistawinde/fense/
-"""
-
 import logging
 
 from pathlib import Path
@@ -21,6 +17,7 @@ from aac_metrics.functional.fer import (
     BERTFlatClassifier,
 )
 from aac_metrics.functional.spider import spider
+from aac_metrics.utils.checks import check_metric_inputs
 
 
 pylog = logging.getLogger(__name__)
@@ -56,7 +53,7 @@ def spider_fl(
 ) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
     """Combinaison of SPIDEr with Fluency Error detector.
 
-    Based on https://github.com/felixgontier/dcase-2023-baseline/blob/main/metrics.py#L48.
+    - Original implementation: https://github.com/felixgontier/dcase-2023-baseline/blob/main/metrics.py#L48.
 
     .. warning::
         This metric requires at least 2 candidates with 2 sets of references, otherwise it will raises a ValueError.
@@ -97,6 +94,8 @@ def spider_fl(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
+    check_metric_inputs(candidates, mult_references)
+
     # Init models
     echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
         echecker=echecker,

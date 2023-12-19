@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""FENSE metric functional API.
-
-Based on original implementation in https://github.com/blmoistawinde/fense/
-"""
-
 import logging
 
 from typing import Optional, Union
@@ -22,6 +17,7 @@ from aac_metrics.functional.fer import (
     BERTFlatClassifier,
 )
 from aac_metrics.functional.sbert_sim import sbert_sim, _load_sbert
+from aac_metrics.utils.checks import check_metric_inputs
 
 
 pylog = logging.getLogger(__name__)
@@ -71,6 +67,7 @@ def fense(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
+    check_metric_inputs(candidates, mult_references)
 
     # Init models
     sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(

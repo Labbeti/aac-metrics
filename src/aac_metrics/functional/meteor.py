@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# ORIGINAL CODE FROM https://github.com/tylin/coco-caption
-
 import logging
 import os.path as osp
 import platform
@@ -16,7 +14,7 @@ import torch
 
 from torch import Tensor
 
-from aac_metrics.utils.checks import check_java_path
+from aac_metrics.utils.checks import check_java_path, check_metric_inputs
 from aac_metrics.utils.globals import _get_cache_path, _get_java_path
 
 
@@ -45,6 +43,7 @@ def meteor(
 
     - Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
     - Documentation: https://www.cs.cmu.edu/~alavie/METEOR/README.html
+    - Original implementation: https://github.com/tylin/coco-caption
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
@@ -69,6 +68,8 @@ def meteor(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
+    check_metric_inputs(candidates, mult_references)
+
     cache_path = _get_cache_path(cache_path)
     java_path = _get_java_path(java_path)
 
@@ -86,11 +87,6 @@ def meteor(
             raise RuntimeError(
                 f"Invalid Java executable to compute METEOR score. ({java_path})"
             )
-
-    if len(candidates) != len(mult_references):
-        raise ValueError(
-            f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
-        )
 
     if language not in SUPPORTED_LANGUAGES:
         raise ValueError(

@@ -11,6 +11,7 @@ from transformers.models.auto.modeling_auto import AutoModel
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 from transformers import logging as tfmers_logging
 
+from aac_metrics.utils.checks import check_metric_inputs
 from aac_metrics.utils.collections import flat_list, unflat_list, duplicate_list
 from aac_metrics.utils.globals import _get_device
 
@@ -57,6 +58,8 @@ def bert_score_mrefs(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
+    check_metric_inputs(candidates, mult_references)
+
     if isinstance(model, str):
         if tokenizer is not None:
             raise ValueError(

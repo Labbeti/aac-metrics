@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-BASED ON https://github.com/blmoistawinde/fense/
-"""
-
 import hashlib
 import logging
 import os
@@ -26,6 +22,7 @@ from transformers.models.auto.modeling_auto import AutoModel
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 
+from aac_metrics.utils.checks import is_mono_sents
 from aac_metrics.utils.globals import _get_device
 
 
@@ -130,6 +127,9 @@ def fer(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
+    if not is_mono_sents(candidates):
+        error_msg = f"Invalid candidates type. (expected list[str], found {candidates.__class__.__name__})"
+        raise ValueError(error_msg)
 
     # Init models
     echecker, echecker_tokenizer = _load_echecker_and_tokenizer(

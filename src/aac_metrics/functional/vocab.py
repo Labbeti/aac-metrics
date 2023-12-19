@@ -9,6 +9,8 @@ import torch
 
 from torch import Tensor
 
+from aac_metrics.utils.checks import check_metric_inputs, is_mono_sents
+
 
 pylog = logging.getLogger(__name__)
 
@@ -39,6 +41,12 @@ def vocab(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
+    if mult_references is not None:
+        check_metric_inputs(candidates, mult_references)
+    elif not is_mono_sents(candidates):
+        error_msg = f"Invalid candidates type. (expected list[str], found {candidates.__class__.__name__})"
+        raise ValueError(error_msg)
+
     tok_cands = list(map(tokenizer, candidates))
     del candidates
 

@@ -1,16 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Description : Computes ROUGE-L metric as described by Lin and Hovey (2004)
-#
-# Creation Date : 2015-01-07 06:03
-# Author : Ramakrishna Vedantam <vrama91@vt.edu>
-
-# =================================================================
-# This code was pulled from https://github.com/tylin/coco-caption
-# Image-specific names and comments have been changed to be audio-specific
-# =================================================================
-
 import logging
 
 from typing import Callable, Union
@@ -19,6 +9,8 @@ import numpy as np
 import torch
 
 from torch import Tensor
+
+from aac_metrics.utils.checks import check_metric_inputs
 
 
 pylog = logging.getLogger(__name__)
@@ -34,6 +26,8 @@ def rouge_l(
     """Recall-Oriented Understudy for Gisting Evaluation function.
 
     - Paper: https://aclanthology.org/W04-1013.pdf
+    - Original Author: Ramakrishna Vedantam <vrama91@vt.edu>
+    - Original implementation: https://github.com/tylin/coco-caption
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
@@ -55,10 +49,8 @@ def _rouge_l_update(
     tokenizer: Callable[[str], list[str]],
     prev_rouge_l_scores: list[float],
 ) -> list[float]:
-    if len(candidates) != len(mult_references):
-        raise ValueError(
-            f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
-        )
+    check_metric_inputs(candidates, mult_references)
+
     new_rouge_l_scores = [
         __calc_score(cand, refs, beta, tokenizer)
         for cand, refs in zip(candidates, mult_references)

@@ -9,6 +9,8 @@ import torch
 
 from torch import Tensor
 
+from aac_metrics.utils.checks import check_metric_inputs
+
 
 def cider_d(
     candidates: list[str],
@@ -66,10 +68,7 @@ def _cider_d_update(
     prev_cooked_cands: list[Counter],
     prev_cooked_mrefs: list[list[Counter]],
 ) -> tuple[list, list]:
-    if len(candidates) != len(mult_references):
-        raise ValueError(
-            f"Invalid number of candidates and references. (found {len(candidates)=} != {len(mult_references)=})"
-        )
+    check_metric_inputs(candidates, mult_references)
     new_cooked_mrefs = [
         [__cook_sentence(ref, n, tokenizer) for ref in refs] for refs in mult_references
     ]
