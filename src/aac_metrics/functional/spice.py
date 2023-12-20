@@ -23,8 +23,8 @@ import torch
 
 from torch import Tensor
 
-from aac_metrics.utils.checks import check_java_path
-from aac_metrics.utils.paths import (
+from aac_metrics.utils.checks import check_java_path, check_metric_inputs
+from aac_metrics.utils.globals import (
     _get_cache_path,
     _get_java_path,
     _get_tmp_path,
@@ -82,6 +82,7 @@ def spice(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
+    check_metric_inputs(candidates, mult_references)
 
     cache_path = _get_cache_path(cache_path)
     java_path = _get_java_path(java_path)

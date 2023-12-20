@@ -239,7 +239,7 @@ If you use this software, please consider cite it as "Labbe, E. (2013). aac-metr
     month = {12},
     title = {{aac-metrics}},
     url = {https://github.com/Labbeti/aac-metrics/},
-    version = {0.5.0},
+    version = {0.5.1},
     year = {2023},
 }
 ```

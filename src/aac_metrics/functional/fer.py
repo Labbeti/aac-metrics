@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-BASED ON https://github.com/blmoistawinde/fense/
-"""
-
 import hashlib
 import logging
 import os
@@ -25,6 +21,9 @@ from transformers import logging as tfmers_logging
 from transformers.models.auto.modeling_auto import AutoModel
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
+
+from aac_metrics.utils.checks import is_mono_sents
+from aac_metrics.utils.globals import _get_device
 
 
 # config according to the settings on your computer, this should be default setting of shadowsocks
@@ -128,6 +127,9 @@ def fer(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
+    if not is_mono_sents(candidates):
+        error_msg = f"Invalid candidates type. (expected list[str], found {candidates.__class__.__name__})"
+        raise ValueError(error_msg)
 
     # Init models
     echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
@@ -182,13 +184,11 @@ def _load_echecker_and_tokenizer(
 ) -> tuple[BERTFlatClassifier, AutoTokenizer]:
     state = torch.random.get_rng_state()
 
-    if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(device, str):
-        device = torch.device(device)
-
+    device = _get_device(device)
     if isinstance(echecker, str):
-        echecker = __load_pretrain_echecker(echecker, device, verbose=verbose)
+        echecker = __load_pretrain_echecker(
+            echecker_model=echecker, device=device, verbose=verbose
+        )
 
     if echecker_tokenizer is None:
         echecker_tokenizer = AutoTokenizer.from_pretrained(echecker.model_type)  # type: ignore
@@ -211,10 +211,7 @@ def __detect_error_sents(
     device: Union[str, torch.device, None],
     max_len: int = 64,
 ) -> dict[str, np.ndarray]:
-    if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(device, str):
-        device = torch.device(device)
+    device = _get_device(device)
 
     if len(sents) <= batch_size:
         batch = __infer_preprocess(
@@ -280,11 +277,7 @@ def __infer_preprocess(
     device: Union[str, torch.device, None],
     dtype: torch.dtype,
 ) -> Mapping[str, Tensor]:
-    if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(device, str):
-        device = torch.device(device)
-
+    device = _get_device(device)
     texts = __text_preprocess(texts)  # type: ignore
     batch = tokenizer(texts, truncation=True, padding="max_length", max_length=max_len)
     for k in ("input_ids", "attention_mask", "token_type_ids"):
@@ -396,11 +389,7 @@ def __load_pretrain_echecker(
             f"Invalid argument {echecker_model=}. (expected one of {tuple(PRETRAIN_ECHECKERS_DICT.keys())})"
         )
 
-    if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(device, str):
-        device = torch.device(device)
-
+    device = _get_device(device)
     tfmers_logging.set_verbosity_error()  # suppress loading warnings
     url, checksum = PRETRAIN_ECHECKERS_DICT[echecker_model]
     remote = RemoteFileMetadata(

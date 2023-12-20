@@ -8,6 +8,7 @@ from torch import Tensor
 
 from aac_metrics.functional.cider_d import cider_d
 from aac_metrics.functional.spice import spice
+from aac_metrics.utils.checks import check_metric_inputs
 
 
 def spider(
@@ -59,14 +60,9 @@ def spider(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-
-    if len(candidates) != len(mult_references):
-        raise ValueError(
-            f"Number of candidates and mult_references are different (found {len(candidates)} != {len(mult_references)})."
-        )
+    check_metric_inputs(candidates, mult_references)
 
     sub_return_all_scores = True
-
     cider_d_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = cider_d(  # type: ignore
         candidates=candidates,
         mult_references=mult_references,

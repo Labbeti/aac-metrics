@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-BASED ON https://github.com/blmoistawinde/fense/
-"""
-
 import logging
 
 from typing import Union
@@ -14,6 +10,9 @@ import torch
 
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
+
+from aac_metrics.utils.checks import check_metric_inputs
+from aac_metrics.utils.globals import _get_device
 
 
 pylog = logging.getLogger(__name__)
@@ -46,6 +45,8 @@ def sbert_sim(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
+    check_metric_inputs(candidates, mult_references)
+
     # Init models
     sbert_model = _load_sbert(sbert_model, device, reset_state)
 
@@ -91,11 +92,7 @@ def _load_sbert(
 ) -> SentenceTransformer:
     state = torch.random.get_rng_state()
 
-    if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(device, str):
-        device = torch.device(device)
-
+    device = _get_device(device)
     if isinstance(sbert_model, str):
         sbert_model = SentenceTransformer(sbert_model, device=device)  # type: ignore
     sbert_model.to(device=device)

@@ -17,7 +17,7 @@ from torch import Tensor
 
 from aac_metrics.functional.evaluate import evaluate
 from aac_metrics.eval import load_csv_file
-from aac_metrics.utils.paths import (
+from aac_metrics.utils.globals import (
     get_default_tmp_path,
 )
 from aac_metrics.download import _download_spice

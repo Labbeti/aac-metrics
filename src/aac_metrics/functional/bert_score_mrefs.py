@@ -11,7 +11,9 @@ from transformers.models.auto.modeling_auto import AutoModel
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 from transformers import logging as tfmers_logging
 
+from aac_metrics.utils.checks import check_metric_inputs
 from aac_metrics.utils.collections import flat_list, unflat_list, duplicate_list
+from aac_metrics.utils.globals import _get_device
 
 
 def bert_score_mrefs(
@@ -56,13 +58,20 @@ def bert_score_mrefs(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
+    check_metric_inputs(candidates, mult_references)
+
     if isinstance(model, str):
         if tokenizer is not None:
             raise ValueError(
                 f"Invalid argument combinaison {model=} with {tokenizer=}."
             )
+
         model, tokenizer = _load_model_and_tokenizer(
-            model, tokenizer, device, reset_state, verbose
+            model=model,
+            tokenizer=tokenizer,
+            device=device,
+            reset_state=reset_state,
+            verbose=verbose,
         )
 
     elif isinstance(model, nn.Module):
@@ -76,21 +85,18 @@ def bert_score_mrefs(
             f"Invalid argument type {type(model)=}. (expected str or nn.Module)"
         )
 
-    if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(device, str):
-        device = torch.device(device)
-
+    device = _get_device(device)
     flat_mrefs, sizes = flat_list(mult_references)
     duplicated_cands = duplicate_list(candidates, sizes)
+    assert len(duplicated_cands) == len(flat_mrefs)
 
     tfmers_verbosity = tfmers_logging.get_verbosity()
     if verbose <= 1:
         tfmers_logging.set_verbosity_error()
 
     sents_scores = bert_score(
-        duplicated_cands,
-        flat_mrefs,
+        preds=duplicated_cands,
+        target=flat_mrefs,
         model_name_or_path=None,
         model=model,  # type: ignore
         user_tokenizer=tokenizer,
@@ -105,6 +111,12 @@ def bert_score_mrefs(
         # Restore previous verbosity level
         tfmers_logging.set_verbosity(tfmers_verbosity)
 
+    # note: torchmetrics returns a float if input contains 1 cand and 1 ref, even in list
+    if len(duplicated_cands) == 1 and all(
+        isinstance(v, float) for v in sents_scores.values()
+    ):
+        sents_scores = {k: [v] for k, v in sents_scores.items()}
+
     # sents_scores keys: "precision", "recall", "f1"
     sents_scores = {k: unflat_list(v, sizes) for k, v in sents_scores.items()}  # type: ignore
 
@@ -116,9 +128,9 @@ def bert_score_mrefs(
     if reduction == "mean":
         reduction_fn = torch.mean
     elif reduction == "max":
-        reduction_fn = max_reduce
+        reduction_fn = _max_reduce
     elif reduction == "min":
-        reduction_fn = min_reduce
+        reduction_fn = _min_reduce
     else:
         REDUCTIONS = ("mean", "max", "min")
         raise ValueError(
@@ -161,11 +173,7 @@ def _load_model_and_tokenizer(
 ) -> tuple[nn.Module, Optional[Callable]]:
     state = torch.random.get_rng_state()
 
-    if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(device, str):
-        device = torch.device(device)
-
+    device = _get_device(device)
     if isinstance(model, str):
         tfmers_verbosity = tfmers_logging.get_verbosity()
         if verbose <= 1:
@@ -188,14 +196,14 @@ def _load_model_and_tokenizer(
     return model, tokenizer  # type: ignore
 
 
-def max_reduce(x: Tensor, dim: Optional[int] = None) -> Tensor:
+def _max_reduce(x: Tensor, dim: Optional[int] = None) -> Tensor:
     if dim is None:
         return x.max()
     else:
         return x.max(dim=dim).values
 
 
-def min_reduce(x: Tensor, dim: Optional[int] = None) -> Tensor:
+def _min_reduce(x: Tensor, dim: Optional[int] = None) -> Tensor:
     if dim is None:
         return x.min()
     else:

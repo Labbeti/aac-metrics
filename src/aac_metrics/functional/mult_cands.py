@@ -8,6 +8,8 @@ import tqdm
 
 from torch import Tensor
 
+from aac_metrics.utils.checks import is_mult_sents
+
 
 SELECTIONS = ("max", "min", "mean")
 
@@ -34,10 +36,13 @@ def mult_cands_metric(
     :param **kwargs: The keywords arguments given to the metric call.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    if selection not in SELECTIONS:
-        raise ValueError(
-            f"Invalid argument {selection=}. (expected one of {SELECTIONS})"
-        )
+    if not is_mult_sents(mult_candidates):
+        error_msg = f"Invalid mult_candidates type. (expected list[list[str]], found {mult_references.__class__.__name__})"
+        raise ValueError(error_msg)
+
+    if not is_mult_sents(mult_references):
+        error_msg = f"Invalid mult_references type. (expected list[list[str]], found {mult_references.__class__.__name__})"
+        raise ValueError(error_msg)
 
     if len(mult_candidates) <= 0:
         raise ValueError(
@@ -46,6 +51,11 @@ def mult_cands_metric(
     if len(mult_candidates) != len(mult_references):
         raise ValueError(
             f"Number of candidate and mult_references are different ({len(mult_candidates)} != {len(mult_references)})."
+        )
+
+    if selection not in SELECTIONS:
+        raise ValueError(
+            f"Invalid argument {selection=}. (expected one of {SELECTIONS})"
         )
 
     n_cands_per_audio = len(mult_candidates[0])

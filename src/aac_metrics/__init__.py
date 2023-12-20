@@ -10,10 +10,11 @@ __license__ = "MIT"
 __maintainer__ = "Etienne Labbé (Labbeti)"
 __name__ = "aac-metrics"
 __status__ = "Development"
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 
 from .classes.base import AACMetric
+from .classes.bert_score_mrefs import BERTScoreMRefs
 from .classes.bleu import BLEU
 from .classes.cider_d import CIDErD
 from .classes.evaluate import Evaluate, DCASE2023Evaluate, _get_metric_factory_classes
@@ -28,7 +29,7 @@ from .classes.spider_fl import SPIDErFL
 from .classes.spider_max import SPIDErMax
 from .classes.vocab import Vocab
 from .functional.evaluate import evaluate, dcase2023_evaluate
-from .utils.paths import (
+from .utils.globals import (
     get_default_cache_path,
     get_default_java_path,
     get_default_tmp_path,
@@ -40,6 +41,7 @@ from .utils.paths import (
 
 __all__ = [
     "AACMetric",
+    "BERTScoreMRefs",
     "BLEU",
     "CIDErD",
     "Evaluate",
