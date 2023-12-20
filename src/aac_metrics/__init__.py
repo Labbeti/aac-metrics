@@ -10,7 +10,7 @@ __license__ = "MIT"
 __maintainer__ = "Etienne Labbé (Labbeti)"
 __name__ = "aac-metrics"
 __status__ = "Development"
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 
 from .classes.base import AACMetric
