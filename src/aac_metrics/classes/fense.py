@@ -11,7 +11,7 @@ from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fense import fense, _load_models_and_tokenizer
-from aac_metrics.functional.fer import ERROR_NAMES
+from aac_metrics.functional.fer import _ERROR_NAMES
 
 
 pylog = logging.getLogger(__name__)
@@ -100,7 +100,7 @@ class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
 
     def get_output_names(self) -> tuple[str, ...]:
         return ("sbert_sim", "fer", "fense") + tuple(
-            f"fer.{name}_prob" for name in ERROR_NAMES
+            f"fer.{name}_prob" for name in _ERROR_NAMES
         )
 
     def reset(self) -> None:

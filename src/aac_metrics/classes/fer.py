@@ -13,7 +13,7 @@ from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fer import (
     fer,
     _load_echecker_and_tokenizer,
-    ERROR_NAMES,
+    _ERROR_NAMES,
 )
 
 
@@ -82,7 +82,7 @@ class FER(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]])
         return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("fer",) + tuple(f"fer.{name}_prob" for name in ERROR_NAMES)
+        return ("fer",) + tuple(f"fer.{name}_prob" for name in _ERROR_NAMES)
 
     def reset(self) -> None:
         self._candidates = []
