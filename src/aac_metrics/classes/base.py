@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import math
+
 from typing import Any, ClassVar, Generic, Optional, TypeVar, Union
 
 from torch import nn, Tensor
@@ -19,9 +21,9 @@ class AACMetric(nn.Module, Generic[OutType]):
     is_differentiable: ClassVar[Optional[bool]] = False
 
     # The theorical minimal value of the main global score of the metric.
-    min_value: ClassVar[Optional[float]] = None
+    min_value: ClassVar[float] = -math.inf
     # The theorical maximal value of the main global score of the metric.
-    max_value: ClassVar[Optional[float]] = None
+    max_value: ClassVar[float] = math.inf
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
