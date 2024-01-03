@@ -7,11 +7,12 @@ from typing import Union
 
 import torch
 
+from sentence_transformers import SentenceTransformer
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fense import fense, _load_models_and_tokenizer
-from aac_metrics.functional.fer import _ERROR_NAMES
+from aac_metrics.functional.fer import BERTFlatClassifier, _ERROR_NAMES
 
 
 pylog = logging.getLogger(__name__)
@@ -36,8 +37,8 @@ class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
     def __init__(
         self,
         return_all_scores: bool = True,
-        sbert_model: str = "paraphrase-TinyBERT-L6-v2",
-        echecker: str = "echecker_clotho_audiocaps_base",
+        sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
+        echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
         error_threshold: float = 0.9,
         device: Union[str, torch.device, None] = "auto",
         batch_size: int = 32,

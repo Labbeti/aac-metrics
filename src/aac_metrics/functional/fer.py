@@ -129,13 +129,6 @@ def fer(
         error_msg = f"Invalid candidates type. (expected list[str], found {candidates.__class__.__name__})"
         raise ValueError(error_msg)
 
-    version = transformers.__version__
-    major, minor, _patch = map(int, version.split("."))
-    if major > 4 or (major == 4 and minor > 30):
-        raise ValueError(
-            f"Invalid transformers version {version} for FER metric. Please use a version < 4.31.0."
-        )
-
     # Init models
     echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
         echecker=echecker,
@@ -382,17 +375,27 @@ def __load_pretrain_echecker(
         pylog.debug(f"Loading echecker model from '{file_path}'.")
 
     model_states = torch.load(file_path)
+    model_type = model_states["model_type"]
+    num_classes = model_states["num_classes"]
+    state_dict = model_states["state_dict"]
 
     if verbose >= 2:
         pylog.debug(
-            f"Loading echecker model type '{model_states['model_type']}' with '{model_states['num_classes']}' classes."
+            f"Loading echecker model type '{model_type}' with '{num_classes}' classes."
         )
 
     echecker = BERTFlatClassifier(
-        model_type=model_states["model_type"],
-        num_classes=model_states["num_classes"],
+        model_type=model_type,
+        num_classes=num_classes,
     )
-    echecker.load_state_dict(model_states["state_dict"])
+
+    # To support transformers > 4.31, because this lib changed BertEmbedding state_dict
+    version = transformers.__version__
+    major, minor, _patch = map(int, version.split("."))
+    if major > 4 or (major == 4 and minor >= 31):
+        state_dict.pop("encoder.embeddings.position_ids")
+
+    echecker.load_state_dict(state_dict)
     echecker.eval()
     echecker.to(device=device)
     return echecker

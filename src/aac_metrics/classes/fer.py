@@ -11,6 +11,7 @@ from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fer import (
+    BERTFlatClassifier,
     fer,
     _load_echecker_and_tokenizer,
     _ERROR_NAMES,
@@ -39,7 +40,7 @@ class FER(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]])
     def __init__(
         self,
         return_all_scores: bool = True,
-        echecker: str = "echecker_clotho_audiocaps_base",
+        echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
         error_threshold: float = 0.9,
         device: Union[str, torch.device, None] = "auto",
         batch_size: int = 32,
@@ -47,7 +48,13 @@ class FER(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]])
         return_probs: bool = False,
         verbose: int = 0,
     ) -> None:
-        echecker, echecker_tokenizer = _load_echecker_and_tokenizer(echecker, None, device, reset_state, verbose)  # type: ignore
+        echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
+            echecker=echecker,
+            echecker_tokenizer=None,
+            device=device,
+            reset_state=reset_state,
+            verbose=verbose,
+        )
 
         super().__init__()
         self._return_all_scores = return_all_scores
