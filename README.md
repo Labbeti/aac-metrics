@@ -124,7 +124,7 @@ Each metrics also exists as a python class version, like `aac_metrics.classes.ci
 ### Other metrics
 | Metric name | Python Class | Origin | Range | Short description |
 |:---|:---|:---|:---|:---|
-| Vocabulary | `Vocab` | text generation | [0, +$\infty$[ | Number of unique words in candidates. |
+| Vocabulary | `Vocab` | text generation | [0, +&infin;[ | Number of unique words in candidates. |
 
 ### Future directions
 This package currently does not include all metrics dedicated to audio captioning. Feel free to do a pull request / or ask to me by email if you want to include them. Those metrics not included are listed here:
@@ -146,15 +146,13 @@ numpy >= 1.21.2
 pyyaml >= 6.0
 tqdm >= 4.64.0
 sentence-transformers >= 2.2.2
-transformers < 4.31.0
+transformers
 torchmetrics >= 0.11.4
 ```
 
 ### External requirements
 - `java` **>= 1.8 and <= 1.13** is required to compute METEOR, SPICE and use the PTBTokenizer.
-Most of these functions can specify a java executable path with `java_path` argument.
-
-- `unzip` command to extract SPICE zipped files.
+Most of these functions can specify a java executable path with `java_path` argument or by overriding `AAC_METRICS_JAVA_PATH` environment variable.
 
 ## Additional notes
 ### CIDEr or CIDEr-D?
