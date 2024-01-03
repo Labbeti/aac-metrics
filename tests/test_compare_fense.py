@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import importlib
+import logging
 import os.path as osp
 import sys
 import torch
@@ -10,8 +11,14 @@ import unittest
 from typing import Any
 from unittest import TestCase
 
+import transformers
+
 from aac_metrics.classes.fense import FENSE
+from aac_metrics.functional.fer import _use_new_echecker_loading
 from aac_metrics.eval import load_csv_file
+
+
+pylog = logging.getLogger(__name__)
 
 
 class TestCompareFENSE(TestCase):
@@ -23,21 +30,23 @@ class TestCompareFENSE(TestCase):
         device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Using {device=}")
 
-        cls.src_sbert_sim = Evaluator(
-            device=device,
-            echecker_model="none",
-        )
-        cls.src_fense = Evaluator(
-            device=device,
-            echecker_model="echecker_clotho_audiocaps_base",
-        )
-
         cls.new_fense = FENSE(
             return_all_scores=True,
             device=device,
             verbose=2,
             echecker="echecker_clotho_audiocaps_base",
         )
+        cls.src_sbert_sim = Evaluator(
+            device=device,
+            echecker_model="none",
+        )
+        if _use_new_echecker_loading():
+            cls.src_fense = None
+        else:
+            cls.src_fense = Evaluator(
+                device=device,
+                echecker_model="echecker_clotho_audiocaps_base",
+            )
 
     @classmethod
     def _get_src_evaluator_class(cls) -> Any:
@@ -78,7 +87,6 @@ class TestCompareFENSE(TestCase):
         cands, mrefs = load_csv_file(fpath)
 
         src_sbert_sim_score = self.src_sbert_sim.corpus_score(cands, mrefs).item()
-        src_fense_score = self.src_fense.corpus_score(cands, mrefs).item()
 
         outs: tuple = self.new_fense(cands, mrefs)  # type: ignore
         corpus_outs, _sents_outs = outs
@@ -90,11 +98,18 @@ class TestCompareFENSE(TestCase):
             new_sbert_sim_score,
             "Invalid SBERTSim score with original implementation.",
         )
-        self.assertEqual(
-            src_fense_score,
-            new_fense_score,
-            "Invalid FENSE score with original implementation.",
-        )
+
+        if self.src_fense is None:
+            pylog.warning(
+                f"Skipping test with original FENSE for the transformers version {transformers.__version__}"
+            )
+        else:
+            src_fense_score = self.src_fense.corpus_score(cands, mrefs).item()
+            self.assertEqual(
+                src_fense_score,
+                new_fense_score,
+                "Invalid FENSE score with original implementation.",
+            )
 
 
 if __name__ == "__main__":

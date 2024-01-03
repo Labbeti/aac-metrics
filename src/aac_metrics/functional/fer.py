@@ -73,7 +73,13 @@ class BERTFlatClassifier(nn.Module):
         proxies: Optional[dict[str, str]] = None,
         verbose: int = 0,
     ) -> "BERTFlatClassifier":
-        return __load_pretrain_echecker(model_name, device, use_proxy, proxies, verbose)
+        return __load_pretrain_echecker(
+            echecker_model=model_name,
+            device=device,
+            use_proxy=use_proxy,
+            proxies=proxies,
+            verbose=verbose,
+        )
 
     def forward(
         self,
@@ -174,6 +180,12 @@ def fer(
         return fer_outs
     else:
         return fer_score
+
+
+def _use_new_echecker_loading() -> bool:
+    version = transformers.__version__
+    major, minor, _patch = map(int, version.split("."))
+    return major > 4 or (major == 4 and minor >= 31)
 
 
 # - Private functions
@@ -390,9 +402,7 @@ def __load_pretrain_echecker(
     )
 
     # To support transformers > 4.31, because this lib changed BertEmbedding state_dict
-    version = transformers.__version__
-    major, minor, _patch = map(int, version.split("."))
-    if major > 4 or (major == 4 and minor >= 31):
+    if _use_new_echecker_loading():
         state_dict.pop("encoder.embeddings.position_ids")
 
     echecker.load_state_dict(state_dict)
