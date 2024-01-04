@@ -30,11 +30,12 @@ class TestCompareFENSE(TestCase):
         device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Using {device=}")
 
+        echecker = "echecker_clotho_audiocaps_base"
         cls.new_fense = FENSE(
             return_all_scores=True,
             device=device,
             verbose=2,
-            echecker="echecker_clotho_audiocaps_base",
+            echecker=echecker,
         )
         cls.src_sbert_sim = Evaluator(
             device=device,
@@ -45,7 +46,7 @@ class TestCompareFENSE(TestCase):
         else:
             cls.src_fense = Evaluator(
                 device=device,
-                echecker_model="echecker_clotho_audiocaps_base",
+                echecker_model=echecker,
             )
 
     @classmethod

@@ -15,6 +15,7 @@ from aac_metrics.functional.fer import (
     fer,
     _load_echecker_and_tokenizer,
     BERTFlatClassifier,
+    DEFAULT_FER_MODEL,
 )
 from aac_metrics.functional.spider import spider
 from aac_metrics.utils.checks import check_metric_inputs
@@ -40,7 +41,7 @@ def spider_fl(
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
     # FluencyError args
-    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     device: Union[str, torch.device, None] = "cuda_if_available",

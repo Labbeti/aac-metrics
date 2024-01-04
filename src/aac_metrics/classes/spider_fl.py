@@ -15,8 +15,11 @@ from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fer import (
     BERTFlatClassifier,
     _load_echecker_and_tokenizer,
+    _ERROR_NAMES,
+    DEFAULT_FER_MODEL,
 )
 from aac_metrics.functional.spider_fl import spider_fl
+from aac_metrics.utils.globals import _get_device
 
 
 pylog = logging.getLogger(__name__)
@@ -49,7 +52,7 @@ class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
         java_max_memory: str = "8G",
         timeout: Union[None, int, Iterable[int]] = None,
         # FluencyError args
-        echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+        echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
         echecker_tokenizer: Optional[AutoTokenizer] = None,
         error_threshold: float = 0.9,
         device: Union[str, torch.device, None] = "cuda_if_available",
@@ -60,8 +63,13 @@ class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
         penalty: float = 0.9,
         verbose: int = 0,
     ) -> None:
+        device = _get_device(device)
         echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
-            echecker, echecker_tokenizer, device, reset_state, verbose
+            echecker=echecker,
+            echecker_tokenizer=echecker_tokenizer,
+            device=device,
+            reset_state=reset_state,
+            verbose=verbose,
         )
 
         super().__init__()
@@ -127,7 +135,10 @@ class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
         return extra
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("cider_d", "spice", "spider", "spider_fl", "fer")
+        output_names = ["cider_d", "spice", "spider", "spider_fl", "fer"]
+        if self._return_probs:
+            output_names += [f"fer.{name}_prob" for name in _ERROR_NAMES]
+        return tuple(output_names)
 
     def reset(self) -> None:
         self._candidates = []

@@ -6,12 +6,12 @@ from typing import Union
 import torch
 
 from torch import nn, Tensor
-from torchmetrics.text.bert import _DEFAULT_MODEL
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.bert_score_mrefs import (
     bert_score_mrefs,
     _load_model_and_tokenizer,
+    DEFAULT_BERT_SCORE_MODEL,
     REDUCTIONS,
 )
 from aac_metrics.utils.globals import _get_device
@@ -37,7 +37,7 @@ class BERTScoreMRefs(AACMetric):
     def __init__(
         self,
         return_all_scores: bool = True,
-        model: Union[str, nn.Module] = _DEFAULT_MODEL,
+        model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
         device: Union[str, torch.device, None] = "cuda_if_available",
         batch_size: int = 32,
         num_threads: int = 0,
@@ -79,7 +79,6 @@ class BERTScoreMRefs(AACMetric):
         self._candidates = []
         self._mult_references = []
 
-    # AACMetric methods
     def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
         return bert_score_mrefs(
             candidates=self._candidates,
@@ -108,6 +107,13 @@ class BERTScoreMRefs(AACMetric):
         repr_ = ", ".join(f"{k}={v}" for k, v in hparams.items())
         return repr_
 
+    def get_output_names(self) -> tuple[str, ...]:
+        return (
+            "bert_score.precision",
+            "bert_score.recalll",
+            "bert_score.f1",
+        )
+
     def reset(self) -> None:
         self._candidates = []
         self._mult_references = []
@@ -120,16 +126,3 @@ class BERTScoreMRefs(AACMetric):
     ) -> None:
         self._candidates += candidates
         self._mult_references += mult_references
-
-    # Other methods
-    @property
-    def device(self) -> torch.device:
-        try:
-            param = next(iter(self.parameters()))
-
-    def get_output_names(self) -> tuple[str, ...]:
-        return (
-            "bert_score.precision",
-            "bert_score.recalll",
-            "bert_score.f1",
-        )

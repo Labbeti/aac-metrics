@@ -15,8 +15,13 @@ from aac_metrics.functional.fer import (
     fer,
     _load_echecker_and_tokenizer,
     BERTFlatClassifier,
+    DEFAULT_FER_MODEL,
 )
-from aac_metrics.functional.sbert_sim import sbert_sim, _load_sbert
+from aac_metrics.functional.sbert_sim import (
+    sbert_sim,
+    _load_sbert,
+    DEFAULT_SBERT_SIM_MODEL,
+)
 from aac_metrics.utils.checks import check_metric_inputs
 
 
@@ -28,9 +33,9 @@ def fense(
     mult_references: list[list[str]],
     return_all_scores: bool = True,
     # SBERT args
-    sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
+    sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
     # FluencyError args
-    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     device: Union[str, torch.device, None] = "cuda_if_available",
@@ -138,8 +143,8 @@ def _fense_from_outputs(
 
 
 def _load_models_and_tokenizer(
-    sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
+    echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     device: Union[str, torch.device, None] = "cuda_if_available",
     reset_state: bool = True,

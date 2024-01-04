@@ -15,7 +15,9 @@ from aac_metrics.functional.fer import (
     fer,
     _load_echecker_and_tokenizer,
     _ERROR_NAMES,
+    DEFAULT_FER_MODEL,
 )
+from aac_metrics.utils.globals import _get_device
 
 
 pylog = logging.getLogger(__name__)
@@ -40,7 +42,7 @@ class FER(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]])
     def __init__(
         self,
         return_all_scores: bool = True,
-        echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+        echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
         error_threshold: float = 0.9,
         device: Union[str, torch.device, None] = "cuda_if_available",
         batch_size: int = 32,
@@ -48,6 +50,7 @@ class FER(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]])
         return_probs: bool = False,
         verbose: int = 0,
     ) -> None:
+        device = _get_device(device)
         echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
             echecker=echecker,
             echecker_tokenizer=None,
@@ -89,7 +92,10 @@ class FER(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]])
         return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("fer",) + tuple(f"fer.{name}_prob" for name in _ERROR_NAMES)
+        output_names = ["fer"]
+        if self._return_probs:
+            output_names += [f"fer.{name}_prob" for name in _ERROR_NAMES]
+        return tuple(output_names)
 
     def reset(self) -> None:
         self._candidates = []

@@ -27,6 +27,9 @@ from aac_metrics.utils.checks import is_mono_sents
 from aac_metrics.utils.globals import _get_device
 
 
+DEFAULT_FER_MODEL = "echecker_clotho_audiocaps_base"
+
+
 _DEFAULT_PROXIES = {
     "http": "socks5h://127.0.0.1:1080",
     "https": "socks5h://127.0.0.1:1080",
@@ -67,7 +70,7 @@ class BERTFlatClassifier(nn.Module):
     @classmethod
     def from_pretrained(
         cls,
-        model_name: str = "echecker_clotho_audiocaps_base",
+        model_name: str = DEFAULT_FER_MODEL,
         device: Union[str, torch.device, None] = "cuda_if_available",
         use_proxy: bool = False,
         proxies: Optional[dict[str, str]] = None,
@@ -98,7 +101,7 @@ class BERTFlatClassifier(nn.Module):
 def fer(
     candidates: list[str],
     return_all_scores: bool = True,
-    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     device: Union[str, torch.device, None] = "cuda_if_available",
@@ -190,7 +193,7 @@ def _use_new_echecker_loading() -> bool:
 
 # - Private functions
 def _load_echecker_and_tokenizer(
-    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     device: Union[str, torch.device, None] = "cuda_if_available",
     reset_state: bool = True,

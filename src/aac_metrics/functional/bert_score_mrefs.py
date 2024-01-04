@@ -16,6 +16,7 @@ from aac_metrics.utils.collections import flat_list, unflat_list, duplicate_list
 from aac_metrics.utils.globals import _get_device
 
 
+DEFAULT_BERT_SCORE_MODEL = _DEFAULT_MODEL
 REDUCTIONS = ("mean", "max", "min")
 
 
@@ -23,7 +24,7 @@ def bert_score_mrefs(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    model: Union[str, nn.Module] = _DEFAULT_MODEL,
+    model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
     tokenizer: Optional[Callable] = None,
     device: Union[str, torch.device, None] = "cuda_if_available",
     batch_size: int = 32,
@@ -167,11 +168,11 @@ def bert_score_mrefs(
 
 
 def _load_model_and_tokenizer(
-    model: Union[str, nn.Module],
-    tokenizer: Optional[Callable],
-    device: Union[str, torch.device, None],
-    reset_state: bool,
-    verbose: int,
+    model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
+    tokenizer: Optional[Callable] = None,
+    device: Union[str, torch.device, None] = "cuda_if_available",
+    reset_state: bool = True,
+    verbose: int = 0,
 ) -> tuple[nn.Module, Optional[Callable]]:
     state = torch.random.get_rng_state()
 

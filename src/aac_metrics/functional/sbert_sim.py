@@ -15,6 +15,8 @@ from aac_metrics.utils.checks import check_metric_inputs
 from aac_metrics.utils.globals import _get_device
 
 
+DEFAULT_SBERT_SIM_MODEL = "paraphrase-TinyBERT-L6-v2"
+
 pylog = logging.getLogger(__name__)
 
 
@@ -22,7 +24,7 @@ def sbert_sim(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
+    sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
     device: Union[str, torch.device, None] = "cuda_if_available",
     batch_size: int = 32,
     reset_state: bool = True,
@@ -86,7 +88,7 @@ def sbert_sim(
 
 
 def _load_sbert(
-    sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
+    sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
     device: Union[str, torch.device, None] = "cuda_if_available",
     reset_state: bool = True,
 ) -> SentenceTransformer:
