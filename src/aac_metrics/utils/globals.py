@@ -112,7 +112,7 @@ def __set_default_value(
 
 
 def __get_value(value_name: str, value: Any = None) -> Any:
-    if value is ... or value is None:
+    if value is None or value is ...:
         return __get_default_value(value_name)
     else:
         process_func = __DEFAULT_GLOBALS[value_name]["process"]
