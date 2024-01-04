@@ -85,8 +85,8 @@ class BLEU(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]
             mult_references=mult_references,
             n=self._n,
             tokenizer=self._tokenizer,
-            cooked_cands=self._cooked_cands,
-            cooked_mrefs=self._cooked_mrefs,
+            prev_cooked_cands=self._cooked_cands,
+            prev_cooked_mrefs=self._cooked_mrefs,
         )
 
 
