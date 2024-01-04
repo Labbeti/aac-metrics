@@ -85,7 +85,7 @@ def evaluate(
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Evaluate candidates with multiple references with custom metrics.
@@ -98,7 +98,7 @@ def evaluate(
     :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
     :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :param device: The PyTorch device used to run FENSE and SPIDErFL models.
-        If None, it will try to detect use cuda if available. defaults to "auto".
+        If None, it will try to detect use cuda if available. defaults to "cuda_if_available".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple contains the corpus and sentences scores.
     """
@@ -172,7 +172,7 @@ def dcase2023_evaluate(
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     verbose: int = 0,
 ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Evaluate candidates with multiple references with the DCASE2023 Audio Captioning metrics.
@@ -185,7 +185,7 @@ def dcase2023_evaluate(
     :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
     :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
     :param device: The PyTorch device used to run FENSE and SPIDErFL models.
-        If None, it will try to detect use cuda if available. defaults to "auto".
+        If None, it will try to detect use cuda if available. defaults to "cuda_if_available".
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple contains the corpus and sentences scores.
     """
@@ -207,7 +207,7 @@ def _instantiate_metrics_functions(
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     verbose: int = 0,
 ) -> list[Callable]:
     if isinstance(metrics, str) and metrics in METRICS_SETS:
@@ -245,7 +245,7 @@ def _get_metric_factory_functions(
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     verbose: int = 0,
     init_kwds: Optional[dict[str, Any]] = None,
 ) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:

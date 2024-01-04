@@ -199,7 +199,7 @@ def _get_main_evaluate_args() -> Namespace:
     parser.add_argument(
         "--device",
         type=str,
-        default="auto",
+        default="cuda_if_available",
         help="Device used for model-based metrics. defaults to 'auto'.",
     )
     parser.add_argument(

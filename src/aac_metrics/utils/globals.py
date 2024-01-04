@@ -131,7 +131,7 @@ def __process_path(value: Union[str, Path, None]) -> Union[str, None]:
 def __process_device(value: Union[str, torch.device, None]) -> Optional[torch.device]:
     if value is None or value is ...:
         return None
-    if value == "auto":
+    if value == "cuda_if_available":
         value = "cuda" if torch.cuda.is_available() else "cpu"
     if isinstance(value, str):
         value = torch.device(value)
@@ -150,7 +150,7 @@ __DEFAULT_GLOBALS = {
     "device": {
         "values": {
             "env": "AAC_METRICS_DEVICE",
-            "package": "auto",
+            "package": "cuda_if_available",
         },
         "process": __process_device,
     },

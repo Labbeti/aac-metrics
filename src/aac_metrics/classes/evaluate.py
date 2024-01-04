@@ -55,7 +55,7 @@ class Evaluate(list[AACMetric], AACMetric[tuple[dict[str, Tensor], dict[str, Ten
         cache_path: Union[str, Path, None] = None,
         java_path: Union[str, Path, None] = None,
         tmp_path: Union[str, Path, None] = None,
-        device: Union[str, torch.device, None] = "auto",
+        device: Union[str, torch.device, None] = "cuda_if_available",
         verbose: int = 0,
     ) -> None:
         metrics = _instantiate_metrics_classes(
@@ -127,7 +127,7 @@ class DCASE2023Evaluate(Evaluate):
         cache_path: Union[str, Path, None] = None,
         java_path: Union[str, Path, None] = None,
         tmp_path: Union[str, Path, None] = None,
-        device: Union[str, torch.device, None] = "auto",
+        device: Union[str, torch.device, None] = "cuda_if_available",
         verbose: int = 0,
     ) -> None:
         super().__init__(
@@ -146,7 +146,7 @@ def _instantiate_metrics_classes(
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     verbose: int = 0,
 ) -> list[AACMetric]:
     if isinstance(metrics, str) and metrics in METRICS_SETS:
@@ -179,7 +179,7 @@ def _get_metric_factory_classes(
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     verbose: int = 0,
     init_kwds: Optional[dict[str, Any]] = None,
 ) -> dict[str, Callable[[], AACMetric]]:

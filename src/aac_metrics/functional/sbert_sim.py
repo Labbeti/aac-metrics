@@ -23,7 +23,7 @@ def sbert_sim(
     mult_references: list[list[str]],
     return_all_scores: bool = True,
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     batch_size: int = 32,
     reset_state: bool = True,
     verbose: int = 0,
@@ -39,7 +39,7 @@ def sbert_sim(
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
     :param sbert_model: The sentence BERT model used to extract sentence embeddings for cosine-similarity. defaults to "paraphrase-TinyBERT-L6-v2".
-    :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "auto".
+    :param device: The PyTorch device used to run FENSE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the sBERT models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param verbose: The verbose level. defaults to 0.
@@ -87,7 +87,7 @@ def sbert_sim(
 
 def _load_sbert(
     sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     reset_state: bool = True,
 ) -> SentenceTransformer:
     state = torch.random.get_rng_state()

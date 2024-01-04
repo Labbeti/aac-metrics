@@ -37,7 +37,7 @@ class SBERTSim(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
         self,
         return_all_scores: bool = True,
         sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-        device: Union[str, torch.device, None] = "auto",
+        device: Union[str, torch.device, None] = "cuda_if_available",
         batch_size: int = 32,
         reset_state: bool = True,
         verbose: int = 0,

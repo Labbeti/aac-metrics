@@ -68,7 +68,7 @@ class BERTFlatClassifier(nn.Module):
     def from_pretrained(
         cls,
         model_name: str = "echecker_clotho_audiocaps_base",
-        device: Union[str, torch.device, None] = "auto",
+        device: Union[str, torch.device, None] = "cuda_if_available",
         use_proxy: bool = False,
         proxies: Optional[dict[str, str]] = None,
         verbose: int = 0,
@@ -101,7 +101,7 @@ def fer(
     echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     batch_size: int = 32,
     reset_state: bool = True,
     return_probs: bool = False,
@@ -124,7 +124,7 @@ def fer(
         If None and echecker is not None, this value will be inferred with `echecker.model_type`.
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
-    :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "auto".
+    :param device: The PyTorch device used to run FENSE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to False.
@@ -192,7 +192,7 @@ def _use_new_echecker_loading() -> bool:
 def _load_echecker_and_tokenizer(
     echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
     echecker_tokenizer: Optional[AutoTokenizer] = None,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     reset_state: bool = True,
     verbose: int = 0,
 ) -> tuple[BERTFlatClassifier, AutoTokenizer]:
@@ -365,7 +365,7 @@ def __get_data_home(data_home: Optional[str] = None) -> str:
 
 def __load_pretrain_echecker(
     echecker_model: str,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     use_proxy: bool = False,
     proxies: Optional[dict[str, str]] = None,
     verbose: int = 0,
