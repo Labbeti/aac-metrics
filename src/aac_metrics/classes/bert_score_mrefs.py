@@ -6,13 +6,15 @@ from typing import Union
 import torch
 
 from torch import nn, Tensor
-from torchmetrics.text.bert import _DEFAULT_MODEL
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.bert_score_mrefs import (
     bert_score_mrefs,
     _load_model_and_tokenizer,
+    DEFAULT_BERT_SCORE_MODEL,
+    REDUCTIONS,
 )
+from aac_metrics.utils.globals import _get_device
 
 
 class BERTScoreMRefs(AACMetric):
@@ -35,8 +37,8 @@ class BERTScoreMRefs(AACMetric):
     def __init__(
         self,
         return_all_scores: bool = True,
-        model: Union[str, nn.Module] = _DEFAULT_MODEL,
-        device: Union[str, torch.device, None] = "auto",
+        model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
+        device: Union[str, torch.device, None] = "cuda_if_available",
         batch_size: int = 32,
         num_threads: int = 0,
         max_length: int = 64,
@@ -46,6 +48,12 @@ class BERTScoreMRefs(AACMetric):
         filter_nan: bool = True,
         verbose: int = 0,
     ) -> None:
+        if reduction not in REDUCTIONS:
+            raise ValueError(
+                f"Invalid argument {reduction=}. (expected one of {REDUCTIONS})"
+            )
+
+        device = _get_device(device)
         model, tokenizer = _load_model_and_tokenizer(
             model=model,
             tokenizer=None,

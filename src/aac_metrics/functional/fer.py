@@ -14,6 +14,7 @@ from typing import Mapping, Optional, Union
 
 import numpy as np
 import torch
+import transformers
 
 from torch import nn, Tensor
 from tqdm import tqdm
@@ -26,12 +27,14 @@ from aac_metrics.utils.checks import is_mono_sents
 from aac_metrics.utils.globals import _get_device
 
 
-# config according to the settings on your computer, this should be default setting of shadowsocks
-DEFAULT_PROXIES = {
+DEFAULT_FER_MODEL = "echecker_clotho_audiocaps_base"
+
+
+_DEFAULT_PROXIES = {
     "http": "socks5h://127.0.0.1:1080",
     "https": "socks5h://127.0.0.1:1080",
 }
-PRETRAIN_ECHECKERS_DICT = {
+_PRETRAIN_ECHECKERS_DICT = {
     "echecker_clotho_audiocaps_base": (
         "https://github.com/blmoistawinde/fense/releases/download/V0.1/echecker_clotho_audiocaps_base.ckpt",
         "1a719f090af70614bbdb9f9437530b7e133c48cfa4a58d964de0d47fc974a2fa",
@@ -41,13 +44,7 @@ PRETRAIN_ECHECKERS_DICT = {
         "90ed0ac5033ec497ec66d4f68588053813e085671136dae312097c96c504f673",
     ),
 }
-
-RemoteFileMetadata = namedtuple("RemoteFileMetadata", ["filename", "url", "checksum"])
-
-pylog = logging.getLogger(__name__)
-
-
-ERROR_NAMES = (
+_ERROR_NAMES = (
     "add_tail",
     "repeat_event",
     "repeat_adv",
@@ -55,6 +52,10 @@ ERROR_NAMES = (
     "remove_verb",
     "error",
 )
+
+_RemoteFileMetadata = namedtuple("RemoteFileMetadata", ["filename", "url", "checksum"])
+
+pylog = logging.getLogger(__name__)
 
 
 class BERTFlatClassifier(nn.Module):
@@ -69,13 +70,19 @@ class BERTFlatClassifier(nn.Module):
     @classmethod
     def from_pretrained(
         cls,
-        model_name: str = "echecker_clotho_audiocaps_base",
-        device: Union[str, torch.device, None] = "auto",
+        model_name: str = DEFAULT_FER_MODEL,
+        device: Union[str, torch.device, None] = "cuda_if_available",
         use_proxy: bool = False,
         proxies: Optional[dict[str, str]] = None,
         verbose: int = 0,
     ) -> "BERTFlatClassifier":
-        return __load_pretrain_echecker(model_name, device, use_proxy, proxies, verbose)
+        return __load_pretrain_echecker(
+            echecker_model=model_name,
+            device=device,
+            use_proxy=use_proxy,
+            proxies=proxies,
+            verbose=verbose,
+        )
 
     def forward(
         self,
@@ -94,10 +101,10 @@ class BERTFlatClassifier(nn.Module):
 def fer(
     candidates: list[str],
     return_all_scores: bool = True,
-    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     batch_size: int = 32,
     reset_state: bool = True,
     return_probs: bool = False,
@@ -120,7 +127,7 @@ def fer(
         If None and echecker is not None, this value will be inferred with `echecker.model_type`.
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
-    :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "auto".
+    :param device: The PyTorch device used to run FENSE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to False.
@@ -133,16 +140,20 @@ def fer(
 
     # Init models
     echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
-        echecker, echecker_tokenizer, device, reset_state, verbose
+        echecker=echecker,
+        echecker_tokenizer=echecker_tokenizer,
+        device=device,
+        reset_state=reset_state,
+        verbose=verbose,
     )
 
     # Compute and apply fluency error detection penalty
     probs_outs_sents = __detect_error_sents(
-        echecker,
-        echecker_tokenizer,  # type: ignore
-        candidates,
-        batch_size,
-        device,
+        echecker=echecker,
+        echecker_tokenizer=echecker_tokenizer,
+        sents=candidates,
+        batch_size=batch_size,
+        device=device,
     )
     fer_scores = (probs_outs_sents["error"] > error_threshold).astype(float)
 
@@ -174,11 +185,17 @@ def fer(
         return fer_score
 
 
+def _use_new_echecker_loading() -> bool:
+    version = transformers.__version__
+    major, minor, _patch = map(int, version.split("."))
+    return major > 4 or (major == 4 and minor >= 31)
+
+
 # - Private functions
 def _load_echecker_and_tokenizer(
-    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     reset_state: bool = True,
     verbose: int = 0,
 ) -> tuple[BERTFlatClassifier, AutoTokenizer]:
@@ -226,10 +243,10 @@ def __detect_error_sents(
         # batch_logits: (bsize, num_classes=6)
         # note: fix error in the original fense code: https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L69
         probs = logits.sigmoid().transpose(0, 1).cpu().numpy()
-        probs_dic: dict[str, np.ndarray] = dict(zip(ERROR_NAMES, probs))
+        probs_dic: dict[str, np.ndarray] = dict(zip(_ERROR_NAMES, probs))
 
     else:
-        dic_lst_probs = {name: [] for name in ERROR_NAMES}
+        dic_lst_probs = {name: [] for name in _ERROR_NAMES}
 
         for i in range(0, len(sents), batch_size):
             batch = __infer_preprocess(
@@ -257,11 +274,10 @@ def __detect_error_sents(
 
 
 def __check_download_resource(
-    remote: RemoteFileMetadata,
+    remote: _RemoteFileMetadata,
     use_proxy: bool = False,
     proxies: Optional[dict[str, str]] = None,
 ) -> str:
-    proxies = DEFAULT_PROXIES if use_proxy and proxies is None else proxies
     data_home = __get_data_home()
     file_path = os.path.join(data_home, remote.filename)
     if not os.path.exists(file_path):
@@ -286,10 +302,10 @@ def __infer_preprocess(
 
 
 def __download(
-    remote: RemoteFileMetadata,
+    remote: _RemoteFileMetadata,
     file_path: Optional[str] = None,
     use_proxy: bool = False,
-    proxies: Optional[dict[str, str]] = DEFAULT_PROXIES,
+    proxies: Optional[dict[str, str]] = None,
 ) -> str:
     data_home = __get_data_home()
     file_path = __fetch_remote(remote, data_home, use_proxy, proxies)
@@ -299,8 +315,12 @@ def __download(
 def __download_with_bar(
     url: str,
     file_path: str,
-    proxies: Optional[dict[str, str]] = DEFAULT_PROXIES,
+    use_proxy: bool = False,
+    proxies: Optional[dict[str, str]] = None,
 ) -> str:
+    if use_proxy and proxies is None:
+        proxies = _DEFAULT_PROXIES
+
     # Streaming, so we can iterate over the response.
     response = requests.get(url, stream=True, proxies=proxies)
     total_size_in_bytes = int(response.headers.get("content-length", 0))
@@ -317,31 +337,13 @@ def __download_with_bar(
 
 
 def __fetch_remote(
-    remote: RemoteFileMetadata,
+    remote: _RemoteFileMetadata,
     dirname: Optional[str] = None,
     use_proxy: bool = False,
-    proxies: Optional[dict[str, str]] = DEFAULT_PROXIES,
+    proxies: Optional[dict[str, str]] = None,
 ) -> str:
-    """Helper function to download a remote dataset into path
-    Fetch a dataset pointed by remote's url, save into path using remote's
-    filename and ensure its integrity based on the SHA256 Checksum of the
-    downloaded file.
-    Parameters
-    ----------
-    remote : RemoteFileMetadata
-        Named tuple containing remote dataset meta information: url, filename
-        and checksum
-    dirname : string
-        Directory to save the file to.
-    Returns
-    -------
-    file_path: string
-        Full path of the created file.
-    """
-
     file_path = remote.filename if dirname is None else join(dirname, remote.filename)
-    proxies = None if not use_proxy else proxies
-    file_path = __download_with_bar(remote.url, file_path, proxies)
+    file_path = __download_with_bar(remote.url, file_path, use_proxy, proxies)
     checksum = __sha256(file_path)
     if remote.checksum != checksum:
         raise IOError(
@@ -352,23 +354,10 @@ def __fetch_remote(
     return file_path
 
 
-def __get_data_home(data_home: Optional[str] = None) -> str:  # type: ignore
-    """Return the path of the scikit-learn data dir.
-    This folder is used by some large dataset loaders to avoid downloading the
-    data several times.
-    By default the data dir is set to a folder named 'fense_data' in the
-    user home folder.
-    Alternatively, it can be set by the 'FENSE_DATA' environment
-    variable or programmatically by giving an explicit folder path. The '~'
-    symbol is expanded to the user home folder.
-    If the folder does not already exist, it is automatically created.
-    Parameters
-    ----------
-    data_home : str | None
-        The path to data dir.
-    """
+def __get_data_home(data_home: Optional[str] = None) -> str:
     if data_home is None:
-        data_home = environ.get("FENSE_DATA", join(torch.hub.get_dir(), "fense_data"))
+        DEFAULT_DATA_HOME = join(torch.hub.get_dir(), "fense_data")
+        data_home = environ.get("FENSE_DATA", DEFAULT_DATA_HOME)
 
     data_home: str
     data_home = expanduser(data_home)
@@ -379,20 +368,20 @@ def __get_data_home(data_home: Optional[str] = None) -> str:  # type: ignore
 
 def __load_pretrain_echecker(
     echecker_model: str,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     use_proxy: bool = False,
     proxies: Optional[dict[str, str]] = None,
     verbose: int = 0,
 ) -> BERTFlatClassifier:
-    if echecker_model not in PRETRAIN_ECHECKERS_DICT:
+    if echecker_model not in _PRETRAIN_ECHECKERS_DICT:
         raise ValueError(
-            f"Invalid argument {echecker_model=}. (expected one of {tuple(PRETRAIN_ECHECKERS_DICT.keys())})"
+            f"Invalid argument {echecker_model=}. (expected one of {tuple(_PRETRAIN_ECHECKERS_DICT.keys())})"
         )
 
     device = _get_device(device)
     tfmers_logging.set_verbosity_error()  # suppress loading warnings
-    url, checksum = PRETRAIN_ECHECKERS_DICT[echecker_model]
-    remote = RemoteFileMetadata(
+    url, checksum = _PRETRAIN_ECHECKERS_DICT[echecker_model]
+    remote = _RemoteFileMetadata(
         filename=f"{echecker_model}.ckpt", url=url, checksum=checksum
     )
     file_path = __check_download_resource(remote, use_proxy, proxies)
@@ -401,17 +390,25 @@ def __load_pretrain_echecker(
         pylog.debug(f"Loading echecker model from '{file_path}'.")
 
     model_states = torch.load(file_path)
+    model_type = model_states["model_type"]
+    num_classes = model_states["num_classes"]
+    state_dict = model_states["state_dict"]
 
     if verbose >= 2:
         pylog.debug(
-            f"Loading echecker model type '{model_states['model_type']}' with '{model_states['num_classes']}' classes."
+            f"Loading echecker model type '{model_type}' with '{num_classes}' classes."
         )
 
     echecker = BERTFlatClassifier(
-        model_type=model_states["model_type"],
-        num_classes=model_states["num_classes"],
+        model_type=model_type,
+        num_classes=num_classes,
     )
-    echecker.load_state_dict(model_states["state_dict"])
+
+    # To support transformers > 4.31, because this lib changed BertEmbedding state_dict
+    if _use_new_echecker_loading():
+        state_dict.pop("encoder.embeddings.position_ids")
+
+    echecker.load_state_dict(state_dict)
     echecker.eval()
     echecker.to(device=device)
     return echecker

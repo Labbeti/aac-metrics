@@ -67,7 +67,7 @@ def _get_cache_path(cache_path: Union[str, Path, None] = None) -> str:
 
 
 def _get_device(
-    device: Union[str, torch.device, None] = None
+    device: Union[str, torch.device, None] = "cuda_if_available",
 ) -> Optional[torch.device]:
     value_name = "device"
     process_func = __DEFAULT_GLOBALS[value_name]["process"]
@@ -86,14 +86,15 @@ def _get_tmp_path(tmp_path: Union[str, Path, None] = None) -> str:
 def __get_default_value(value_name: str) -> Any:
     values = __DEFAULT_GLOBALS[value_name]["values"]
     process_func = __DEFAULT_GLOBALS[value_name]["process"]
+    default_val = None
 
     for source, value_or_env_varname in values.items():
         if source.startswith("env"):
-            value = os.getenv(value_or_env_varname, None)
+            value = os.getenv(value_or_env_varname, default_val)
         else:
             value = value_or_env_varname
 
-        if value is not None:
+        if value != default_val:
             value = process_func(value)
             return value
 
@@ -111,7 +112,7 @@ def __set_default_value(
 
 
 def __get_value(value_name: str, value: Any = None) -> Any:
-    if value is ... or value is None:
+    if value is None or value is ...:
         return __get_default_value(value_name)
     else:
         process_func = __DEFAULT_GLOBALS[value_name]["process"]
@@ -131,7 +132,7 @@ def __process_path(value: Union[str, Path, None]) -> Union[str, None]:
 def __process_device(value: Union[str, torch.device, None]) -> Optional[torch.device]:
     if value is None or value is ...:
         return None
-    if value == "auto":
+    if value == "cuda_if_available":
         value = "cuda" if torch.cuda.is_available() else "cpu"
     if isinstance(value, str):
         value = torch.device(value)
@@ -150,7 +151,7 @@ __DEFAULT_GLOBALS = {
     "device": {
         "values": {
             "env": "AAC_METRICS_DEVICE",
-            "package": "auto",
+            "package": "cuda_if_available",
         },
         "process": __process_device,
     },

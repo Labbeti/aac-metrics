@@ -15,8 +15,13 @@ from aac_metrics.functional.fer import (
     fer,
     _load_echecker_and_tokenizer,
     BERTFlatClassifier,
+    DEFAULT_FER_MODEL,
 )
-from aac_metrics.functional.sbert_sim import sbert_sim, _load_sbert
+from aac_metrics.functional.sbert_sim import (
+    sbert_sim,
+    _load_sbert,
+    DEFAULT_SBERT_SIM_MODEL,
+)
 from aac_metrics.utils.checks import check_metric_inputs
 
 
@@ -28,12 +33,12 @@ def fense(
     mult_references: list[list[str]],
     return_all_scores: bool = True,
     # SBERT args
-    sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
+    sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
     # FluencyError args
-    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     batch_size: int = 32,
     reset_state: bool = True,
     return_probs: bool = False,
@@ -60,7 +65,7 @@ def fense(
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
     :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.9.
-    :param device: The PyTorch device used to run FENSE models. If "auto", it will use cuda if available. defaults to "auto".
+    :param device: The PyTorch device used to run FENSE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the sBERT and echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to False.
@@ -138,15 +143,17 @@ def _fense_from_outputs(
 
 
 def _load_models_and_tokenizer(
-    sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-    echecker: Union[str, BERTFlatClassifier] = "echecker_clotho_audiocaps_base",
+    sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
+    echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     reset_state: bool = True,
     verbose: int = 0,
 ) -> tuple[SentenceTransformer, BERTFlatClassifier, AutoTokenizer]:
     sbert_model = _load_sbert(
-        sbert_model=sbert_model, device=device, reset_state=reset_state
+        sbert_model=sbert_model,
+        device=device,
+        reset_state=reset_state,
     )
     echecker, echecker_tokenizer = _load_echecker_and_tokenizer(
         echecker=echecker,

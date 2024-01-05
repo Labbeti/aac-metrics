@@ -7,11 +7,17 @@ from typing import Union
 
 import torch
 
+from sentence_transformers import SentenceTransformer
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fense import fense, _load_models_and_tokenizer
-from aac_metrics.functional.fer import ERROR_NAMES
+from aac_metrics.functional.fer import (
+    BERTFlatClassifier,
+    _ERROR_NAMES,
+    DEFAULT_FER_MODEL,
+)
+from aac_metrics.functional.sbert_sim import DEFAULT_SBERT_SIM_MODEL
 
 
 pylog = logging.getLogger(__name__)
@@ -36,10 +42,10 @@ class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
     def __init__(
         self,
         return_all_scores: bool = True,
-        sbert_model: str = "paraphrase-TinyBERT-L6-v2",
-        echecker: str = "echecker_clotho_audiocaps_base",
+        sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
+        echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
         error_threshold: float = 0.9,
-        device: Union[str, torch.device, None] = "auto",
+        device: Union[str, torch.device, None] = "cuda_if_available",
         batch_size: int = 32,
         reset_state: bool = True,
         return_probs: bool = False,
@@ -99,9 +105,10 @@ class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("sbert_sim", "fer", "fense") + tuple(
-            f"fer.{name}_prob" for name in ERROR_NAMES
-        )
+        output_names = ["sbert_sim", "fer", "fense"]
+        if self._return_probs:
+            output_names += [f"fer.{name}_prob" for name in _ERROR_NAMES]
+        return tuple(output_names)
 
     def reset(self) -> None:
         self._candidates = []

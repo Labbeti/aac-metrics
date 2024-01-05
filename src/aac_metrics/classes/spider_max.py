@@ -89,7 +89,10 @@ class SPIDErMax(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Ten
         return repr_
 
     def get_output_names(self) -> tuple[str, ...]:
-        return ("spider_max",)
+        output_names = ["spider_max"]
+        if self._return_all_cands_scores:
+            output_names += ["cider_d_all", "spice_all", "spider_all"]
+        return tuple(output_names)
 
     def reset(self) -> None:
         self._mult_candidates = []

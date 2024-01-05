@@ -81,12 +81,12 @@ class BLEU(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]
         mult_references: list[list[str]],
     ) -> None:
         self._cooked_cands, self._cooked_mrefs = _bleu_update(
-            candidates,
-            mult_references,
-            self._n,
-            self._tokenizer,
-            self._cooked_cands,
-            self._cooked_mrefs,
+            candidates=candidates,
+            mult_references=mult_references,
+            n=self._n,
+            tokenizer=self._tokenizer,
+            prev_cooked_cands=self._cooked_cands,
+            prev_cooked_mrefs=self._cooked_mrefs,
         )
 
 

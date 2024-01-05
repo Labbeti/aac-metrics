@@ -11,7 +11,12 @@ from sentence_transformers import SentenceTransformer
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.sbert_sim import sbert_sim, _load_sbert
+from aac_metrics.functional.sbert_sim import (
+    sbert_sim,
+    _load_sbert,
+    DEFAULT_SBERT_SIM_MODEL,
+)
+from aac_metrics.utils.globals import _get_device
 
 
 pylog = logging.getLogger(__name__)
@@ -36,13 +41,18 @@ class SBERTSim(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
     def __init__(
         self,
         return_all_scores: bool = True,
-        sbert_model: Union[str, SentenceTransformer] = "paraphrase-TinyBERT-L6-v2",
-        device: Union[str, torch.device, None] = "auto",
+        sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
+        device: Union[str, torch.device, None] = "cuda_if_available",
         batch_size: int = 32,
         reset_state: bool = True,
         verbose: int = 0,
     ) -> None:
-        sbert_model = _load_sbert(sbert_model, device, reset_state)
+        device = _get_device(device)
+        sbert_model = _load_sbert(
+            sbert_model=sbert_model,
+            device=device,
+            reset_state=reset_state,
+        )
 
         super().__init__()
         self._return_all_scores = return_all_scores

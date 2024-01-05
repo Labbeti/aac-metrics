@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] 2024-01-05
+### Changed
+- `aac-metrics` is now compatible with `transformers>=4.31`.
+- Rename default device value "auto" to "cuda_if_available".
+
 ## [0.5.1] 2023-12-20
 ### Added
 - Check sentences inputs for all metrics.

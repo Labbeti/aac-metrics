@@ -16,13 +16,17 @@ from aac_metrics.utils.collections import flat_list, unflat_list, duplicate_list
 from aac_metrics.utils.globals import _get_device
 
 
+DEFAULT_BERT_SCORE_MODEL = _DEFAULT_MODEL
+REDUCTIONS = ("mean", "max", "min")
+
+
 def bert_score_mrefs(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    model: Union[str, nn.Module] = _DEFAULT_MODEL,
+    model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
     tokenizer: Optional[Callable] = None,
-    device: Union[str, torch.device, None] = "auto",
+    device: Union[str, torch.device, None] = "cuda_if_available",
     batch_size: int = 32,
     num_threads: int = 0,
     max_length: int = 64,
@@ -48,12 +52,12 @@ def bert_score_mrefs(
     :param tokenizer: The fast tokenizer used to split sentences into words.
         If None, use the tokenizer corresponding to the model argument.
         defaults to None.
-    :param device: The PyTorch device used to run the BERT model. defaults to "auto".
+    :param device: The PyTorch device used to run the BERT model. defaults to "cuda_if_available".
     :param batch_size: The batch size used in the model forward.
     :param num_threads: A number of threads to use for a dataloader. defaults to 0.
     :param max_length: Max length when encoding sentences to tensor ids. defaults to 64.
     :param idf: Whether or not using Inverse document frequency to ponderate the BERTScores. defaults to False.
-    :param reduction: The reduction function to apply between multiple references for each audio. defaults to "mean".
+    :param reduction: The reduction function to apply between multiple references for each audio. defaults to "max".
     :param filter_nan: If True, replace NaN scores by 0.0. defaults to True.
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
@@ -132,7 +136,6 @@ def bert_score_mrefs(
     elif reduction == "min":
         reduction_fn = _min_reduce
     else:
-        REDUCTIONS = ("mean", "max", "min")
         raise ValueError(
             f"Invalid argument {reduction=}. (expected one of {REDUCTIONS})"
         )
@@ -165,11 +168,11 @@ def bert_score_mrefs(
 
 
 def _load_model_and_tokenizer(
-    model: Union[str, nn.Module],
-    tokenizer: Optional[Callable],
-    device: Union[str, torch.device, None],
-    reset_state: bool,
-    verbose: int,
+    model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
+    tokenizer: Optional[Callable] = None,
+    device: Union[str, torch.device, None] = "cuda_if_available",
+    reset_state: bool = True,
+    verbose: int = 0,
 ) -> tuple[nn.Module, Optional[Callable]]:
     state = torch.random.get_rng_state()
 
