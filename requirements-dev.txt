@@ -7,3 +7,5 @@ scikit-image==0.19.2
 matplotlib==3.5.2
 ipykernel==6.9.1
 twine==4.0.1
+sphinx==7.2.6
+sphinx-press-theme==0.8.0
