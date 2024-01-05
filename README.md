@@ -231,14 +231,14 @@ If you use this software, please consider cite it as "Labbe, E. (2013). aac-metr
 
 ```
 @software{
-    Labbe_aac_metrics_2023,
+    Labbe_aac_metrics_2024,
     author = {Labbé, Etienne},
     license = {MIT},
-    month = {12},
+    month = {01},
     title = {{aac-metrics}},
     url = {https://github.com/Labbeti/aac-metrics/},
-    version = {0.5.1},
-    year = {2023},
+    version = {0.5.2},
+    year = {2024},
 }
 ```
 
