@@ -142,8 +142,7 @@ def bert_score_mrefs(
 
     if len(sizes) > 0 and all(size == sizes[0] for size in sizes):
         sents_scores = {
-            k: reduction_fn(torch.as_tensor(v, dtype=dtype), dim=1)
-            for k, v in sents_scores.items()
+            k: reduction_fn(torch.stack(v), dim=1) for k, v in sents_scores.items()
         }
     else:
         sents_scores = {

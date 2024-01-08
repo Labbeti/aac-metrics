@@ -3,7 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.5.3] UNRELEASED
-### Added
+### Fixed
+- Fix `BERTScoreMrefs` computation when all sizes are equal.
 - Check for empty timeout list in SPICE metric.
 
 ## [0.5.2] 2024-01-05
