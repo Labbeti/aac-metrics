@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.3] UNRELEASED
+### Added
+- Check for empty timeout list in SPICE metric.
+
 ## [0.5.2] 2024-01-05
 ### Changed
 - `aac-metrics` is now compatible with `transformers>=4.31`.
