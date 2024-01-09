@@ -32,7 +32,7 @@ def bert_score_mrefs(
     max_length: int = 64,
     reset_state: bool = True,
     idf: bool = False,
-    reduction: str = "max",
+    reduction: Union[str, Callable[[Tensor, ...], Tensor]] = "max",
     filter_nan: bool = True,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
@@ -129,21 +129,23 @@ def bert_score_mrefs(
 
     dtype = torch.float32
 
-    if reduction == "mean":
-        reduction_fn = torch.mean
-    elif reduction == "max":
-        reduction_fn = _max_reduce
-    elif reduction == "min":
-        reduction_fn = _min_reduce
+    if isinstance(reduction, str):
+        if reduction == "mean":
+            reduction_fn = torch.mean
+        elif reduction == "max":
+            reduction_fn = _max_reduce
+        elif reduction == "min":
+            reduction_fn = _min_reduce
+        else:
+            raise ValueError(
+                f"Invalid argument {reduction=}. (expected one of {REDUCTIONS})"
+            )
     else:
-        raise ValueError(
-            f"Invalid argument {reduction=}. (expected one of {REDUCTIONS})"
-        )
+        reduction_fn = reduction
 
     if len(sizes) > 0 and all(size == sizes[0] for size in sizes):
         sents_scores = {
-            k: reduction_fn(torch.as_tensor(v, dtype=dtype), dim=1)
-            for k, v in sents_scores.items()
+            k: reduction_fn(torch.stack(v), dim=1) for k, v in sents_scores.items()
         }
     else:
         sents_scores = {

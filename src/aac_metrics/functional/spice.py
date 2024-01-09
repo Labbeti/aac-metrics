@@ -93,7 +93,12 @@ def spice(
         timeout_lst = [timeout]
     else:
         timeout_lst = list(timeout)
+
     timeout_lst: list[Optional[int]]
+    if len(timeout_lst) == 0:
+        raise ValueError(
+            f"Invalid argument {timeout_lst=}. (cannot call SPICE with empty number of timeouts)"
+        )
 
     spice_fpath = osp.join(cache_path, FNAME_SPICE_JAR)
 
@@ -170,15 +175,15 @@ def spice(
 
     for i, timeout_i in enumerate(timeout_lst):
         success = __run_spice(
-            i,
-            timeout_i,
-            timeout_lst,
-            spice_cmd,
-            tmp_path,
-            out_file.name,
-            fpaths,
-            use_shell,
-            verbose,
+            i=i,
+            timeout_i=timeout_i,
+            timeout_lst=timeout_lst,
+            spice_cmd=spice_cmd,
+            tmp_path=tmp_path,
+            out_path=out_file.name,
+            paths=fpaths,
+            use_shell=use_shell,
+            verbose=verbose,
         )
         if success:
             break
