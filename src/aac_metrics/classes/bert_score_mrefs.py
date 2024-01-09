@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Union
+from typing import Callable, Union
 
 import torch
 
@@ -44,7 +44,7 @@ class BERTScoreMRefs(AACMetric):
         max_length: int = 64,
         reset_state: bool = True,
         idf: bool = False,
-        reduction: str = "max",
+        reduction: Union[str, Callable[[Tensor, ...], Tensor]] = "max",
         filter_nan: bool = True,
         verbose: int = 0,
     ) -> None:

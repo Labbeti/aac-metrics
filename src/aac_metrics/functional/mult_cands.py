@@ -113,7 +113,8 @@ def mult_cands_metric(
             f"{k}_all": scores.transpose(0, 1) for k, scores in all_sents_scores.items()
         }
 
-    outs_corpus = {k: reduction(scores) for k, scores in outs_sents.items()}
+    reduction_fn = reduction
+    outs_corpus = {k: reduction_fn(scores) for k, scores in outs_sents.items()}
 
     if return_all_scores:
         return outs_corpus, outs_sents
