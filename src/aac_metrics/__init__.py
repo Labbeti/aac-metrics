@@ -10,7 +10,7 @@ __license__ = "MIT"
 __maintainer__ = "Etienne Labbé (Labbeti)"
 __name__ = "aac-metrics"
 __status__ = "Development"
-__version__ = "0.5.2"
+__version__ = "0.5.3"
 
 
 from .classes.base import AACMetric
@@ -68,12 +68,17 @@ __all__ = [
 ]
 
 
+def list_metrics_available() -> list[str]:
+    """Returns the list of metrics that can be loaded from its name."""
+    factory = _get_metric_factory_classes()
+    return list(factory.keys())
+
+
 def load_metric(name: str, **kwargs) -> AACMetric:
     """Load a metric class by name.
 
     :param name: The name of the metric.
-        Can be one of ("bleu_1", "bleu_2", "bleu_3", "bleu_4", "meteor", "rouge_l", "cider_d", "spice", "spider", "fense").
-    :param **kwargs: The keyword optional arguments passed to the metric factory.
+    :param **kwargs: The optional keyword arguments passed to the metric factory.
     :returns: The Metric object built.
     """
     name = name.lower().strip()
