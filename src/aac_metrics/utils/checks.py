@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import re
 import subprocess
 
 from pathlib import Path
@@ -10,10 +9,11 @@ from subprocess import CalledProcessError
 from typing import Any, Union
 from typing_extensions import TypeGuard
 
+from aac_metrics.utils.packaging import Version
+
 
 pylog = logging.getLogger(__name__)
 
-VERSION_PATTERN = r"(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+).*"
 MIN_JAVA_MAJOR_VERSION = 8
 MAX_JAVA_MAJOR_VERSION = 13
 
@@ -103,18 +103,13 @@ def _get_java_version(java_path: str) -> str:
     return version
 
 
-def _check_java_version(version: str, min_major: int, max_major: int) -> bool:
-    result = re.match(VERSION_PATTERN, version)
-    if result is None:
-        raise ValueError(
-            f"Invalid Java version {version=}. (expected version with pattern={VERSION_PATTERN})"
-        )
+def _check_java_version(version_str: str, min_major: int, max_major: int) -> bool:
+    version = Version.from_str(version_str)
 
-    major_version = int(result["major"])
-    minor_version = int(result["minor"])
-
-    if major_version == 1 and minor_version <= 8:
+    if version.major == "1" and version.minor <= "8":
         # java <= 8 use versioning "1.MAJOR.MINOR" and > 8 use "MAJOR.MINOR.PATCH"
-        major_version = minor_version
+        version.major = version.minor
+        version.minor = version.patch
+        version.patch = "0"  # unknown patch, but it does not matter here
 
-    return min_major <= major_version <= max_major
+    return Version(min_major, 0, 0) <= version < Version(max_major, 0, 0)
