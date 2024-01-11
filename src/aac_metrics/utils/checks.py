@@ -106,10 +106,10 @@ def _get_java_version(java_path: str) -> str:
 def _check_java_version(version_str: str, min_major: int, max_major: int) -> bool:
     version = Version.from_str(version_str)
 
-    if version.major == "1" and version.minor <= "8":
+    if version.major == 1 and version.minor <= 8:
         # java <= 8 use versioning "1.MAJOR.MINOR" and > 8 use "MAJOR.MINOR.PATCH"
         version.major = version.minor
         version.minor = version.patch
-        version.patch = "0"  # unknown patch, but it does not matter here
+        version.patch = 0  # unknown patch, but it does not matter here
 
-    return Version(min_major, 0, 0) <= version < Version(max_major, 0, 0)
+    return Version(min_major) <= version < Version(max_major+1)

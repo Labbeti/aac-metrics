@@ -29,14 +29,14 @@ class Version:
         str
     ] = r"(?P<major>[^\.]+)\.(?P<minor>[^\.]+)\.(?P<patch>[^\.]+).*"
 
-    major: str
-    minor: str
-    patch: str
+    major: int
+    minor: int
+    patch: int
 
-    def __init__(self, major: Any, minor: Any, patch: Any) -> None:
-        major = str(major)
-        minor = str(minor)
-        patch = str(patch)
+    def __init__(self, major: Any, minor: Any = 0, patch: Any = 0) -> None:
+        major = int(major)
+        minor = int(minor)
+        patch = int(patch)
 
         self.major = major
         self.minor = minor
@@ -45,8 +45,8 @@ class Version:
     @classmethod
     def from_dict(cls, version: Mapping[str, Any]) -> "Version":
         major = version["major"]
-        minor = version["minor"]
-        patch = version["patch"]
+        minor = version.get("minor", 0)
+        patch = version.get("patch", 0)
         return Version(major, minor, patch)
 
     @classmethod
@@ -60,19 +60,16 @@ class Version:
         return cls.from_dict(matched_dict)
 
     @classmethod
-    def from_tuple(cls, version: tuple[Any, Any, Any]) -> "Version":
-        major = version[0]
-        minor = version[1]
-        patch = version[2]
-        return Version(major, minor, patch)
+    def from_tuple(cls, version: tuple[Any, ...]) -> "Version":
+        return Version(*version)
 
-    def to_dict(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, int]:
         return asdict(self)
 
     def to_str(self) -> str:
         return Version._VERSION_FORMAT.format(**self.to_dict())
 
-    def to_tuple(self) -> tuple[str, str, str]:
+    def to_tuple(self) -> tuple[int, int, int]:
         return astuple(self)  # type: ignore
 
     def __lt__(self, other: "Version") -> bool:
