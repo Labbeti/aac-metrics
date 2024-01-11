@@ -22,7 +22,7 @@ def _package_is_available(package_name: str) -> bool:
         return False
 
 
-@dataclass(init=True, repr=True, eq=True, slots=True)
+@dataclass(init=True, repr=True, eq=True)
 class Version:
     _VERSION_FORMAT: ClassVar[str] = "{major}.{minor}.{patch}"
     _VERSION_PATTERN: ClassVar[
