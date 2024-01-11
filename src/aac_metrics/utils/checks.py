@@ -112,4 +112,4 @@ def _check_java_version(version_str: str, min_major: int, max_major: int) -> boo
         version.minor = version.patch
         version.patch = 0  # unknown patch, but it does not matter here
 
-    return Version(min_major) <= version < Version(max_major+1)
+    return Version(min_major) <= version < Version(max_major + 1)
