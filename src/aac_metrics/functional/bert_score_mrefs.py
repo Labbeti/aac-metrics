@@ -5,18 +5,16 @@ from typing import Callable, Optional, Union
 
 import torch
 import torchmetrics
-
-from torch import nn, Tensor
-from torchmetrics.functional.text.bert import bert_score, _DEFAULT_MODEL
+from packaging.version import Version
+from torch import Tensor, nn
+from torchmetrics.functional.text.bert import _DEFAULT_MODEL, bert_score
+from transformers import logging as tfmers_logging
 from transformers.models.auto.modeling_auto import AutoModel
 from transformers.models.auto.tokenization_auto import AutoTokenizer
-from transformers import logging as tfmers_logging
 
 from aac_metrics.utils.checks import check_metric_inputs
-from aac_metrics.utils.collections import flat_list, unflat_list, duplicate_list
+from aac_metrics.utils.collections import duplicate_list, flat_list, unflat_list
 from aac_metrics.utils.globals import _get_device
-from aac_metrics.utils.packaging import Version
-
 
 DEFAULT_BERT_SCORE_MODEL = _DEFAULT_MODEL
 REDUCTIONS = ("mean", "max", "min")
@@ -146,8 +144,8 @@ def bert_score_mrefs(
         reduction_fn = reduction
 
     if len(sizes) > 0 and all(size == sizes[0] for size in sizes):
-        torchmetrics_version = Version.from_str(torchmetrics.__version__)
-        if torchmetrics_version < Version(1, 0, 0):
+        torchmetrics_version = Version(torchmetrics.__version__)
+        if torchmetrics_version < Version("1.0.0"):
             # backward compatibility
             sents_scores = {
                 k: reduction_fn(torch.as_tensor(v, dtype=dtype), dim=1) for k, v in sents_scores.items()  # type: ignore

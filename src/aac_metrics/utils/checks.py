@@ -3,14 +3,12 @@
 
 import logging
 import subprocess
-
 from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Any, Union
+
+from packaging.version import Version
 from typing_extensions import TypeGuard
-
-from aac_metrics.utils.packaging import Version
-
 
 pylog = logging.getLogger(__name__)
 
@@ -104,12 +102,12 @@ def _get_java_version(java_path: str) -> str:
 
 
 def _check_java_version(version_str: str, min_major: int, max_major: int) -> bool:
-    version = Version.from_str(version_str)
+    version = Version(version_str)
 
     if version.major == 1 and version.minor <= 8:
-        # java <= 8 use versioning "1.MAJOR.MINOR" and > 8 use "MAJOR.MINOR.PATCH"
+        # java <= 8 use versioning "1.MAJOR.MINOR" and > 8 use "MAJOR.MINOR.MICRO"
         version.major = version.minor
-        version.minor = version.patch
-        version.patch = 0  # unknown patch, but it does not matter here
+        version.minor = version.micro
+        version.micro = 0  # unknown micro, but it does not matter here
 
-    return Version(min_major) <= version < Version(max_major + 1)
+    return Version(f"{min_major}") <= version < Version(f"{max_major + 1}")

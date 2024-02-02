@@ -3,9 +3,6 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.5.4] UNRELEASED
-### Added
-- `Version` class to handle versionning.
-
 ### Fixed
 - Backward compatibility of `BERTScoreMrefs` with torchmetrics prior to 1.0.0.
 
