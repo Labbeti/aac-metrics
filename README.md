@@ -100,6 +100,24 @@ print(sents_scores)
 
 Each metrics also exists as a python class version, like `aac_metrics.classes.cider_d.CIDErD`.
 
+## Which metric(s) should I choose for Automated Audio Captioning?
+To evaluate audio captioning systems, I would recommand to compute `SPIDEr`, `FENSE` and `Vocab` metrics. `SPIDEr` is useful to compare with the rest of the litterature, while `FENSE` is less variable and sensitive to n-gram matching. `Vocab` can give you an insight about the model diversity. To compute all of these metrics at once, you can use for example the `Evaluate` class:
+
+```python
+from aac_metrics import Evaluate
+
+evaluate = Evaluate(metrics=["spider", "fense", "vocab"])
+
+candidates: list[str] = ...
+mult_references: list[list[str]] = ...
+
+corpus_scores, _ = evaluate(candidates, mult_references)
+
+vocab_size = corpus_scores["vocab"]
+spider_score = corpus_scores["spider"]
+fense_score = corpus_scores["fense"]
+```
+
 ## Metrics
 ### Legacy metrics
 | Metric name | Python Class | Origin | Range | Short description |
@@ -187,7 +205,7 @@ SPIDEr-max [[7]](#spider-max) is a metric based on SPIDEr that takes into accoun
 [6] S. Liu, Z. Zhu, N. Ye, S. Guadarrama, and K. Murphy, “Improved Image Captioning via Policy Gradient optimization of SPIDEr,” 2017 IEEE International Conference on Computer Vision (ICCV), pp. 873–881, Oct. 2017, arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
 
 #### BERTScore
-[7] T. Zhang*, V. Kishore*, F. Wu*, K. Q. Weinberger, and Y. Artzi, “BERTScore: Evaluating Text Generation with BERT,” 2020. [Online]. Available: https://openreview.net/forum?id=SkeHuCVFDr 
+[7] T. Zhang*, V. Kishore*, F. Wu*, K. Q. Weinberger, and Y. Artzi, “BERTScore: Evaluating Text Generation with BERT,” 2020. [Online]. Available: https://openreview.net/forum?id=SkeHuCVFDr
 
 #### SPIDEr-max
 [8] E. Labbé, T. Pellegrini, and J. Pinquier, “Is my automatic audio captioning system so bad? spider-max: a metric to consider several caption candidates,” Nov. 2022. [Online]. Available: https://hal.archives-ouvertes.fr/hal-03810396
@@ -199,19 +217,19 @@ SPIDEr-max [[7]](#spider-max) is a metric based on SPIDEr that takes into accoun
 [10] DCASE website task6a description: https://dcase.community/challenge2023/task-automated-audio-captioning#evaluation
 
 #### CB-score
-[11] I. Martín-Morató, M. Harju, and A. Mesaros, “A Summarization Approach to Evaluating Audio Captioning,” Nov. 2022. [Online]. Available: https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Martin-Morato_35.pdf 
+[11] I. Martín-Morató, M. Harju, and A. Mesaros, “A Summarization Approach to Evaluating Audio Captioning,” Nov. 2022. [Online]. Available: https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Martin-Morato_35.pdf
 
 #### SPICE-plus
-[12] F. Gontier, R. Serizel, and C. Cerisara, “SPICE+: Evaluation of Automatic Audio Captioning Systems with Pre-Trained Language Models,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10097021. 
+[12] F. Gontier, R. Serizel, and C. Cerisara, “SPICE+: Evaluation of Automatic Audio Captioning Systems with Pre-Trained Language Models,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10097021.
 
 #### ACES
 [13] G. Wijngaard, E. Formisano, B. L. Giordano, M. Dumontier, “ACES: Evaluating Automated Audio Captioning Models on the Semantics of Sounds”, in EUSIPCO 2023, 2023.
 
 #### SBF
-[14] R. Mahfuz, Y. Guo, A. K. Sridhar, and E. Visser, Detecting False Alarms and Misses in Audio Captions. 2023. [Online]. Available: https://arxiv.org/pdf/2309.03326.pdf 
+[14] R. Mahfuz, Y. Guo, A. K. Sridhar, and E. Visser, Detecting False Alarms and Misses in Audio Captions. 2023. [Online]. Available: https://arxiv.org/pdf/2309.03326.pdf
 
 #### s2v
-[15] S. Bhosale, R. Chakraborty, and S. K. Kopparapu, “A Novel Metric For Evaluating Audio Caption Similarity,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10096526. 
+[15] S. Bhosale, R. Chakraborty, and S. K. Kopparapu, “A Novel Metric For Evaluating Audio Caption Similarity,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10096526.
 
 ## Citation
 If you use **SPIDEr-max**, you can cite the following paper using BibTex :
