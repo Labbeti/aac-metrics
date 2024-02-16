@@ -106,7 +106,7 @@ def _check_java_version(version_str: str, min_major: int, max_major: int) -> boo
 
     if version.major == 1 and version.minor <= 8:
         # java <= 8 use versioning "1.MAJOR.MINOR" and > 8 use "MAJOR.MINOR.MICRO"
-        version_str = ".".join(map(str, (version.major, version.micro)))
+        version_str = ".".join(map(str, (version.minor, version.micro)))
         version = Version(version_str)
 
     return Version(f"{min_major}") <= version < Version(f"{max_major + 1}")
