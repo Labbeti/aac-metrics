@@ -1,0 +1,10 @@
+# -*- coding: utf-8 -*-
+
+numpy>=1.21.2
+packaging>=23
+pyyaml>=6.0
+sentence-transformers>=2.2.2
+torch>=1.10.1
+torchmetrics>=0.11.4
+tqdm>=4.64.0
+transformers

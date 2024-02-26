@@ -1,0 +1,23 @@
+# -*- coding: utf-8 -*-
+
+cff-version: 1.2.0
+title: aac-metrics
+message: 'If you use this software, please cite it as below.'
+type: software
+authors:
+  - given-names: Etienne
+    family-names: Labbé
+    email: labbeti.pub@gmail.com
+    affiliation: IRIT
+    orcid: 'https://orcid.org/0000-0002-7219-5463'
+repository-code: 'https://github.com/Labbeti/aac-metrics/'
+abstract: Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
+keywords:
+  - audio
+  - metrics
+  - text
+  - captioning
+  - audio-captioning
+license: MIT
+version: 0.5.3
+date-released: '2024-01-09'

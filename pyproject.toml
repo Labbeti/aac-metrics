@@ -1,0 +1,45 @@
+[project]
+name = "aac-metrics"
+authors = [
+    {name = "Etienne Labbé (Labbeti)", email = "labbeti.pub@gmail.com"},
+]
+description = "Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch."
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["audio", "metrics", "text", "captioning", "audio-captioning"]
+license = {file = "LICENSE"}
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+maintainers = [
+    {name = "Etienne Labbé (Labbeti)", email = "labbeti.pub@gmail.com"},
+]
+dynamic = ["version", "dependencies", "optional-dependencies"]
+
+[project.urls]
+Homepage = "https://pypi.org/project/aac-metrics/"
+Documentation = "https://aac-metrics.readthedocs.io/"
+Repository = "https://github.com/Labbeti/aac-metrics.git"
+Changelog = "https://github.com/Labbeti/aac-metrics/blob/main/CHANGELOG.md"
+
+[project.scripts]
+aac-metrics = "aac_metrics.__main__:_print_usage"
+aac-metrics-download = "aac_metrics.download:_main_download"
+aac-metrics-eval = "aac_metrics.eval:_main_eval"
+aac-metrics-info = "aac_metrics.info:print_install_info"
+
+[tool.setuptools.packages.find]
+where = ["src"]  # list of folders that contain the packages (["."] by default)
+include = ["aac_metrics*"]  # package names should match these glob patterns (["*"] by default)
+
+[tool.setuptools.dynamic]
+version = {attr = "aac_metrics.__version__"}
+dependencies = {file = ["requirements.txt"]}
+optional-dependencies = {dev = { file = ["requirements-dev.txt"] }}
