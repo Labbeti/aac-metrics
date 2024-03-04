@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-pytest==7.1.2
-flake8==4.0.1
 black==22.8.0
-scikit-image==0.19.2
-matplotlib==3.5.2
+flake8==4.0.1
 ipykernel==6.9.1
-twine==4.0.1
+matplotlib==3.5.2
+pre-commit
+pytest==7.1.2
+scikit-image==0.19.2
 sphinx==7.2.6
 sphinx-press-theme==0.8.0
+twine==4.0.1

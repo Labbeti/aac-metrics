@@ -4,17 +4,17 @@
 from typing import Callable, Optional, Union
 
 import torch
-
-from torch import nn, Tensor
-from torchmetrics.functional.text.bert import bert_score, _DEFAULT_MODEL
+import torchmetrics
+from packaging.version import Version
+from torch import Tensor, nn
+from torchmetrics.functional.text.bert import _DEFAULT_MODEL, bert_score
+from transformers import logging as tfmers_logging
 from transformers.models.auto.modeling_auto import AutoModel
 from transformers.models.auto.tokenization_auto import AutoTokenizer
-from transformers import logging as tfmers_logging
 
 from aac_metrics.utils.checks import check_metric_inputs
-from aac_metrics.utils.collections import flat_list, unflat_list, duplicate_list
+from aac_metrics.utils.collections import duplicate_list, flat_list, unflat_list
 from aac_metrics.utils.globals import _get_device
-
 
 DEFAULT_BERT_SCORE_MODEL = _DEFAULT_MODEL
 REDUCTIONS = ("mean", "max", "min")
@@ -32,7 +32,7 @@ def bert_score_mrefs(
     max_length: int = 64,
     reset_state: bool = True,
     idf: bool = False,
-    reduction: Union[str, Callable[[Tensor, ...], Tensor]] = "max",
+    reduction: Union[str, Callable[..., Tensor]] = "max",
     filter_nan: bool = True,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
@@ -144,9 +144,16 @@ def bert_score_mrefs(
         reduction_fn = reduction
 
     if len(sizes) > 0 and all(size == sizes[0] for size in sizes):
-        sents_scores = {
-            k: reduction_fn(torch.stack(v), dim=1) for k, v in sents_scores.items()
-        }
+        torchmetrics_version = Version(torchmetrics.__version__)
+        if torchmetrics_version < Version("1.0.0"):
+            # backward compatibility
+            sents_scores = {
+                k: reduction_fn(torch.as_tensor(v, dtype=dtype), dim=1) for k, v in sents_scores.items()  # type: ignore
+            }
+        else:
+            sents_scores = {
+                k: reduction_fn(torch.stack(v), dim=1) for k, v in sents_scores.items()  # type: ignore
+            }
     else:
         sents_scores = {
             k: torch.stack([reduction_fn(torch.as_tensor(vi, dtype=dtype)) for vi in v])

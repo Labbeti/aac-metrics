@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.4] 2024-03-04
+### Fixed
+- Backward compatibility of `BERTScoreMrefs` with torchmetrics prior to 1.0.0.
+
+### Deleted
+- `Version` class to use `packaging.version.Version` instead.
+
 ## [0.5.3] 2024-01-09
 ### Fixed
 - Fix `BERTScoreMrefs` computation when all multiple references sizes are equal.

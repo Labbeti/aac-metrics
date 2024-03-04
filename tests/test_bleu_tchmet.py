@@ -2,22 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-
 from unittest import TestCase
 
-from aac_metrics.classes.bleu import BLEU
-from aac_metrics.utils.imports import _TORCHMETRICS_AVAILABLE
+from torch import Tensor
+from torchmetrics.text.bleu import BLEUScore
 
-if _TORCHMETRICS_AVAILABLE:
-    from torchmetrics.text.bleu import BLEUScore
+from aac_metrics.classes.bleu import BLEU
 
 
 class TestBleu(TestCase):
     # Tests methods
     def test_bleu(self) -> None:
-        if not _TORCHMETRICS_AVAILABLE:
-            return None
-
         cands = ["a man is speaking", "birds chirping"]
         mrefs = [
             [
