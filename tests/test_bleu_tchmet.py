@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-
 from unittest import TestCase
 
+from torch import Tensor
 from torchmetrics.text.bleu import BLEUScore
 
 from aac_metrics.classes.bleu import BLEU
