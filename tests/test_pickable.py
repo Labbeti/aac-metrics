@@ -3,22 +3,19 @@
 
 import pickle
 import unittest
-
 from unittest import TestCase
 
-from aac_metrics.classes.evaluate import _instantiate_metrics_classes
+from aac_metrics.classes.evaluate import Evaluate
 
 
-class TestCompare(TestCase):
+class TestPickle(TestCase):
     # Tests methods
     def test_pickle_dump(self) -> None:
-        metrics = _instantiate_metrics_classes("all")
-
-        for metric in metrics:
-            try:
-                pickle.dumps(metric)
-            except pickle.PicklingError:
-                self.assertTrue(False, f"Cannot pickle {metric.__class__.__name__}.")
+        metrics = Evaluate(metrics="all")
+        try:
+            pickle.dumps(metrics)
+        except pickle.PicklingError:
+            self.assertTrue(False, f"Cannot pickle {metrics.__class__.__name__}.")
 
 
 if __name__ == "__main__":
