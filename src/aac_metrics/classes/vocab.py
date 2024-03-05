@@ -3,16 +3,13 @@
 
 import logging
 import math
-
 from typing import Callable, Union
 
 import torch
-
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.vocab import vocab
-
+from aac_metrics.functional.vocab import PopStrategy, vocab
 
 pylog = logging.getLogger(__name__)
 
@@ -36,7 +33,7 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         seed: Union[None, int, torch.Generator] = 1234,
         tokenizer: Callable[[str], list[str]] = str.split,
         dtype: torch.dtype = torch.float64,
-        pop_strategy: str = "max",
+        pop_strategy: PopStrategy = "max",
         verbose: int = 0,
     ) -> None:
         super().__init__()

@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Union
+from typing import Union
 
 import torch
-
-from torch import nn, Tensor
+from torch import Tensor, nn
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.bert_score_mrefs import (
-    bert_score_mrefs,
-    _load_model_and_tokenizer,
     DEFAULT_BERT_SCORE_MODEL,
     REDUCTIONS,
+    Reduction,
+    _load_model_and_tokenizer,
+    bert_score_mrefs,
 )
 from aac_metrics.utils.globals import _get_device
 
@@ -44,7 +44,7 @@ class BERTScoreMRefs(AACMetric):
         max_length: int = 64,
         reset_state: bool = True,
         idf: bool = False,
-        reduction: Union[str, Callable[[Tensor, ...], Tensor]] = "max",
+        reduction: Reduction = "max",
         filter_nan: bool = True,
         verbose: int = 0,
     ) -> None:
@@ -110,7 +110,7 @@ class BERTScoreMRefs(AACMetric):
     def get_output_names(self) -> tuple[str, ...]:
         return (
             "bert_score.precision",
-            "bert_score.recalll",
+            "bert_score.recall",
             "bert_score.f1",
         )
 

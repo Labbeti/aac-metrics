@@ -19,6 +19,7 @@ MAX_JAVA_MAJOR_VERSION = 13
 def check_metric_inputs(
     candidates: Any,
     mult_references: Any,
+    min_length: int = 0,
 ) -> None:
     """Raises ValueError if candidates and mult_references does not have a valid type and size."""
 
@@ -43,6 +44,11 @@ def check_metric_inputs(
     if not at_least_1_ref_per_cand:
         error_msg = "Invalid number of references per candidate. (found at least 1 empty list of references)"
         raise ValueError(error_msg)
+
+    if len(candidates) < min_length:
+        raise ValueError(
+            f"Invalid number of sentences in candidates and references. (expected at least {min_length} sentences but found {len(candidates)=})"
+        )
 
 
 def check_java_path(java_path: Union[str, Path]) -> bool:

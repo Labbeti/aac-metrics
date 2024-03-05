@@ -5,18 +5,15 @@ import logging
 import os.path as osp
 import platform
 import subprocess
-
 from pathlib import Path
 from subprocess import Popen
-from typing import Iterable, Optional, Union
+from typing import Iterable, Literal, Optional, Union
 
 import torch
-
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_java_path, check_metric_inputs
 from aac_metrics.utils.globals import _get_cache_path, _get_java_path
-
 
 pylog = logging.getLogger(__name__)
 
@@ -24,6 +21,7 @@ pylog = logging.getLogger(__name__)
 DNAME_METEOR_CACHE = osp.join("aac-metrics", "meteor")
 FNAME_METEOR_JAR = osp.join(DNAME_METEOR_CACHE, "meteor-1.5.jar")
 SUPPORTED_LANGUAGES = ("en", "cz", "de", "es", "fr")
+Language = Literal["en", "cz", "de", "es", "fr"]
 
 
 def meteor(
@@ -33,7 +31,7 @@ def meteor(
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     java_max_memory: str = "2G",
-    language: str = "en",
+    language: Language = "en",
     use_shell: Optional[bool] = None,
     params: Optional[Iterable[float]] = None,
     weights: Optional[Iterable[float]] = None,

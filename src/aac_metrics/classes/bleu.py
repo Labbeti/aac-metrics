@@ -8,6 +8,7 @@ from torch import Tensor
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.bleu import (
     BLEU_OPTIONS,
+    BleuOption,
     _bleu_compute,
     _bleu_update,
 )
@@ -32,7 +33,7 @@ class BLEU(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]
         self,
         return_all_scores: bool = True,
         n: int = 4,
-        option: str = "closest",
+        option: BleuOption = "closest",
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:

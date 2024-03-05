@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Union
+from typing import Callable, Literal, Union
 
 import torch
 import tqdm
-
 from torch import Tensor
 
 from aac_metrics.utils.checks import is_mult_sents
 
-
 SELECTIONS = ("max", "min", "mean")
+Selection = Literal["max", "min", "mean"]
 
 
 def mult_cands_metric(
@@ -21,8 +20,8 @@ def mult_cands_metric(
     mult_references: list[list[str]],
     return_all_scores: bool = True,
     return_all_cands_scores: bool = False,
-    selection: str = "max",
-    reduction: Callable[[Tensor], Tensor] = torch.mean,
+    selection: Selection = "max",
+    reduction_fn: Callable[[Tensor], Tensor] = torch.mean,
     **kwargs,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Multiple candidates metric wrapper.
@@ -32,7 +31,7 @@ def mult_cands_metric(
     :param mult_candidates: The list of list of sentences to evaluate.
     :param mult_references: The references input.
     :param selection: The selection to apply. Can be "max", "min" or "mean". defaults to "max".
-    :param reduction: The reduction function to apply to local scores. defaults to torch.mean.
+    :param reduction_fn: The reduction function to apply to local scores. defaults to torch.mean.
     :param **kwargs: The keywords arguments given to the metric call.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
@@ -113,7 +112,7 @@ def mult_cands_metric(
             f"{k}_all": scores.transpose(0, 1) for k, scores in all_sents_scores.items()
         }
 
-    reduction_fn = reduction
+    reduction_fn = reduction_fn
     outs_corpus = {k: reduction_fn(scores) for k, scores in outs_sents.items()}
 
     if return_all_scores:

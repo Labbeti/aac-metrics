@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Callable, Iterable, Optional, Union
 
 import torch
-
 from torch import Tensor
 
 from aac_metrics.functional.mult_cands import mult_cands_metric
@@ -74,7 +73,7 @@ def spider_max(
         return_all_scores=return_all_scores,
         return_all_cands_scores=return_all_cands_scores,
         selection="max",
-        reduction=torch.mean,
+        reduction_fn=torch.mean,
         # CIDEr args
         n=n,
         sigma=sigma,

@@ -2,17 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-from typing import Callable, Union
+from typing import Callable, Literal, Union
 
 import torch
-
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_metric_inputs, is_mono_sents
 
-
 pylog = logging.getLogger(__name__)
+
+
+POP_STRATEGIES = ("max", "min")
+PopStrategy = Literal["max", "min"]
 
 
 def vocab(
@@ -22,7 +23,7 @@ def vocab(
     seed: Union[None, int, torch.Generator] = 1234,
     tokenizer: Callable[[str], list[str]] = str.split,
     dtype: torch.dtype = torch.float64,
-    pop_strategy: str = "max",
+    pop_strategy: PopStrategy = "max",
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
     """Compute vocabulary statistics.
@@ -84,7 +85,6 @@ def vocab(
         elif isinstance(pop_strategy, int):
             n_samples = pop_strategy
         else:
-            POP_STRATEGIES = ("max", "min")
             raise ValueError(
                 f"Invalid argument {pop_strategy=}. (expected one of {POP_STRATEGIES} or an integer value)"
             )

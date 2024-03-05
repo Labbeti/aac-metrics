@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Optional, Union
+from typing import Callable, Literal, Optional, Union
 
 import torch
 import torchmetrics
@@ -18,6 +18,7 @@ from aac_metrics.utils.globals import _get_device
 
 DEFAULT_BERT_SCORE_MODEL = _DEFAULT_MODEL
 REDUCTIONS = ("mean", "max", "min")
+Reduction = Union[Literal["mean", "max", "min"], Callable[..., Tensor]]
 
 
 def bert_score_mrefs(
@@ -32,7 +33,7 @@ def bert_score_mrefs(
     max_length: int = 64,
     reset_state: bool = True,
     idf: bool = False,
-    reduction: Union[str, Callable[..., Tensor]] = "max",
+    reduction: Reduction = "max",
     filter_nan: bool = True,
     verbose: int = 0,
 ) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
@@ -62,7 +63,7 @@ def bert_score_mrefs(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    check_metric_inputs(candidates, mult_references)
+    check_metric_inputs(candidates, mult_references, min_length=1)
 
     if isinstance(model, str):
         if tokenizer is not None:
