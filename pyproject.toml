@@ -15,8 +15,11 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
 ]
 maintainers = [
     {name = "Etienne Labbé (Labbeti)", email = "labbeti.pub@gmail.com"},
@@ -28,6 +31,7 @@ Homepage = "https://pypi.org/project/aac-metrics/"
 Documentation = "https://aac-metrics.readthedocs.io/"
 Repository = "https://github.com/Labbeti/aac-metrics.git"
 Changelog = "https://github.com/Labbeti/aac-metrics/blob/main/CHANGELOG.md"
+Tracker = "https://github.com/Labbeti/aac-metrics/issues"
 
 [project.scripts]
 aac-metrics = "aac_metrics.__main__:_print_usage"

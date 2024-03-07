@@ -4,12 +4,12 @@
 """Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch. """
 
 
-__author__ = "Etienne Labbé (Labbeti)"
+__author__ = "Étienne Labbé (Labbeti)"
 __author_email__ = "labbeti.pub@gmail.com"
 __docs__ = "Audio Captioning Metrics"
 __docs_url__ = "https://aac-metrics.readthedocs.io/en/stable/"
 __license__ = "MIT"
-__maintainer__ = "Etienne Labbé (Labbeti)"
+__maintainer__ = "Étienne Labbé (Labbeti)"
 __name__ = "aac-metrics"
 __status__ = "Development"
 __version__ = "0.5.4"

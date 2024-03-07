@@ -262,4 +262,4 @@ If you use this software, please consider cite it as "Labbe, E. (2013). aac-metr
 
 ## Contact
 Maintainer:
-- Étienne Labbé "Labbeti": labbeti.pub@gmail.com
+- Etienne Labbé "Labbeti": labbeti.pub@gmail.com
