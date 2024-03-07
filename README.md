@@ -236,7 +236,7 @@ If you use **SPIDEr-max**, you can cite the following paper using BibTex :
 ```
 @inproceedings{Labbe2022,
     title        = {Is my Automatic Audio Captioning System so Bad? SPIDEr-max: A Metric to Consider Several Caption Candidates},
-    author       = {Labb\'{e}, Etienne and Pellegrini, Thomas and Pinquier, Julien},
+    author       = {Labb\'{e}, Étienne and Pellegrini, Thomas and Pinquier, Julien},
     year         = 2022,
     month        = {November},
     booktitle    = {Proceedings of the 7th Detection and Classification of Acoustic Scenes and Events 2022 Workshop (DCASE2022)},
@@ -250,7 +250,7 @@ If you use this software, please consider cite it as "Labbe, E. (2013). aac-metr
 ```
 @software{
     Labbe_aac_metrics_2024,
-    author = {Labbé, Etienne},
+    author = {Labbé, Étienne},
     license = {MIT},
     month = {03},
     title = {{aac-metrics}},
@@ -262,4 +262,4 @@ If you use this software, please consider cite it as "Labbe, E. (2013). aac-metr
 
 ## Contact
 Maintainer:
-- Etienne Labbé "Labbeti": labbeti.pub@gmail.com
+- Étienne Labbé "Labbeti": labbeti.pub@gmail.com
