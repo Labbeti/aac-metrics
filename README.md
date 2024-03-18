@@ -19,7 +19,7 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
 ## Why using this package?
 - **Easy to install and download**
 - **Produces same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense) repositories**
-- **Provides 12 different metrics:**
+- **Provides 13 different metrics:**
     - BLEU [[1]](#bleu)
     - ROUGE-L [[2]](#rouge-l)
     - METEOR [[3]](#meteor)
@@ -262,4 +262,4 @@ If you use this software, please consider cite it as "Labbe, E. (2013). aac-metr
 
 ## Contact
 Maintainer:
-- Étienne Labbé "Labbeti": labbeti.pub@gmail.com
+- [Étienne Labbé](https://labbeti.github.io/) "Labbeti": labbeti.pub@gmail.com
