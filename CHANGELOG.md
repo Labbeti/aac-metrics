@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.5] UNRELEASED
+### Changed
+- Update metric typing for language servers.
+
 ## [0.5.4] 2024-03-04
 ### Fixed
 - Backward compatibility of `BERTScoreMrefs` with torchmetrics prior to 1.0.0.

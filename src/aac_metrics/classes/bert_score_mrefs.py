@@ -10,6 +10,7 @@ from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.bert_score_mrefs import (
     DEFAULT_BERT_SCORE_MODEL,
     REDUCTIONS,
+    BERTScoreMRefsOuts,
     Reduction,
     _load_model_and_tokenizer,
     bert_score_mrefs,
@@ -17,7 +18,7 @@ from aac_metrics.functional.bert_score_mrefs import (
 from aac_metrics.utils.globals import _get_device
 
 
-class BERTScoreMRefs(AACMetric):
+class BERTScoreMRefs(AACMetric[Union[BERTScoreMRefsOuts, Tensor]]):
     """BERTScore metric which supports multiple references.
 
     The implementation is based on the bert_score implementation of torchmetrics.
@@ -37,6 +38,7 @@ class BERTScoreMRefs(AACMetric):
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
         device: Union[str, torch.device, None] = "cuda_if_available",
         batch_size: int = 32,
@@ -79,7 +81,9 @@ class BERTScoreMRefs(AACMetric):
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(
+        self,
+    ) -> Union[BERTScoreMRefsOuts, Tensor]:
         return bert_score_mrefs(
             candidates=self._candidates,
             mult_references=self._mult_references,

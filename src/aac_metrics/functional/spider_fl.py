@@ -2,24 +2,34 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
 from pathlib import Path
-from typing import Callable, Iterable, Optional, Union
+from typing import Callable, Iterable, Optional, TypedDict, Union
 
 import torch
-
 from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.functional.fer import (
-    fer,
-    _load_echecker_and_tokenizer,
-    BERTFlatClassifier,
     DEFAULT_FER_MODEL,
+    BERTFlatClassifier,
+    FEROuts,
+    _load_echecker_and_tokenizer,
+    fer,
 )
-from aac_metrics.functional.spider import spider
+from aac_metrics.functional.spider import SPIDErOuts, spider
 from aac_metrics.utils.checks import check_metric_inputs
 
+SPIDErFLScores = TypedDict(
+    "SPIDErFLScores",
+    {
+        "spider_fl": Tensor,
+        "spider": Tensor,
+        "cider_d": Tensor,
+        "spice": Tensor,
+        "fer": Tensor,
+    },
+)
+SPIDErFLOuts = tuple[SPIDErFLScores, SPIDErFLScores]
 
 pylog = logging.getLogger(__name__)
 
@@ -28,6 +38,7 @@ def spider_fl(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     # CIDErD args
     n: int = 4,
     sigma: float = 6.0,
@@ -51,7 +62,7 @@ def spider_fl(
     # Other args
     penalty: float = 0.9,
     verbose: int = 0,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[Tensor, SPIDErFLOuts]:
     """Combinaison of SPIDEr with Fluency Error detector.
 
     - Original implementation: https://github.com/felixgontier/dcase-2023-baseline/blob/main/metrics.py#L48.
@@ -105,7 +116,7 @@ def spider_fl(
         reset_state=reset_state,
         verbose=verbose,
     )
-    spider_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = spider(  # type: ignore
+    spider_outs: SPIDErOuts = spider(  # type: ignore
         candidates=candidates,
         mult_references=mult_references,
         return_all_scores=True,
@@ -121,7 +132,7 @@ def spider_fl(
         timeout=timeout,
         verbose=verbose,
     )
-    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = fer(  # type: ignore
+    fer_outs: FEROuts = fer(  # type: ignore
         candidates=candidates,
         return_all_scores=True,
         echecker=echecker,
@@ -142,10 +153,10 @@ def spider_fl(
 
 
 def _spider_fl_from_outputs(
-    spider_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
-    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    spider_outs: SPIDErOuts,
+    fer_outs: FEROuts,
     penalty: float = 0.9,
-) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
+) -> SPIDErFLOuts:
     """Combines SPIDEr and FER outputs.
 
     Based on https://github.com/felixgontier/dcase-2023-baseline/blob/main/metrics.py#L48

@@ -2,28 +2,25 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
 from typing import Union
 
 import torch
-
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.fense import fense, _load_models_and_tokenizer
+from aac_metrics.functional.fense import FENSEOuts, _load_models_and_tokenizer, fense
 from aac_metrics.functional.fer import (
-    BERTFlatClassifier,
     _ERROR_NAMES,
     DEFAULT_FER_MODEL,
+    BERTFlatClassifier,
 )
 from aac_metrics.functional.sbert_sim import DEFAULT_SBERT_SIM_MODEL
-
 
 pylog = logging.getLogger(__name__)
 
 
-class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class FENSE(AACMetric[Union[FENSEOuts, Tensor]]):
     """Fluency ENhanced Sentence-bert Evaluation (FENSE)
 
     - Paper: https://arxiv.org/abs/2110.04684
@@ -42,6 +39,7 @@ class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
         echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
         error_threshold: float = 0.9,
@@ -77,7 +75,7 @@ class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[FENSEOuts, Tensor]:
         return fense(
             candidates=self._candidates,
             mult_references=self._mult_references,

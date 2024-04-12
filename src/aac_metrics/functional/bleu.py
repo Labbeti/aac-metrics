@@ -15,18 +15,21 @@ pylog = logging.getLogger(__name__)
 
 BLEU_OPTIONS = ("shortest", "average", "closest")
 BleuOption = Literal["shortest", "average", "closest"]
+BLEUScores = dict[str, Tensor]
+BLEUOuts = tuple[BLEUScores, BLEUScores]
 
 
 def bleu(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     n: int = 4,
     option: BleuOption = "closest",
     verbose: int = 0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[BLEUOuts, Tensor]:
     """BiLingual Evaluation Understudy function.
 
     - Paper: https://www.aclweb.org/anthology/P02-1040.pdf
@@ -70,11 +73,12 @@ def bleu_1(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     option: BleuOption = "closest",
     verbose: int = 0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[BLEUOuts, Tensor]:
     return bleu(
         candidates=candidates,
         mult_references=mult_references,
@@ -91,11 +95,12 @@ def bleu_2(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     option: BleuOption = "closest",
     verbose: int = 0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[BLEUOuts, Tensor]:
     return bleu(
         candidates=candidates,
         mult_references=mult_references,
@@ -112,11 +117,12 @@ def bleu_3(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     option: BleuOption = "closest",
     verbose: int = 0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[BLEUOuts, Tensor]:
     return bleu(
         candidates=candidates,
         mult_references=mult_references,
@@ -133,11 +139,12 @@ def bleu_4(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     option: BleuOption = "closest",
     verbose: int = 0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[BLEUOuts, Tensor]:
     return bleu(
         candidates=candidates,
         mult_references=mult_references,
@@ -180,7 +187,7 @@ def _bleu_compute(
     option: BleuOption = "closest",
     verbose: int = 0,
     return_1_to_n: bool = False,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[Tensor, BLEUOuts]:
     if option not in BLEU_OPTIONS:
         raise ValueError(f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})")
 

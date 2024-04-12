@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-from typing import Union
+from typing import TypedDict, Union
 
 import numpy as np
 import torch
-
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_metric_inputs
 from aac_metrics.utils.globals import _get_device
 
-
 DEFAULT_SBERT_SIM_MODEL = "paraphrase-TinyBERT-L6-v2"
+SBERTSimScores = TypedDict("SBERTSimScores", {"sbert_sim": Tensor})
+SBERTSimOuts = tuple[SBERTSimScores, SBERTSimScores]
+
 
 pylog = logging.getLogger(__name__)
 
@@ -24,12 +24,13 @@ def sbert_sim(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
     device: Union[str, torch.device, None] = "cuda_if_available",
     batch_size: int = 32,
     reset_state: bool = True,
     verbose: int = 0,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[Tensor, SBERTSimOuts]:
     """Cosine-similarity of the Sentence-BERT embeddings.
 
     - Paper: https://arxiv.org/abs/1908.10084

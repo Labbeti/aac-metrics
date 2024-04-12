@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Literal, Optional, Union
+from typing import Callable, Literal, Optional, TypedDict, Union
 
 import torch
 import torchmetrics
@@ -19,12 +19,23 @@ from aac_metrics.utils.globals import _get_device
 DEFAULT_BERT_SCORE_MODEL = _DEFAULT_MODEL
 REDUCTIONS = ("mean", "max", "min")
 Reduction = Union[Literal["mean", "max", "min"], Callable[..., Tensor]]
+_DEFAULT_SCORE_NAME = "bert_score.f1"
+BERTScoreMRefsScores = TypedDict(
+    "BERTScoreMRefsScores",
+    {
+        "bert_score.f1": Tensor,
+        "bert_score.precision": Tensor,
+        "bert_score.recall": Tensor,
+    },
+)
+BERTScoreMRefsOuts = tuple[BERTScoreMRefsScores, BERTScoreMRefsScores]
 
 
 def bert_score_mrefs(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
     tokenizer: Optional[Callable] = None,
     device: Union[str, torch.device, None] = "cuda_if_available",
@@ -36,7 +47,7 @@ def bert_score_mrefs(
     reduction: Reduction = "max",
     filter_nan: bool = True,
     verbose: int = 0,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[BERTScoreMRefsOuts, Tensor]:
     """BERTScore metric which supports multiple references.
 
     The implementation is based on the bert_score implementation of torchmetrics.
@@ -174,7 +185,7 @@ def bert_score_mrefs(
     if return_all_scores:
         return corpus_scores, sents_scores
     else:
-        return corpus_scores["bert_score.f1"]
+        return corpus_scores[_DEFAULT_SCORE_NAME]
 
 
 def _load_model_and_tokenizer(

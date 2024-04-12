@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from typing import Callable, Literal, Union
+from typing import Callable, Literal, TypedDict, Union
 
 import torch
 from torch import Tensor
@@ -14,18 +14,21 @@ pylog = logging.getLogger(__name__)
 
 POP_STRATEGIES = ("max", "min")
 PopStrategy = Literal["max", "min"]
+VocabScores = TypedDict("VocabScores", {"vocab.cands": Tensor})
+VocabOuts = tuple[VocabScores, VocabScores]
 
 
 def vocab(
     candidates: list[str],
     mult_references: Union[list[list[str]], None],
     return_all_scores: bool = True,
+    *,
     seed: Union[None, int, torch.Generator] = 1234,
     tokenizer: Callable[[str], list[str]] = str.split,
     dtype: torch.dtype = torch.float64,
     pop_strategy: PopStrategy = "max",
     verbose: int = 0,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[VocabOuts, Tensor]:
     """Compute vocabulary statistics.
 
     Returns the candidate corpus vocabulary length, the references vocabulary length, the average vocabulary length for single references, and the vocabulary ratios between candidates and references.
@@ -52,10 +55,13 @@ def vocab(
     del candidates
 
     vocab_cands_len = _corpus_vocab(tok_cands, dtype)
+    _, vocab_per_cand = _sent_vocab(tok_cands, dtype)
     if not return_all_scores:
         return vocab_cands_len
 
-    sents_scores = {}
+    sents_scores = {
+        "vocab.cands": vocab_per_cand,
+    }
     corpus_scores = {
         "vocab.cands": vocab_cands_len,
     }

@@ -12,23 +12,20 @@ import shutil
 import subprocess
 import tempfile
 import time
-
 from pathlib import Path
 from subprocess import CalledProcessError
 from tempfile import NamedTemporaryFile
-from typing import Any, Iterable, Optional, Union
+from typing import Any, Iterable, Optional, TypedDict, Union
 
 import numpy as np
 import torch
-
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_java_path, check_metric_inputs
-from aac_metrics.utils.globals import (
-    _get_cache_path,
-    _get_java_path,
-    _get_tmp_path,
-)
+from aac_metrics.utils.globals import _get_cache_path, _get_java_path, _get_tmp_path
+
+SPICEScores = TypedDict("SPICEScores", {"spice": Tensor})
+SPICEOuts = tuple[SPICEScores, SPICEScores]
 
 
 pylog = logging.getLogger(__name__)
@@ -43,6 +40,7 @@ def spice(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
@@ -52,7 +50,7 @@ def spice(
     separate_cache_dir: bool = True,
     use_shell: Optional[bool] = None,
     verbose: int = 0,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[SPICEOuts, Tensor]:
     """Semantic Propositional Image Caption Evaluation function.
 
     - Paper: https://arxiv.org/pdf/1607.08822.pdf

@@ -7,10 +7,10 @@ from typing import Iterable, Optional, Union
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.meteor import Language, meteor
+from aac_metrics.functional.meteor import Language, METEOROuts, meteor
 
 
-class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class METEOR(AACMetric[Union[METEOROuts, Tensor]]):
     """Metric for Evaluation of Translation with Explicit ORdering metric class.
 
     - Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
@@ -29,6 +29,7 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         cache_path: Union[str, Path, None] = None,
         java_path: Union[str, Path, None] = None,
         java_max_memory: str = "2G",
@@ -52,7 +53,7 @@ class METEOR(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[METEOROuts, Tensor]:
         return meteor(
             candidates=self._candidates,
             mult_references=self._mult_references,

@@ -2,30 +2,27 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
 from pathlib import Path
 from typing import Iterable, Optional, Union
 
 import torch
-
 from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fer import (
-    BERTFlatClassifier,
-    _load_echecker_and_tokenizer,
     _ERROR_NAMES,
     DEFAULT_FER_MODEL,
+    BERTFlatClassifier,
+    _load_echecker_and_tokenizer,
 )
-from aac_metrics.functional.spider_fl import spider_fl
+from aac_metrics.functional.spider_fl import SPIDErFLOuts, spider_fl
 from aac_metrics.utils.globals import _get_device
-
 
 pylog = logging.getLogger(__name__)
 
 
-class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class SPIDErFL(AACMetric[Union[SPIDErFLOuts, Tensor]]):
     """SPIDErFL class.
 
     For more information, see :func:`~aac_metrics.functional.spider_fl.spider_fl`.
@@ -41,6 +38,7 @@ class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         # CIDErD args
         n: int = 4,
         sigma: float = 6.0,
@@ -95,7 +93,7 @@ class SPIDErFL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tens
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[SPIDErFLOuts, Tensor]:
         return spider_fl(
             candidates=self._candidates,
             mult_references=self._mult_references,

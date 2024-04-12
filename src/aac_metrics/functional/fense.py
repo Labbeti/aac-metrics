@@ -2,27 +2,32 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-from typing import Optional, Union
+from typing import Optional, TypedDict, Union
 
 import torch
-
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.functional.fer import (
-    fer,
-    _load_echecker_and_tokenizer,
-    BERTFlatClassifier,
     DEFAULT_FER_MODEL,
+    BERTFlatClassifier,
+    FEROuts,
+    _load_echecker_and_tokenizer,
+    fer,
 )
 from aac_metrics.functional.sbert_sim import (
-    sbert_sim,
-    _load_sbert,
     DEFAULT_SBERT_SIM_MODEL,
+    SBERTSimOuts,
+    _load_sbert,
+    sbert_sim,
 )
 from aac_metrics.utils.checks import check_metric_inputs
+
+FENSEScores = TypedDict(
+    "FENSEScores", {"sbert_sim": Tensor, "fer": Tensor, "fense": Tensor}
+)
+FENSEOuts = tuple[FENSEScores, FENSEScores]
 
 
 pylog = logging.getLogger(__name__)
@@ -32,6 +37,7 @@ def fense(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     # SBERT args
     sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
     # FluencyError args
@@ -45,7 +51,7 @@ def fense(
     # Other args
     penalty: float = 0.9,
     verbose: int = 0,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[Tensor, FENSEOuts]:
     """Fluency ENhanced Sentence-bert Evaluation (FENSE)
 
     - Paper: https://arxiv.org/abs/2110.04684
@@ -83,7 +89,7 @@ def fense(
         reset_state=reset_state,
         verbose=verbose,
     )
-    sbert_sim_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = sbert_sim(  # type: ignore
+    sbert_sim_outs: SBERTSimOuts = sbert_sim(  # type: ignore
         candidates=candidates,
         mult_references=mult_references,
         return_all_scores=True,
@@ -93,7 +99,7 @@ def fense(
         reset_state=reset_state,
         verbose=verbose,
     )
-    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = fer(  # type: ignore
+    fer_outs: FEROuts = fer(  # type: ignore
         candidates=candidates,
         return_all_scores=True,
         echecker=echecker,
@@ -114,10 +120,10 @@ def fense(
 
 
 def _fense_from_outputs(
-    sbert_sim_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
-    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    sbert_sim_outs: SBERTSimOuts,
+    fer_outs: FEROuts,
     penalty: float = 0.9,
-) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
+) -> FENSEOuts:
     """Combines SBERT and FER outputs.
 
     Based on https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L121

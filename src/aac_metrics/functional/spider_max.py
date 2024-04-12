@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from pathlib import Path
-from typing import Callable, Iterable, Optional, Union
+from typing import Callable, Iterable, Optional, TypedDict, Union
 
 import torch
 from torch import Tensor
@@ -10,11 +10,18 @@ from torch import Tensor
 from aac_metrics.functional.mult_cands import mult_cands_metric
 from aac_metrics.functional.spider import spider
 
+SPIDErMaxScores = TypedDict(
+    "SPIDErMaxScores",
+    {"spider_max": Tensor, "cider_d_max": Tensor, "spice_max": Tensor},
+)
+SPIDErMaxOuts = tuple[SPIDErMaxScores, SPIDErMaxScores]
+
 
 def spider_max(
     mult_candidates: list[list[str]],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     return_all_cands_scores: bool = False,
     # CIDEr args
     n: int = 4,

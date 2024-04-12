@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Any, Callable, Union
+from typing import Callable, Union
 
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.cider_d import (
-    _cider_d_compute,
-    _cider_d_update,
-)
+from aac_metrics.functional.cider_d import CIDErDOuts, _cider_d_compute, _cider_d_update
 
 
-class CIDErD(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Any]], Tensor]]):
+class CIDErD(AACMetric[Union[CIDErDOuts, Tensor]]):
     """Consensus-based Image Description Evaluation metric class.
 
     - Paper: https://arxiv.org/pdf/1411.5726.pdf
@@ -30,6 +27,7 @@ class CIDErD(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Any]], Tensor]])
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         n: int = 4,
         sigma: float = 6.0,
         tokenizer: Callable[[str], list[str]] = str.split,
@@ -47,7 +45,7 @@ class CIDErD(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Any]], Tensor]])
         self._cooked_cands = []
         self._cooked_mrefs = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[CIDErDOuts, Tensor]:
         return _cider_d_compute(
             cooked_cands=self._cooked_cands,
             cooked_mrefs=self._cooked_mrefs,

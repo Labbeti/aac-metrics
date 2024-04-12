@@ -19,6 +19,7 @@ def mult_cands_metric(
     mult_candidates: list[list[str]],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     return_all_cands_scores: bool = False,
     selection: Selection = "max",
     reduction_fn: Callable[[Tensor], Tensor] = torch.mean,

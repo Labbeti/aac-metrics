@@ -6,13 +6,10 @@ from typing import Callable, Union
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.rouge_l import (
-    _rouge_l_compute,
-    _rouge_l_update,
-)
+from aac_metrics.functional.rouge_l import ROUGELOuts, _rouge_l_compute, _rouge_l_update
 
 
-class ROUGEL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class ROUGEL(AACMetric[Union[ROUGELOuts, Tensor]]):
     """Recall-Oriented Understudy for Gisting Evaluation class.
 
     - Paper: https://aclanthology.org/W04-1013.pdf
@@ -30,6 +27,7 @@ class ROUGEL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         beta: float = 1.2,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
@@ -40,7 +38,7 @@ class ROUGEL(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
 
         self._rouge_l_scores = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[ROUGELOuts, Tensor]:
         return _rouge_l_compute(
             rouge_l_scs=self._rouge_l_scores,
             return_all_scores=self._return_all_scores,

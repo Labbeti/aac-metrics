@@ -9,12 +9,12 @@ import torch
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.vocab import PopStrategy, vocab
+from aac_metrics.functional.vocab import PopStrategy, VocabOuts, vocab
 
 pylog = logging.getLogger(__name__)
 
 
-class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class Vocab(AACMetric[Union[VocabOuts, Tensor]]):
     """VocabStats class.
 
     For more information, see :func:`~aac_metrics.functional.vocab.vocab`.
@@ -30,6 +30,7 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         seed: Union[None, int, torch.Generator] = 1234,
         tokenizer: Callable[[str], list[str]] = str.split,
         dtype: torch.dtype = torch.float64,
@@ -47,7 +48,7 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[VocabOuts, Tensor]:
         return vocab(
             candidates=self._candidates,
             mult_references=self._mult_references,

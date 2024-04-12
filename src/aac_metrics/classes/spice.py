@@ -2,20 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
 from pathlib import Path
 from typing import Iterable, Optional, Union
 
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.spice import spice
-
+from aac_metrics.functional.spice import SPICEOuts, spice
 
 pylog = logging.getLogger(__name__)
 
 
-class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class SPICE(AACMetric[Union[SPICEOuts, Tensor]]):
     """Semantic Propositional Image Caption Evaluation class.
 
     - Paper: https://arxiv.org/pdf/1607.08822.pdf
@@ -33,6 +31,7 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         cache_path: Union[str, Path, None] = None,
         java_path: Union[str, Path, None] = None,
         tmp_path: Union[str, Path, None] = None,
@@ -58,7 +57,7 @@ class SPICE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[SPICEOuts, Tensor]:
         return spice(
             candidates=self._candidates,
             mult_references=self._mult_references,

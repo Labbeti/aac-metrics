@@ -2,20 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
 from pathlib import Path
 from typing import Iterable, Optional, Union
 
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.spider_max import spider_max
-
+from aac_metrics.functional.spider_max import SPIDErMaxOuts, spider_max
 
 pylog = logging.getLogger(__name__)
 
 
-class SPIDErMax(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class SPIDErMax(AACMetric[Union[SPIDErMaxOuts, Tensor]]):
     """SPIDEr-max class.
 
     - Paper: https://hal.archives-ouvertes.fr/hal-03810396/file/Labbe_DCASE2022.pdf
@@ -33,6 +31,7 @@ class SPIDErMax(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Ten
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         return_all_cands_scores: bool = False,
         # CIDEr args
         n: int = 4,
@@ -62,7 +61,7 @@ class SPIDErMax(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Ten
         self._mult_candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[SPIDErMaxOuts, Tensor]:
         return spider_max(
             mult_candidates=self._mult_candidates,
             mult_references=self._mult_references,

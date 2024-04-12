@@ -2,20 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
 from pathlib import Path
 from typing import Iterable, Optional, Union
 
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.spider import spider
-
+from aac_metrics.functional.spider import SPIDErOuts, spider
 
 pylog = logging.getLogger(__name__)
 
 
-class SPIDEr(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class SPIDEr(AACMetric[Union[SPIDErOuts, Tensor]]):
     """SPIDEr class.
 
     - Paper: https://arxiv.org/pdf/1612.00370.pdf
@@ -33,6 +31,7 @@ class SPIDEr(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         # CIDErD args
         n: int = 4,
         sigma: float = 6.0,
@@ -60,7 +59,7 @@ class SPIDEr(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[SPIDErOuts, Tensor]:
         return spider(
             candidates=self._candidates,
             mult_references=self._mult_references,

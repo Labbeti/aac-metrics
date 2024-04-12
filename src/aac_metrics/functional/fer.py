@@ -5,18 +5,16 @@ import hashlib
 import logging
 import os
 import re
-import requests
-
 from collections import namedtuple
 from os import environ, makedirs
 from os.path import exists, expanduser, join
-from typing import Mapping, Optional, Union
+from typing import Mapping, Optional, TypedDict, Union
 
 import numpy as np
+import requests
 import torch
 import transformers
-
-from torch import nn, Tensor
+from torch import Tensor, nn
 from tqdm import tqdm
 from transformers import logging as tfmers_logging
 from transformers.models.auto.modeling_auto import AutoModel
@@ -26,8 +24,9 @@ from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 from aac_metrics.utils.checks import is_mono_sents
 from aac_metrics.utils.globals import _get_device
 
-
 DEFAULT_FER_MODEL = "echecker_clotho_audiocaps_base"
+FERScores = TypedDict("FERScores", {"fer": Tensor})
+FEROuts = tuple[FERScores, FERScores]
 
 
 _DEFAULT_PROXIES = {
@@ -101,6 +100,7 @@ class BERTFlatClassifier(nn.Module):
 def fer(
     candidates: list[str],
     return_all_scores: bool = True,
+    *,
     echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
@@ -109,7 +109,7 @@ def fer(
     reset_state: bool = True,
     return_probs: bool = False,
     verbose: int = 0,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[Tensor, FEROuts]:
     """Return Fluency Error Rate (FER) detected by a pre-trained BERT model.
 
     - Paper: https://arxiv.org/abs/2110.04684
