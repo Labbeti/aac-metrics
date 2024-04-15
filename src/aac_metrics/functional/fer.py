@@ -169,7 +169,9 @@ def fer(
         }
 
         if return_probs:
-            probs_outs_sents = {f"fer.{k}_prob": v for k, v in probs_outs_sents.items()}
+            probs_outs_sents = {
+                f"fluency_error.{k}_prob": v for k, v in probs_outs_sents.items()
+            }
             probs_outs_sents = {
                 k: torch.from_numpy(v) for k, v in probs_outs_sents.items()
             }
