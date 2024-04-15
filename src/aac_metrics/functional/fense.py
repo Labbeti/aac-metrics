@@ -141,8 +141,8 @@ def _fense_from_outputs(
         device=fense_scores.device,
     )
 
-    fense_outs_corpus = sbert_sim_outs_corpus | fer_outs_corpus | {"fense": fense_score}
-    fense_outs_sents = sbert_sim_outs_sents | fer_outs_sents | {"fense": fense_scores}
+    fense_outs_corpus = sbert_sim_outs_corpus | fer_outs_corpus | {"fense": fense_score}  # type: ignore
+    fense_outs_sents = sbert_sim_outs_sents | fer_outs_sents | {"fense": fense_scores}  # type: ignore
     fense_outs = fense_outs_corpus, fense_outs_sents
 
     return fense_outs
