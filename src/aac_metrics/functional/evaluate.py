@@ -55,6 +55,13 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "meteor",
         "spider_fl",  # includes cider_d, spice, spider, fer
     ),
+    # DCASE challenge task6 metrics for 2024
+    "dcase2024": (
+        "meteor",
+        "spider_fl",  # includes cider_d, spice, spider, fer
+        "fense",  # includes sbert, fer
+        "vocab",
+    ),
     # All metrics
     "all": (
         "bleu_1",
