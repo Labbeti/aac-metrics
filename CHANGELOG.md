@@ -3,8 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.5.5] UNRELEASED
+### Added
+- DCASE2024 challenge metric set, class and functions.
+
 ### Changed
-- Update metric typing for language servers.
+- Improve metric output typing for language servers.
 
 ## [0.5.4] 2024-03-04
 ### Fixed

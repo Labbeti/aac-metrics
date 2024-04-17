@@ -206,6 +206,43 @@ def dcase2023_evaluate(
     )
 
 
+def dcase2024_evaluate(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    preprocess: bool = True,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
+    device: Union[str, torch.device, None] = "cuda_if_available",
+    verbose: int = 0,
+) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
+    """Evaluate candidates with multiple references with the DCASE2024 Audio Captioning metrics.
+
+    :param candidates: The list of sentences to evaluate.
+    :param mult_references: The list of list of sentences used as target.
+    :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
+        defaults to True.
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
+    :param device: The PyTorch device used to run FENSE and SPIDErFL models.
+        If None, it will try to detect use cuda if available. defaults to "cuda_if_available".
+    :param verbose: The verbose level. defaults to 0.
+    :returns: A tuple contains the corpus and sentences scores.
+    """
+    return evaluate(
+        candidates=candidates,
+        mult_references=mult_references,
+        preprocess=preprocess,
+        metrics="dcase2024",
+        cache_path=cache_path,
+        java_path=java_path,
+        tmp_path=tmp_path,
+        device=device,
+        verbose=verbose,
+    )
+
+
 def _instantiate_metrics_functions(
     metrics: Union[str, Iterable[str], Iterable[Callable[[list, list], tuple]]] = "all",
     cache_path: Union[str, Path, None] = None,

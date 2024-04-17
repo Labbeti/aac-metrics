@@ -4,12 +4,10 @@
 import logging
 import pickle
 import zlib
-
 from pathlib import Path
 from typing import Any, Callable, Iterable, Optional, Union
 
 import torch
-
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
@@ -23,15 +21,14 @@ from aac_metrics.classes.rouge_l import ROUGEL
 from aac_metrics.classes.sbert_sim import SBERTSim
 from aac_metrics.classes.spice import SPICE
 from aac_metrics.classes.spider import SPIDEr
-from aac_metrics.classes.spider_max import SPIDErMax
 from aac_metrics.classes.spider_fl import SPIDErFL
+from aac_metrics.classes.spider_max import SPIDErMax
 from aac_metrics.classes.vocab import Vocab
 from aac_metrics.functional.evaluate import (
     DEFAULT_METRICS_SET_NAME,
     METRICS_SETS,
     evaluate,
 )
-
 
 pylog = logging.getLogger(__name__)
 
@@ -133,6 +130,32 @@ class DCASE2023Evaluate(Evaluate):
         super().__init__(
             preprocess=preprocess,
             metrics="dcase2023",
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
+            device=device,
+            verbose=verbose,
+        )
+
+
+class DCASE2024Evaluate(Evaluate):
+    """Evaluate candidates with multiple references with DCASE2024 Audio Captioning metrics.
+
+    For more information, see :func:`~aac_metrics.functional.evaluate.dcase2024_evaluate`.
+    """
+
+    def __init__(
+        self,
+        preprocess: bool = True,
+        cache_path: Union[str, Path, None] = None,
+        java_path: Union[str, Path, None] = None,
+        tmp_path: Union[str, Path, None] = None,
+        device: Union[str, torch.device, None] = "cuda_if_available",
+        verbose: int = 0,
+    ) -> None:
+        super().__init__(
+            preprocess=preprocess,
+            metrics="dcase2024",
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
