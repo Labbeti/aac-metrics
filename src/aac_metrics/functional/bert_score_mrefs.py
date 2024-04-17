@@ -183,7 +183,7 @@ def bert_score_mrefs(
     corpus_scores = {k: v.mean() for k, v in sents_scores.items()}
 
     if return_all_scores:
-        return corpus_scores, sents_scores
+        return corpus_scores, sents_scores  # type: ignore
     else:
         return corpus_scores[_DEFAULT_SCORE_NAME]
 
