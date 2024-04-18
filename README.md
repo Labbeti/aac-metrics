@@ -101,7 +101,7 @@ print(sents_scores)
 Each metrics also exists as a python class version, like `aac_metrics.classes.cider_d.CIDErD`.
 
 ## Which metric(s) should I choose for Automated Audio Captioning?
-To evaluate audio captioning systems, I would recommand to compute `SPIDEr`, `FENSE` and `Vocab` metrics. `SPIDEr` is useful to compare with the rest of the litterature, but it is highly sensitive to n-gram matching and can overestimate model trained with reinforcement learning. `FENSE` is more consistent and variable than `SPIDEr`, but uses a model not trained on audio captions. `Vocab` can give you an insight about the model diversity. To compute all of these metrics at once, you can use for example the `Evaluate` class:
+To evaluate audio captioning systems, I would recommand to compute `SPIDEr`, `FENSE` and `Vocab` metrics. `SPIDEr` is useful to compare with the rest of the litterature, but it is highly sensitive to n-gram matching and can overestimate model trained with reinforcement learning. `FENSE` is more consistent and variable than `SPIDEr`, but it uses a model not trained on audio captions. `Vocab` can give you an insight about the model diversity. To compute all of these metrics at once, you can use for example the `Evaluate` class:
 
 ```python
 from aac_metrics import Evaluate
@@ -113,7 +113,7 @@ mult_references: list[list[str]] = ...
 
 corpus_scores, _ = evaluate(candidates, mult_references)
 
-vocab_size = corpus_scores["vocab"]
+vocab_size = corpus_scores["vocab.cands"]
 spider_score = corpus_scores["spider"]
 fense_score = corpus_scores["fense"]
 ```
