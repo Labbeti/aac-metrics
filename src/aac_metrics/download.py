@@ -5,7 +5,6 @@ import logging
 import os
 import os.path as osp
 import shutil
-
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import Union
@@ -14,7 +13,6 @@ from zipfile import ZipFile
 from torch.hub import download_url_to_file
 
 import aac_metrics
-
 from aac_metrics.classes.bert_score_mrefs import BERTScoreMRefs
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.functional.meteor import DNAME_METEOR_CACHE
@@ -24,7 +22,7 @@ from aac_metrics.functional.spice import (
     FNAME_SPICE_JAR,
     check_spice_install,
 )
-from aac_metrics.utils.cmdline import _str_to_bool, _setup_logging
+from aac_metrics.utils.cmdline import _str_to_bool, setup_logging
 from aac_metrics.utils.globals import (
     _get_cache_path,
     _get_tmp_path,
@@ -32,7 +30,6 @@ from aac_metrics.utils.globals import (
     get_default_tmp_path,
 )
 from aac_metrics.utils.tokenization import FNAME_STANFORD_CORENLP_3_4_1_JAR
-
 
 pylog = logging.getLogger(__name__)
 
@@ -387,7 +384,7 @@ def _get_main_download_args() -> Namespace:
 
 def _main_download() -> None:
     args = _get_main_download_args()
-    _setup_logging(aac_metrics.__package__, args.verbose)
+    setup_logging(aac_metrics.__package__, args.verbose)
 
     download_metrics(
         cache_path=args.cache_path,
