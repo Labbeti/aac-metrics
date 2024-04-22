@@ -3,7 +3,7 @@
 
 import logging
 import time
-from functools import cache, partial
+from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Iterable, Optional, Union
 
@@ -24,6 +24,7 @@ from aac_metrics.functional.spider_fl import spider_fl
 from aac_metrics.functional.spider_max import spider_max
 from aac_metrics.functional.vocab import vocab
 from aac_metrics.utils.checks import check_metric_inputs
+from aac_metrics.utils.log_utils import warn_once
 from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
 
 pylog = logging.getLogger(__name__)
@@ -160,7 +161,8 @@ def evaluate(
             )
             if len(corpus_overlap) > 0 or len(sents_overlap) > 0:
                 warn_once(
-                    f"Found overlapping metric outputs names. (found {corpus_overlap=} and {sents_overlap=} at least twice)"
+                    f"Found overlapping metric outputs names. (found {corpus_overlap=} and {sents_overlap=} at least twice)",
+                    pylog,
                 )
 
         outs_corpus |= outs_corpus_i
@@ -393,8 +395,3 @@ def _get_metric_factory_functions(
         ),
     }
     return factory
-
-
-@cache
-def warn_once(msg: str) -> None:
-    pylog.warning(msg)
