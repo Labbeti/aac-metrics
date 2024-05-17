@@ -3,17 +3,16 @@
 
 import random
 import unittest
-
 from unittest import TestCase
 
 from aac_metrics.utils.checks import (
+    MAX_JAVA_MAJOR_VERSION,
+    MIN_JAVA_MAJOR_VERSION,
+    _check_java_version,
     is_mono_sents,
     is_mult_sents,
-    _check_java_version,
-    MIN_JAVA_MAJOR_VERSION,
-    MAX_JAVA_MAJOR_VERSION,
 )
-from aac_metrics.utils.collections import flat_list, unflat_list
+from aac_metrics.utils.collections import flat_list_of_list, unflat_list_of_list
 
 
 class TestUtils(TestCase):
@@ -29,13 +28,13 @@ class TestUtils(TestCase):
 
         self.assertTrue(is_mult_sents(lst))
 
-        flatten, sizes = flat_list(lst)
+        flatten, sizes = flat_list_of_list(lst)
 
         self.assertTrue(is_mono_sents(flatten))
         self.assertEqual(len(lst), len(sizes))
         self.assertEqual(len(flatten), sum(sizes))
 
-        unflat = unflat_list(flatten, sizes)
+        unflat = unflat_list_of_list(flatten, sizes)
 
         self.assertTrue(is_mult_sents(unflat))
         self.assertEqual(len(lst), len(unflat))

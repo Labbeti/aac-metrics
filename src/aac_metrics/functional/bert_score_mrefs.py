@@ -13,7 +13,11 @@ from transformers.models.auto.modeling_auto import AutoModel
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.utils.checks import check_metric_inputs
-from aac_metrics.utils.collections import duplicate_list, flat_list, unflat_list
+from aac_metrics.utils.collections import (
+    duplicate_list,
+    flat_list_of_list,
+    unflat_list_of_list,
+)
 from aac_metrics.utils.globals import _get_device
 
 DEFAULT_BERT_SCORE_MODEL = _DEFAULT_MODEL
@@ -102,7 +106,7 @@ def bert_score_mrefs(
         )
 
     device = _get_device(device)
-    flat_mrefs, sizes = flat_list(mult_references)
+    flat_mrefs, sizes = flat_list_of_list(mult_references)
     duplicated_cands = duplicate_list(candidates, sizes)
     assert len(duplicated_cands) == len(flat_mrefs)
 
@@ -134,7 +138,7 @@ def bert_score_mrefs(
         sents_scores = {k: [v] for k, v in sents_scores.items()}
 
     # sents_scores keys: "precision", "recall", "f1"
-    sents_scores = {k: unflat_list(v, sizes) for k, v in sents_scores.items()}  # type: ignore
+    sents_scores = {k: unflat_list_of_list(v, sizes) for k, v in sents_scores.items()}  # type: ignore
 
     if not return_all_scores:
         sents_scores = {"f1": sents_scores["f1"]}

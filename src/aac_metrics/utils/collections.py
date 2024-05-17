@@ -24,14 +24,14 @@ KEY_MODES = ("same", "intersect", "union")
 KeyMode = Literal["intersect", "same", "union"]
 
 
-def flat_list(lst: list[list[T]]) -> tuple[list[T], list[int]]:
+def flat_list_of_list(lst: list[list[T]]) -> tuple[list[T], list[int]]:
     """Return a flat version of the input list of sublists with each sublist size."""
     flatten_lst = [element for sublst in lst for element in sublst]
     sizes = [len(sents) for sents in lst]
     return flatten_lst, sizes
 
 
-def unflat_list(flatten_lst: list[T], sizes: list[int]) -> list[list[T]]:
+def unflat_list_of_list(flatten_lst: list[T], sizes: list[int]) -> list[list[T]]:
     """Unflat a list to a list of sublists of given sizes."""
     lst = []
     start = 0
