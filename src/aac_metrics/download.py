@@ -63,6 +63,7 @@ DATA_URLS = {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/spice/spice-1.0.jar",
         "fname": "spice-1.0.jar",
     },
+    # CoreNLP version 3.4.1 for PTBTokenizer used in caption-evaluation-tools
     "stanford_nlp": {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/tokenizer/stanford-corenlp-3.4.1.jar",
         "fname": "stanford-corenlp-3.4.1.jar",
@@ -71,6 +72,7 @@ DATA_URLS = {
         "url": "https://panderson.me/images/SPICE-1.0.zip",
         "fname": "SPICE-1.0.zip",
     },
+    # CoreNLP version 3.6.0 for SPICE
     "spice_corenlp_zip": {
         "url": "http://nlp.stanford.edu/software/stanford-corenlp-full-2015-12-09.zip",
         "fname": osp.join("SPICE-1.0", "stanford-corenlp-full-2015-12-09.zip"),
