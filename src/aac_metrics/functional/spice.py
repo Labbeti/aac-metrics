@@ -273,6 +273,7 @@ def check_spice_install(cache_path: str) -> None:
     for fname in expected_jar_in_lib:
         if fname not in names:
             files_not_found.append(fname)
+
     if len(files_not_found) > 0:
         raise FileNotFoundError(
             f"Missing {len(files_not_found)} files in SPICE lib directory. (missing {', '.join(files_not_found)})"
