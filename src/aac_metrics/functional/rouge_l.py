@@ -79,7 +79,8 @@ def _rouge_l_compute(
         rouge_l_outs_sents = {
             "rouge_l": rouge_l_scores_pt,
         }
-        return rouge_l_outs_corpus, rouge_l_outs_sents
+        rouge_l_outs = rouge_l_outs_corpus, rouge_l_outs_sents
+        return rouge_l_outs  # type: ignore
     else:
         return rouge_l_score_pt
 

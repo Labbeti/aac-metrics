@@ -219,7 +219,6 @@ def _bleu_compute(
             bleu_n_outs_sents[f"bleu_1_to_{n}"] = bleu_1_to_n_scores
 
         bleu_n_outs = bleu_n_outs_corpus, bleu_n_outs_sents
-
         return bleu_n_outs
     else:
         return bleu_n_score

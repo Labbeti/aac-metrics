@@ -116,7 +116,8 @@ def vocab(
             "vocab.ratio_avg": vocab_len_ratio_avg,
         }
 
-    return corpus_scores, sents_scores
+    vocab_outs = corpus_scores, sents_scores
+    return vocab_outs  # type: ignore
 
 
 def _corpus_vocab(tok_sents: list[list[str]], dtype: torch.dtype) -> Tensor:

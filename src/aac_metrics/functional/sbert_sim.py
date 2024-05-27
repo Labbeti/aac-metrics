@@ -82,8 +82,8 @@ def sbert_sim(
         sbert_sim_outs_sents = {
             "sbert_sim": sbert_sim_scores,
         }
-
-        return sbert_sim_outs_corpus, sbert_sim_outs_sents
+        sbert_sim_outs = sbert_sim_outs_corpus, sbert_sim_outs_sents
+        return sbert_sim_outs  # type: ignore
     else:
         return sbert_sim_score
 

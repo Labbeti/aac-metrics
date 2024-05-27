@@ -206,7 +206,7 @@ def meteor(
             "meteor": meteor_scores,
         }
         meteor_outs = meteor_outs_corpus, meteor_outs_sents
-        return meteor_outs
+        return meteor_outs  # type: ignore
     else:
         return meteor_score
 

@@ -219,7 +219,8 @@ def spice(
         spice_outs_sents = {
             "spice": spice_scores,
         }
-        return spice_outs_corpus, spice_outs_sents
+        spice_outs = spice_outs_corpus, spice_outs_sents
+        return spice_outs
     else:
         return spice_score
 
