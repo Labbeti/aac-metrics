@@ -17,7 +17,7 @@ __version__ = "0.5.4"
 
 from .classes.base import AACMetric
 from .classes.bert_score_mrefs import BERTScoreMRefs
-from .classes.bleu import BLEU
+from .classes.bleu import BLEU, BLEU1, BLEU2, BLEU3, BLEU4
 from .classes.cider_d import CIDErD
 from .classes.evaluate import DCASE2023Evaluate, Evaluate, _get_metric_factory_classes
 from .classes.fense import FENSE
@@ -44,6 +44,10 @@ __all__ = [
     "AACMetric",
     "BERTScoreMRefs",
     "BLEU",
+    "BLEU1",
+    "BLEU2",
+    "BLEU3",
+    "BLEU4",
     "CIDErD",
     "Evaluate",
     "DCASE2023Evaluate",

@@ -25,11 +25,21 @@ def check_metric_inputs(
 
     error_msgs = []
     if not is_mono_sents(candidates):
-        error_msg = f"Invalid candidates type. (expected list[str], found {candidates.__class__.__name__})"
+        if isinstance(candidates, list) and len(candidates) > 0:
+            clsname = (
+                f"{candidates.__class__.__name__}[{candidates[0].__class__.__name__}]"
+            )
+        else:
+            clsname = candidates.__class__.__name__
+
+        error_msg = f"Invalid candidates type. (expected list[str], found {clsname})"
         error_msgs.append(error_msg)
 
     if not is_mult_sents(mult_references):
-        error_msg = f"Invalid mult_references type. (expected list[list[str]], found {mult_references.__class__.__name__})"
+        clsname = mult_references.__class__.__name__
+        error_msg = (
+            f"Invalid mult_references type. (expected list[list[str]], found {clsname})"
+        )
         error_msgs.append(error_msg)
 
     if len(error_msgs) > 0:

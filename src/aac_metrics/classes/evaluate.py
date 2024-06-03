@@ -45,7 +45,7 @@ class Evaluate(list[AACMetric], AACMetric[tuple[dict[str, Tensor], dict[str, Ten
 
     def __init__(
         self,
-        preprocess: bool = True,
+        preprocess: Union[bool, Callable[[list[str]], list[str]]] = True,
         metrics: Union[
             str, Iterable[str], Iterable[AACMetric]
         ] = DEFAULT_METRICS_SET_NAME,
@@ -165,7 +165,8 @@ class DCASE2024Evaluate(Evaluate):
 
 
 def _instantiate_metrics_classes(
-    metrics: Union[str, Iterable[str], Iterable[AACMetric]] = "aac",
+    metrics: Union[str, Iterable[str], Iterable[AACMetric]] = DEFAULT_METRICS_SET_NAME,
+    *,
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
