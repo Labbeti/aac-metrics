@@ -14,7 +14,7 @@ pylog = logging.getLogger(__name__)
 
 T = TypeVar("T")
 POP_STRATEGIES = ("max", "min")
-PopStrategy = Literal["max", "min"]
+PopStrategy = Union[Literal["max", "min"], int]
 VocabScores = TypedDict("VocabScores", {"vocab.cands": Tensor})
 VocabOuts = tuple[VocabScores, VocabScores]
 

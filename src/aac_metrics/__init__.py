@@ -19,7 +19,12 @@ from .classes.base import AACMetric
 from .classes.bert_score_mrefs import BERTScoreMRefs
 from .classes.bleu import BLEU, BLEU1, BLEU2, BLEU3, BLEU4
 from .classes.cider_d import CIDErD
-from .classes.evaluate import DCASE2023Evaluate, Evaluate, _get_metric_factory_classes
+from .classes.evaluate import (
+    DCASE2023Evaluate,
+    Evaluate,
+    _get_metric_factory_classes,
+    _instantiate_metrics_classes,
+)
 from .classes.fense import FENSE
 from .classes.fer import FER
 from .classes.meteor import METEOR
@@ -69,6 +74,7 @@ __all__ = [
     "set_default_cache_path",
     "set_default_java_path",
     "set_default_tmp_path",
+    "list_metrics_available",
     "load_metric",
 ]
 
@@ -86,13 +92,8 @@ def load_metric(name: str, **kwargs) -> AACMetric:
     :param **kwargs: The optional keyword arguments passed to the metric factory.
     :returns: The Metric object built.
     """
-    name = name.lower().strip()
+    if not isinstance(name, str):
+        raise TypeError(f"Invalid argument type {type(name)}. (expected str)")
 
-    factory = _get_metric_factory_classes(**kwargs)
-    if name not in factory:
-        raise ValueError(
-            f"Invalid argument {name=}. (expected one of {tuple(factory.keys())})"
-        )
-
-    metric = factory[name]()
+    metric = _instantiate_metrics_classes(name, **kwargs)
     return metric
