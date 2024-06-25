@@ -4,7 +4,7 @@
 from .bert_score_mrefs import BERTScoreMRefs
 from .bleu import BLEU, BLEU1, BLEU2, BLEU3, BLEU4
 from .cider_d import CIDErD
-from .evaluate import DCASE2023Evaluate, Evaluate
+from .evaluate import DCASE2023Evaluate, DCASE2024Evaluate, Evaluate
 from .fense import FENSE
 from .fer import FER
 from .meteor import METEOR
@@ -16,7 +16,6 @@ from .spider_fl import SPIDErFL
 from .spider_max import SPIDErMax
 from .vocab import Vocab
 
-
 __all__ = [
     "BERTScoreMRefs",
     "BLEU",
@@ -26,6 +25,7 @@ __all__ = [
     "BLEU4",
     "CIDErD",
     "DCASE2023Evaluate",
+    "DCASE2024Evaluate",
     "Evaluate",
     "FENSE",
     "FER",

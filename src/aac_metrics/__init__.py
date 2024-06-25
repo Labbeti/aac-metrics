@@ -21,6 +21,7 @@ from .classes.bleu import BLEU, BLEU1, BLEU2, BLEU3, BLEU4
 from .classes.cider_d import CIDErD
 from .classes.evaluate import (
     DCASE2023Evaluate,
+    DCASE2024Evaluate,
     Evaluate,
     _get_metric_factory_classes,
     _instantiate_metrics_classes,
@@ -35,7 +36,7 @@ from .classes.spider import SPIDEr
 from .classes.spider_fl import SPIDErFL
 from .classes.spider_max import SPIDErMax
 from .classes.vocab import Vocab
-from .functional.evaluate import dcase2023_evaluate, evaluate
+from .functional.evaluate import dcase2023_evaluate, dcase2024_evaluate, evaluate
 from .utils.globals import (
     get_default_cache_path,
     get_default_java_path,
@@ -56,6 +57,7 @@ __all__ = [
     "CIDErD",
     "Evaluate",
     "DCASE2023Evaluate",
+    "DCASE2024Evaluate",
     "FENSE",
     "FER",
     "METEOR",
@@ -68,6 +70,7 @@ __all__ = [
     "Vocab",
     "evaluate",
     "dcase2023_evaluate",
+    "dcase2024_evaluate",
     "get_default_cache_path",
     "get_default_java_path",
     "get_default_tmp_path",
