@@ -71,6 +71,7 @@ class Vocab(AACMetric[Union[VocabOuts, Tensor]]):
             "vocab.precision",
             "vocab.recall",
             "vocab.f1",
+            "vocab.jaccard",
         )
 
     def reset(self) -> None:
