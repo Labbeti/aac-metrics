@@ -68,6 +68,9 @@ class Vocab(AACMetric[Union[VocabOuts, Tensor]]):
             "vocab.mrefs_avg",
             "vocab.mrefs_std",
             "vocab.ratio_avg",
+            "vocab.precision",
+            "vocab.recall",
+            "vocab.f1",
         )
 
     def reset(self) -> None:
