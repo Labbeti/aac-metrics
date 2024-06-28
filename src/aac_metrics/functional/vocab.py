@@ -87,7 +87,7 @@ def vocab(
         vocab_precision = len(inter) / len(corpus_vocab_cands)
         vocab_recall = len(inter) / (len(inter) + len(diff))
         vocab_f1 = 2 * vocab_precision * vocab_recall / (vocab_precision + vocab_recall)
-        vocab_jaccard = len(inter) + len(union)
+        vocab_jaccard = len(inter) / len(union)
 
         vocab_mrefs_len_full = _corpus_vocab_size(
             [ref for refs in tok_mrefs for ref in refs], dtype
