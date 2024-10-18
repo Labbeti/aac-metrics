@@ -62,7 +62,7 @@ def spider_fl(
     # Other args
     penalty: float = 0.9,
     verbose: int = 0,
-) -> Union[Tensor, SPIDErFLOuts]:
+) -> Union[SPIDErFLOuts, Tensor]:
     """Combinaison of SPIDEr with Fluency Error detector.
 
     - Original implementation: https://github.com/felixgontier/dcase-2023-baseline/blob/main/metrics.py#L48.

@@ -24,7 +24,7 @@ def cider_d(
     tokenizer: Callable[[str], list[str]] = str.split,
     return_tfidf: bool = False,
     scale: float = 10.0,
-) -> Union[Tensor, CIDErDOuts]:
+) -> Union[CIDErDOuts, Tensor]:
     """Consensus-based Image Description Evaluation function.
 
     - Paper: https://arxiv.org/pdf/1411.5726.pdf

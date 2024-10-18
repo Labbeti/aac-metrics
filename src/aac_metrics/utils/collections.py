@@ -54,9 +54,8 @@ def duplicate_list(lst: list[T], sizes: list[int]) -> list[T]:
     ... ["a", "c", "c", "d", "e", "e", "e"]
     """
     if len(lst) != len(sizes):
-        raise ValueError(
-            f"Invalid arguments lengths. (found {len(lst)=} != {len(sizes)=})"
-        )
+        msg = f"Invalid arguments lengths. (found {len(lst)=} != {len(sizes)=})"
+        raise ValueError(msg)
 
     out_size = sum(sizes)
     out: list[T] = [None for _ in range(out_size)]  # type: ignore

@@ -36,7 +36,7 @@ def spider_max(
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
     verbose: int = 0,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[SPIDErMaxOuts, Tensor]:
     """SPIDEr-max function.
 
     Compute the maximal SPIDEr score accross multiple candidates.
@@ -72,7 +72,7 @@ def spider_max(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    return mult_cands_metric(
+    return mult_cands_metric(  # type: ignore
         metric=spider,
         metric_out_name="spider",
         mult_candidates=mult_candidates,

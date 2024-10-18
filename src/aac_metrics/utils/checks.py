@@ -23,7 +23,7 @@ def check_metric_inputs(
 ) -> None:
     """Raises ValueError if candidates and mult_references does not have a valid type and size."""
 
-    error_msgs = []
+    msgs = []
     if not is_mono_sents(candidates):
         if isinstance(candidates, list) and len(candidates) > 0:
             clsname = (
@@ -32,33 +32,32 @@ def check_metric_inputs(
         else:
             clsname = candidates.__class__.__name__
 
-        error_msg = f"Invalid candidates type. (expected list[str], found {clsname})"
-        error_msgs.append(error_msg)
+        msg = f"Invalid candidates type. (expected list[str], found {clsname})"
+        msgs.append(msg)
 
     if not is_mult_sents(mult_references):
         clsname = mult_references.__class__.__name__
-        error_msg = (
+        msg = (
             f"Invalid mult_references type. (expected list[list[str]], found {clsname})"
         )
-        error_msgs.append(error_msg)
+        msgs.append(msg)
 
-    if len(error_msgs) > 0:
-        raise ValueError("\n".join(error_msgs))
+    if len(msgs) > 0:
+        raise ValueError("\n".join(msgs))
 
     same_len = len(candidates) == len(mult_references)
     if not same_len:
-        error_msg = f"Invalid number of candidates ({len(candidates)}) with the number of references ({len(mult_references)})."
-        raise ValueError(error_msg)
+        msg = f"Invalid number of candidates ({len(candidates)}) with the number of references ({len(mult_references)})."
+        raise ValueError(msg)
 
     at_least_1_ref_per_cand = all(len(refs) > 0 for refs in mult_references)
     if not at_least_1_ref_per_cand:
-        error_msg = "Invalid number of references per candidate. (found at least 1 empty list of references)"
-        raise ValueError(error_msg)
+        msg = "Invalid number of references per candidate. (found at least 1 empty list of references)"
+        raise ValueError(msg)
 
     if len(candidates) < min_length:
-        raise ValueError(
-            f"Invalid number of sentences in candidates and references. (expected at least {min_length} sentences but found {len(candidates)=})"
-        )
+        msg = f"Invalid number of sentences in candidates and references. (expected at least {min_length} sentences but found {len(candidates)=})"
+        raise ValueError(msg)
 
 
 def check_java_path(java_path: Union[str, Path]) -> bool:

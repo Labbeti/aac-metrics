@@ -14,9 +14,8 @@ def _str_to_bool(s: str) -> bool:
     elif s in _FALSE_VALUES:
         return False
     else:
-        raise ValueError(
-            f"Invalid argument {s=}. (expected one of {_TRUE_VALUES + _FALSE_VALUES})"
-        )
+        msg = f"Invalid argument {s=}. (expected one of {_TRUE_VALUES + _FALSE_VALUES})"
+        raise ValueError(msg)
 
 
 def _str_to_opt_str(s: str) -> Optional[str]:

@@ -51,7 +51,7 @@ def fense(
     # Other args
     penalty: float = 0.9,
     verbose: int = 0,
-) -> Union[Tensor, FENSEOuts]:
+) -> Union[FENSEOuts, Tensor]:
     """Fluency ENhanced Sentence-bert Evaluation (FENSE)
 
     - Paper: https://arxiv.org/abs/2110.04684

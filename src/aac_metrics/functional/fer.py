@@ -108,7 +108,7 @@ def fer(
     reset_state: bool = True,
     return_probs: bool = False,
     verbose: int = 0,
-) -> Union[Tensor, FEROuts]:
+) -> Union[FEROuts, Tensor]:
     """Return Fluency Error Rate (FER) detected by a pre-trained BERT model.
 
     - Paper: https://arxiv.org/abs/2110.04684

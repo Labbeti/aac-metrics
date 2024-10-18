@@ -99,9 +99,8 @@ def __get_default_value(value_name: str) -> Any:
             return value
 
     pylog.error(f"Values: {values}")
-    raise RuntimeError(
-        f"Invalid default value for value_name={value_name}. (all default values are None)"
-    )
+    msg = f"Invalid default value for value_name={value_name}. (all default values are None)"
+    raise RuntimeError(msg)
 
 
 def __set_default_value(

@@ -30,7 +30,7 @@ def sbert_sim(
     batch_size: int = 32,
     reset_state: bool = True,
     verbose: int = 0,
-) -> Union[Tensor, SBERTSimOuts]:
+) -> Union[SBERTSimOuts, Tensor]:
     """Cosine-similarity of the Sentence-BERT embeddings.
 
     - Paper: https://arxiv.org/abs/1908.10084
