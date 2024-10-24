@@ -3,7 +3,7 @@
 black==23.12.1
 flake8==4.0.1
 ipykernel==6.9.1
-matplotlib==3.5.2
+matplotlib>=3.5.2
 pre-commit
 pytest==7.1.2
 scikit-image==0.19.2
