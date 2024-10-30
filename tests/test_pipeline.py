@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-
 from unittest import TestCase
 
 from aac_metrics.functional.evaluate import evaluate
