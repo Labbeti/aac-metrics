@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 black==23.12.1
+coverage[toml]~=7.5.0
 flake8==4.0.1
 ipykernel==6.9.1
 matplotlib>=3.5.2
