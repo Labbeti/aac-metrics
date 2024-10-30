@@ -67,73 +67,73 @@ def vocab(
         "vocab.cands": vocab_cands_len,
     }
 
-    if mult_references is not None:
-        if len(mult_references) <= 0:
-            raise ValueError(
-                f"Invalid number of references. (found {len(mult_references)} references)"
-            )
-        tok_mrefs = [list(map(tokenizer, refs)) for refs in mult_references]
-        del mult_references
+    if mult_references is None:
+        vocab_outs = corpus_scores, sents_scores
+        return vocab_outs  # type: ignore
 
-        corpus_vocab_cands = set(token for cand in tok_cands for token in cand)
-        corpus_vocab_mrefs = set(
-            token for refs in tok_mrefs for ref in refs for token in ref
-        )
+    if len(mult_references) <= 0:
+        msg = f"Invalid number of references. (found {len(mult_references)} references)"
+        raise ValueError(msg)
+    tok_mrefs = [list(map(tokenizer, refs)) for refs in mult_references]
+    del mult_references
 
-        inter = corpus_vocab_cands.intersection(corpus_vocab_mrefs)  # True positives
-        diff = corpus_vocab_mrefs.difference(corpus_vocab_cands)  # False negatives
-        union = corpus_vocab_cands.union(corpus_vocab_mrefs)
+    corpus_vocab_cands = set(token for cand in tok_cands for token in cand)
+    corpus_vocab_mrefs = set(
+        token for refs in tok_mrefs for ref in refs for token in ref
+    )
 
-        vocab_precision = len(inter) / len(corpus_vocab_cands)
-        vocab_recall = len(inter) / (len(inter) + len(diff))
-        vocab_f1 = 2 * vocab_precision * vocab_recall / (vocab_precision + vocab_recall)
-        vocab_jaccard = len(inter) / len(union)
+    inter = corpus_vocab_cands.intersection(corpus_vocab_mrefs)  # True positives
+    diff = corpus_vocab_mrefs.difference(corpus_vocab_cands)  # False negatives
+    union = corpus_vocab_cands.union(corpus_vocab_mrefs)
 
-        vocab_mrefs_len_full = _corpus_vocab_size(
-            [ref for refs in tok_mrefs for ref in refs], dtype
-        )
-        vocab_ratio_len_full = vocab_cands_len / vocab_mrefs_len_full
+    vocab_precision = len(inter) / len(corpus_vocab_cands)
+    vocab_recall = len(inter) / (len(inter) + len(diff))
+    vocab_f1 = 2 * vocab_precision * vocab_recall / (vocab_precision + vocab_recall)
+    vocab_jaccard = len(inter) / len(union)
 
-        if isinstance(seed, int):
-            generator = torch.Generator().manual_seed(seed)
-        else:
-            generator = seed
+    vocab_mrefs_len_full = _corpus_vocab_size(
+        [ref for refs in tok_mrefs for ref in refs], dtype
+    )
+    vocab_ratio_len_full = vocab_cands_len / vocab_mrefs_len_full
 
-        if pop_strategy == "max":
-            num_try = max(len(refs) for refs in tok_mrefs)
-        elif pop_strategy == "min":
-            num_try = min(len(refs) for refs in tok_mrefs)
-        elif isinstance(pop_strategy, int):
-            num_try = pop_strategy
-        else:
-            raise ValueError(
-                f"Invalid argument {pop_strategy=}. (expected one of {POP_STRATEGIES} or an integer value)"
-            )
+    if isinstance(seed, int):
+        generator = torch.Generator().manual_seed(seed)
+    else:
+        generator = seed
 
-        if verbose >= 2:
-            pylog.debug(f"Found {num_try=} with {pop_strategy=}.")
+    if pop_strategy == "max":
+        num_try = max(len(refs) for refs in tok_mrefs)
+    elif pop_strategy == "min":
+        num_try = min(len(refs) for refs in tok_mrefs)
+    elif isinstance(pop_strategy, int):
+        num_try = pop_strategy
+    else:
+        msg = f"Invalid argument {pop_strategy=}. (expected one of {POP_STRATEGIES} or an integer value)"
+        raise ValueError(msg)
 
-        vocab_mrefs_lens = torch.empty((num_try,), dtype=dtype)
+    if verbose >= 2:
+        pylog.debug(f"Found {num_try=} with {pop_strategy=}.")
 
-        for i in range(num_try):
-            popped_refs, _ = _sample_sentences_split(tok_mrefs, generator=generator)
-            vocab_mrefs_len_i = _corpus_vocab_size(popped_refs, dtype)
-            vocab_mrefs_lens[i] = vocab_mrefs_len_i
+    vocab_mrefs_lens = torch.empty((num_try,), dtype=dtype)
 
-        vocab_mrefs_avg = vocab_mrefs_lens.mean()
-        vocab_len_ratio_avg = vocab_cands_len / vocab_mrefs_avg
+    for i in range(num_try):
+        popped_refs, _ = _sample_sentences_split(tok_mrefs, generator=generator)
+        vocab_mrefs_len_i = _corpus_vocab_size(popped_refs, dtype)
+        vocab_mrefs_lens[i] = vocab_mrefs_len_i
 
-        corpus_scores |= {
-            "vocab.mrefs_full": vocab_mrefs_len_full,
-            "vocab.ratio_full": vocab_ratio_len_full,
-            "vocab.mrefs_avg": vocab_mrefs_avg,
-            "vocab.ratio_avg": vocab_len_ratio_avg,
-            "vocab.precision": vocab_precision,
-            "vocab.recall": vocab_recall,
-            "vocab.f1": vocab_f1,
-            "vocab.jaccard": vocab_jaccard,
-        }
+    vocab_mrefs_avg = vocab_mrefs_lens.mean()
+    vocab_len_ratio_avg = vocab_cands_len / vocab_mrefs_avg
 
+    corpus_scores |= {
+        "vocab.mrefs_full": vocab_mrefs_len_full,
+        "vocab.ratio_full": vocab_ratio_len_full,
+        "vocab.mrefs_avg": vocab_mrefs_avg,
+        "vocab.ratio_avg": vocab_len_ratio_avg,
+        "vocab.precision": vocab_precision,
+        "vocab.recall": vocab_recall,
+        "vocab.f1": vocab_f1,
+        "vocab.jaccard": vocab_jaccard,
+    }
     vocab_outs = corpus_scores, sents_scores
     return vocab_outs  # type: ignore
 

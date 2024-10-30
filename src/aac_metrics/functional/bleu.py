@@ -189,7 +189,8 @@ def _bleu_compute(
     return_1_to_n: bool = False,
 ) -> Union[Tensor, BLEUOuts]:
     if option not in BLEU_OPTIONS:
-        raise ValueError(f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})")
+        msg = f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})"
+        raise ValueError(msg)
 
     bleu_1_to_n_score, bleu_1_to_n_scores = __compute_bleu_score(
         cooked_cands,

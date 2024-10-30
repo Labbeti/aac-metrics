@@ -305,7 +305,6 @@ def _get_metric_factory_functions(
         init_kwds = {}
 
     init_kwds = init_kwds | dict(return_all_scores=return_all_scores)
-
     factory = {
         "bert_score": partial(
             bert_score_mrefs,
@@ -403,4 +402,5 @@ def _get_metric_factory_functions(
             **init_kwds,
         ),
     }
+
     return factory

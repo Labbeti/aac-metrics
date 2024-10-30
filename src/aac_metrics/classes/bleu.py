@@ -40,9 +40,8 @@ class BLEU(AACMetric[Union[BLEUOuts, Tensor]]):
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
         if option not in BLEU_OPTIONS:
-            raise ValueError(
-                f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})"
-            )
+            msg = f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})"
+            raise ValueError(msg)
 
         super().__init__()
         self._return_all_scores = return_all_scores
