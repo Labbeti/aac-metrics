@@ -14,9 +14,15 @@ repos:
       - id: isort
         args: ["--profile", "black"]
 
+    - repo: https://github.com/PyCQA/flake8
+      rev: 4.0.1
+      hooks:
+      - id: flake8
+
     # Formatting, Whitespace, etc
     - repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v2.2.3
+      # rev: v5.0.0
       hooks:
       - id: trailing-whitespace
       - id: check-added-large-files
