@@ -411,6 +411,12 @@ def _get_main_download_args() -> Namespace:
         help="Download FENSE models.",
     )
     parser.add_argument(
+        "--bert_score",
+        type=_str_to_bool,
+        default=True,
+        help="Download BERTScore models.",
+    )
+    parser.add_argument(
         "--force",
         type=_str_to_bool,
         default=False,
@@ -434,6 +440,7 @@ def _main_download() -> None:
         meteor=args.meteor,
         spice=args.spice,
         fense=args.fense,
+        bert_score=args.bert_score,
         force=args.force,
         verbose=args.verbose,
     )
