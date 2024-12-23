@@ -172,6 +172,7 @@ torchmetrics >= 0.11.4
 ### External requirements
 - `java` **>= 1.8 and <= 1.13** is required to compute METEOR, SPICE and use the PTBTokenizer.
 Most of these functions can specify a java executable path with `java_path` argument or by overriding `AAC_METRICS_JAVA_PATH` environment variable.
+<!-- sudo apt install default-jre -->
 
 ## Additional notes
 ### CIDEr or CIDEr-D?
