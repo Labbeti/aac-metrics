@@ -14,6 +14,7 @@ repos:
       - id: isort
         args: ["--profile", "black"]
 
+    # Check PEP conventions & code format
     - repo: https://github.com/PyCQA/flake8
       rev: 4.0.1
       hooks:
