@@ -55,6 +55,8 @@ pythonVersion = "3.8"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+filterwarnings = ["ignore::FutureWarning", "ignore::DeprecationWarning"]
+addopts = ["--ignore=tests/caption-evaluation-tools"]
 
 [tool.coverage.run]
 source = ["src"]
