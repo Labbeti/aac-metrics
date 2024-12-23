@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - DCASE2024 challenge metric set, class and functions.
 - Preprocess option in `evaluate` now accepts custom callable value.
+- `bert_score` option in download script.
 
 ### Changed
 - Improve metric output typing for language servers.
