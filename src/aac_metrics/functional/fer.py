@@ -126,7 +126,7 @@ def fer(
         If None and echecker is not None, this value will be inferred with `echecker.model_type`.
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
-    :param device: The PyTorch device used to run FENSE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
+    :param device: The PyTorch device used to run pre-trained models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to False.
