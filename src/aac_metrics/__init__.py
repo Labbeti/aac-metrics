@@ -19,6 +19,7 @@ from .classes.base import AACMetric
 from .classes.bert_score_mrefs import BERTScoreMRefs
 from .classes.bleu import BLEU, BLEU1, BLEU2, BLEU3, BLEU4
 from .classes.cider_d import CIDErD
+from .classes.clap_sim import CLAPSim
 from .classes.evaluate import (
     DCASE2023Evaluate,
     DCASE2024Evaluate,
@@ -28,6 +29,7 @@ from .classes.evaluate import (
 )
 from .classes.fense import FENSE
 from .classes.fer import FER
+from .classes.mace import MACE
 from .classes.meteor import METEOR
 from .classes.rouge_l import ROUGEL
 from .classes.sbert_sim import SBERTSim
@@ -54,12 +56,14 @@ __all__ = [
     "BLEU2",
     "BLEU3",
     "BLEU4",
+    "CLAPSim",
     "CIDErD",
     "Evaluate",
     "DCASE2023Evaluate",
     "DCASE2024Evaluate",
     "FENSE",
     "FER",
+    "MACE",
     "METEOR",
     "ROUGEL",
     "SBERTSim",
