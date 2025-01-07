@@ -11,6 +11,7 @@ from typing import Any, Optional, Union
 import torch
 
 _CUDA_IF_AVAILABLE: str = "cuda_if_available"
+CUDA_IF_AVAILABLE: str = _CUDA_IF_AVAILABLE  # for backward compatibility
 
 pylog = logging.getLogger(__name__)
 
