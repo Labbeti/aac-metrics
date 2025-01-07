@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from typing import Union
+from typing import Optional, Union
 
 import torch
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
+from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fense import FENSEOuts, _load_models_and_tokenizer, fense
@@ -42,6 +43,7 @@ class FENSE(AACMetric[Union[FENSEOuts, Tensor]]):
         *,
         sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
         echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
+        echecker_tokenizer: Optional[AutoTokenizer] = None,
         error_threshold: float = 0.9,
         device: Union[str, torch.device, None] = "cuda_if_available",
         batch_size: int = 32,
@@ -53,7 +55,7 @@ class FENSE(AACMetric[Union[FENSEOuts, Tensor]]):
         sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(
             sbert_model=sbert_model,
             echecker=echecker,
-            echecker_tokenizer=None,
+            echecker_tokenizer=echecker_tokenizer,
             device=device,
             reset_state=reset_state,
             verbose=verbose,

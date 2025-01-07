@@ -5,23 +5,21 @@ import importlib
 import logging
 import os.path as osp
 import sys
-import torch
 import unittest
-
 from typing import Any
 from unittest import TestCase
 
+import torch
 import transformers
 
 from aac_metrics.classes.fense import FENSE
-from aac_metrics.functional.fer import _use_new_echecker_loading
 from aac_metrics.eval import load_csv_file
-
+from aac_metrics.functional.fer import _use_new_echecker_loading
 
 pylog = logging.getLogger(__name__)
 
 
-class TestCompareFENSE(TestCase):
+class TestFENSECompatibility(TestCase):
     # Set Up methods
     @classmethod
     def setUpClass(cls) -> None:

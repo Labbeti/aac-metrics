@@ -40,7 +40,7 @@ def fense(
     *,
     # SBERT args
     sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
-    # FluencyError args
+    # FER args
     echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
@@ -134,10 +134,9 @@ def _fense_from_outputs(
     sbert_sims_scores = sbert_sim_outs_sents["sbert_sim"]
     fer_scores = fer_outs_sents["fer"]
     fense_scores = sbert_sims_scores * (1.0 - penalty * fer_scores)
+    # note: we use numpy mean to keep the same values than the original fense, this is only for backward compatibility
     fense_score = torch.as_tensor(
-        fense_scores.cpu()
-        .numpy()
-        .mean(),  # note: use numpy mean to keep the same values than the original fense
+        fense_scores.cpu().numpy().mean(),
         device=fense_scores.device,
     )
 

@@ -7,3 +7,7 @@
 [submodule "fense"]
 	path = tests/fense
 	url = https://github.com/blmoistawinde/fense
+
+[submodule "tests/mace"]
+	path = tests/mace
+	url = https://github.com/satvik-dixit/mace

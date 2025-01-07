@@ -51,12 +51,12 @@ optional-dependencies = {dev = { file = ["requirements-dev.txt"] }}
 [tool.pyright]
 include = ["src"]
 exclude = ["**/__pycache__"]
-pythonVersion = "3.8"
+pythonVersion = "3.9"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 filterwarnings = ["ignore::FutureWarning", "ignore::DeprecationWarning"]
-addopts = ["--ignore=tests/caption-evaluation-tools"]
+addopts = ["--ignore=tests/caption-evaluation-tools", "--ignore=tests/fense", "--ignore=tests/mace"]
 
 [tool.coverage.run]
 source = ["src"]

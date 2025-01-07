@@ -8,22 +8,19 @@ import shutil
 import subprocess
 import sys
 import unittest
-
 from pathlib import Path
 from typing import Callable, Dict, List, Tuple
 from unittest import TestCase
 
 from torch import Tensor
 
-from aac_metrics.functional.evaluate import evaluate
-from aac_metrics.eval import load_csv_file
-from aac_metrics.utils.globals import (
-    get_default_tmp_path,
-)
 from aac_metrics.download import _download_spice
+from aac_metrics.eval import load_csv_file
+from aac_metrics.functional.evaluate import evaluate
+from aac_metrics.utils.globals import get_default_tmp_path
 
 
-class TestCompareCaptionEvaluationTools(TestCase):
+class TestCaptionEvaluationToolsCompatibility(TestCase):
     # Note: "cet" is here an acronym for "caption evaluation tools"
 
     # Set Up methods

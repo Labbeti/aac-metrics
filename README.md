@@ -18,8 +18,8 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
 
 ## Why using this package?
 - **Easy to install and download**
-- **Produces same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense) repositories**
-- **Provides 13 different metrics:**
+- **Produces same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools), [fense](https://github.com/blmoistawinde/fense) and [mace](https://github.com/satvik-dixit/mace) repositories**
+- **Provides 15 different metrics:**
     - BLEU [[1]](#bleu)
     - ROUGE-L [[2]](#rouge-l)
     - METEOR [[3]](#meteor)
@@ -32,7 +32,9 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
     - FER [[9]](#fense)
     - FENSE [[9]](#fense)
     - SPIDEr-FL [[10]](#spider-fl)
-    - Vocab (unique word vocabulary)
+    - CLAP-sim [[11]](#clapsim)
+    - MACE [[12]](#mace)
+    - Vocab (unique word vocabulary absolute or relative to references)
 
 ## Installation
 Install the pip package:
@@ -45,7 +47,7 @@ If you want to check if the package has been installed and the version, you can 
 aac-metrics-info
 ```
 
-Download the external code and models needed for METEOR, SPICE, SPIDEr, SPIDEr-max, PTBTokenizer, SBERTSim, FluencyError, FENSE and SPIDEr-FL:
+Download the external code and models needed for METEOR, SPICE, SPIDEr, SPIDEr-max, PTBTokenizer, SBERTSim, FER, FENSE and SPIDEr-FL:
 ```bash
 aac-metrics-download
 ```
@@ -138,6 +140,8 @@ fense_score = corpus_scores["fense"]
 | Fluency Error Rate [[9]](#fense) | `FER` | audio captioning | [0, 1] | Detect fluency errors in sentences with a pretrained model |
 | FENSE [[9]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines SBERT-sim and Fluency Error rate |
 | SPIDEr-FL [[10]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error rate |
+| CLAP-sim [[11]](#clapsim) | `CLAPSim` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error rate |
+| MACE [[12]](#spider-fl) | `MACE` | audio captioning | [0, 5.5] | Combines CLAP-sim, SBERT-sim and Fluency Error rate |
 
 ### Other metrics
 | Metric name | Python Class | Origin | Range | Short description |
@@ -146,11 +150,11 @@ fense_score = corpus_scores["fense"]
 
 ### Future directions
 This package currently does not include all metrics dedicated to audio captioning. Feel free to do a pull request / or ask to me by email if you want to include them. Those metrics not included are listed here:
-- CB-Score [[11]](#cb-score)
-- SPICE+ [[12]](#spice-plus)
-- ACES [[13]](#aces) (can be found here: https://github.com/GlJS/ACES)
-- SBF [[14]](#sbf)
-- s2v [[15]](#s2v)
+- CB-Score [[13]](#cb-score)
+- SPICE+ [[14]](#spice-plus)
+- ACES [[15]](#aces) (can be found here: https://github.com/GlJS/ACES)
+- SBF [[16]](#sbf)
+- s2v [[17]](#s2v)
 
 ## Requirements
 This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions.
@@ -216,22 +220,28 @@ SPIDEr-max [[7]](#spider-max) is a metric based on SPIDEr that takes into accoun
 [9] Z. Zhou, Z. Zhang, X. Xu, Z. Xie, M. Wu, and K. Q. Zhu, Can Audio Captions Be Evaluated with Image Caption Metrics? arXiv, 2022. [Online]. Available: http://arxiv.org/abs/2110.04684
 
 #### SPIDEr-FL
-[10] DCASE website task6a description: https://dcase.community/challenge2023/task-automated-audio-captioning#evaluation
+[10] DCASE2023 website task6a description (ranking metric): https://dcase.community/challenge2023/task-automated-audio-captioning#evaluation
+
+#### CLAP-sim
+[11] B. Elizalde, S. Deshmukh, and H. Wang, Natural Language Supervision for General-Purpose Audio Representations. 2023. [Online]. Available: https://arxiv.org/abs/2309.05767
+
+#### MACE
+[12] S. Dixit, S. Deshmukh, and B. Raj, MACE: Leveraging Audio for Evaluating Audio Captioning Systems. 2024. [Online]. Available: https://arxiv.org/abs/2411.00321
 
 #### CB-score
-[11] I. Martín-Morató, M. Harju, and A. Mesaros, “A Summarization Approach to Evaluating Audio Captioning,” Nov. 2022. [Online]. Available: https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Martin-Morato_35.pdf
+[13] I. Martín-Morató, M. Harju, and A. Mesaros, “A Summarization Approach to Evaluating Audio Captioning,” Nov. 2022. [Online]. Available: https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Martin-Morato_35.pdf
 
 #### SPICE-plus
-[12] F. Gontier, R. Serizel, and C. Cerisara, “SPICE+: Evaluation of Automatic Audio Captioning Systems with Pre-Trained Language Models,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10097021.
+[14] F. Gontier, R. Serizel, and C. Cerisara, “SPICE+: Evaluation of Automatic Audio Captioning Systems with Pre-Trained Language Models,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10097021.
 
 #### ACES
-[13] G. Wijngaard, E. Formisano, B. L. Giordano, M. Dumontier, “ACES: Evaluating Automated Audio Captioning Models on the Semantics of Sounds”, in EUSIPCO 2023, 2023.
+[15] G. Wijngaard, E. Formisano, B. L. Giordano, M. Dumontier, “ACES: Evaluating Automated Audio Captioning Models on the Semantics of Sounds”, in EUSIPCO 2023, 2023. Available: https://ieeexplore.ieee.org/document/10289793.
 
 #### SBF
-[14] R. Mahfuz, Y. Guo, A. K. Sridhar, and E. Visser, Detecting False Alarms and Misses in Audio Captions. 2023. [Online]. Available: https://arxiv.org/pdf/2309.03326.pdf
+[16] R. Mahfuz, Y. Guo, A. K. Sridhar, and E. Visser, Detecting False Alarms and Misses in Audio Captions. 2023. [Online]. Available: https://arxiv.org/pdf/2309.03326.pdf
 
 #### s2v
-[15] S. Bhosale, R. Chakraborty, and S. K. Kopparapu, “A Novel Metric For Evaluating Audio Caption Similarity,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10096526. Available: https://ieeexplore.ieee.org/document/10096526
+[17] S. Bhosale, R. Chakraborty, and S. K. Kopparapu, “A Novel Metric For Evaluating Audio Caption Similarity,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10096526. Available: https://ieeexplore.ieee.org/document/10096526
 
 ## Citation
 If you use **SPIDEr-max**, you can cite the following paper using BibTex :

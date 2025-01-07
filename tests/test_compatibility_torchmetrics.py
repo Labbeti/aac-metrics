@@ -10,7 +10,7 @@ from torchmetrics.text.bleu import BLEUScore
 from aac_metrics.classes.bleu import BLEU
 
 
-class TestBleu(TestCase):
+class TestTorchmetricsCompatibility(TestCase):
     # Tests methods
     def test_bleu(self) -> None:
         cands = ["a man is speaking", "birds chirping"]
