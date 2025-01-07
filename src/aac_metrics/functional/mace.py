@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from typing import Literal, Optional, TypedDict, Union
+from typing import Any, Literal, MutableMapping, Optional, TypedDict, Union
 
 import torch
 from msclap import CLAP
@@ -40,7 +40,8 @@ def mace(
     audio_paths: Optional[list[str]] = None,
     return_all_scores: bool = True,
     *,
-    method: MACEMethod = "combined",
+    mace_method: MACEMethod = "text",
+    penalty: float = 0.3,
     # CLAP args
     clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
     # FER args
@@ -52,15 +53,30 @@ def mace(
     reset_state: bool = True,
     return_probs: bool = False,
     # Other args
-    penalty: float = 0.3,
     verbose: int = 0,
 ) -> Union[Tensor, MACEOuts]:
-    """
+    """Multimodal Audio-Caption Evaluation class (MACE).
+
+    MACE is a metric designed for evaluating automated audio captioning (AAC) systems.
+    Unlike metrics that compare machine-generated captions solely to human references, MACE uses both audio and text to improve evaluation.
+    By integrating both audio and text, it produces assessments that align better with human judgments.
+
+    The implementation is based on the mace original implementation (original author have accepted to include their code in aac-metrics under the MIT license).
+
+    - Paper: https://arxiv.org/pdf/2411.00321
+    - Original author: Satvik Dixit
+    - Original implementation: https://github.com/satvik-dixit/mace/tree/main
+
+    For more information, see :func:`~aac_metrics.functional.mace.mace`.
+
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
+    :param audio_paths: The list of paths to audio files.
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
+    :param method: The method used to encode the sentences. Can be "text", "audio" or "combined". defaults to "text".
+    :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.3.
     :param clap_model: The CLAP model used to extract CLAP embeddings for cosine-similarity. defaults to "MS-CLAP-2023".
     :param echecker: The echecker model used to detect fluency errors.
         Can be "echecker_clotho_audiocaps_base", "echecker_clotho_audiocaps_tiny", "none" or None.
@@ -69,8 +85,7 @@ def mace(
         If None and echecker is not None, this value will be inferred with `echecker.model_type`.
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
-    :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.9.
-    :param device: The PyTorch device used to run FENSE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
+    :param device: The PyTorch device used to run pre-trained models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the CLAP and echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to False.
@@ -86,54 +101,30 @@ def mace(
         reset_state=reset_state,
         verbose=verbose,
     )
-    if method == "text":
-        clap_sim_outs: CLAPOuts = clap_sim(  # type: ignore
-            method=method,
-            candidates=candidates,
-            mult_references=mult_references,
-            return_all_scores=True,
-            clap_model=clap_model,
-            device=device,
-            batch_size=batch_size,
-            reset_state=reset_state,
-            verbose=verbose,
-        )
 
-    elif method == "audio":
-        clap_sim_outs: CLAPOuts = clap_sim(  # type: ignore
-            method=method,
-            candidates=candidates,
-            audio_paths=audio_paths,
-            return_all_scores=True,
-            clap_model=clap_model,
-            device=device,
-            batch_size=batch_size,
-            reset_state=reset_state,
-            verbose=verbose,
-        )
+    clap_kwds: dict[str, Any] = dict(
+        candidates=candidates,
+        mult_references=mult_references,
+        audio_paths=audio_paths,
+        return_all_scores=True,
+        clap_model=clap_model,
+        device=device,
+        batch_size=batch_size,
+        reset_state=reset_state,
+        verbose=verbose,
+    )
+    if mace_method == "text":
+        clap_sim_outs: CLAPOuts = clap_sim(clap_method=mace_method, **clap_kwds)  # type: ignore
 
-    elif method == "combined":
+    elif mace_method == "audio":
+        clap_sim_outs: CLAPOuts = clap_sim(clap_method=mace_method, **clap_kwds)  # type: ignore
+
+    elif mace_method == "combined":
         clap_sim_outs_text: CLAPOuts = clap_sim(  # type: ignore
-            method="text",
-            candidates=candidates,
-            mult_references=mult_references,
-            return_all_scores=True,
-            clap_model=clap_model,
-            device=device,
-            batch_size=batch_size,
-            reset_state=reset_state,
-            verbose=verbose,
+            clap_method="text", **clap_kwds
         )
         clap_sim_outs_audio: CLAPOuts = clap_sim(  # type: ignore
-            method="audio",
-            candidates=candidates,
-            audio_paths=audio_paths,
-            return_all_scores=True,
-            clap_model=clap_model,
-            device=device,
-            batch_size=batch_size,
-            reset_state=reset_state,
-            verbose=verbose,
+            clap_method="audio", **clap_kwds
         )
         clap_sim_outs_corpus_text, clap_sim_outs_sents_text = clap_sim_outs_text
         clap_sim_outs_corpus_audio, clap_sim_outs_sents_audio = clap_sim_outs_audio
@@ -146,7 +137,7 @@ def mace(
         clap_sim_outs: CLAPOuts = clap_sim_outs_corpus, clap_sim_outs_sents  # type: ignore
 
     else:
-        msg = f"Invalid argument {method=}. (expected one of {MACE_METHODS})"
+        msg = f"Invalid argument {mace_method=}. (expected one of {MACE_METHODS})"
         raise ValueError(msg)
 
     fer_outs: FEROuts = fer(  # type: ignore
@@ -170,8 +161,8 @@ def mace(
 
 
 def _average_dicts(
-    dict1: dict[str, Tensor],
-    dict2: dict[str, Tensor],
+    dict1: MutableMapping[str, Tensor],
+    dict2: MutableMapping[str, Tensor],
 ) -> dict[str, Tensor]:
     averaged_dict = {}
     for key in dict1:
@@ -194,7 +185,7 @@ def _mace_from_outputs(
     clap_sims_scores = clap_sim_outs_sents["clap_sim"]
     fer_scores = fer_outs_sents["fer"]
     mace_scores = clap_sims_scores * (1.0 - penalty * fer_scores)
-    # note: use numpy mean to keep the same values than the original mace
+    # note: we use numpy mean to keep the same values than the original mace, this is only for backward compatibility
     mace_score = torch.as_tensor(
         mace_scores.cpu().numpy().mean(),
         device=mace_scores.device,

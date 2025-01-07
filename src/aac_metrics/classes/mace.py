@@ -19,16 +19,16 @@ from aac_metrics.utils.globals import _get_device
 
 
 class MACE(AACMetric[Union[MACEOuts, Tensor]]):
-    """Multimodal Audio-Caption Evaluation class.
+    """Multimodal Audio-Caption Evaluation class (MACE).
 
     MACE is a metric designed for evaluating automated audio captioning (AAC) systems.
     Unlike metrics that compare machine-generated captions solely to human references, MACE uses both audio and text to improve evaluation.
     By integrating both audio and text, it produces assessments that align better with human judgments.
 
-    The implementation is based on the mace original implementation.
+    The implementation is based on the mace original implementation (original author have accepted to include their code in aac-metrics under the MIT license).
 
     - Paper: https://arxiv.org/pdf/2411.00321
-    - Original Author: Satvik Dixit
+    - Original author: Satvik Dixit
     - Original implementation: https://github.com/satvik-dixit/mace/tree/main
 
     For more information, see :func:`~aac_metrics.functional.mace.mace`.
@@ -45,7 +45,7 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
         self,
         return_all_scores: bool = True,
         *,
-        method: MACEMethod = "combined",
+        mace_method: MACEMethod = "text",
         # CLAP args
         clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
         # FER args
@@ -60,8 +60,8 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
         penalty: float = 0.3,
         verbose: int = 0,
     ) -> None:
-        if method not in MACE_METHODS:
-            msg = f"Invalid argument {method=}. (expected one of {MACE_METHODS})"
+        if mace_method not in MACE_METHODS:
+            msg = f"Invalid argument {mace_method=}. (expected one of {MACE_METHODS})"
             raise ValueError(msg)
 
         device = _get_device(device)
@@ -79,8 +79,8 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
         )
 
         super().__init__()
-        self._method: MACEMethod = method
         self._return_all_scores = return_all_scores
+        self._mace_method: MACEMethod = mace_method
         self._clap_model = clap_model
         self._echecker = echecker
         self._echecker_tokenizer = echecker_tokenizer
@@ -102,7 +102,7 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
             mult_references=self._mult_references,
             audio_paths=self._audio_paths,
             return_all_scores=self._return_all_scores,
-            method=self._method,
+            mace_method=self._mace_method,
             clap_model=self._clap_model,
             echecker=self._echecker,
             echecker_tokenizer=self._echecker_tokenizer,
@@ -142,31 +142,33 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
     ) -> None:
         self._candidates += candidates
 
-        if self._method == "audio":
+        if self._mace_method == "audio":
             if mult_references is None:
-                msg = f"Invalid argument {mult_references=} with {self._method=}."
+                msg = f"Invalid argument {mult_references=} with {self._mace_method=}."
                 raise ValueError(msg)
 
             self._mult_references += mult_references
 
-        elif self._method == "text":
+        elif self._mace_method == "text":
             if audio_paths is None:
-                msg = f"Invalid argument {audio_paths=} with {self._method=}."
+                msg = f"Invalid argument {audio_paths=} with {self._mace_method=}."
                 raise ValueError(msg)
 
             self._audio_paths += audio_paths
 
-        elif self._method == "combined":
+        elif self._mace_method == "combined":
             if mult_references is None:
-                msg = f"Invalid argument {mult_references=} with {self._method=}."
+                msg = f"Invalid argument {mult_references=} with {self._mace_method=}."
                 raise ValueError(msg)
             if audio_paths is None:
-                msg = f"Invalid argument {audio_paths=} with {self._method=}."
+                msg = f"Invalid argument {audio_paths=} with {self._mace_method=}."
                 raise ValueError(msg)
 
             self._mult_references += mult_references
             self._audio_paths += audio_paths
 
         else:
-            msg = f"Invalid value {self._method=}. (expected one of {MACE_METHODS})"
+            msg = (
+                f"Invalid value {self._mace_method=}. (expected one of {MACE_METHODS})"
+            )
             raise ValueError(msg)

@@ -41,15 +41,15 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
         self,
         return_all_scores: bool = True,
         *,
-        method: CLAPMethod = "audio",
+        clap_method: CLAPMethod = "text",
         clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
         device: Union[str, torch.device, None] = "cuda_if_available",
         batch_size: int = 32,
         reset_state: bool = True,
         verbose: int = 0,
     ) -> None:
-        if method not in CLAP_METHODS:
-            msg = f"Invalid argument {method=}. (expected one of {CLAP_METHODS})"
+        if clap_method not in CLAP_METHODS:
+            msg = f"Invalid argument {clap_method=}. (expected one of {CLAP_METHODS})"
             raise ValueError(msg)
 
         device = _get_device(device)
@@ -61,7 +61,7 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
 
         super().__init__()
         self._return_all_scores = return_all_scores
-        self._method: CLAPMethod = method
+        self._clap_method: CLAPMethod = clap_method
         self._clap_model = clap_model
         self._device = device
         self._batch_size = batch_size
@@ -77,7 +77,7 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
             candidates=self._candidates,
             mult_references=self._mult_references,
             audio_paths=self._audio_paths,
-            method=self._method,
+            clap_method=self._clap_method,
             return_all_scores=self._return_all_scores,
             clap_model=self._clap_model,
             device=self._device,
@@ -111,10 +111,12 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
         mult_references_or_audio_paths: Union[list[list[str]], list[str]],
     ) -> None:
         self._candidates += candidates
-        if self._method == "audio":
+        if self._clap_method == "audio":
             self._mult_references += mult_references_or_audio_paths
-        elif self._method == "text":
+        elif self._clap_method == "text":
             self._audio_paths += mult_references_or_audio_paths
         else:
-            msg = f"Invalid value {self._method=}. (expected one of {CLAP_METHODS})"
+            msg = (
+                f"Invalid value {self._clap_method=}. (expected one of {CLAP_METHODS})"
+            )
             raise ValueError(msg)

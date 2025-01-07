@@ -30,20 +30,28 @@ def clap_sim(
     audio_paths: Optional[list[str]] = None,
     return_all_scores: bool = True,
     *,
-    method: CLAPMethod = "audio",
+    clap_method: CLAPMethod = "text",
     clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
     device: Union[str, torch.device, None] = "cuda_if_available",
     batch_size: int = 32,
     reset_state: bool = True,
     verbose: int = 0,
 ) -> Union[Tensor, CLAPOuts]:
-    """Cosine-similarity of the CLAP embeddings.
-    :param method: The method used to encode the sentences. Can be "text" or "audio".
+    """Cosine-similarity of the Contrastive Language-Audio Pretraining (CLAP) embeddings.
+
+    The implementation is based on the msclap pypi package.
+
+    - Paper: https://arxiv.org/pdf/2411.00321
+    - msclap package: https://pypi.org/project/msclap/
+
+    For more information, see :func:`~aac_metrics.functional.clap_sim.clap_sim`.
+
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
+    :param method: The method used to encode the sentences. Can be "text" or "audio". defaults to "text".
     :param clap_model: The CLAP model used to extract sentence embeddings for cosine-similarity. defaults to "2023".
     :param device: The PyTorch device used to run MACE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the CLAP models. defaults to 32.
@@ -55,9 +63,11 @@ def clap_sim(
     clap_model = _load_clap(clap_model, device, reset_state)
     cands_embs = _encode_sents_clap(clap_model, candidates, batch_size, verbose)
 
-    if method == "text":
+    if clap_method == "text":
         if mult_references is None:
-            raise ValueError(f"Invalid arguments {method=} with {mult_references=}.")
+            raise ValueError(
+                f"Invalid arguments {clap_method=} with {mult_references=}."
+            )
         rng_ids = [0]
         for refs in mult_references:
             rng_ids.append(rng_ids[-1] + len(refs))
@@ -69,14 +79,14 @@ def clap_sim(
             verbose,
         )
 
-    elif method == "audio":
+    elif clap_method == "audio":
         if audio_paths is None:
-            raise ValueError(f"Invalid arguments {method=} with {audio_paths=}.")
+            raise ValueError(f"Invalid arguments {clap_method=} with {audio_paths=}.")
         rng_ids = [i for i in range(len(audio_paths) + 1)]
         mrefs_embs = _encode_audios_clap(clap_model, audio_paths, batch_size, verbose)
 
     else:
-        msg = f"Invalid argument {method=}. (expected one of {CLAP_METHODS})"
+        msg = f"Invalid argument {clap_method=}. (expected one of {CLAP_METHODS})"
         raise ValueError(msg)
 
     clap_sim_scores = [
@@ -119,7 +129,8 @@ def _load_clap(
 
     device = _get_device(device)
     if isinstance(clap_model, str):
-        clap_model = CLAP(version="2023", use_cuda=(device.type == "cuda"))
+        use_cuda = device is not None and device.type == "cuda"
+        clap_model = CLAP(version="2023", use_cuda=use_cuda)
 
     if reset_state:
         torch.random.set_rng_state(state)

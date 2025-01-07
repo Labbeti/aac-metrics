@@ -29,7 +29,7 @@ class TestMACECompatibility(TestCase):
         src_mace = partial(mace_fn, method=method, echecker=echecker)
 
         cls.new_mace = MACE(
-            method=method,
+            mace_method=method,
             return_all_scores=True,
             device=device,
             verbose=2,
