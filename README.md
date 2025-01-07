@@ -32,7 +32,7 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
     - FER [[9]](#fense)
     - FENSE [[9]](#fense)
     - SPIDEr-FL [[10]](#spider-fl)
-    - CLAP-sim [[11]](#clapsim)
+    - CLAP-sim [[11]](#clap-sim)
     - MACE [[12]](#mace)
     - Vocab (unique word vocabulary absolute or relative to references)
 
@@ -140,8 +140,8 @@ fense_score = corpus_scores["fense"]
 | Fluency Error Rate [[9]](#fense) | `FER` | audio captioning | [0, 1] | Detect fluency errors in sentences with a pretrained model |
 | FENSE [[9]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines SBERT-sim and Fluency Error rate |
 | SPIDEr-FL [[10]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error rate |
-| CLAP-sim [[11]](#clapsim) | `CLAPSim` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error rate |
-| MACE [[12]](#spider-fl) | `MACE` | audio captioning | [0, 5.5] | Combines CLAP-sim, SBERT-sim and Fluency Error rate |
+| CLAP-sim [[11]](#clap-sim) | `CLAPSim` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error rate |
+| MACE [[12]](#spider-fl) | `MACE` | audio captioning | [0, 5.5] | Combines CLAP-sim and Fluency Error rate |
 
 ### Other metrics
 | Metric name | Python Class | Origin | Range | Short description |
