@@ -13,6 +13,7 @@ from zipfile import ZipFile
 from torch.hub import download_url_to_file
 
 from aac_metrics.classes.bert_score_mrefs import BERTScoreMRefs
+from aac_metrics.classes.clap_sim import CLAPSim
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.functional.meteor import DNAME_METEOR_CACHE
 from aac_metrics.functional.spice import (
@@ -90,6 +91,7 @@ def download_metrics(
     spice: bool = True,
     fense: bool = True,
     bert_score: bool = True,
+    clap: bool = True,
     force: bool = False,
     verbose: int = 0,
 ) -> None:
@@ -145,14 +147,13 @@ def download_metrics(
         )
 
     if fense:
-        _download_fense(
-            verbose=verbose,
-        )
+        _download_fense(verbose=verbose)
 
     if bert_score:
-        _download_bert_score(
-            verbose=verbose,
-        )
+        _download_bert_score(verbose=verbose)
+
+    if clap:
+        _download_clap(verbose=verbose)
 
     if verbose >= 1:
         pylog.info("aac-metrics download finished.")
@@ -343,10 +344,7 @@ def _download_spice(
         shutil.rmtree(spice_unzip_dpath)
 
 
-def _download_fense(
-    *,
-    verbose: int = 0,
-) -> None:
+def _download_fense(*, verbose: int = 0) -> None:
     # Download models files for FENSE metric
     if verbose >= 1:
         pylog.info("Downloading SBERT and BERT error detector for FENSE metric...")
@@ -361,6 +359,10 @@ def _download_bert_score(
     if verbose >= 1:
         pylog.info("Downloading BERT model for BERTScore metric...")
     _ = BERTScoreMRefs(device="cpu")
+
+
+def _download_clap(*, verbose: int = 0) -> None:
+    _ = CLAPSim()
 
 
 def _get_main_download_args() -> Namespace:
@@ -417,10 +419,16 @@ def _get_main_download_args() -> Namespace:
         help="Download BERTScore models.",
     )
     parser.add_argument(
+        "--clap",
+        type=_str_to_bool,
+        default=True,
+        help="Download CLAP model.",
+    )
+    parser.add_argument(
         "--force",
         type=_str_to_bool,
         default=False,
-        help="Force to download files and extract archives again.",
+        help="Force to download files and extract archives again for SPICE, METEOR and PTBTokenizer.",
     )
     parser.add_argument("--verbose", type=int, default=1, help="Verbose level.")
 
@@ -441,6 +449,7 @@ def _main_download() -> None:
         spice=args.spice,
         fense=args.fense,
         bert_score=args.bert_score,
+        clap=args.clap,
         force=args.force,
         verbose=args.verbose,
     )
