@@ -4,12 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [0.5.5] UNRELEASED
 ### Added
+- New `CLAPSim` metric based on the embeddings given by CLAP model.
+- New `MACE` metric based on `CLAPSim` and `FER` metrics.
 - DCASE2024 challenge metric set, class and functions.
 - Preprocess option in `evaluate` now accepts custom callable value.
-- `bert_score` option in download script.
 
 ### Changed
-- Improve metric output typing for language servers.
+- Improve metric output typing for language servers with typed dicts.
+
+### Fixed
+- `bert_score` option in download script.
 
 ## [0.5.4] 2024-03-04
 ### Fixed
