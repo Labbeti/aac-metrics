@@ -4,6 +4,7 @@
 import logging
 import pickle
 import zlib
+from functools import partial
 from pathlib import Path
 from typing import Callable, Iterable, Union
 
@@ -227,6 +228,6 @@ def _get_metric_factory_classes(**kwargs) -> dict[str, AACMetric]:
     for name, class_ in classes.items():
         argnames = get_argnames(class_)
         cls_kwargs = {k: v for k, v in kwargs.items() if k in argnames}
-        metric = class_(**cls_kwargs)
+        metric = partial(class_, **cls_kwargs)
         factory[name] = metric
     return factory
