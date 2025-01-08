@@ -102,5 +102,5 @@ def load_metric(name: str, **kwargs) -> AACMetric:
     if not isinstance(name, str):
         raise TypeError(f"Invalid argument type {type(name)}. (expected str)")
 
-    metric = _instantiate_metrics_classes(name, **kwargs)
-    return metric
+    metrics = _instantiate_metrics_classes(name, **kwargs)
+    return metrics[0]

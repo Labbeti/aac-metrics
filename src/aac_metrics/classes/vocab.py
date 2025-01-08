@@ -21,7 +21,7 @@ class Vocab(AACMetric[Union[VocabOuts, Tensor]]):
     """
 
     full_state_update = False
-    higher_is_better = True
+    higher_is_better = None
     is_differentiable = False
 
     min_value = 0.0
