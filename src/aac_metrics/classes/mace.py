@@ -26,6 +26,7 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
     By integrating both audio and text, it produces assessments that align better with human judgments.
 
     The implementation is based on the mace original implementation (original author have accepted to include their code in aac-metrics under the MIT license).
+    Note: Instances of this class are not pickable.
 
     - Paper: https://arxiv.org/pdf/2411.00321
     - Original author: Satvik Dixit
@@ -172,3 +173,6 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
                 f"Invalid value {self._mace_method=}. (expected one of {MACE_METHODS})"
             )
             raise ValueError(msg)
+
+    def __getstate__(self) -> bytes:
+        raise RuntimeError(f"{self.__class__.__name__} is not pickable.")

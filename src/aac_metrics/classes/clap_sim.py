@@ -23,6 +23,7 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
     """Cosine-similarity of the Contrastive Language-Audio Pretraining (CLAP) embeddings.
 
     The implementation is based on the msclap pypi package.
+    Note: Instances of this class are not pickable.
 
     - Paper: https://arxiv.org/pdf/2411.00321
     - msclap package: https://pypi.org/project/msclap/
@@ -120,3 +121,6 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
                 f"Invalid value {self._clap_method=}. (expected one of {CLAP_METHODS})"
             )
             raise ValueError(msg)
+
+    def __getstate__(self) -> bytes:
+        raise RuntimeError(f"{self.__class__.__name__} is not pickable.")

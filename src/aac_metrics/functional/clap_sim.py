@@ -132,6 +132,9 @@ def _load_clap(
         use_cuda = device is not None and device.type == "cuda"
         clap_model = CLAP(version="2023", use_cuda=use_cuda)
 
+    # override supported_versions from dict_keys[str] to list[str] to try to make it pickable, but it is not enough
+    clap_model.supported_versions = list(clap_model.supported_versions)  # type: ignore
+
     if reset_state:
         torch.random.set_rng_state(state)
     return clap_model
