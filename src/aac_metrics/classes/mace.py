@@ -47,18 +47,18 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
         return_all_scores: bool = True,
         *,
         mace_method: MACEMethod = "text",
+        penalty: float = 0.3,
         # CLAP args
         clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
         # FER args
         echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
         echecker_tokenizer: Optional[AutoTokenizer] = None,
-        error_threshold: float = 0.9,
+        error_threshold: float = 0.97,
         device: Union[str, torch.device, None] = "cuda_if_available",
         batch_size: int = 32,
         reset_state: bool = True,
         return_probs: bool = False,
         # Other args
-        penalty: float = 0.3,
         verbose: int = 0,
     ) -> None:
         if mace_method not in MACE_METHODS:
@@ -82,6 +82,7 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
         super().__init__()
         self._return_all_scores = return_all_scores
         self._mace_method: MACEMethod = mace_method
+        self._penalty = penalty
         self._clap_model = clap_model
         self._echecker = echecker
         self._echecker_tokenizer = echecker_tokenizer
@@ -90,7 +91,6 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
         self._batch_size = batch_size
         self._reset_state = reset_state
         self._return_probs = return_probs
-        self._penalty = penalty
         self._verbose = verbose
 
         self._candidates = []

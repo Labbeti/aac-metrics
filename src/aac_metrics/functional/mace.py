@@ -47,7 +47,7 @@ def mace(
     # FER args
     echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
-    error_threshold: float = 0.9,
+    error_threshold: float = 0.97,
     device: Union[str, torch.device, None] = "cuda_if_available",
     batch_size: int = 32,
     reset_state: bool = True,
@@ -67,15 +67,13 @@ def mace(
     - Original author: Satvik Dixit
     - Original implementation: https://github.com/satvik-dixit/mace/tree/main
 
-    For more information, see :func:`~aac_metrics.functional.mace.mace`.
-
     :param candidates: The list of sentences to evaluate.
-    :param mult_references: The list of list of sentences used as target.
-    :param audio_paths: The list of paths to audio files.
+    :param mult_references: The list of list of sentences used as target when method is "text" or "combined". defaults to None.
+    :param audio_paths: Audio filepaths required when method is "audio" or "combined". defaults to None.
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
-    :param method: The method used to encode the sentences. Can be "text", "audio" or "combined". defaults to "text".
+    :param mace_method: The method used to encode the sentences. Can be "text", "audio" or "combined". defaults to "text".
     :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.3.
     :param clap_model: The CLAP model used to extract CLAP embeddings for cosine-similarity. defaults to "MS-CLAP-2023".
     :param echecker: The echecker model used to detect fluency errors.
@@ -84,7 +82,7 @@ def mace(
     :param echecker_tokenizer: The tokenizer of the echecker model.
         If None and echecker is not None, this value will be inferred with `echecker.model_type`.
         defaults to None.
-    :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
+    :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.97.
     :param device: The PyTorch device used to run pre-trained models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the CLAP and echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
