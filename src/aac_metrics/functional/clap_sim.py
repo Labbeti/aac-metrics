@@ -44,14 +44,13 @@ def clap_sim(
     - Paper: https://arxiv.org/pdf/2411.00321
     - msclap package: https://pypi.org/project/msclap/
 
-    For more information, see :func:`~aac_metrics.functional.clap_sim.clap_sim`.
-
     :param candidates: The list of sentences to evaluate.
-    :param mult_references: The list of list of sentences used as target.
+    :param mult_references: The list of list of sentences used as target when method is "text". defaults to None.
+    :param audio_paths: Audio filepaths required when method is "audio". defaults to None.
     :param return_all_scores: If True, returns a tuple containing the globals and locals scores.
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
-    :param method: The method used to encode the sentences. Can be "text" or "audio". defaults to "text".
+    :param clap_method: The method used to encode the sentences. Can be "text" or "audio". defaults to "text".
     :param clap_model: The CLAP model used to extract sentence embeddings for cosine-similarity. defaults to "2023".
     :param device: The PyTorch device used to run MACE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the CLAP models. defaults to 32.
@@ -144,8 +143,6 @@ def _load_clap(
 def _encode_sents_clap(
     clap_model: CLAP,
     sents: list[str],
-    batch_size: int = 32,
-    verbose: int = 0,
 ) -> Tensor:
     clap_embeddings = clap_model.get_text_embeddings(sents)
     return clap_embeddings
@@ -154,10 +151,8 @@ def _encode_sents_clap(
 @torch.no_grad()
 def _encode_audios_clap(
     clap_model: CLAP,
-    audio_paths: Union[list[str], list[Path]],
-    batch_size: int = 32,
-    verbose: int = 0,
+    audio_paths: list[Union[str, Path]],
 ) -> Tensor:
     audio_paths = list(map(str, audio_paths))
-    clap_embeddings = clap_model.get_text_embeddings(audio_paths)
+    clap_embeddings = clap_model.get_audio_embeddings(audio_paths)
     return clap_embeddings
