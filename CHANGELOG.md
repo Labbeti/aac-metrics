@@ -8,9 +8,11 @@ All notable changes to this project will be documented in this file.
 - New `MACE` metric based on `CLAPSim` and `FER` metrics.
 - DCASE2024 challenge metric set, class and functions.
 - Preprocess option in `evaluate` now accepts custom callable value.
+- List of bibtex sources in `data/papers.bib` file.
 
 ### Changed
 - Improve metric output typing for language servers with typed dicts.
+- `batch_size` can now be `None` to take all inputs at once into the model.
 
 ### Fixed
 - `bert_score` option in download script.
