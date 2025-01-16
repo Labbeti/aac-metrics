@@ -140,8 +140,8 @@ fense_score = corpus_scores["fense"]
 | Fluency Error Rate [[9]](#fense) | `FER` | audio captioning | [0, 1] | Detect fluency errors in sentences with a pretrained model |
 | FENSE [[9]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines SBERT-sim and Fluency Error rate |
 | SPIDEr-FL [[10]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error rate |
-| CLAP-sim [[11]](#clap-sim) | `CLAPSim` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error rate |
-| MACE [[12]](#spider-fl) | `MACE` | audio captioning | [0, 5.5] | Combines CLAP-sim and Fluency Error rate |
+| CLAP-sim [[11]](#clap-sim) | `CLAPSim` | audio captioning | [-1, 1] | Combines SPIDEr and Fluency Error rate |
+| MACE [[12]](#spider-fl) | `MACE` | audio captioning | [-1, 1] | Combines CLAP-sim and Fluency Error rate |
 
 ### Other metrics
 | Metric name | Python Class | Origin | Range | Short description |
@@ -257,18 +257,18 @@ If you use **SPIDEr-max**, you can cite the following paper using BibTex :
 }
 ```
 
-If you use this software, please consider cite it as "Labbe, E. (2024). aac-metrics: Metrics for evaluating Automated Audio Captioning systems for PyTorch.", or use the following BibTeX citation:
+If you use this software, please consider cite it as "Labbe, E. (2025). aac-metrics: Metrics for evaluating Automated Audio Captioning systems for PyTorch.", or use the following BibTeX citation:
 
 ```
 @software{
-    Labbe_aac_metrics_2024,
+    Labbe_aac_metrics_2025,
     author = {Labbé, Étienne},
     license = {MIT},
-    month = {03},
+    month = {01},
     title = {{aac-metrics}},
     url = {https://github.com/Labbeti/aac-metrics/},
     version = {0.5.5},
-    year = {2024},
+    year = {2025},
 }
 ```
 
