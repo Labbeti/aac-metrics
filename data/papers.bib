@@ -35,13 +35,13 @@
 }
 % CLAP-sim
 @misc{CLAP2023,
-      title={Natural Language Supervision for General-Purpose Audio Representations},
-      author={Benjamin Elizalde and Soham Deshmukh and Huaming Wang},
-      year={2023},
-      eprint={2309.05767},
-      archivePrefix={arXiv},
-      primaryClass={cs.SD},
-      url={https://arxiv.org/abs/2309.05767}
+	title        = {Natural Language Supervision for General-Purpose Audio Representations},
+	author       = {Benjamin Elizalde and Soham Deshmukh and Huaming Wang},
+	year         = 2023,
+	url          = {https://arxiv.org/abs/2309.05767},
+	eprint       = {2309.05767},
+	archiveprefix = {arXiv},
+	primaryclass = {cs.SD}
 }
 % FENSE (ICASSP2022 version)
 @inproceedings{zhou_can_2022,
@@ -57,13 +57,13 @@
 }
 % MACE
 @misc{dixit2024maceleveragingaudioevaluating,
-      title={MACE: Leveraging Audio for Evaluating Audio Captioning Systems},
-      author={Satvik Dixit and Soham Deshmukh and Bhiksha Raj},
-      year={2024},
-      eprint={2411.00321},
-      archivePrefix={arXiv},
-      primaryClass={cs.SD},
-      url={https://arxiv.org/abs/2411.00321},
+	title        = {MACE: Leveraging Audio for Evaluating Audio Captioning Systems},
+	author       = {Satvik Dixit and Soham Deshmukh and Bhiksha Raj},
+	year         = 2024,
+	url          = {https://arxiv.org/abs/2411.00321},
+	eprint       = {2411.00321},
+	archiveprefix = {arXiv},
+	primaryclass = {cs.SD}
 }
 % METEOR
 @inproceedings{denkowski_meteor_2014,
@@ -124,8 +124,6 @@
 }
 % SPIDEr-max
 @inproceedings{Labbe2022,
-    label = {1},
-    key = {1},
 	title        = {Is my Automatic Audio Captioning System so Bad? SPIDEr-max: A Metric to Consider Several Caption Candidates},
 	author       = {Labb\'{e}, Etienne and Pellegrini, Thomas and Pinquier, Julien},
 	year         = 2022,
@@ -133,5 +131,7 @@
 	booktitle    = {Proceedings of the 7th Detection and Classification of Acoustic Scenes and Events 2022 Workshop (DCASE2022)},
 	address      = {Nancy, France},
 	url          = {https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Labbe_46.pdf},
+	label        = 1,
+	key          = 1,
 	abstract     = {Automatic Audio Captioning (AAC) is the task that aims to describe an audio signal using natural language. AAC systems take as input an audio signal and output a free-form text sentence, called a caption. Evaluating such systems is not trivial, since there are many ways to express the same idea. For this reason, several complementary metrics, such as BLEU, CIDEr, SPICE and SPIDEr, are used to compare a single automatic caption to one or several captions of reference, produced by a human annotator. Nevertheless, an automatic system can produce several caption candidates, either using some randomness in the sentence generation process, or by considering the various competing hypothesized captions during decoding with beam-search, for instance. If we consider an end-user of an AAC system, presenting several captions instead of a single one seems relevant to provide some diversity, similarly to information retrieval systems. In this work, we explore the possibility to consider several predicted captions in the evaluation process instead of one. For this purpose, we propose SPIDEr-max, a metric that takes the maximum SPIDEr value among the scores of several caption candidates. To advocate for our metric, we report experiments on Clotho v2.1 and AudioCaps, with a transformed-based system. On AudioCaps for example, this system reached a SPIDEr-max value (with 5 candidates) close to the SPIDEr human score of reference.}
 }
