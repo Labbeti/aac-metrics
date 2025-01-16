@@ -2,12 +2,14 @@
 	path = tests/caption-evaluation-tools
 	url = https://github.com/audio-captioning/caption-evaluation-tools
     ignore = dirty
-	branch = master
+    branch = master
 
 [submodule "fense"]
 	path = tests/fense
 	url = https://github.com/blmoistawinde/fense
+    branch = main
 
 [submodule "tests/mace"]
 	path = tests/mace
 	url = https://github.com/satvik-dixit/mace
+    branch = main
