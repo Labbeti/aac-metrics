@@ -42,6 +42,7 @@ def cider_d(
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
     :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the sents_score output.
         defaults to False.
+    :param scale: CIDEr-D score factor. defaults to 10.0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     cooked_cands, cooked_mrefs = _cider_d_update(
@@ -127,7 +128,7 @@ def _cider_d_compute(
             cider_d_outs_sents["tfidf_lst"] = tfidf_lst  # type: ignore
         cider_d_outs = cider_d_outs_corpus, cider_d_outs_sents
 
-        return cider_d_outs
+        return cider_d_outs  # type: ignore
     else:
         return cider_d_score
 
