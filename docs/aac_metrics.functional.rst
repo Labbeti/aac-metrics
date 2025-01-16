@@ -15,9 +15,11 @@ Submodules
    aac_metrics.functional.bert_score_mrefs
    aac_metrics.functional.bleu
    aac_metrics.functional.cider_d
+   aac_metrics.functional.clap_sim
    aac_metrics.functional.evaluate
    aac_metrics.functional.fense
    aac_metrics.functional.fer
+   aac_metrics.functional.mace
    aac_metrics.functional.meteor
    aac_metrics.functional.mult_cands
    aac_metrics.functional.rouge_l

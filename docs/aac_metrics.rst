@@ -23,5 +23,5 @@ Submodules
    :maxdepth: 4
 
    aac_metrics.download
-   aac_metrics.evaluate
+   aac_metrics.eval
    aac_metrics.info
