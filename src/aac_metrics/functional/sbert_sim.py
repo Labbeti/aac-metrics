@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from typing import TypedDict, Union
+from typing import Optional, TypedDict, Union
 
 import numpy as np
 import torch
@@ -27,7 +27,7 @@ def sbert_sim(
     *,
     sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
     device: Union[str, torch.device, None] = "cuda_if_available",
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     reset_state: bool = True,
     verbose: int = 0,
 ) -> Union[SBERTSimOuts, Tensor]:
@@ -113,7 +113,7 @@ def _load_sbert(
 def _encode_sents_sbert(
     sbert_model: SentenceTransformer,
     sents: list[str],
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     verbose: int = 0,
 ) -> Tensor:
     return sbert_model.encode(

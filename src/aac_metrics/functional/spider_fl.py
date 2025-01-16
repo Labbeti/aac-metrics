@@ -56,7 +56,7 @@ def spider_fl(
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     device: Union[str, torch.device, None] = "cuda_if_available",
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     reset_state: bool = True,
     return_probs: bool = True,
     # Other args
@@ -170,10 +170,10 @@ def _spider_fl_from_outputs(
     spider_fl_score = spider_fl_scores.mean()
 
     spider_fl_outs_corpus = (
-        spider_outs_corpus | fer_outs_corpus | {"spider_fl": spider_fl_score}
+        spider_outs_corpus | fer_outs_corpus | {"spider_fl": spider_fl_score}  # type: ignore
     )
     spider_fl_outs_sents = (
-        spider_outs_sents | fer_outs_sents | {"spider_fl": spider_fl_scores}
+        spider_outs_sents | fer_outs_sents | {"spider_fl": spider_fl_scores}  # type: ignore
     )
     spider_fl_outs = spider_fl_outs_corpus, spider_fl_outs_sents
 

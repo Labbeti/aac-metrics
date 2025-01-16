@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from typing import Union
+from typing import Optional, Union
 
 import torch
 from torch import Tensor
@@ -44,7 +44,7 @@ class FER(AACMetric[Union[FEROuts, Tensor]]):
         echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
         error_threshold: float = 0.9,
         device: Union[str, torch.device, None] = "cuda_if_available",
-        batch_size: int = 32,
+        batch_size: Optional[int] = 32,
         reset_state: bool = True,
         return_probs: bool = False,
         verbose: int = 0,

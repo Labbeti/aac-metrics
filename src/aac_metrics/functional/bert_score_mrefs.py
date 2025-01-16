@@ -43,7 +43,7 @@ def bert_score_mrefs(
     model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
     tokenizer: Optional[Callable] = None,
     device: Union[str, torch.device, None] = "cuda_if_available",
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     num_threads: int = 0,
     max_length: int = 64,
     reset_state: bool = True,
@@ -82,9 +82,8 @@ def bert_score_mrefs(
 
     if isinstance(model, str):
         if tokenizer is not None:
-            raise ValueError(
-                f"Invalid argument combinaison {model=} with {tokenizer=}."
-            )
+            msg = f"Invalid argument combinaison {model=} with {tokenizer=}."
+            raise ValueError(msg)
 
         model, tokenizer = _load_model_and_tokenizer(
             model=model,
@@ -96,14 +95,12 @@ def bert_score_mrefs(
 
     elif isinstance(model, nn.Module):
         if tokenizer is None:
-            raise ValueError(
-                f"Invalid argument combinaison {model=} with {tokenizer=}."
-            )
+            msg = f"Invalid argument combinaison {model=} with {tokenizer=}."
+            raise ValueError(msg)
 
     else:
-        raise ValueError(
-            f"Invalid argument type {type(model)=}. (expected str or nn.Module)"
-        )
+        msg = f"Invalid argument type {type(model)=}. (expected str or nn.Module)"
+        raise ValueError(msg)
 
     device = _get_device(device)
     flat_mrefs, sizes = flat_list_of_list(mult_references)
@@ -113,6 +110,9 @@ def bert_score_mrefs(
     tfmers_verbosity = tfmers_logging.get_verbosity()
     if verbose <= 1:
         tfmers_logging.set_verbosity_error()
+
+    if batch_size is None:
+        batch_size = len(duplicated_cands)
 
     sents_scores = bert_score(
         preds=duplicated_cands,
@@ -153,9 +153,8 @@ def bert_score_mrefs(
         elif reduction == "min":
             reduction_fn = _min_reduce
         else:
-            raise ValueError(
-                f"Invalid argument {reduction=}. (expected one of {REDUCTIONS})"
-            )
+            msg = f"Invalid argument {reduction=}. (expected one of {REDUCTIONS})"
+            raise ValueError(msg)
     else:
         reduction_fn = reduction
 

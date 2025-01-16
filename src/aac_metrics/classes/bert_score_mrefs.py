@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Union
+from typing import Optional, Union
 
 import torch
 from torch import Tensor, nn
@@ -41,7 +41,7 @@ class BERTScoreMRefs(AACMetric[Union[BERTScoreMRefsOuts, Tensor]]):
         *,
         model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
         device: Union[str, torch.device, None] = "cuda_if_available",
-        batch_size: int = 32,
+        batch_size: Optional[int] = 32,
         num_threads: int = 0,
         max_length: int = 64,
         reset_state: bool = True,
@@ -74,7 +74,7 @@ class BERTScoreMRefs(AACMetric[Union[BERTScoreMRefsOuts, Tensor]]):
         self._max_length = max_length
         self._reset_state = reset_state
         self._idf = idf
-        self._reduction = reduction
+        self._reduction: Reduction = reduction
         self._filter_nan = filter_nan
         self._verbose = verbose
 

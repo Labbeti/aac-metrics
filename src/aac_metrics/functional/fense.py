@@ -45,7 +45,7 @@ def fense(
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     device: Union[str, torch.device, None] = "cuda_if_available",
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     reset_state: bool = True,
     return_probs: bool = False,
     # Other args

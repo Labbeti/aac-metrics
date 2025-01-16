@@ -104,7 +104,7 @@ def fer(
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     device: Union[str, torch.device, None] = "cuda_if_available",
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     reset_state: bool = True,
     return_probs: bool = False,
     verbose: int = 0,
@@ -225,10 +225,13 @@ def __detect_error_sents(
     echecker: BERTFlatClassifier,
     echecker_tokenizer: PreTrainedTokenizerFast,
     sents: list[str],
-    batch_size: int,
+    batch_size: Optional[int],
     device: Union[str, torch.device, None],
     max_len: int = 64,
 ) -> dict[str, np.ndarray]:
+    if batch_size is None:
+        batch_size = len(sents)
+
     device = _get_device(device)
 
     if len(sents) <= batch_size:
