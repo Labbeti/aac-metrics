@@ -32,8 +32,8 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
     - FER [[9]](#fense)
     - FENSE [[9]](#fense)
     - SPIDEr-FL [[10]](#spider-fl)
-    - CLAP-sim [[11]](#clap-sim)
-    - MACE [[12]](#mace)
+    - CLAP-sim [[11]](#clap-sim) :new:
+    - MACE [[12]](#mace) :new:
     - Vocab (unique word vocabulary absolute or relative to references)
 
 ## Installation
@@ -267,7 +267,7 @@ If you use this software, please consider cite it as "Labbe, E. (2024). aac-metr
     month = {03},
     title = {{aac-metrics}},
     url = {https://github.com/Labbeti/aac-metrics/},
-    version = {0.5.4},
+    version = {0.5.5},
     year = {2024},
 }
 ```

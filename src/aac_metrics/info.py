@@ -3,7 +3,6 @@
 
 import platform
 import sys
-
 from pathlib import Path
 from typing import Dict
 
@@ -12,7 +11,6 @@ import torch
 import yaml
 
 import aac_metrics
-
 from aac_metrics.utils.checks import _get_java_version
 from aac_metrics.utils.globals import (
     get_default_cache_path,
