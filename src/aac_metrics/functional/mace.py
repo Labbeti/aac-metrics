@@ -44,12 +44,13 @@ def mace(
     penalty: float = 0.3,
     # CLAP args
     clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
+    seed: Optional[int] = 42,
     # FER args
     echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.97,
     device: Union[str, torch.device, None] = "cuda_if_available",
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     reset_state: bool = True,
     return_probs: bool = False,
     # Other args
@@ -76,6 +77,7 @@ def mace(
     :param mace_method: The method used to encode the sentences. Can be "text", "audio" or "combined". defaults to "text".
     :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.3.
     :param clap_model: The CLAP model used to extract CLAP embeddings for cosine-similarity. defaults to "MS-CLAP-2023".
+    :param seed: Optional seed to make CLAP-sim scores deterministic when using mace_method="audio" or "combined" on large audio files. defaults to 42.
     :param echecker: The echecker model used to detect fluency errors.
         Can be "echecker_clotho_audiocaps_base", "echecker_clotho_audiocaps_tiny", "none" or None.
         defaults to "echecker_clotho_audiocaps_base".
@@ -109,6 +111,7 @@ def mace(
         device=device,
         batch_size=batch_size,
         reset_state=reset_state,
+        seed=seed,
         verbose=verbose,
     )
     if mace_method == "text":
@@ -124,6 +127,7 @@ def mace(
         clap_sim_outs_audio: CLAPOuts = clap_sim(  # type: ignore
             clap_method="audio", **clap_kwds
         )
+
         clap_sim_outs_corpus_text, clap_sim_outs_sents_text = clap_sim_outs_text
         clap_sim_outs_corpus_audio, clap_sim_outs_sents_audio = clap_sim_outs_audio
         clap_sim_outs_corpus = _average_dicts(

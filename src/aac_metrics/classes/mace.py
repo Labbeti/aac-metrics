@@ -50,12 +50,13 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
         penalty: float = 0.3,
         # CLAP args
         clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
+        seed: Optional[int] = 42,
         # FER args
         echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
         echecker_tokenizer: Optional[AutoTokenizer] = None,
         error_threshold: float = 0.97,
         device: Union[str, torch.device, None] = "cuda_if_available",
-        batch_size: int = 32,
+        batch_size: Optional[int] = 32,
         reset_state: bool = True,
         return_probs: bool = False,
         # Other args
@@ -84,6 +85,7 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
         self._mace_method: MACEMethod = mace_method
         self._penalty = penalty
         self._clap_model = clap_model
+        self._seed = seed
         self._echecker = echecker
         self._echecker_tokenizer = echecker_tokenizer
         self._error_threshold = error_threshold
@@ -105,6 +107,7 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
             return_all_scores=self._return_all_scores,
             mace_method=self._mace_method,
             clap_model=self._clap_model,
+            seed=self._seed,
             echecker=self._echecker,
             echecker_tokenizer=self._echecker_tokenizer,
             error_threshold=self._error_threshold,

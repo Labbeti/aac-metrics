@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Union
+from typing import Any, Optional, Union
 
 import torch
 from torch import Tensor
@@ -45,8 +45,9 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
         clap_method: CLAPMethod = "text",
         clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
         device: Union[str, torch.device, None] = "cuda_if_available",
-        batch_size: int = 32,
+        batch_size: Optional[int] = 32,
         reset_state: bool = True,
+        seed: Optional[int] = 42,
         verbose: int = 0,
     ) -> None:
         if clap_method not in CLAP_METHODS:
@@ -67,6 +68,7 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
         self._device = device
         self._batch_size = batch_size
         self._reset_state = reset_state
+        self._seed = seed
         self._verbose = verbose
 
         self._candidates = []
@@ -84,6 +86,7 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
             device=self._device,
             batch_size=self._batch_size,
             reset_state=self._reset_state,
+            seed=self._seed,
             verbose=self._verbose,
         )
 
@@ -122,5 +125,5 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
             )
             raise ValueError(msg)
 
-    def __getstate__(self) -> bytes:
+    def __getstate__(self) -> Any:
         raise RuntimeError(f"{self.__class__.__name__} is not pickable.")
