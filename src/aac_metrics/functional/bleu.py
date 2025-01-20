@@ -3,32 +3,33 @@
 
 import logging
 import math
-
 from collections import Counter
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Literal, Optional, Union
 
 import torch
-
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_metric_inputs
 
-
 pylog = logging.getLogger(__name__)
 
 BLEU_OPTIONS = ("shortest", "average", "closest")
+BleuOption = Literal["shortest", "average", "closest"]
+BLEUScores = dict[str, Tensor]
+BLEUOuts = tuple[BLEUScores, BLEUScores]
 
 
 def bleu(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     n: int = 4,
-    option: str = "closest",
+    option: BleuOption = "closest",
     verbose: int = 0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[BLEUOuts, Tensor]:
     """BiLingual Evaluation Understudy function.
 
     - Paper: https://www.aclweb.org/anthology/P02-1040.pdf
@@ -72,11 +73,12 @@ def bleu_1(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    option: str = "closest",
+    *,
+    option: BleuOption = "closest",
     verbose: int = 0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[BLEUOuts, Tensor]:
     return bleu(
         candidates=candidates,
         mult_references=mult_references,
@@ -93,11 +95,12 @@ def bleu_2(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    option: str = "closest",
+    *,
+    option: BleuOption = "closest",
     verbose: int = 0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[BLEUOuts, Tensor]:
     return bleu(
         candidates=candidates,
         mult_references=mult_references,
@@ -114,11 +117,12 @@ def bleu_3(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    option: str = "closest",
+    *,
+    option: BleuOption = "closest",
     verbose: int = 0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[BLEUOuts, Tensor]:
     return bleu(
         candidates=candidates,
         mult_references=mult_references,
@@ -135,11 +139,12 @@ def bleu_4(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
-    option: str = "closest",
+    *,
+    option: BleuOption = "closest",
     verbose: int = 0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_1_to_n: bool = False,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[BLEUOuts, Tensor]:
     return bleu(
         candidates=candidates,
         mult_references=mult_references,
@@ -179,17 +184,18 @@ def _bleu_compute(
     cooked_mrefs: list,
     return_all_scores: bool = True,
     n: int = 4,
-    option: str = "closest",
+    option: BleuOption = "closest",
     verbose: int = 0,
     return_1_to_n: bool = False,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[Tensor, BLEUOuts]:
     if option not in BLEU_OPTIONS:
-        raise ValueError(f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})")
+        msg = f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})"
+        raise ValueError(msg)
 
     bleu_1_to_n_score, bleu_1_to_n_scores = __compute_bleu_score(
         cooked_cands,
         cooked_mrefs,
-        n,
+        n=n,
         option=option,
         verbose=verbose,
     )
@@ -214,7 +220,6 @@ def _bleu_compute(
             bleu_n_outs_sents[f"bleu_1_to_{n}"] = bleu_1_to_n_scores
 
         bleu_n_outs = bleu_n_outs_corpus, bleu_n_outs_sents
-
         return bleu_n_outs
     else:
         return bleu_n_score
@@ -300,7 +305,7 @@ def __compute_bleu_score(
     cooked_cands: list,
     cooked_mrefs: list,
     n: int,
-    option: Optional[str] = "closest",
+    option: BleuOption = "closest",
     verbose: int = 0,
 ) -> tuple[list[float], list[list[float]]]:
     SMALL = 1e-9
@@ -373,7 +378,7 @@ def __compute_bleu_score(
 
 def __single_reflen(
     reflens: list[int],
-    option: Optional[str] = None,
+    option: BleuOption,
     testlen: Optional[int] = None,
 ) -> float:
     if option == "shortest":

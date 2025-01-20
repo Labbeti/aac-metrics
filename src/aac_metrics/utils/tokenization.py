@@ -7,18 +7,12 @@ import os.path as osp
 import subprocess
 import tempfile
 import time
-
 from pathlib import Path
 from typing import Any, Hashable, Iterable, Optional, Union
 
 from aac_metrics.utils.checks import check_java_path, is_mono_sents
-from aac_metrics.utils.collections import flat_list, unflat_list
-from aac_metrics.utils.globals import (
-    _get_cache_path,
-    _get_java_path,
-    _get_tmp_path,
-)
-
+from aac_metrics.utils.collections import flat_list_of_list, unflat_list_of_list
+from aac_metrics.utils.globals import _get_cache_path, _get_java_path, _get_tmp_path
 
 pylog = logging.getLogger(__name__)
 
@@ -170,10 +164,11 @@ def ptb_tokenize_batch(
     os.remove(tmp_file.name)
 
     if len(audio_ids) != len(lines):
-        raise RuntimeError(
+        msg = (
             f"PTB tokenize error: expected {len(audio_ids)} lines in output file but found {len(lines)}."
             f"Maybe check if there is any newline character '\\n' in your sentences or disable preprocessing tokenization."
         )
+        raise RuntimeError(msg)
 
     outs: Any = [None for _ in range(len(lines))]
     for k, line in zip(audio_ids, lines):
@@ -181,9 +176,9 @@ def ptb_tokenize_batch(
             w for w in line.rstrip().split(" ") if w not in punctuations
         ]
         outs[k] = tokenized_caption
-    assert all(
-        out is not None for out in outs
-    ), "INTERNAL ERROR: PTB tokenizer output is invalid."
+
+    msg = "INTERNAL ERROR: PTB tokenizer output is invalid."
+    assert all(out is not None for out in outs), msg
 
     if verbose >= 2:
         duration = time.perf_counter() - start_time
@@ -212,6 +207,7 @@ def preprocess_mono_sents(
     :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
     :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
     :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
+    :param punctuations: Set of punctuations to remove. defaults to PTB_PUNCTUATIONS.
     :param normalize_apostrophe: If True, add apostrophes for French language. defaults to False.
     :param verbose: The verbose level. defaults to 0.
     :returns: The sentences processed by the tokenizer.
@@ -249,7 +245,7 @@ def preprocess_mult_sents(
     :param verbose: The verbose level. defaults to 0.
     :returns: The multiple sentences processed by the tokenizer.
     """
-    flatten_sents, sizes = flat_list(mult_sentences)
+    flatten_sents, sizes = flat_list_of_list(mult_sentences)
     flatten_sents = preprocess_mono_sents(
         sentences=flatten_sents,
         cache_path=cache_path,
@@ -259,5 +255,5 @@ def preprocess_mult_sents(
         normalize_apostrophe=normalize_apostrophe,
         verbose=verbose,
     )
-    mult_sentences = unflat_list(flatten_sents, sizes)
+    mult_sentences = unflat_list_of_list(flatten_sents, sizes)
     return mult_sentences

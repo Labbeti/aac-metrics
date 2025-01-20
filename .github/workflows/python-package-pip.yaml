@@ -39,7 +39,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
-  
+
     - name: Set up Java ${{ matrix.java-version }}
       uses: actions/setup-java@v2
       with:
@@ -53,7 +53,7 @@ jobs:
       # note 2: dev is NOT the branch here, but the dev dependencies
       run: |
         python -m pip install "aac-metrics[dev] @ git+https://github.com/Labbeti/aac-metrics@${GITHUB_REF##*/}"
-  
+
     - name: Load cache of external code and data
       uses: actions/cache@master
       id: cache_external
@@ -83,12 +83,16 @@ jobs:
     - name: Print Java version
       run: |
         java -version
-  
+
     - name: Install external code if needed
       if: steps.cache_external.outputs.cache-hit != 'true'
       run: |
         aac-metrics-download
-  
-    - name: Test with pytest
+
+    - name: Test with coverage + pytest
       run: |
-        python -m pytest -v
+        coverage run -m pytest -v
+
+    - name: Show coverage results
+      run: |
+        coverage report -m

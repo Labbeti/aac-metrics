@@ -5,7 +5,6 @@ import logging
 import os
 import os.path as osp
 import shutil
-
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import Union
@@ -13,9 +12,8 @@ from zipfile import ZipFile
 
 from torch.hub import download_url_to_file
 
-import aac_metrics
-
 from aac_metrics.classes.bert_score_mrefs import BERTScoreMRefs
+from aac_metrics.classes.clap_sim import CLAPSim
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.functional.meteor import DNAME_METEOR_CACHE
 from aac_metrics.functional.spice import (
@@ -24,15 +22,15 @@ from aac_metrics.functional.spice import (
     FNAME_SPICE_JAR,
     check_spice_install,
 )
-from aac_metrics.utils.cmdline import _str_to_bool, _setup_logging
+from aac_metrics.utils.cmdline import _str_to_bool
 from aac_metrics.utils.globals import (
     _get_cache_path,
     _get_tmp_path,
     get_default_cache_path,
     get_default_tmp_path,
 )
+from aac_metrics.utils.log_utils import setup_logging_verbose
 from aac_metrics.utils.tokenization import FNAME_STANFORD_CORENLP_3_4_1_JAR
-
 
 pylog = logging.getLogger(__name__)
 
@@ -66,6 +64,7 @@ DATA_URLS = {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/spice/spice-1.0.jar",
         "fname": "spice-1.0.jar",
     },
+    # CoreNLP version 3.4.1 for PTBTokenizer used in caption-evaluation-tools
     "stanford_nlp": {
         "url": "https://github.com/tylin/coco-caption/raw/master/pycocoevalcap/tokenizer/stanford-corenlp-3.4.1.jar",
         "fname": "stanford-corenlp-3.4.1.jar",
@@ -74,6 +73,7 @@ DATA_URLS = {
         "url": "https://panderson.me/images/SPICE-1.0.zip",
         "fname": "SPICE-1.0.zip",
     },
+    # CoreNLP version 3.6.0 for SPICE
     "spice_corenlp_zip": {
         "url": "http://nlp.stanford.edu/software/stanford-corenlp-full-2015-12-09.zip",
         "fname": osp.join("SPICE-1.0", "stanford-corenlp-full-2015-12-09.zip"),
@@ -82,6 +82,7 @@ DATA_URLS = {
 
 
 def download_metrics(
+    *,
     cache_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
     clean_archives: bool = True,
@@ -90,6 +91,8 @@ def download_metrics(
     spice: bool = True,
     fense: bool = True,
     bert_score: bool = True,
+    clap: bool = True,
+    force: bool = False,
     verbose: int = 0,
 ) -> None:
     """Download the code needed for SPICE, METEOR, PTB Tokenizer and FENSE.
@@ -102,6 +105,9 @@ def download_metrics(
     :param spice: If True, downloads the SPICE code in cache directory. defaults to True.
     :param fense: If True, downloads the FENSE models. defaults to True.
     :param bert_score: If True, downloads the BERTScore model. defaults to True.
+    :param force: If True, force to download files and extract archives again even if they are already present on disk.
+        Works only for PTBTokenizer, METEOR and SPICE files.
+        defaults to False.
     :param verbose: The verbose level. defaults to 0.
     """
     if verbose >= 1:
@@ -119,19 +125,35 @@ def download_metrics(
         pylog.debug(f"  Temp directory: {tmp_path}")
 
     if ptb_tokenizer:
-        _download_ptb_tokenizer(cache_path, verbose)
+        _download_ptb_tokenizer(
+            cache_path,
+            force=force,
+            verbose=verbose,
+        )
 
     if meteor:
-        _download_meteor(cache_path, verbose)
+        _download_meteor(
+            cache_path,
+            force=force,
+            verbose=verbose,
+        )
 
     if spice:
-        _download_spice(cache_path, clean_archives, verbose)
+        _download_spice(
+            cache_path,
+            clean_archives=clean_archives,
+            force=force,
+            verbose=verbose,
+        )
 
     if fense:
-        _download_fense(verbose)
+        _download_fense(verbose=verbose)
 
     if bert_score:
-        _download_bert_score(verbose)
+        _download_bert_score(verbose=verbose)
+
+    if clap:
+        _download_clap(verbose=verbose)
 
     if verbose >= 1:
         pylog.info("aac-metrics download finished.")
@@ -139,6 +161,8 @@ def download_metrics(
 
 def _download_ptb_tokenizer(
     cache_path: str,
+    *,
+    force: bool = False,
     verbose: int = 0,
 ) -> None:
     # Download JAR file for tokenization
@@ -153,19 +177,22 @@ def _download_ptb_tokenizer(
     fname = info["fname"]
     fpath = osp.join(stanford_nlp_dpath, fname)
 
-    if not osp.isfile(fpath):
-        if verbose >= 1:
-            pylog.info(
-                f"Downloading JAR source for '{name}' in directory {stanford_nlp_dpath}."
-            )
-        download_url_to_file(url, fpath, progress=verbose >= 1)
-    else:
+    if not force and osp.isfile(fpath):
         if verbose >= 1:
             pylog.info(f"Stanford model file '{name}' is already downloaded.")
+        return None
+
+    if verbose >= 1:
+        pylog.info(
+            f"Downloading JAR source for '{name}' in directory {stanford_nlp_dpath}."
+        )
+    download_url_to_file(url, fpath, progress=verbose >= 1)
 
 
 def _download_meteor(
     cache_path: str,
+    *,
+    force: bool = False,
     verbose: int = 0,
 ) -> None:
     # Download JAR files for METEOR metric
@@ -181,7 +208,7 @@ def _download_meteor(
         subdir = osp.dirname(fname)
         fpath = osp.join(meteor_dpath, fname)
 
-        if osp.isfile(fpath):
+        if not force and osp.isfile(fpath):
             if verbose >= 1:
                 pylog.info(f"Meteor file '{name}' is already downloaded.")
             continue
@@ -200,7 +227,9 @@ def _download_meteor(
 
 def _download_spice(
     cache_path: str,
+    *,
     clean_archives: bool = True,
+    force: bool = False,
     verbose: int = 0,
 ) -> None:
     """Download SPICE java code.
@@ -232,8 +261,9 @@ def _download_spice(
     └── spice-1.0.jar
     """
     try:
-        check_spice_install(cache_path)
-        return None
+        if not force:
+            check_spice_install(cache_path)
+            return None
     except (FileNotFoundError, NotADirectoryError, PermissionError):
         pass
 
@@ -250,7 +280,7 @@ def _download_spice(
         fname = DATA_URLS[name]["fname"]
         fpath = osp.join(spice_cache_dpath, fname)
 
-        if osp.isfile(fpath):
+        if not force and osp.isfile(fpath):
             if verbose >= 1:
                 pylog.info(f"File '{fpath}' is already downloaded for SPICE.")
         else:
@@ -314,9 +344,7 @@ def _download_spice(
         shutil.rmtree(spice_unzip_dpath)
 
 
-def _download_fense(
-    verbose: int = 0,
-) -> None:
+def _download_fense(*, verbose: int = 0) -> None:
     # Download models files for FENSE metric
     if verbose >= 1:
         pylog.info("Downloading SBERT and BERT error detector for FENSE metric...")
@@ -324,12 +352,17 @@ def _download_fense(
 
 
 def _download_bert_score(
+    *,
     verbose: int = 0,
 ) -> None:
     # Download models files for BERTScore metric
     if verbose >= 1:
         pylog.info("Downloading BERT model for BERTScore metric...")
     _ = BERTScoreMRefs(device="cpu")
+
+
+def _download_clap(*, verbose: int = 0) -> None:
+    _ = CLAPSim()
 
 
 def _get_main_download_args() -> Namespace:
@@ -379,6 +412,24 @@ def _get_main_download_args() -> Namespace:
         default=True,
         help="Download FENSE models.",
     )
+    parser.add_argument(
+        "--bert_score",
+        type=_str_to_bool,
+        default=True,
+        help="Download BERTScore models.",
+    )
+    parser.add_argument(
+        "--clap",
+        type=_str_to_bool,
+        default=True,
+        help="Download CLAP model.",
+    )
+    parser.add_argument(
+        "--force",
+        type=_str_to_bool,
+        default=False,
+        help="Force to download files and extract archives again for SPICE, METEOR and PTBTokenizer.",
+    )
     parser.add_argument("--verbose", type=int, default=1, help="Verbose level.")
 
     args = parser.parse_args()
@@ -387,7 +438,7 @@ def _get_main_download_args() -> Namespace:
 
 def _main_download() -> None:
     args = _get_main_download_args()
-    _setup_logging(aac_metrics.__package__, args.verbose)
+    setup_logging_verbose("aac_metrics", args.verbose)
 
     download_metrics(
         cache_path=args.cache_path,
@@ -397,6 +448,9 @@ def _main_download() -> None:
         meteor=args.meteor,
         spice=args.spice,
         fense=args.fense,
+        bert_score=args.bert_score,
+        clap=args.clap,
+        force=args.force,
         verbose=args.verbose,
     )
 

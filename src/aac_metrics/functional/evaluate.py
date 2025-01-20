@@ -1,20 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import inspect
 import logging
 import time
-from functools import cache, partial
+from functools import partial
 from pathlib import Path
-from typing import Any, Callable, Iterable, Optional, Union
+from typing import Any, Callable, Iterable, Union
 
 import torch
-from torch import Tensor
+from torch import Tensor, nn
 
 from aac_metrics.functional.bert_score_mrefs import bert_score_mrefs
 from aac_metrics.functional.bleu import bleu, bleu_1, bleu_2, bleu_3, bleu_4
 from aac_metrics.functional.cider_d import cider_d
+from aac_metrics.functional.clap_sim import clap_sim
 from aac_metrics.functional.fense import fense
 from aac_metrics.functional.fer import fer
+from aac_metrics.functional.mace import mace
 from aac_metrics.functional.meteor import meteor
 from aac_metrics.functional.rouge_l import rouge_l
 from aac_metrics.functional.sbert_sim import sbert_sim
@@ -24,10 +27,11 @@ from aac_metrics.functional.spider_fl import spider_fl
 from aac_metrics.functional.spider_max import spider_max
 from aac_metrics.functional.vocab import vocab
 from aac_metrics.utils.checks import check_metric_inputs
-from aac_metrics.utils.tokenization import preprocess_mono_sents, preprocess_mult_sents
+from aac_metrics.utils.collections import flat_list_of_list, unflat_list_of_list
+from aac_metrics.utils.log_utils import warn_once
+from aac_metrics.utils.tokenization import preprocess_mono_sents
 
 pylog = logging.getLogger(__name__)
-
 
 METRICS_SETS: dict[str, tuple[str, ...]] = {
     # Legacy metrics for AAC
@@ -55,6 +59,13 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "meteor",
         "spider_fl",  # includes cider_d, spice, spider, fer
     ),
+    # DCASE challenge task6 metrics for 2024
+    "dcase2024": (
+        "meteor",
+        "spider_fl",  # includes cider_d, spice, spider, fer
+        "fense",  # includes sbert, fer
+        "vocab",
+    ),
     # All metrics
     "all": (
         "bleu_1",
@@ -67,6 +78,7 @@ METRICS_SETS: dict[str, tuple[str, ...]] = {
         "spider_fl",  # includes cider_d, spice, spider, fer
         "vocab",
         "bert_score",
+        "mace",
     ),
 }
 DEFAULT_METRICS_SET_NAME = "default"
@@ -75,7 +87,7 @@ DEFAULT_METRICS_SET_NAME = "default"
 def evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
-    preprocess: bool = True,
+    preprocess: Union[bool, Callable[[list[str]], list[str]]] = True,
     metrics: Union[
         str, Iterable[str], Iterable[Callable[[list, list], tuple]]
     ] = DEFAULT_METRICS_SET_NAME,
@@ -89,7 +101,7 @@ def evaluate(
 
     :param candidates: The list of sentences to evaluate.
     :param mult_references: The list of list of sentences used as target.
-    :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.defaults to True.
+    :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics. defaults to True.
     :param metrics: The name of the metric list or the explicit list of metrics to compute. defaults to "default".
     :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
     :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
@@ -102,24 +114,31 @@ def evaluate(
     check_metric_inputs(candidates, mult_references)
 
     metrics = _instantiate_metrics_functions(
-        metrics, cache_path, java_path, tmp_path, device, verbose
+        metrics,
+        cache_path=cache_path,
+        java_path=java_path,
+        tmp_path=tmp_path,
+        device=device,
+        verbose=verbose,
     )
 
-    if preprocess:
-        common_kwds: dict[str, Any] = dict(
+    # Note: we use == here because preprocess is not necessary a boolean
+    if preprocess == False:  # noqa: E712
+        preprocess = nn.Identity()
+
+    elif preprocess == True:  # noqa: E712
+        preprocess = partial(
+            preprocess_mono_sents,
             cache_path=cache_path,
             java_path=java_path,
             tmp_path=tmp_path,
             verbose=verbose,
         )
-        candidates = preprocess_mono_sents(
-            candidates,
-            **common_kwds,
-        )
-        mult_references = preprocess_mult_sents(
-            mult_references,
-            **common_kwds,
-        )
+
+    candidates = preprocess(candidates)
+    mult_references_flat, sizes = flat_list_of_list(mult_references)
+    mult_references_flat = preprocess(mult_references_flat)
+    mult_references = unflat_list_of_list(mult_references_flat, sizes)
 
     outs_corpus = {}
     outs_sents = {}
@@ -153,7 +172,8 @@ def evaluate(
             )
             if len(corpus_overlap) > 0 or len(sents_overlap) > 0:
                 warn_once(
-                    f"Found overlapping metric outputs names. (found {corpus_overlap=} and {sents_overlap=} at least twice)"
+                    f"Found overlapping metric outputs names. (found {corpus_overlap=} and {sents_overlap=} at least twice)",
+                    pylog,
                 )
 
         outs_corpus |= outs_corpus_i
@@ -165,7 +185,7 @@ def evaluate(
 def dcase2023_evaluate(
     candidates: list[str],
     mult_references: list[list[str]],
-    preprocess: bool = True,
+    preprocess: Union[bool, Callable[[list[str]], list[str]]] = True,
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
@@ -199,8 +219,46 @@ def dcase2023_evaluate(
     )
 
 
+def dcase2024_evaluate(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    preprocess: Union[bool, Callable[[list[str]], list[str]]] = True,
+    cache_path: Union[str, Path, None] = None,
+    java_path: Union[str, Path, None] = None,
+    tmp_path: Union[str, Path, None] = None,
+    device: Union[str, torch.device, None] = "cuda_if_available",
+    verbose: int = 0,
+) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
+    """Evaluate candidates with multiple references with the DCASE2024 Audio Captioning metrics.
+
+    :param candidates: The list of sentences to evaluate.
+    :param mult_references: The list of list of sentences used as target.
+    :param preprocess: If True, the candidates and references will be passed as input to the PTB stanford tokenizer before computing metrics.
+        defaults to True.
+    :param cache_path: The path to the external code directory. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_cache_path`.
+    :param java_path: The path to the java executable. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_java_path`.
+    :param tmp_path: Temporary directory path. defaults to the value returned by :func:`~aac_metrics.utils.paths.get_default_tmp_path`.
+    :param device: The PyTorch device used to run FENSE and SPIDErFL models.
+        If None, it will try to detect use cuda if available. defaults to "cuda_if_available".
+    :param verbose: The verbose level. defaults to 0.
+    :returns: A tuple contains the corpus and sentences scores.
+    """
+    return evaluate(
+        candidates=candidates,
+        mult_references=mult_references,
+        preprocess=preprocess,
+        metrics="dcase2024",
+        cache_path=cache_path,
+        java_path=java_path,
+        tmp_path=tmp_path,
+        device=device,
+        verbose=verbose,
+    )
+
+
 def _instantiate_metrics_functions(
     metrics: Union[str, Iterable[str], Iterable[Callable[[list, list], tuple]]] = "all",
+    *,
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
@@ -238,119 +296,46 @@ def _instantiate_metrics_functions(
 
 
 def _get_metric_factory_functions(
-    return_all_scores: bool = True,
-    cache_path: Union[str, Path, None] = None,
-    java_path: Union[str, Path, None] = None,
-    tmp_path: Union[str, Path, None] = None,
-    device: Union[str, torch.device, None] = "cuda_if_available",
-    verbose: int = 0,
-    init_kwds: Optional[dict[str, Any]] = None,
+    **kwargs,
 ) -> dict[str, Callable[[list[str], list[list[str]]], Any]]:
-    if init_kwds is None or init_kwds is ...:
-        init_kwds = {}
-
-    init_kwds = init_kwds | dict(return_all_scores=return_all_scores)
-
-    factory = {
-        "bert_score": partial(
-            bert_score_mrefs,
-            **init_kwds,
-        ),
-        "bleu": partial(
-            bleu,
-            **init_kwds,
-        ),
-        "bleu_1": partial(
-            bleu_1,
-            **init_kwds,
-        ),
-        "bleu_2": partial(
-            bleu_2,
-            **init_kwds,
-        ),
-        "bleu_3": partial(
-            bleu_3,
-            **init_kwds,
-        ),
-        "bleu_4": partial(
-            bleu_4,
-            **init_kwds,
-        ),
-        "cider_d": partial(
-            cider_d,
-            **init_kwds,
-        ),
-        "fer": partial(
-            fer,
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "fense": partial(
-            fense,
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "meteor": partial(
-            meteor,
-            cache_path=cache_path,
-            java_path=java_path,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "rouge_l": partial(
-            rouge_l,
-            **init_kwds,
-        ),
-        "sbert_sim": partial(
-            sbert_sim,
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "spice": partial(
-            spice,
-            cache_path=cache_path,
-            java_path=java_path,
-            tmp_path=tmp_path,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "spider": partial(
-            spider,
-            cache_path=cache_path,
-            java_path=java_path,
-            tmp_path=tmp_path,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "spider_max": partial(
-            spider_max,
-            cache_path=cache_path,
-            java_path=java_path,
-            tmp_path=tmp_path,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "spider_fl": partial(
-            spider_fl,
-            cache_path=cache_path,
-            java_path=java_path,
-            tmp_path=tmp_path,
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "vocab": partial(
-            vocab,
-            verbose=verbose,
-            **init_kwds,
-        ),
+    functions = {
+        "bert_score": bert_score_mrefs,
+        "bleu": bleu,
+        "bleu_1": bleu_1,
+        "bleu_2": bleu_2,
+        "bleu_3": bleu_3,
+        "bleu_4": bleu_4,
+        "clap_sim": clap_sim,
+        "cider_d": cider_d,
+        "fer": fer,
+        "fense": fense,
+        "mace": mace,
+        "meteor": meteor,
+        "rouge_l": rouge_l,
+        "sbert_sim": sbert_sim,
+        "spice": spice,
+        "spider": spider,
+        "spider_max": spider_max,
+        "spider_fl": spider_fl,
+        "vocab": vocab,
     }
+    factory = {}
+    for name, fn in functions.items():
+        argnames = get_argnames(fn)
+        fn_kwargs = {k: v for k, v in kwargs.items() if k in argnames}
+        factory[name] = partial(fn, **fn_kwargs)
     return factory
 
 
-@cache
-def warn_once(msg: str) -> None:
-    pylog.warning(msg)
+def get_argnames(fn: Callable) -> list[str]:
+    """Get arguments names of a method, function or callable object."""
+    if inspect.ismethod(fn):
+        # If method, remove 'self' arg
+        argnames = fn.__code__.co_varnames[1:]  # type: ignore
+    elif inspect.isfunction(fn):
+        argnames = fn.__code__.co_varnames
+    else:
+        argnames = fn.__call__.__code__.co_varnames  # type: ignore
+
+    argnames = list(argnames)
+    return argnames

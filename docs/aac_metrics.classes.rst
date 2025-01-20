@@ -16,9 +16,11 @@ Submodules
    aac_metrics.classes.bert_score_mrefs
    aac_metrics.classes.bleu
    aac_metrics.classes.cider_d
+   aac_metrics.classes.clap_sim
    aac_metrics.classes.evaluate
    aac_metrics.classes.fense
    aac_metrics.classes.fer
+   aac_metrics.classes.mace
    aac_metrics.classes.meteor
    aac_metrics.classes.rouge_l
    aac_metrics.classes.sbert_sim

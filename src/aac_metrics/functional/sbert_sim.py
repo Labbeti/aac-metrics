@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-from typing import Union
+from typing import Optional, TypedDict, Union
 
 import numpy as np
 import torch
-
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_metric_inputs
 from aac_metrics.utils.globals import _get_device
 
-
 DEFAULT_SBERT_SIM_MODEL = "paraphrase-TinyBERT-L6-v2"
+SBERTSimScores = TypedDict("SBERTSimScores", {"sbert_sim": Tensor})
+SBERTSimOuts = tuple[SBERTSimScores, SBERTSimScores]
+
 
 pylog = logging.getLogger(__name__)
 
@@ -24,12 +24,13 @@ def sbert_sim(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
     device: Union[str, torch.device, None] = "cuda_if_available",
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     reset_state: bool = True,
     verbose: int = 0,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[SBERTSimOuts, Tensor]:
     """Cosine-similarity of the Sentence-BERT embeddings.
 
     - Paper: https://arxiv.org/abs/1908.10084
@@ -41,7 +42,7 @@ def sbert_sim(
         Otherwise returns a scalar tensor containing the main global score.
         defaults to True.
     :param sbert_model: The sentence BERT model used to extract sentence embeddings for cosine-similarity. defaults to "paraphrase-TinyBERT-L6-v2".
-    :param device: The PyTorch device used to run FENSE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
+    :param device: The PyTorch device used to run pre-trained models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the sBERT models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param verbose: The verbose level. defaults to 0.
@@ -81,8 +82,8 @@ def sbert_sim(
         sbert_sim_outs_sents = {
             "sbert_sim": sbert_sim_scores,
         }
-
-        return sbert_sim_outs_corpus, sbert_sim_outs_sents
+        sbert_sim_outs = sbert_sim_outs_corpus, sbert_sim_outs_sents
+        return sbert_sim_outs  # type: ignore
     else:
         return sbert_sim_score
 
@@ -112,7 +113,7 @@ def _load_sbert(
 def _encode_sents_sbert(
     sbert_model: SentenceTransformer,
     sents: list[str],
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     verbose: int = 0,
 ) -> Tensor:
     return sbert_model.encode(

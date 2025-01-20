@@ -5,12 +5,13 @@ import logging
 import os
 import os.path as osp
 import tempfile
-
 from pathlib import Path
 from typing import Any, Optional, Union
 
 import torch
 
+_CUDA_IF_AVAILABLE: str = "cuda_if_available"
+CUDA_IF_AVAILABLE: str = _CUDA_IF_AVAILABLE  # for backward compatibility
 
 pylog = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ def _get_cache_path(cache_path: Union[str, Path, None] = None) -> str:
 
 
 def _get_device(
-    device: Union[str, torch.device, None] = "cuda_if_available",
+    device: Union[str, torch.device, None] = _CUDA_IF_AVAILABLE,
 ) -> Optional[torch.device]:
     value_name = "device"
     process_func = __DEFAULT_GLOBALS[value_name]["process"]
@@ -99,9 +100,8 @@ def __get_default_value(value_name: str) -> Any:
             return value
 
     pylog.error(f"Values: {values}")
-    raise RuntimeError(
-        f"Invalid default value for value_name={value_name}. (all default values are None)"
-    )
+    msg = f"Invalid default value for value_name={value_name}. (all default values are None)"
+    raise RuntimeError(msg)
 
 
 def __set_default_value(
@@ -132,7 +132,7 @@ def __process_path(value: Union[str, Path, None]) -> Union[str, None]:
 def __process_device(value: Union[str, torch.device, None]) -> Optional[torch.device]:
     if value is None or value is ...:
         return None
-    if value == "cuda_if_available":
+    if value == _CUDA_IF_AVAILABLE:
         value = "cuda" if torch.cuda.is_available() else "cpu"
     if isinstance(value, str):
         value = torch.device(value)
@@ -151,7 +151,7 @@ __DEFAULT_GLOBALS = {
     "device": {
         "values": {
             "env": "AAC_METRICS_DEVICE",
-            "package": "cuda_if_available",
+            "package": _CUDA_IF_AVAILABLE,
         },
         "process": __process_device,
     },

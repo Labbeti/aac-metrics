@@ -2,27 +2,32 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-from typing import Optional, Union
+from typing import Optional, TypedDict, Union
 
 import torch
-
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.functional.fer import (
-    fer,
-    _load_echecker_and_tokenizer,
-    BERTFlatClassifier,
     DEFAULT_FER_MODEL,
+    BERTFlatClassifier,
+    FEROuts,
+    _load_echecker_and_tokenizer,
+    fer,
 )
 from aac_metrics.functional.sbert_sim import (
-    sbert_sim,
-    _load_sbert,
     DEFAULT_SBERT_SIM_MODEL,
+    SBERTSimOuts,
+    _load_sbert,
+    sbert_sim,
 )
 from aac_metrics.utils.checks import check_metric_inputs
+
+FENSEScores = TypedDict(
+    "FENSEScores", {"sbert_sim": Tensor, "fer": Tensor, "fense": Tensor}
+)
+FENSEOuts = tuple[FENSEScores, FENSEScores]
 
 
 pylog = logging.getLogger(__name__)
@@ -32,20 +37,21 @@ def fense(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     # SBERT args
     sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
-    # FluencyError args
+    # FER args
     echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     device: Union[str, torch.device, None] = "cuda_if_available",
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     reset_state: bool = True,
     return_probs: bool = False,
     # Other args
     penalty: float = 0.9,
     verbose: int = 0,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[FENSEOuts, Tensor]:
     """Fluency ENhanced Sentence-bert Evaluation (FENSE)
 
     - Paper: https://arxiv.org/abs/2110.04684
@@ -65,7 +71,7 @@ def fense(
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
     :param penalty: The penalty coefficient applied. Higher value means to lower the cos-sim scores when an error is detected. defaults to 0.9.
-    :param device: The PyTorch device used to run FENSE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
+    :param device: The PyTorch device used to run pre-trained models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the sBERT and echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to False.
@@ -83,7 +89,7 @@ def fense(
         reset_state=reset_state,
         verbose=verbose,
     )
-    sbert_sim_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = sbert_sim(  # type: ignore
+    sbert_sim_outs: SBERTSimOuts = sbert_sim(  # type: ignore
         candidates=candidates,
         mult_references=mult_references,
         return_all_scores=True,
@@ -93,7 +99,7 @@ def fense(
         reset_state=reset_state,
         verbose=verbose,
     )
-    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = fer(  # type: ignore
+    fer_outs: FEROuts = fer(  # type: ignore
         candidates=candidates,
         return_all_scores=True,
         echecker=echecker,
@@ -114,10 +120,10 @@ def fense(
 
 
 def _fense_from_outputs(
-    sbert_sim_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
-    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    sbert_sim_outs: SBERTSimOuts,
+    fer_outs: FEROuts,
     penalty: float = 0.9,
-) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
+) -> FENSEOuts:
     """Combines SBERT and FER outputs.
 
     Based on https://github.com/blmoistawinde/fense/blob/main/fense/evaluator.py#L121
@@ -128,15 +134,14 @@ def _fense_from_outputs(
     sbert_sims_scores = sbert_sim_outs_sents["sbert_sim"]
     fer_scores = fer_outs_sents["fer"]
     fense_scores = sbert_sims_scores * (1.0 - penalty * fer_scores)
+    # note: we use numpy mean to keep the same values than the original fense, this is only for backward compatibility
     fense_score = torch.as_tensor(
-        fense_scores.cpu()
-        .numpy()
-        .mean(),  # note: use numpy mean to keep the same values than the original fense
+        fense_scores.cpu().numpy().mean(),
         device=fense_scores.device,
     )
 
-    fense_outs_corpus = sbert_sim_outs_corpus | fer_outs_corpus | {"fense": fense_score}
-    fense_outs_sents = sbert_sim_outs_sents | fer_outs_sents | {"fense": fense_scores}
+    fense_outs_corpus = sbert_sim_outs_corpus | fer_outs_corpus | {"fense": fense_score}  # type: ignore
+    fense_outs_sents = sbert_sim_outs_sents | fer_outs_sents | {"fense": fense_scores}  # type: ignore
     fense_outs = fense_outs_corpus, fense_outs_sents
 
     return fense_outs

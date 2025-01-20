@@ -1,27 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from collections import defaultdict, Counter
-from typing import Any, Callable, Mapping, Union
+from collections import Counter, defaultdict
+from typing import Callable, Mapping, TypedDict, Union
 
 import numpy as np
 import torch
-
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_metric_inputs
+
+CIDErDScores = TypedDict("CIDErDScores", {"cider_d": Tensor})
+CIDErDOuts = tuple[CIDErDScores, CIDErDScores]
 
 
 def cider_d(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     n: int = 4,
     sigma: float = 6.0,
     tokenizer: Callable[[str], list[str]] = str.split,
     return_tfidf: bool = False,
     scale: float = 10.0,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Any]]]:
+) -> Union[CIDErDOuts, Tensor]:
     """Consensus-based Image Description Evaluation function.
 
     - Paper: https://arxiv.org/pdf/1411.5726.pdf
@@ -39,6 +42,7 @@ def cider_d(
     :param tokenizer: The fast tokenizer used to split sentences into words. defaults to str.split.
     :param return_tfidf: If True, returns the list of dictionaries containing the tf-idf scores of n-grams in the sents_score output.
         defaults to False.
+    :param scale: CIDEr-D score factor. defaults to 10.0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     cooked_cands, cooked_mrefs = _cider_d_update(
@@ -86,8 +90,8 @@ def _cider_d_compute(
     sigma: float,
     return_tfidf: bool,
     scale: float,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Any]]]:
-    if len(cooked_cands) <= 1:
+) -> Union[Tensor, CIDErDOuts]:
+    if len(cooked_cands) < 2:
         raise ValueError(
             f"CIDEr-D metric does not support less than 2 candidates with 2 references. (found {len(cooked_cands)} candidates, but expected > 1)"
         )
@@ -124,7 +128,7 @@ def _cider_d_compute(
             cider_d_outs_sents["tfidf_lst"] = tfidf_lst  # type: ignore
         cider_d_outs = cider_d_outs_corpus, cider_d_outs_sents
 
-        return cider_d_outs
+        return cider_d_outs  # type: ignore
     else:
         return cider_d_score
 

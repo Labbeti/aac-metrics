@@ -8,12 +8,14 @@ from torch import Tensor
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.bleu import (
     BLEU_OPTIONS,
+    BleuOption,
+    BLEUOuts,
     _bleu_compute,
     _bleu_update,
 )
 
 
-class BLEU(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class BLEU(AACMetric[Union[BLEUOuts, Tensor]]):
     """BiLingual Evaluation Understudy metric class.
 
     - Paper: https://www.aclweb.org/anthology/P02-1040.pdf
@@ -31,15 +33,15 @@ class BLEU(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         n: int = 4,
-        option: str = "closest",
+        option: BleuOption = "closest",
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
         if option not in BLEU_OPTIONS:
-            raise ValueError(
-                f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})"
-            )
+            msg = f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})"
+            raise ValueError(msg)
 
         super().__init__()
         self._return_all_scores = return_all_scores
@@ -51,7 +53,7 @@ class BLEU(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]
         self._cooked_cands = []
         self._cooked_mrefs = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[BLEUOuts, Tensor]:
         return _bleu_compute(
             cooked_cands=self._cooked_cands,
             cooked_mrefs=self._cooked_mrefs,

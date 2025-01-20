@@ -5,7 +5,7 @@ title: aac-metrics
 message: 'If you use this software, please cite it as below.'
 type: software
 authors:
-  - given-names: Etienne
+  - given-names: Étienne
     family-names: Labbé
     email: labbeti.pub@gmail.com
     affiliation: IRIT
@@ -19,5 +19,5 @@ keywords:
   - captioning
   - audio-captioning
 license: MIT
-version: 0.5.4
-date-released: '2024-03-04'
+version: 0.5.5
+date-released: '2025-01-20'

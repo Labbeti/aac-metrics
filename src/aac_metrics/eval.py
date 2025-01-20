@@ -3,28 +3,25 @@
 
 import csv
 import logging
-
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import Iterable, Union
 
 import yaml
 
-import aac_metrics
-
 from aac_metrics.functional.evaluate import (
-    evaluate,
     DEFAULT_METRICS_SET_NAME,
     METRICS_SETS,
+    evaluate,
 )
-from aac_metrics.utils.checks import check_metric_inputs, check_java_path
-from aac_metrics.utils.cmdline import _str_to_bool, _str_to_opt_str, _setup_logging
+from aac_metrics.utils.checks import check_java_path, check_metric_inputs
+from aac_metrics.utils.cmdline import _str_to_bool, _str_to_opt_str
 from aac_metrics.utils.globals import (
     get_default_cache_path,
     get_default_java_path,
     get_default_tmp_path,
 )
-
+from aac_metrics.utils.log_utils import setup_logging_verbose
 
 pylog = logging.getLogger(__name__)
 
@@ -230,7 +227,7 @@ def _get_main_evaluate_args() -> Namespace:
 
 def _main_eval() -> None:
     args = _get_main_evaluate_args()
-    _setup_logging(aac_metrics.__package__, args.verbose)
+    setup_logging_verbose("aac_metrics", args.verbose)
 
     if not check_java_path(args.java_path):
         raise RuntimeError(f"Invalid Java executable. ({args.java_path})")

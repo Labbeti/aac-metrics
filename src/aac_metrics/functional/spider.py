@@ -2,19 +2,25 @@
 # -*- coding: utf-8 -*-
 
 from pathlib import Path
-from typing import Callable, Iterable, Optional, Union
+from typing import Callable, Iterable, Optional, TypedDict, Union
 
 from torch import Tensor
 
-from aac_metrics.functional.cider_d import cider_d
-from aac_metrics.functional.spice import spice
+from aac_metrics.functional.cider_d import CIDErDOuts, cider_d
+from aac_metrics.functional.spice import SPICEOuts, spice
 from aac_metrics.utils.checks import check_metric_inputs
+
+SPIDErScores = TypedDict(
+    "SPIDErScores", {"spider": Tensor, "cider_d": Tensor, "spice": Tensor}
+)
+SPIDErOuts = tuple[SPIDErScores, SPIDErScores]
 
 
 def spider(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     # CIDErD args
     n: int = 4,
     sigma: float = 6.0,
@@ -28,7 +34,7 @@ def spider(
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
     verbose: int = 0,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[SPIDErOuts, Tensor]:
     """SPIDEr function.
 
     - Paper: https://arxiv.org/pdf/1612.00370.pdf
@@ -63,7 +69,7 @@ def spider(
     check_metric_inputs(candidates, mult_references)
 
     sub_return_all_scores = True
-    cider_d_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = cider_d(  # type: ignore
+    cider_d_outs: CIDErDOuts = cider_d(  # type: ignore
         candidates=candidates,
         mult_references=mult_references,
         return_all_scores=sub_return_all_scores,
@@ -72,7 +78,7 @@ def spider(
         tokenizer=tokenizer,
         return_tfidf=return_tfidf,
     )
-    spice_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = spice(  # type: ignore
+    spice_outs: SPICEOuts = spice(  # type: ignore
         candidates=candidates,
         mult_references=mult_references,
         return_all_scores=sub_return_all_scores,
@@ -93,9 +99,9 @@ def spider(
 
 
 def _spider_from_outputs(
-    cider_d_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
-    spice_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
-) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
+    cider_d_outs: CIDErDOuts,
+    spice_outs: SPICEOuts,
+) -> SPIDErOuts:
     """Combines CIDErD and SPICE outputs."""
     cider_d_outs_corpus, cider_d_outs_sents = cider_d_outs
     spice_outs_corpus, spice_outs_sents = spice_outs

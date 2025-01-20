@@ -2,28 +2,26 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-from typing import Union
+from typing import Optional, Union
 
 import torch
-
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
+from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.fense import fense, _load_models_and_tokenizer
+from aac_metrics.functional.fense import FENSEOuts, _load_models_and_tokenizer, fense
 from aac_metrics.functional.fer import (
-    BERTFlatClassifier,
     _ERROR_NAMES,
     DEFAULT_FER_MODEL,
+    BERTFlatClassifier,
 )
 from aac_metrics.functional.sbert_sim import DEFAULT_SBERT_SIM_MODEL
-
 
 pylog = logging.getLogger(__name__)
 
 
-class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class FENSE(AACMetric[Union[FENSEOuts, Tensor]]):
     """Fluency ENhanced Sentence-bert Evaluation (FENSE)
 
     - Paper: https://arxiv.org/abs/2110.04684
@@ -42,11 +40,13 @@ class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         sbert_model: Union[str, SentenceTransformer] = DEFAULT_SBERT_SIM_MODEL,
         echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
+        echecker_tokenizer: Optional[AutoTokenizer] = None,
         error_threshold: float = 0.9,
         device: Union[str, torch.device, None] = "cuda_if_available",
-        batch_size: int = 32,
+        batch_size: Optional[int] = 32,
         reset_state: bool = True,
         return_probs: bool = False,
         penalty: float = 0.9,
@@ -55,7 +55,7 @@ class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         sbert_model, echecker, echecker_tokenizer = _load_models_and_tokenizer(
             sbert_model=sbert_model,
             echecker=echecker,
-            echecker_tokenizer=None,
+            echecker_tokenizer=echecker_tokenizer,
             device=device,
             reset_state=reset_state,
             verbose=verbose,
@@ -77,7 +77,7 @@ class FENSE(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[FENSEOuts, Tensor]:
         return fense(
             candidates=self._candidates,
             mult_references=self._mult_references,

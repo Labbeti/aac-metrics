@@ -4,19 +4,16 @@
 import hashlib
 import logging
 import os
+import os.path as osp
 import re
-import requests
-
 from collections import namedtuple
-from os import environ, makedirs
-from os.path import exists, expanduser, join
-from typing import Mapping, Optional, Union
+from typing import Mapping, Optional, TypedDict, Union
 
 import numpy as np
+import requests
 import torch
 import transformers
-
-from torch import nn, Tensor
+from torch import Tensor, nn
 from tqdm import tqdm
 from transformers import logging as tfmers_logging
 from transformers.models.auto.modeling_auto import AutoModel
@@ -26,8 +23,9 @@ from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 from aac_metrics.utils.checks import is_mono_sents
 from aac_metrics.utils.globals import _get_device
 
-
 DEFAULT_FER_MODEL = "echecker_clotho_audiocaps_base"
+FERScores = TypedDict("FERScores", {"fer": Tensor})
+FEROuts = tuple[FERScores, FERScores]
 
 
 _DEFAULT_PROXIES = {
@@ -101,15 +99,16 @@ class BERTFlatClassifier(nn.Module):
 def fer(
     candidates: list[str],
     return_all_scores: bool = True,
+    *,
     echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     device: Union[str, torch.device, None] = "cuda_if_available",
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     reset_state: bool = True,
     return_probs: bool = False,
     verbose: int = 0,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[FEROuts, Tensor]:
     """Return Fluency Error Rate (FER) detected by a pre-trained BERT model.
 
     - Paper: https://arxiv.org/abs/2110.04684
@@ -127,7 +126,7 @@ def fer(
         If None and echecker is not None, this value will be inferred with `echecker.model_type`.
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
-    :param device: The PyTorch device used to run FENSE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
+    :param device: The PyTorch device used to run pre-trained models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to False.
@@ -150,7 +149,7 @@ def fer(
     # Compute and apply fluency error detection penalty
     probs_outs_sents = __detect_error_sents(
         echecker=echecker,
-        echecker_tokenizer=echecker_tokenizer,
+        echecker_tokenizer=echecker_tokenizer,  # type: ignore
         sents=candidates,
         batch_size=batch_size,
         device=device,
@@ -169,7 +168,9 @@ def fer(
         }
 
         if return_probs:
-            probs_outs_sents = {f"fer.{k}_prob": v for k, v in probs_outs_sents.items()}
+            probs_outs_sents = {
+                f"fluency_error.{k}_prob": v for k, v in probs_outs_sents.items()
+            }
             probs_outs_sents = {
                 k: torch.from_numpy(v) for k, v in probs_outs_sents.items()
             }
@@ -180,7 +181,7 @@ def fer(
 
         fer_outs = fer_outs_corpus, fer_outs_sents
 
-        return fer_outs
+        return fer_outs  # type: ignore
     else:
         return fer_score
 
@@ -224,10 +225,13 @@ def __detect_error_sents(
     echecker: BERTFlatClassifier,
     echecker_tokenizer: PreTrainedTokenizerFast,
     sents: list[str],
-    batch_size: int,
+    batch_size: Optional[int],
     device: Union[str, torch.device, None],
     max_len: int = 64,
 ) -> dict[str, np.ndarray]:
+    if batch_size is None:
+        batch_size = len(sents)
+
     device = _get_device(device)
 
     if len(sents) <= batch_size:
@@ -342,27 +346,30 @@ def __fetch_remote(
     use_proxy: bool = False,
     proxies: Optional[dict[str, str]] = None,
 ) -> str:
-    file_path = remote.filename if dirname is None else join(dirname, remote.filename)
+    if dirname is None:
+        file_path = remote.filename
+    else:
+        file_path = osp.join(dirname, remote.filename)
+
     file_path = __download_with_bar(remote.url, file_path, use_proxy, proxies)
     checksum = __sha256(file_path)
     if remote.checksum != checksum:
-        raise IOError(
-            "{} has an SHA256 checksum ({}) "
-            "differing from expected ({}), "
-            "file may be corrupted.".format(file_path, checksum, remote.checksum)
+        raise RuntimeError(
+            f"{file_path} has an SHA256 checksum ({checksum}) "
+            f"differing from expected ({remote.checksum}), "
+            f"file may be corrupted."
         )
+
     return file_path
 
 
 def __get_data_home(data_home: Optional[str] = None) -> str:
     if data_home is None:
-        DEFAULT_DATA_HOME = join(torch.hub.get_dir(), "fense_data")
-        data_home = environ.get("FENSE_DATA", DEFAULT_DATA_HOME)
+        DEFAULT_DATA_HOME = osp.join(torch.hub.get_dir(), "fense_data")
+        data_home = os.getenv("FENSE_DATA", DEFAULT_DATA_HOME)
 
-    data_home: str
-    data_home = expanduser(data_home)
-    if not exists(data_home):
-        makedirs(data_home)
+    data_home = osp.expanduser(data_home)
+    os.makedirs(data_home, exist_ok=True)
     return data_home
 
 

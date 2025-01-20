@@ -4,34 +4,35 @@
 import logging
 import pickle
 import zlib
-
+from functools import partial
 from pathlib import Path
-from typing import Any, Callable, Iterable, Optional, Union
+from typing import Callable, Iterable, Union
 
 import torch
-
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.classes.bert_score_mrefs import BERTScoreMRefs
 from aac_metrics.classes.bleu import BLEU, BLEU1, BLEU2, BLEU3, BLEU4
 from aac_metrics.classes.cider_d import CIDErD
+from aac_metrics.classes.clap_sim import CLAPSim
 from aac_metrics.classes.fense import FENSE
 from aac_metrics.classes.fer import FER
+from aac_metrics.classes.mace import MACE
 from aac_metrics.classes.meteor import METEOR
 from aac_metrics.classes.rouge_l import ROUGEL
 from aac_metrics.classes.sbert_sim import SBERTSim
 from aac_metrics.classes.spice import SPICE
 from aac_metrics.classes.spider import SPIDEr
-from aac_metrics.classes.spider_max import SPIDErMax
 from aac_metrics.classes.spider_fl import SPIDErFL
+from aac_metrics.classes.spider_max import SPIDErMax
 from aac_metrics.classes.vocab import Vocab
 from aac_metrics.functional.evaluate import (
     DEFAULT_METRICS_SET_NAME,
     METRICS_SETS,
     evaluate,
+    get_argnames,
 )
-
 
 pylog = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ class Evaluate(list[AACMetric], AACMetric[tuple[dict[str, Tensor], dict[str, Ten
 
     def __init__(
         self,
-        preprocess: bool = True,
+        preprocess: Union[bool, Callable[[list[str]], list[str]]] = True,
         metrics: Union[
             str, Iterable[str], Iterable[AACMetric]
         ] = DEFAULT_METRICS_SET_NAME,
@@ -108,7 +109,7 @@ class Evaluate(list[AACMetric], AACMetric[tuple[dict[str, Tensor], dict[str, Ten
     def tolist(self) -> list[AACMetric]:
         return list(self)
 
-    def __hash__(self) -> int:
+    def __hash__(self) -> int:  # type: ignore
         # note: assume that all metrics can be pickled
         data = pickle.dumps(self)
         data = zlib.adler32(data)
@@ -141,8 +142,35 @@ class DCASE2023Evaluate(Evaluate):
         )
 
 
+class DCASE2024Evaluate(Evaluate):
+    """Evaluate candidates with multiple references with DCASE2024 Audio Captioning metrics.
+
+    For more information, see :func:`~aac_metrics.functional.evaluate.dcase2024_evaluate`.
+    """
+
+    def __init__(
+        self,
+        preprocess: bool = True,
+        cache_path: Union[str, Path, None] = None,
+        java_path: Union[str, Path, None] = None,
+        tmp_path: Union[str, Path, None] = None,
+        device: Union[str, torch.device, None] = "cuda_if_available",
+        verbose: int = 0,
+    ) -> None:
+        super().__init__(
+            preprocess=preprocess,
+            metrics="dcase2024",
+            cache_path=cache_path,
+            java_path=java_path,
+            tmp_path=tmp_path,
+            device=device,
+            verbose=verbose,
+        )
+
+
 def _instantiate_metrics_classes(
-    metrics: Union[str, Iterable[str], Iterable[AACMetric]] = "aac",
+    metrics: Union[str, Iterable[str], Iterable[AACMetric]] = DEFAULT_METRICS_SET_NAME,
+    *,
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     tmp_path: Union[str, Path, None] = None,
@@ -174,98 +202,32 @@ def _instantiate_metrics_classes(
     return metrics_inst
 
 
-def _get_metric_factory_classes(
-    return_all_scores: bool = True,
-    cache_path: Union[str, Path, None] = None,
-    java_path: Union[str, Path, None] = None,
-    tmp_path: Union[str, Path, None] = None,
-    device: Union[str, torch.device, None] = "cuda_if_available",
-    verbose: int = 0,
-    init_kwds: Optional[dict[str, Any]] = None,
-) -> dict[str, Callable[[], AACMetric]]:
-    if init_kwds is None or init_kwds is ...:
-        init_kwds = {}
-
-    init_kwds = init_kwds | dict(return_all_scores=return_all_scores)
-
-    factory = {
-        "bert_score": lambda: BERTScoreMRefs(
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "bleu": lambda: BLEU(
-            **init_kwds,
-        ),
-        "bleu_1": lambda: BLEU1(
-            **init_kwds,
-        ),
-        "bleu_2": lambda: BLEU2(
-            **init_kwds,
-        ),
-        "bleu_3": lambda: BLEU3(
-            **init_kwds,
-        ),
-        "bleu_4": lambda: BLEU4(
-            **init_kwds,
-        ),
-        "cider_d": lambda: CIDErD(
-            **init_kwds,
-        ),
-        "fense": lambda: FENSE(
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "fer": lambda: FER(
-            device=device,
-            verbose=verbose,
-        ),
-        "meteor": lambda: METEOR(
-            cache_path=cache_path,
-            java_path=java_path,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "rouge_l": lambda: ROUGEL(
-            **init_kwds,
-        ),
-        "sbert_sim": lambda: SBERTSim(
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "spice": lambda: SPICE(
-            cache_path=cache_path,
-            java_path=java_path,
-            tmp_path=tmp_path,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "spider": lambda: SPIDEr(
-            cache_path=cache_path,
-            java_path=java_path,
-            tmp_path=tmp_path,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "spider_fl": lambda: SPIDErFL(
-            cache_path=cache_path,
-            java_path=java_path,
-            tmp_path=tmp_path,
-            device=device,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "spider_max": lambda: SPIDErMax(
-            cache_path=cache_path,
-            java_path=java_path,
-            tmp_path=tmp_path,
-            verbose=verbose,
-            **init_kwds,
-        ),
-        "vocab": lambda: Vocab(
-            verbose=verbose,
-            **init_kwds,
-        ),
+def _get_metric_factory_classes(**kwargs) -> dict[str, AACMetric]:
+    classes: dict[str, type[AACMetric]] = {
+        "bert_score": BERTScoreMRefs,
+        "bleu": BLEU,
+        "bleu_1": BLEU1,
+        "bleu_2": BLEU2,
+        "bleu_3": BLEU3,
+        "bleu_4": BLEU4,
+        "clap_sim": CLAPSim,
+        "cider_d": CIDErD,
+        "fer": FER,
+        "fense": FENSE,
+        "mace": MACE,
+        "meteor": METEOR,
+        "rouge_l": ROUGEL,
+        "sbert_sim": SBERTSim,
+        "spice": SPICE,
+        "spider": SPIDEr,
+        "spider_max": SPIDErMax,
+        "spider_fl": SPIDErFL,
+        "vocab": Vocab,
     }
+    factory = {}
+    for name, class_ in classes.items():
+        argnames = get_argnames(class_)
+        cls_kwargs = {k: v for k, v in kwargs.items() if k in argnames}
+        metric = partial(class_, **cls_kwargs)
+        factory[name] = metric
     return factory

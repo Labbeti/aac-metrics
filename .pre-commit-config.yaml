@@ -3,7 +3,7 @@
 repos:
     # Format Code
     - repo: https://github.com/ambv/black
-      rev: 22.8.0
+      rev: 23.12.1
       hooks:
         - id: black
 
@@ -13,6 +13,12 @@ repos:
       hooks:
       - id: isort
         args: ["--profile", "black"]
+
+    # Check PEP conventions & code format
+    - repo: https://github.com/PyCQA/flake8
+      rev: 4.0.1
+      hooks:
+      - id: flake8
 
     # Formatting, Whitespace, etc
     - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -32,5 +38,4 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=no']
       - id: flake8
-        # args: ['--ignore=E203,E501,F811,E712,W503']
         args: ['--config=.flake8']

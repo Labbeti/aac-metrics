@@ -2,20 +2,26 @@
 # -*- coding: utf-8 -*-
 
 from pathlib import Path
-from typing import Callable, Iterable, Optional, Union
+from typing import Callable, Iterable, Optional, TypedDict, Union
 
 import torch
-
 from torch import Tensor
 
 from aac_metrics.functional.mult_cands import mult_cands_metric
 from aac_metrics.functional.spider import spider
+
+SPIDErMaxScores = TypedDict(
+    "SPIDErMaxScores",
+    {"spider_max": Tensor, "cider_d_max": Tensor, "spice_max": Tensor},
+)
+SPIDErMaxOuts = tuple[SPIDErMaxScores, SPIDErMaxScores]
 
 
 def spider_max(
     mult_candidates: list[list[str]],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     return_all_cands_scores: bool = False,
     # CIDEr args
     n: int = 4,
@@ -30,7 +36,7 @@ def spider_max(
     java_max_memory: str = "8G",
     timeout: Union[None, int, Iterable[int]] = None,
     verbose: int = 0,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[SPIDErMaxOuts, Tensor]:
     """SPIDEr-max function.
 
     Compute the maximal SPIDEr score accross multiple candidates.
@@ -66,7 +72,7 @@ def spider_max(
     :param verbose: The verbose level. defaults to 0.
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
-    return mult_cands_metric(
+    return mult_cands_metric(  # type: ignore
         metric=spider,
         metric_out_name="spider",
         mult_candidates=mult_candidates,
@@ -74,7 +80,7 @@ def spider_max(
         return_all_scores=return_all_scores,
         return_all_cands_scores=return_all_cands_scores,
         selection="max",
-        reduction=torch.mean,
+        reduction_fn=torch.mean,
         # CIDEr args
         n=n,
         sigma=sigma,

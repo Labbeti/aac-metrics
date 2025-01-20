@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-from typing import Callable, Union
+from typing import Callable, TypedDict, Union
 
 import numpy as np
 import torch
-
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_metric_inputs
+
+ROUGELScores = TypedDict("ROUGELScores", {"rouge_l": Tensor})
+ROUGELOuts = tuple[ROUGELScores, ROUGELScores]
 
 
 pylog = logging.getLogger(__name__)
@@ -20,9 +21,10 @@ def rouge_l(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     beta: float = 1.2,
     tokenizer: Callable[[str], list[str]] = str.split,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[ROUGELOuts, Tensor]:
     """Recall-Oriented Understudy for Gisting Evaluation function.
 
     - Paper: https://aclanthology.org/W04-1013.pdf
@@ -62,7 +64,7 @@ def _rouge_l_update(
 def _rouge_l_compute(
     rouge_l_scs: list[float],
     return_all_scores: bool,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[ROUGELOuts, Tensor]:
     # Note: use numpy to compute mean because np.mean and torch.mean can give very small differences
     rouge_l_scores_np = np.array(rouge_l_scs)
     rouge_l_score_np = rouge_l_scores_np.mean()
@@ -77,7 +79,8 @@ def _rouge_l_compute(
         rouge_l_outs_sents = {
             "rouge_l": rouge_l_scores_pt,
         }
-        return rouge_l_outs_corpus, rouge_l_outs_sents
+        rouge_l_outs = rouge_l_outs_corpus, rouge_l_outs_sents
+        return rouge_l_outs  # type: ignore
     else:
         return rouge_l_score_pt
 

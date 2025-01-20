@@ -3,28 +3,25 @@
 
 import logging
 import math
-
 from typing import Callable, Union
 
 import torch
-
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
-from aac_metrics.functional.vocab import vocab
-
+from aac_metrics.functional.vocab import PopStrategy, VocabOuts, vocab
 
 pylog = logging.getLogger(__name__)
 
 
-class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class Vocab(AACMetric[Union[VocabOuts, Tensor]]):
     """VocabStats class.
 
     For more information, see :func:`~aac_metrics.functional.vocab.vocab`.
     """
 
     full_state_update = False
-    higher_is_better = True
+    higher_is_better = None
     is_differentiable = False
 
     min_value = 0.0
@@ -33,10 +30,11 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         seed: Union[None, int, torch.Generator] = 1234,
         tokenizer: Callable[[str], list[str]] = str.split,
         dtype: torch.dtype = torch.float64,
-        pop_strategy: str = "max",
+        pop_strategy: PopStrategy = "max",
         verbose: int = 0,
     ) -> None:
         super().__init__()
@@ -50,7 +48,7 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[VocabOuts, Tensor]:
         return vocab(
             candidates=self._candidates,
             mult_references=self._mult_references,
@@ -64,12 +62,16 @@ class Vocab(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
 
     def get_output_names(self) -> tuple[str, ...]:
         return (
-            "vocab",
+            "vocab.cands",
             "vocab.mrefs_full",
             "vocab.ratio_full",
             "vocab.mrefs_avg",
             "vocab.mrefs_std",
             "vocab.ratio_avg",
+            "vocab.precision",
+            "vocab.recall",
+            "vocab.f1",
+            "vocab.jaccard",
         )
 
     def reset(self) -> None:

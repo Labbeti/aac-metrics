@@ -1,23 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Union
+from typing import Optional, Union
 
 import torch
-
-from torch import nn, Tensor
+from torch import Tensor, nn
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.bert_score_mrefs import (
-    bert_score_mrefs,
-    _load_model_and_tokenizer,
     DEFAULT_BERT_SCORE_MODEL,
     REDUCTIONS,
+    BERTScoreMRefsOuts,
+    Reduction,
+    _load_model_and_tokenizer,
+    bert_score_mrefs,
 )
 from aac_metrics.utils.globals import _get_device
 
 
-class BERTScoreMRefs(AACMetric):
+class BERTScoreMRefs(AACMetric[Union[BERTScoreMRefsOuts, Tensor]]):
     """BERTScore metric which supports multiple references.
 
     The implementation is based on the bert_score implementation of torchmetrics.
@@ -37,14 +38,15 @@ class BERTScoreMRefs(AACMetric):
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
         device: Union[str, torch.device, None] = "cuda_if_available",
-        batch_size: int = 32,
+        batch_size: Optional[int] = 32,
         num_threads: int = 0,
         max_length: int = 64,
         reset_state: bool = True,
         idf: bool = False,
-        reduction: Union[str, Callable[[Tensor, ...], Tensor]] = "max",
+        reduction: Reduction = "max",
         filter_nan: bool = True,
         verbose: int = 0,
     ) -> None:
@@ -72,14 +74,16 @@ class BERTScoreMRefs(AACMetric):
         self._max_length = max_length
         self._reset_state = reset_state
         self._idf = idf
-        self._reduction = reduction
+        self._reduction: Reduction = reduction
         self._filter_nan = filter_nan
         self._verbose = verbose
 
         self._candidates = []
         self._mult_references = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(
+        self,
+    ) -> Union[BERTScoreMRefsOuts, Tensor]:
         return bert_score_mrefs(
             candidates=self._candidates,
             mult_references=self._mult_references,
@@ -110,7 +114,7 @@ class BERTScoreMRefs(AACMetric):
     def get_output_names(self) -> tuple[str, ...]:
         return (
             "bert_score.precision",
-            "bert_score.recalll",
+            "bert_score.recall",
             "bert_score.f1",
         )
 

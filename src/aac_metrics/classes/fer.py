@@ -2,28 +2,26 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
-from typing import Union
+from typing import Optional, Union
 
 import torch
-
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.fer import (
-    BERTFlatClassifier,
-    fer,
-    _load_echecker_and_tokenizer,
     _ERROR_NAMES,
     DEFAULT_FER_MODEL,
+    BERTFlatClassifier,
+    FEROuts,
+    _load_echecker_and_tokenizer,
+    fer,
 )
 from aac_metrics.utils.globals import _get_device
-
 
 pylog = logging.getLogger(__name__)
 
 
-class FER(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]]):
+class FER(AACMetric[Union[FEROuts, Tensor]]):
     """Return Fluency Error Rate (FER) detected by a pre-trained BERT model.
 
     - Paper: https://arxiv.org/abs/2110.04684
@@ -42,10 +40,11 @@ class FER(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]])
     def __init__(
         self,
         return_all_scores: bool = True,
+        *,
         echecker: Union[str, BERTFlatClassifier] = DEFAULT_FER_MODEL,
         error_threshold: float = 0.9,
         device: Union[str, torch.device, None] = "cuda_if_available",
-        batch_size: int = 32,
+        batch_size: Optional[int] = 32,
         reset_state: bool = True,
         return_probs: bool = False,
         verbose: int = 0,
@@ -72,7 +71,7 @@ class FER(AACMetric[Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]])
 
         self._candidates = []
 
-    def compute(self) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+    def compute(self) -> Union[FEROuts, Tensor]:
         return fer(
             candidates=self._candidates,
             return_all_scores=self._return_all_scores,

@@ -18,8 +18,8 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
 
 ## Why using this package?
 - **Easy to install and download**
-- **Produces same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools) and [fense](https://github.com/blmoistawinde/fense) repositories**
-- **Provides 12 different metrics:**
+- **Produces same results than [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools), [fense](https://github.com/blmoistawinde/fense) and [mace](https://github.com/satvik-dixit/mace) repositories**
+- **Provides 15 different metrics:**
     - BLEU [[1]](#bleu)
     - ROUGE-L [[2]](#rouge-l)
     - METEOR [[3]](#meteor)
@@ -32,7 +32,9 @@ Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch.
     - FER [[9]](#fense)
     - FENSE [[9]](#fense)
     - SPIDEr-FL [[10]](#spider-fl)
-    - Vocab (unique word vocabulary)
+    - CLAP-sim [[11]](#clap-sim) :new:
+    - MACE [[12]](#mace) :new:
+    - Vocab (unique word vocabulary absolute or relative to references)
 
 ## Installation
 Install the pip package:
@@ -45,7 +47,7 @@ If you want to check if the package has been installed and the version, you can 
 aac-metrics-info
 ```
 
-Download the external code and models needed for METEOR, SPICE, SPIDEr, SPIDEr-max, PTBTokenizer, SBERTSim, FluencyError, FENSE and SPIDEr-FL:
+Download the external code and models needed for METEOR, SPICE, SPIDEr, SPIDEr-max, PTBTokenizer, SBERTSim, FER, FENSE and SPIDEr-FL:
 ```bash
 aac-metrics-download
 ```
@@ -69,13 +71,13 @@ print(corpus_scores)
 # dict containing the score of each metric: "bleu_1", "bleu_2", "bleu_3", "bleu_4", "rouge_l", "meteor", "cider_d", "spice", "spider"
 # {"bleu_1": tensor(0.4278), "bleu_2": ..., ...}
 ```
-### Evaluate DCASE2023 metrics
-To compute metrics for the DCASE2023 challenge, just set the argument `metrics="dcase2023"` in `evaluate` function call.
+### Evaluate DCASE2024 metrics
+To compute metrics for the DCASE2023 challenge, just set the argument `metrics="dcase2024"` in `evaluate` function call.
 
 ```python
-corpus_scores, _ = evaluate(candidates, mult_references, metrics="dcase2023")
+corpus_scores, _ = evaluate(candidates, mult_references, metrics="dcase2024")
 print(corpus_scores)
-# dict containing the score of each metric: "meteor", "cider_d", "spice", "spider", "spider_fl", "fluerr"
+# dict containing the score of each metric: "meteor", "cider_d", "spice", "spider", "spider_fl", "fer", "fense", "vocab"
 ```
 
 ### Evaluate a specific metric
@@ -101,7 +103,7 @@ print(sents_scores)
 Each metrics also exists as a python class version, like `aac_metrics.classes.cider_d.CIDErD`.
 
 ## Which metric(s) should I choose for Automated Audio Captioning?
-To evaluate audio captioning systems, I would recommand to compute `SPIDEr`, `FENSE` and `Vocab` metrics. `SPIDEr` is useful to compare with the rest of the litterature, but it is highly sensitive to n-gram matching and can overestimate model trained with reinforcement learning. `FENSE` is more consistent and variable than `SPIDEr`, but uses a model not trained on audio captions. `Vocab` can give you an insight about the model diversity. To compute all of these metrics at once, you can use for example the `Evaluate` class:
+To evaluate audio captioning systems, I would recommand to compute `SPIDEr`, `FENSE` and `Vocab` metrics. `SPIDEr` is useful to compare with the rest of the litterature, but it is highly sensitive to n-gram matching and can overestimate model trained with reinforcement learning. `FENSE` is more consistent and variable than `SPIDEr`, but it uses a model not trained on audio captions. `Vocab` can give you an insight about the model diversity. To compute all of these metrics at once, you can use for example the `Evaluate` class:
 
 ```python
 from aac_metrics import Evaluate
@@ -113,7 +115,7 @@ mult_references: list[list[str]] = ...
 
 corpus_scores, _ = evaluate(candidates, mult_references)
 
-vocab_size = corpus_scores["vocab"]
+vocab_size = corpus_scores["vocab.cands"]
 spider_score = corpus_scores["spider"]
 fense_score = corpus_scores["fense"]
 ```
@@ -138,6 +140,8 @@ fense_score = corpus_scores["fense"]
 | Fluency Error Rate [[9]](#fense) | `FER` | audio captioning | [0, 1] | Detect fluency errors in sentences with a pretrained model |
 | FENSE [[9]](#fense) | `FENSE` | audio captioning | [-1, 1] | Combines SBERT-sim and Fluency Error rate |
 | SPIDEr-FL [[10]](#spider-fl) | `SPIDErFL` | audio captioning | [0, 5.5] | Combines SPIDEr and Fluency Error rate |
+| CLAP-sim [[11]](#clap-sim) | `CLAPSim` | audio captioning | [-1, 1] | Combines SPIDEr and Fluency Error rate |
+| MACE [[12]](#spider-fl) | `MACE` | audio captioning | [-1, 1] | Combines CLAP-sim and Fluency Error rate |
 
 ### Other metrics
 | Metric name | Python Class | Origin | Range | Short description |
@@ -146,14 +150,15 @@ fense_score = corpus_scores["fense"]
 
 ### Future directions
 This package currently does not include all metrics dedicated to audio captioning. Feel free to do a pull request / or ask to me by email if you want to include them. Those metrics not included are listed here:
-- CB-Score [[11]](#cb-score)
-- SPICE+ [[12]](#spice-plus)
-- ACES [[13]](#aces) (can be found here: https://github.com/GlJS/ACES)
-- SBF [[14]](#sbf)
-- s2v [[15]](#s2v)
+- CB-Score [[13]](#cb-score)
+- SPICE+ [[14]](#spice-plus)
+- ACES [[15]](#aces) (can be found here: https://github.com/GlJS/ACES)
+- SBF [[16]](#sbf)
+- s2v [[17]](#s2v)
 
 ## Requirements
-This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions. Windows is not officially supported.
+This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions.
+<!-- Windows is not officially supported. -->
 
 ### Python packages
 
@@ -171,23 +176,27 @@ torchmetrics >= 0.11.4
 ### External requirements
 - `java` **>= 1.8 and <= 1.13** is required to compute METEOR, SPICE and use the PTBTokenizer.
 Most of these functions can specify a java executable path with `java_path` argument or by overriding `AAC_METRICS_JAVA_PATH` environment variable.
+<!-- sudo apt install default-jre -->
 
 ## Additional notes
 ### CIDEr or CIDEr-D?
-The CIDEr metric differs from CIDEr-D because it applies a stemmer to each word before computing the n-grams of the sentences. In AAC, only the CIDEr-D is reported and used for SPIDEr in [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools), but some papers called it "CIDEr".
+The CIDEr metric differs from CIDEr-D because it applies a stemmer to each word before computing the n-grams of the sentences. In AAC, only the CIDEr-D is reported and used for SPIDEr in [caption-evaluation-tools](https://github.com/audio-captioning/caption-evaluation-tools), despite some papers called it "CIDEr".
 
 ### Do metrics work on multi-GPU?
 No. Most of these metrics use numpy or external java programs to run, which prevents multi-GPU testing in parallel.
 
 ### Do metrics work on Windows/Mac OS?
-Maybe. Most of the metrics only need python to run, which can be done on Windows. However, you might expect errors with METEOR metric, SPICE-based metrics and PTB tokenizer, since they requires an external java program to run.
+Maybe. Most of the metrics only need python to run, which can be done on Windows/Mac. However, you might expect errors with METEOR metric, SPICE-based metrics and PTB tokenizer, since they requires an external java program to run. Feel free to open an issue if a metric does not work properly.
 
 ## About SPIDEr-max metric
 SPIDEr-max [[7]](#spider-max) is a metric based on SPIDEr that takes into account multiple candidates for the same audio. It computes the maximum of the SPIDEr scores for each candidate to balance the high sensitivity to the frequency of the words generated by the model. For more detail, please see the [documentation about SPIDEr-max](https://aac-metrics.readthedocs.io/en/stable/spider_max.html).
 
 ## References
+
+Citation in bibtex format are available in the following file in this repository: "[data/papers.bib](https://github.com/Labbeti/aac-metrics/blob/main/data/papers.bib)".
+
 #### BLEU
-[1] K. Papineni, S. Roukos, T. Ward, and W.-J. Zhu, “BLEU: a method for automatic evaluation of machine translation,” in Proceedings of the 40th Annual Meeting on Association for Computational Linguistics - ACL ’02. Philadelphia, Pennsylvania: Association for Computational Linguistics, 2001, p. 311. [Online]. Available: http://portal.acm.org/citation.cfm?doid=1073083.1073135
+[1] K. Papineni, S. Roukos, T. Ward, and W.-J. Zhu, “BLEU: a method for automatic evaluation of machine translation,” in Proceedings of the 40th Annual Meeting on Association for Computational Linguistics - ACL ’02. Philadelphia, Pennsylvania: Association for Computational Linguistics, 2001, p. 311. [Online]. Available: http://portal.acm.org/citation.cfm?doid=1073083.1073135.
 
 #### ROUGE-L
 [2] C.-Y. Lin, “ROUGE: A package for automatic evaluation of summaries,” in Text Summarization Branches Out. Barcelona, Spain: Association for Computational Linguistics, Jul. 2004, pp. 74–81. [Online]. Available: https://aclanthology.org/W04-1013
@@ -202,7 +211,7 @@ SPIDEr-max [[7]](#spider-max) is a metric based on SPIDEr that takes into accoun
 [5] P. Anderson, B. Fernando, M. Johnson, and S. Gould, “SPICE: Semantic Propositional Image Caption Evaluation,” arXiv:1607.08822 [cs], Jul. 2016, [Online]. Available: http://arxiv.org/abs/1607.08822
 
 #### SPIDEr
-[6] S. Liu, Z. Zhu, N. Ye, S. Guadarrama, and K. Murphy, “Improved Image Captioning via Policy Gradient optimization of SPIDEr,” 2017 IEEE International Conference on Computer Vision (ICCV), pp. 873–881, Oct. 2017, arXiv: 1612.00370. [Online]. Available: http://arxiv.org/abs/1612.00370
+[6] S. Liu, Z. Zhu, N. Ye, S. Guadarrama, and K. Murphy, “Improved Image Captioning via Policy Gradient optimization of SPIDEr,” 2017 IEEE International Conference on Computer Vision (ICCV), pp. 873–881, Oct. 2017, arXiv: 1612.00370. [Online]. Available: https://arxiv.org/abs/1612.00370
 
 #### BERTScore
 [7] T. Zhang*, V. Kishore*, F. Wu*, K. Q. Weinberger, and Y. Artzi, “BERTScore: Evaluating Text Generation with BERT,” 2020. [Online]. Available: https://openreview.net/forum?id=SkeHuCVFDr
@@ -214,29 +223,35 @@ SPIDEr-max [[7]](#spider-max) is a metric based on SPIDEr that takes into accoun
 [9] Z. Zhou, Z. Zhang, X. Xu, Z. Xie, M. Wu, and K. Q. Zhu, Can Audio Captions Be Evaluated with Image Caption Metrics? arXiv, 2022. [Online]. Available: http://arxiv.org/abs/2110.04684
 
 #### SPIDEr-FL
-[10] DCASE website task6a description: https://dcase.community/challenge2023/task-automated-audio-captioning#evaluation
+[10] DCASE2023 website task6a description (ranking metric): https://dcase.community/challenge2023/task-automated-audio-captioning#evaluation
+
+#### CLAP-sim
+[11] B. Elizalde, S. Deshmukh, and H. Wang, Natural Language Supervision for General-Purpose Audio Representations. 2023. [Online]. Available: https://arxiv.org/abs/2309.05767
+
+#### MACE
+[12] S. Dixit, S. Deshmukh, and B. Raj, MACE: Leveraging Audio for Evaluating Audio Captioning Systems. 2024. [Online]. Available: https://arxiv.org/abs/2411.00321
 
 #### CB-score
-[11] I. Martín-Morató, M. Harju, and A. Mesaros, “A Summarization Approach to Evaluating Audio Captioning,” Nov. 2022. [Online]. Available: https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Martin-Morato_35.pdf
+[13] I. Martín-Morató, M. Harju, and A. Mesaros, “A Summarization Approach to Evaluating Audio Captioning,” Nov. 2022. [Online]. Available: https://dcase.community/documents/workshop2022/proceedings/DCASE2022Workshop_Martin-Morato_35.pdf
 
 #### SPICE-plus
-[12] F. Gontier, R. Serizel, and C. Cerisara, “SPICE+: Evaluation of Automatic Audio Captioning Systems with Pre-Trained Language Models,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10097021.
+[14] F. Gontier, R. Serizel, and C. Cerisara, “SPICE+: Evaluation of Automatic Audio Captioning Systems with Pre-Trained Language Models,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10097021.
 
 #### ACES
-[13] G. Wijngaard, E. Formisano, B. L. Giordano, M. Dumontier, “ACES: Evaluating Automated Audio Captioning Models on the Semantics of Sounds”, in EUSIPCO 2023, 2023.
+[15] G. Wijngaard, E. Formisano, B. L. Giordano, M. Dumontier, “ACES: Evaluating Automated Audio Captioning Models on the Semantics of Sounds”, in EUSIPCO 2023, 2023. Available: https://ieeexplore.ieee.org/document/10289793.
 
 #### SBF
-[14] R. Mahfuz, Y. Guo, A. K. Sridhar, and E. Visser, Detecting False Alarms and Misses in Audio Captions. 2023. [Online]. Available: https://arxiv.org/pdf/2309.03326.pdf
+[16] R. Mahfuz, Y. Guo, A. K. Sridhar, and E. Visser, Detecting False Alarms and Misses in Audio Captions. 2023. [Online]. Available: https://arxiv.org/pdf/2309.03326.pdf
 
 #### s2v
-[15] S. Bhosale, R. Chakraborty, and S. K. Kopparapu, “A Novel Metric For Evaluating Audio Caption Similarity,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10096526.
+[17] S. Bhosale, R. Chakraborty, and S. K. Kopparapu, “A Novel Metric For Evaluating Audio Caption Similarity,” in ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2023, pp. 1–5. doi: 10.1109/ICASSP49357.2023.10096526. Available: https://ieeexplore.ieee.org/document/10096526
 
 ## Citation
 If you use **SPIDEr-max**, you can cite the following paper using BibTex :
-```
+```bibtex
 @inproceedings{Labbe2022,
     title        = {Is my Automatic Audio Captioning System so Bad? SPIDEr-max: A Metric to Consider Several Caption Candidates},
-    author       = {Labb\'{e}, Etienne and Pellegrini, Thomas and Pinquier, Julien},
+    author       = {Labb\'{e}, Étienne and Pellegrini, Thomas and Pinquier, Julien},
     year         = 2022,
     month        = {November},
     booktitle    = {Proceedings of the 7th Detection and Classification of Acoustic Scenes and Events 2022 Workshop (DCASE2022)},
@@ -245,21 +260,20 @@ If you use **SPIDEr-max**, you can cite the following paper using BibTex :
 }
 ```
 
-If you use this software, please consider cite it as "Labbe, E. (2013). aac-metrics: Metrics for evaluating Automated Audio Captioning systems for PyTorch.", or use the following BibTeX citation:
+If you use this software, please consider cite it as "Labbe, E. (2025). aac-metrics: Metrics for evaluating Automated Audio Captioning systems for PyTorch.", or use the following BibTeX citation:
 
-```
-@software{
-    Labbe_aac_metrics_2024,
-    author = {Labbé, Etienne},
+```bibtex
+@software{Labbe_aac_metrics_2025,
+    author = {Labbé, Étienne},
     license = {MIT},
-    month = {03},
+    month = {01},
     title = {{aac-metrics}},
     url = {https://github.com/Labbeti/aac-metrics/},
-    version = {0.5.4},
-    year = {2024},
+    version = {0.5.5},
+    year = {2025},
 }
 ```
 
 ## Contact
 Maintainer:
-- Étienne Labbé "Labbeti": labbeti.pub@gmail.com
+- [Étienne Labbé](https://labbeti.github.io/) "Labbeti": labbeti.pub@gmail.com

@@ -5,18 +5,15 @@ import logging
 import os.path as osp
 import platform
 import subprocess
-
 from pathlib import Path
 from subprocess import Popen
-from typing import Iterable, Optional, Union
+from typing import Iterable, Literal, Optional, TypedDict, Union
 
 import torch
-
 from torch import Tensor
 
 from aac_metrics.utils.checks import check_java_path, check_metric_inputs
 from aac_metrics.utils.globals import _get_cache_path, _get_java_path
-
 
 pylog = logging.getLogger(__name__)
 
@@ -24,21 +21,25 @@ pylog = logging.getLogger(__name__)
 DNAME_METEOR_CACHE = osp.join("aac-metrics", "meteor")
 FNAME_METEOR_JAR = osp.join(DNAME_METEOR_CACHE, "meteor-1.5.jar")
 SUPPORTED_LANGUAGES = ("en", "cz", "de", "es", "fr")
+Language = Literal["en", "cz", "de", "es", "fr"]
+METEORScores = TypedDict("METEORScores", {"meteor": Tensor})
+METEOROuts = tuple[METEORScores, METEORScores]
 
 
 def meteor(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     cache_path: Union[str, Path, None] = None,
     java_path: Union[str, Path, None] = None,
     java_max_memory: str = "2G",
-    language: str = "en",
+    language: Language = "en",
     use_shell: Optional[bool] = None,
     params: Optional[Iterable[float]] = None,
     weights: Optional[Iterable[float]] = None,
     verbose: int = 0,
-) -> Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]:
+) -> Union[METEOROuts, Tensor]:
     """Metric for Evaluation of Translation with Explicit ORdering function.
 
     - Paper: https://dl.acm.org/doi/pdf/10.5555/1626355.1626389
@@ -205,7 +206,7 @@ def meteor(
             "meteor": meteor_scores,
         }
         meteor_outs = meteor_outs_corpus, meteor_outs_sents
-        return meteor_outs
+        return meteor_outs  # type: ignore
     else:
         return meteor_score
 

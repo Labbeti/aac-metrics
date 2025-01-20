@@ -2,24 +2,34 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
 from pathlib import Path
-from typing import Callable, Iterable, Optional, Union
+from typing import Callable, Iterable, Optional, TypedDict, Union
 
 import torch
-
 from torch import Tensor
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.functional.fer import (
-    fer,
-    _load_echecker_and_tokenizer,
-    BERTFlatClassifier,
     DEFAULT_FER_MODEL,
+    BERTFlatClassifier,
+    FEROuts,
+    _load_echecker_and_tokenizer,
+    fer,
 )
-from aac_metrics.functional.spider import spider
+from aac_metrics.functional.spider import SPIDErOuts, spider
 from aac_metrics.utils.checks import check_metric_inputs
 
+SPIDErFLScores = TypedDict(
+    "SPIDErFLScores",
+    {
+        "spider_fl": Tensor,
+        "spider": Tensor,
+        "cider_d": Tensor,
+        "spice": Tensor,
+        "fer": Tensor,
+    },
+)
+SPIDErFLOuts = tuple[SPIDErFLScores, SPIDErFLScores]
 
 pylog = logging.getLogger(__name__)
 
@@ -28,6 +38,7 @@ def spider_fl(
     candidates: list[str],
     mult_references: list[list[str]],
     return_all_scores: bool = True,
+    *,
     # CIDErD args
     n: int = 4,
     sigma: float = 6.0,
@@ -45,13 +56,13 @@ def spider_fl(
     echecker_tokenizer: Optional[AutoTokenizer] = None,
     error_threshold: float = 0.9,
     device: Union[str, torch.device, None] = "cuda_if_available",
-    batch_size: int = 32,
+    batch_size: Optional[int] = 32,
     reset_state: bool = True,
     return_probs: bool = True,
     # Other args
     penalty: float = 0.9,
     verbose: int = 0,
-) -> Union[Tensor, tuple[dict[str, Tensor], dict[str, Tensor]]]:
+) -> Union[SPIDErFLOuts, Tensor]:
     """Combinaison of SPIDEr with Fluency Error detector.
 
     - Original implementation: https://github.com/felixgontier/dcase-2023-baseline/blob/main/metrics.py#L48.
@@ -87,7 +98,7 @@ def spider_fl(
         If None and echecker is not None, this value will be inferred with `echecker.model_type`.
         defaults to None.
     :param error_threshold: The threshold used to detect fluency errors for echecker model. defaults to 0.9.
-    :param device: The PyTorch device used to run FENSE models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
+    :param device: The PyTorch device used to run pre-trained models. If "cuda_if_available", it will use cuda if available. defaults to "cuda_if_available".
     :param batch_size: The batch size of the sBERT and echecker models. defaults to 32.
     :param reset_state: If True, reset the state of the PyTorch global generator after the initialization of the pre-trained models. defaults to True.
     :param return_probs: If True, return each individual error probability given by the fluency detector model. defaults to True.
@@ -105,7 +116,7 @@ def spider_fl(
         reset_state=reset_state,
         verbose=verbose,
     )
-    spider_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = spider(  # type: ignore
+    spider_outs: SPIDErOuts = spider(  # type: ignore
         candidates=candidates,
         mult_references=mult_references,
         return_all_scores=True,
@@ -121,7 +132,7 @@ def spider_fl(
         timeout=timeout,
         verbose=verbose,
     )
-    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]] = fer(  # type: ignore
+    fer_outs: FEROuts = fer(  # type: ignore
         candidates=candidates,
         return_all_scores=True,
         echecker=echecker,
@@ -142,10 +153,10 @@ def spider_fl(
 
 
 def _spider_fl_from_outputs(
-    spider_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
-    fer_outs: tuple[dict[str, Tensor], dict[str, Tensor]],
+    spider_outs: SPIDErOuts,
+    fer_outs: FEROuts,
     penalty: float = 0.9,
-) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
+) -> SPIDErFLOuts:
     """Combines SPIDEr and FER outputs.
 
     Based on https://github.com/felixgontier/dcase-2023-baseline/blob/main/metrics.py#L48
@@ -159,10 +170,10 @@ def _spider_fl_from_outputs(
     spider_fl_score = spider_fl_scores.mean()
 
     spider_fl_outs_corpus = (
-        spider_outs_corpus | fer_outs_corpus | {"spider_fl": spider_fl_score}
+        spider_outs_corpus | fer_outs_corpus | {"spider_fl": spider_fl_score}  # type: ignore
     )
     spider_fl_outs_sents = (
-        spider_outs_sents | fer_outs_sents | {"spider_fl": spider_fl_scores}
+        spider_outs_sents | fer_outs_sents | {"spider_fl": spider_fl_scores}  # type: ignore
     )
     spider_fl_outs = spider_fl_outs_corpus, spider_fl_outs_sents
 
