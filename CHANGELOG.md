@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.5.5] 2025-01-17
+## [0.5.5] 2025-01-20
 ### Added
 - New `CLAPSim` metric based on the embeddings given by CLAP model.
 - New `MACE` metric based on `CLAPSim` and `FER` metrics.
