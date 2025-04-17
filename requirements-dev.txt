@@ -11,4 +11,4 @@ scikit-image==0.19.2
 sphinx==7.2.6
 sphinx-press-theme==0.8.0
 twine==4.0.1
-numpy<2.0.0
+# numpy<2.0.0
