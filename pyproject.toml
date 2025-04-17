@@ -39,6 +39,10 @@ aac-metrics-download = "aac_metrics.download:_main_download"
 aac-metrics-eval = "aac_metrics.eval:_main_eval"
 aac-metrics-info = "aac_metrics.info:print_install_info"
 
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
 [tool.setuptools.packages.find]
 where = ["src"]  # list of folders that contain the packages (["."] by default)
 include = ["aac_metrics*"]  # package names should match these glob patterns (["*"] by default)
