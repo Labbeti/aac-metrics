@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
 import logging
 import subprocess
 from pathlib import Path
@@ -99,7 +100,7 @@ def _get_java_version(java_path: str) -> str:
             stderr=subprocess.STDOUT,
         )
         output = output.decode().strip()
-        version = output.split(" ")[2][1:-1]
+        version = re.split(" |\n", output)[2][1:-1].split("_")[0]
 
     except (
         CalledProcessError,
