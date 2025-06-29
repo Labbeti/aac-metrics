@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] 2025-06-29
+### Fixed
+- Java version parsing. [PR #13](https://github.com/Labbeti/aac-metrics/pull/13)
+- SPICE URL with https protocol. [PR #13](https://github.com/Labbeti/aac-metrics/pull/13)
+
 ## [0.5.5] 2025-01-20
 ### Added
 - New `CLAPSim` metric based on the embeddings given by CLAP model.

@@ -158,20 +158,6 @@ This package currently does not include all metrics dedicated to audio captionin
 
 ## Requirements
 This package has been developped for Ubuntu 20.04, and it is expected to work on most Linux distributions.
-<!-- Windows is not officially supported. -->
-
-### Python packages
-
-The pip requirements are automatically installed when using `pip install` on this repository.
-```
-torch >= 1.10.1
-numpy >= 1.21.2
-pyyaml >= 6.0
-tqdm >= 4.64.0
-sentence-transformers >= 2.2.2
-transformers
-torchmetrics >= 0.11.4
-```
 
 ### External requirements
 - `java` **>= 1.8 and <= 1.13** is required to compute METEOR, SPICE and use the PTBTokenizer.

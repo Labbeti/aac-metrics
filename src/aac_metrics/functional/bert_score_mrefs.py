@@ -6,7 +6,7 @@ from typing import Callable, Literal, Optional, TypedDict, Union, get_args
 import pythonwrench as pw
 import torch
 import torchmetrics
-from packaging.version import Version
+from pythonwrench.semver import Version
 from torch import Tensor, nn
 from torchmetrics.functional.text.bert import _DEFAULT_MODEL, bert_score
 from transformers import logging as tfmers_logging
