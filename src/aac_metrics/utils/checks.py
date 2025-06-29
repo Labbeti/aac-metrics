@@ -9,9 +9,8 @@ from subprocess import CalledProcessError
 from typing import Any, Union
 
 import pythonwrench as pw
+from pythonwrench.semver import Version
 from typing_extensions import TypeGuard
-
-from .version import Version
 
 pylog = logging.getLogger(__name__)
 
