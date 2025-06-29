@@ -75,7 +75,7 @@ DATA_URLS = {
     },
     # CoreNLP version 3.6.0 for SPICE
     "spice_corenlp_zip": {
-        "url": "http://nlp.stanford.edu/software/stanford-corenlp-full-2015-12-09.zip",
+        "url": "https://nlp.stanford.edu/software/stanford-corenlp-full-2015-12-09.zip",
         "fname": osp.join("SPICE-1.0", "stanford-corenlp-full-2015-12-09.zip"),
     },
 }
