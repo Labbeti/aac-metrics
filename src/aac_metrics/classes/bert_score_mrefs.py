@@ -50,8 +50,8 @@ class BERTScoreMRefs(AACMetric[Union[BERTScoreMRefsOuts, Tensor]]):
         filter_nan: bool = True,
         verbose: int = 0,
     ) -> None:
-        if reduction not in get_args(Reduction) and not callable(reduction):
-            msg = f"Invalid argument {reduction=}. (expected one of {get_args(ReductionName)})"
+        if reduction not in get_args(ReductionName) and not callable(reduction):
+            msg = f"Invalid argument {reduction=}. (expected one of {get_args(ReductionName)} or callable function)"
             raise ValueError(msg)
 
         device = _get_device(device)
