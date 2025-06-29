@@ -42,7 +42,7 @@ class Vocab(AACMetric[Union[VocabOuts, Tensor]]):
         self._seed = seed
         self._tokenizer = tokenizer
         self._dtype = dtype
-        self._pop_strategy = pop_strategy
+        self._pop_strategy: PopStrategy = pop_strategy
         self._verbose = verbose
 
         self._candidates = []

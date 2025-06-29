@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import re
 import logging
+import re
 import subprocess
 from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Any, Union
 
+import pythonwrench as pw
 from packaging.version import Version
 from typing_extensions import TypeGuard
 
@@ -75,18 +76,12 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
 
 def is_mono_sents(sents: Any) -> TypeGuard[list[str]]:
     """Returns True if input is list[str] containing sentences."""
-    valid = isinstance(sents, list) and all(isinstance(sent, str) for sent in sents)
-    return valid
+    return pw.isinstance_generic(sents, list[str])
 
 
 def is_mult_sents(mult_sents: Any) -> TypeGuard[list[list[str]]]:
     """Returns True if input is list[list[str]] containing multiple sentences."""
-    valid = (
-        isinstance(mult_sents, list)
-        and all(isinstance(sents, list) for sents in mult_sents)
-        and all(isinstance(sent, str) for sents in mult_sents for sent in sents)
-    )
-    return valid
+    return pw.isinstance_generic(mult_sents, list[list[str]])
 
 
 def _get_java_version(java_path: str) -> str:

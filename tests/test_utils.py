@@ -5,6 +5,8 @@ import random
 import unittest
 from unittest import TestCase
 
+import pythonwrench as pw
+
 from aac_metrics.utils.checks import (
     MAX_JAVA_MAJOR_VERSION,
     MIN_JAVA_MAJOR_VERSION,
@@ -12,7 +14,6 @@ from aac_metrics.utils.checks import (
     is_mono_sents,
     is_mult_sents,
 )
-from aac_metrics.utils.collections import flat_list_of_list, unflat_list_of_list
 
 
 class TestUtils(TestCase):
@@ -28,13 +29,13 @@ class TestUtils(TestCase):
 
         self.assertTrue(is_mult_sents(lst))
 
-        flatten, sizes = flat_list_of_list(lst)
+        flatten, sizes = pw.flat_list_of_list(lst)
 
         self.assertTrue(is_mono_sents(flatten))
         self.assertEqual(len(lst), len(sizes))
         self.assertEqual(len(flatten), sum(sizes))
 
-        unflat = unflat_list_of_list(flatten, sizes)
+        unflat = pw.unflat_list_of_list(flatten, sizes)
 
         self.assertTrue(is_mult_sents(unflat))
         self.assertEqual(len(lst), len(unflat))

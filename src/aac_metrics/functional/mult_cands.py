@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Literal, Union
+from typing import Callable, Literal, Union, get_args
 
 import torch
 import tqdm
@@ -9,7 +9,6 @@ from torch import Tensor
 
 from aac_metrics.utils.checks import is_mult_sents
 
-SELECTIONS = ("max", "min", "mean")
 Selection = Literal["max", "min", "mean"]
 
 
@@ -53,16 +52,14 @@ def mult_cands_metric(
             f"Number of candidate and mult_references are different ({len(mult_candidates)} != {len(mult_references)})."
         )
 
-    if selection not in SELECTIONS:
-        raise ValueError(
-            f"Invalid argument {selection=}. (expected one of {SELECTIONS})"
-        )
+    if selection not in get_args(Selection):
+        msg = f"Invalid argument {selection=}. (expected one of {get_args(Selection)})"
+        raise ValueError(msg)
 
     n_cands_per_audio = len(mult_candidates[0])
     if not all(len(cands) == n_cands_per_audio for cands in mult_candidates):
-        raise ValueError(
-            "Cannot compute multiple candidates metric with a various number of candidates."
-        )
+        msg = "Cannot compute multiple candidates metric with a various number of candidates."
+        raise ValueError(msg)
 
     all_sents_scores_lst: list[dict[str, Tensor]] = []
     verbose = kwargs.get("verbose", 0)
@@ -104,9 +101,8 @@ def mult_cands_metric(
         outs_sents = {f"{metric_out_name}_{selection}": selected_scores}
 
     else:
-        raise ValueError(
-            f"Invalid argument {selection=}. (expected one of {SELECTIONS})"
-        )
+        msg = f"Invalid argument {selection=}. (expected one of {get_args(Selection)})"
+        raise ValueError(msg)
 
     if return_all_cands_scores:
         outs_sents |= {

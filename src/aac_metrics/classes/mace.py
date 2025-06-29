@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Optional, Union
+from typing import Optional, Union, get_args
 
 import torch
 from torch import Tensor
@@ -14,7 +14,7 @@ from aac_metrics.functional.fer import (
     BERTFlatClassifier,
     _load_echecker_and_tokenizer,
 )
-from aac_metrics.functional.mace import MACE_METHODS, MACEMethod, MACEOuts, mace
+from aac_metrics.functional.mace import MACEMethod, MACEOuts, mace
 from aac_metrics.utils.globals import _get_device
 
 
@@ -62,8 +62,8 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
         # Other args
         verbose: int = 0,
     ) -> None:
-        if mace_method not in MACE_METHODS:
-            msg = f"Invalid argument {mace_method=}. (expected one of {MACE_METHODS})"
+        if mace_method not in get_args(MACEMethod):
+            msg = f"Invalid argument {mace_method=}. (expected one of {get_args(MACEMethod)})"
             raise ValueError(msg)
 
         device = _get_device(device)
@@ -172,10 +172,8 @@ class MACE(AACMetric[Union[MACEOuts, Tensor]]):
             self._audio_paths += audio_paths
 
         else:
-            msg = (
-                f"Invalid value {self._mace_method=}. (expected one of {MACE_METHODS})"
-            )
+            msg = f"Invalid value {self._mace_method=}. (expected one of {get_args(MACEMethod)})"
             raise ValueError(msg)
 
-    def __getstate__(self) -> bytes:
+    def __getstate__(self) -> bytes:  # type: ignore
         raise RuntimeError(f"{self.__class__.__name__} is not pickable.")

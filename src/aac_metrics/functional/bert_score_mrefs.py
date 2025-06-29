@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Literal, Optional, TypedDict, Union
+from typing import Callable, Literal, Optional, TypedDict, Union, get_args
 
+import pythonwrench as pw
 import torch
 import torchmetrics
 from packaging.version import Version
@@ -13,16 +14,13 @@ from transformers.models.auto.modeling_auto import AutoModel
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from aac_metrics.utils.checks import check_metric_inputs
-from aac_metrics.utils.collections import (
-    duplicate_list,
-    flat_list_of_list,
-    unflat_list_of_list,
-)
+from aac_metrics.utils.collections import duplicate_list
 from aac_metrics.utils.globals import _get_device
 
 DEFAULT_BERT_SCORE_MODEL = _DEFAULT_MODEL
-REDUCTIONS = ("mean", "max", "min")
-Reduction = Union[Literal["mean", "max", "min"], Callable[..., Tensor]]
+ReductionName = Literal["mean", "max", "min"]
+Reduction = Union[ReductionName, Callable[..., Tensor]]
+
 _DEFAULT_SCORE_NAME = "bert_score.f1"
 BERTScoreMRefsScores = TypedDict(
     "BERTScoreMRefsScores",
@@ -103,7 +101,7 @@ def bert_score_mrefs(
         raise ValueError(msg)
 
     device = _get_device(device)
-    flat_mrefs, sizes = flat_list_of_list(mult_references)
+    flat_mrefs, sizes = pw.flat_list_of_list(mult_references)
     duplicated_cands = duplicate_list(candidates, sizes)
     assert len(duplicated_cands) == len(flat_mrefs)
 
@@ -138,7 +136,7 @@ def bert_score_mrefs(
         sents_scores = {k: [v] for k, v in sents_scores.items()}
 
     # sents_scores keys: "precision", "recall", "f1"
-    sents_scores = {k: unflat_list_of_list(v, sizes) for k, v in sents_scores.items()}  # type: ignore
+    sents_scores = {k: pw.unflat_list_of_list(v, sizes) for k, v in sents_scores.items()}  # type: ignore
 
     if not return_all_scores:
         sents_scores = {"f1": sents_scores["f1"]}
@@ -153,7 +151,7 @@ def bert_score_mrefs(
         elif reduction == "min":
             reduction_fn = _min_reduce
         else:
-            msg = f"Invalid argument {reduction=}. (expected one of {REDUCTIONS})"
+            msg = f"Invalid argument {reduction=}. (expected one of {get_args(ReductionName)})"
             raise ValueError(msg)
     else:
         reduction_fn = reduction

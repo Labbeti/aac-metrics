@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from typing import Callable, Literal, TypedDict, TypeVar, Union
+from typing import Callable, Literal, TypedDict, TypeVar, Union, get_args
 
 import torch
 from torch import Generator, Tensor
@@ -13,8 +13,8 @@ pylog = logging.getLogger(__name__)
 
 
 T = TypeVar("T")
-POP_STRATEGIES = ("max", "min")
-PopStrategy = Union[Literal["max", "min"], int]
+PopStrategyName = Literal["max", "min"]
+PopStrategy = Union[PopStrategyName, int]
 VocabScores = TypedDict("VocabScores", {"vocab.cands": Tensor})
 VocabOuts = tuple[VocabScores, VocabScores]
 
@@ -108,7 +108,7 @@ def vocab(
     elif isinstance(pop_strategy, int):
         num_try = pop_strategy
     else:
-        msg = f"Invalid argument {pop_strategy=}. (expected one of {POP_STRATEGIES} or an integer value)"
+        msg = f"Invalid argument {pop_strategy=}. (expected one of {get_args(PopStrategyName)} or an integer value)"
         raise ValueError(msg)
 
     if verbose >= 2:
