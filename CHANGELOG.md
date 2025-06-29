@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [0.6.0] 2025-06-29
 ### Changed
 - Constants are replaced by `typing.get_args` from Literal type.
-- Utilities now uses `pythonwrench`package.
+- Utilities now uses `pythonwrench` package, which removes `packaging` dep.
 
 ### Fixed
 - Java version parsing. [PR #13](https://github.com/Labbeti/aac-metrics/pull/13)
