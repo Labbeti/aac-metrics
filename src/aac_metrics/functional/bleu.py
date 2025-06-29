@@ -4,7 +4,7 @@
 import logging
 import math
 from collections import Counter
-from typing import Any, Callable, Literal, Optional, Union
+from typing import Any, Callable, Literal, Optional, Union, get_args
 
 import torch
 from torch import Tensor
@@ -13,7 +13,6 @@ from aac_metrics.utils.checks import check_metric_inputs
 
 pylog = logging.getLogger(__name__)
 
-BLEU_OPTIONS = ("shortest", "average", "closest")
 BleuOption = Literal["shortest", "average", "closest"]
 BLEUScores = dict[str, Tensor]
 BLEUOuts = tuple[BLEUScores, BLEUScores]
@@ -188,8 +187,8 @@ def _bleu_compute(
     verbose: int = 0,
     return_1_to_n: bool = False,
 ) -> Union[Tensor, BLEUOuts]:
-    if option not in BLEU_OPTIONS:
-        msg = f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})"
+    if option not in get_args(BleuOption):
+        msg = f"Invalid option {option=}. (expected one of {get_args(BleuOption)})"
         raise ValueError(msg)
 
     bleu_1_to_n_score, bleu_1_to_n_scores = __compute_bleu_score(
@@ -389,8 +388,7 @@ def __single_reflen(
         assert testlen is not None
         reflen = min((abs(len - testlen), len) for len in reflens)[1]
     else:
-        raise ValueError(
-            f"Invalid argument {option=}. (expected one of {BLEU_OPTIONS})"
-        )
+        msg = f"Invalid argument {option=}. (expected one of {get_args(BleuOption)})"
+        raise ValueError(msg)
 
     return reflen

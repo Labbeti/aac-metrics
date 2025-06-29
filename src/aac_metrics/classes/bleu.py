@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Union
+from typing import Callable, Union, get_args
 
 from torch import Tensor
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.bleu import (
-    BLEU_OPTIONS,
     BleuOption,
     BLEUOuts,
     _bleu_compute,
@@ -39,14 +38,14 @@ class BLEU(AACMetric[Union[BLEUOuts, Tensor]]):
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
-        if option not in BLEU_OPTIONS:
-            msg = f"Invalid option {option=}. (expected one of {BLEU_OPTIONS})"
+        if option not in get_args(BleuOption):
+            msg = f"Invalid option {option=}. (expected one of {get_args(BleuOption)})"
             raise ValueError(msg)
 
         super().__init__()
         self._return_all_scores = return_all_scores
         self._n = n
-        self._option = option
+        self._option: BleuOption = option
         self._verbose = verbose
         self._tokenizer = tokenizer
 
@@ -96,7 +95,7 @@ class BLEU1(BLEU):
     def __init__(
         self,
         return_all_scores: bool = True,
-        option: str = "closest",
+        option: BleuOption = "closest",
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
@@ -113,7 +112,7 @@ class BLEU2(BLEU):
     def __init__(
         self,
         return_all_scores: bool = True,
-        option: str = "closest",
+        option: BleuOption = "closest",
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
@@ -130,7 +129,7 @@ class BLEU3(BLEU):
     def __init__(
         self,
         return_all_scores: bool = True,
-        option: str = "closest",
+        option: BleuOption = "closest",
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:
@@ -147,7 +146,7 @@ class BLEU4(BLEU):
     def __init__(
         self,
         return_all_scores: bool = True,
-        option: str = "closest",
+        option: BleuOption = "closest",
         verbose: int = 0,
         tokenizer: Callable[[str], list[str]] = str.split,
     ) -> None:

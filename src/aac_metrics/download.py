@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Union
 from zipfile import ZipFile
 
+import pythonwrench as pw
 from torch.hub import download_url_to_file
 
 from aac_metrics.classes.bert_score_mrefs import BERTScoreMRefs
@@ -22,14 +23,12 @@ from aac_metrics.functional.spice import (
     FNAME_SPICE_JAR,
     check_spice_install,
 )
-from aac_metrics.utils.cmdline import _str_to_bool
 from aac_metrics.utils.globals import (
     _get_cache_path,
     _get_tmp_path,
     get_default_cache_path,
     get_default_tmp_path,
 )
-from aac_metrics.utils.log_utils import setup_logging_verbose
 from aac_metrics.utils.tokenization import FNAME_STANFORD_CORENLP_3_4_1_JAR
 
 pylog = logging.getLogger(__name__)
@@ -75,7 +74,7 @@ DATA_URLS = {
     },
     # CoreNLP version 3.6.0 for SPICE
     "spice_corenlp_zip": {
-        "url": "http://nlp.stanford.edu/software/stanford-corenlp-full-2015-12-09.zip",
+        "url": "https://nlp.stanford.edu/software/stanford-corenlp-full-2015-12-09.zip",
         "fname": osp.join("SPICE-1.0", "stanford-corenlp-full-2015-12-09.zip"),
     },
 }
@@ -179,13 +178,13 @@ def _download_ptb_tokenizer(
 
     if not force and osp.isfile(fpath):
         if verbose >= 1:
-            pylog.info(f"Stanford model file '{name}' is already downloaded.")
+            msg = f"Stanford model file '{name}' is already downloaded."
+            pylog.info(msg)
         return None
 
     if verbose >= 1:
-        pylog.info(
-            f"Downloading JAR source for '{name}' in directory {stanford_nlp_dpath}."
-        )
+        msg = f"Downloading JAR source for '{name}' in directory {stanford_nlp_dpath}."
+        pylog.info(msg)
     download_url_to_file(url, fpath, progress=verbose >= 1)
 
 
@@ -384,49 +383,49 @@ def _get_main_download_args() -> Namespace:
     )
     parser.add_argument(
         "--clean_archives",
-        type=_str_to_bool,
+        type=pw.str_to_bool,
         default=True,
         help="If True, remove all archives files. defaults to True.",
     )
     parser.add_argument(
         "--ptb_tokenizer",
-        type=_str_to_bool,
+        type=pw.str_to_bool,
         default=True,
         help="Download PTBTokenizer Java source code.",
     )
     parser.add_argument(
         "--meteor",
-        type=_str_to_bool,
+        type=pw.str_to_bool,
         default=True,
         help="Download METEOR Java source code.",
     )
     parser.add_argument(
         "--spice",
-        type=_str_to_bool,
+        type=pw.str_to_bool,
         default=True,
         help="Download SPICE Java source code.",
     )
     parser.add_argument(
         "--fense",
-        type=_str_to_bool,
+        type=pw.str_to_bool,
         default=True,
         help="Download FENSE models.",
     )
     parser.add_argument(
         "--bert_score",
-        type=_str_to_bool,
+        type=pw.str_to_bool,
         default=True,
         help="Download BERTScore models.",
     )
     parser.add_argument(
         "--clap",
-        type=_str_to_bool,
+        type=pw.str_to_bool,
         default=True,
         help="Download CLAP model.",
     )
     parser.add_argument(
         "--force",
-        type=_str_to_bool,
+        type=pw.str_to_bool,
         default=False,
         help="Force to download files and extract archives again for SPICE, METEOR and PTBTokenizer.",
     )
@@ -438,7 +437,7 @@ def _get_main_download_args() -> Namespace:
 
 def _main_download() -> None:
     args = _get_main_download_args()
-    setup_logging_verbose("aac_metrics", args.verbose)
+    pw.setup_logging_verbose("aac_metrics", args.verbose)
 
     download_metrics(
         cache_path=args.cache_path,

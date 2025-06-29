@@ -3,7 +3,7 @@
 
 import logging
 import random
-from typing import Literal, Optional, TypedDict, Union
+from typing import Literal, Optional, TypedDict, Union, get_args
 
 import numpy as np
 import torch
@@ -18,7 +18,6 @@ pylog = logging.getLogger(__name__)
 DEFAULT_CLAP_SIM_MODEL = "MS-CLAP-2023"
 
 CLAPMethod = Literal["audio", "text"]
-CLAP_METHODS = ("audio", "text")
 
 CLAPScores = TypedDict("CLAPScores", {"clap_sim": Tensor})
 CLAPOuts = tuple[CLAPScores, CLAPScores]
@@ -86,7 +85,9 @@ def clap_sim(
         mrefs_embs = _encode_audios_clap(clap_model, audio_paths, batch_size)
 
     else:
-        msg = f"Invalid argument {clap_method=}. (expected one of {CLAP_METHODS})"
+        msg = (
+            f"Invalid argument {clap_method=}. (expected one of {get_args(CLAPMethod)})"
+        )
         raise ValueError(msg)
 
     clap_sim_scores = [

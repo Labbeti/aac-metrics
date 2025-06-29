@@ -7,7 +7,7 @@ import platform
 import subprocess
 from pathlib import Path
 from subprocess import Popen
-from typing import Iterable, Literal, Optional, TypedDict, Union
+from typing import Iterable, Literal, Optional, TypedDict, Union, get_args
 
 import torch
 from torch import Tensor
@@ -20,8 +20,8 @@ pylog = logging.getLogger(__name__)
 
 DNAME_METEOR_CACHE = osp.join("aac-metrics", "meteor")
 FNAME_METEOR_JAR = osp.join(DNAME_METEOR_CACHE, "meteor-1.5.jar")
-SUPPORTED_LANGUAGES = ("en", "cz", "de", "es", "fr")
 Language = Literal["en", "cz", "de", "es", "fr"]
+
 METEORScores = TypedDict("METEORScores", {"meteor": Tensor})
 METEOROuts = tuple[METEORScores, METEORScores]
 
@@ -89,10 +89,9 @@ def meteor(
                 f"Invalid Java executable to compute METEOR score. ({java_path})"
             )
 
-    if language not in SUPPORTED_LANGUAGES:
-        raise ValueError(
-            f"Invalid argument {language=}. (expected one of {SUPPORTED_LANGUAGES})"
-        )
+    if language not in get_args(Language):
+        msg = f"Invalid argument {language=}. (expected one of {get_args(Language)})"
+        raise ValueError(msg)
 
     # Note: override localization to avoid errors due to double conversion (https://github.com/Labbeti/aac-metrics/issues/9)
     meteor_cmd = [

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from typing import Any, Literal, MutableMapping, Optional, TypedDict, Union
+from typing import Any, Literal, MutableMapping, Optional, TypedDict, Union, get_args
 
 import torch
 from msclap import CLAP
@@ -26,7 +26,6 @@ from aac_metrics.functional.fer import (
 pylog = logging.getLogger(__name__)
 
 MACEMethod = Literal["text", "audio", "combined"]
-MACE_METHODS = ("text", "audio", "combined")
 
 MACEScores = TypedDict(
     "MACEScores", {"mace": Tensor, "fer": Tensor, "clap_sim": Tensor}
@@ -139,7 +138,9 @@ def mace(
         clap_sim_outs: CLAPOuts = clap_sim_outs_corpus, clap_sim_outs_sents  # type: ignore
 
     else:
-        msg = f"Invalid argument {mace_method=}. (expected one of {MACE_METHODS})"
+        msg = (
+            f"Invalid argument {mace_method=}. (expected one of {get_args(MACEMethod)})"
+        )
         raise ValueError(msg)
 
     fer_outs: FEROuts = fer(  # type: ignore

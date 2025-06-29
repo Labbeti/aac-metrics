@@ -13,8 +13,6 @@ Submodules
    :maxdepth: 4
 
    aac_metrics.utils.checks
-   aac_metrics.utils.cmdline
    aac_metrics.utils.collections
    aac_metrics.utils.globals
-   aac_metrics.utils.log_utils
    aac_metrics.utils.tokenization

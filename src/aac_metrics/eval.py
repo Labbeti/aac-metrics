@@ -7,6 +7,7 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import Iterable, Union
 
+import pythonwrench as pw
 import yaml
 
 from aac_metrics.functional.evaluate import (
@@ -15,13 +16,11 @@ from aac_metrics.functional.evaluate import (
     evaluate,
 )
 from aac_metrics.utils.checks import check_java_path, check_metric_inputs
-from aac_metrics.utils.cmdline import _str_to_bool, _str_to_opt_str
 from aac_metrics.utils.globals import (
     get_default_cache_path,
     get_default_java_path,
     get_default_tmp_path,
 )
-from aac_metrics.utils.log_utils import setup_logging_verbose
 
 pylog = logging.getLogger(__name__)
 
@@ -160,7 +159,7 @@ def _get_main_evaluate_args() -> Namespace:
     parser.add_argument(
         "--strict",
         "-s",
-        type=_str_to_bool,
+        type=pw.str_to_bool,
         default=False,
         help="If True, assume that all columns must be in CSV file. defaults to False.",
     )
@@ -209,14 +208,14 @@ def _get_main_evaluate_args() -> Namespace:
     parser.add_argument(
         "--corpus_out",
         "-co",
-        type=_str_to_opt_str,
+        type=pw.str_to_optional_str,
         default=None,
         help="Output YAML path containing corpus scores. defaults to None.",
     )
     parser.add_argument(
         "--sentences_out",
         "-so",
-        type=_str_to_opt_str,
+        type=pw.str_to_optional_str,
         default=None,
         help="Output CSV path containing sentences scores. defaults to None.",
     )
@@ -227,7 +226,7 @@ def _get_main_evaluate_args() -> Namespace:
 
 def _main_eval() -> None:
     args = _get_main_evaluate_args()
-    setup_logging_verbose("aac_metrics", args.verbose)
+    pw.setup_logging_verbose("aac_metrics", args.verbose)
 
     if not check_java_path(args.java_path):
         raise RuntimeError(f"Invalid Java executable. ({args.java_path})")
@@ -245,9 +244,8 @@ def _main_eval() -> None:
 
     refs_lens = list(map(len, mult_references))
     if args.verbose >= 1:
-        pylog.info(
-            f"Found {len(candidates)} candidates, {len(mult_references)} references and [{min(refs_lens)}, {max(refs_lens)}] references per candidate."
-        )
+        msg = f"Found {len(candidates)} candidates, {len(mult_references)} references and [{min(refs_lens)}, {max(refs_lens)}] references per candidate."
+        pylog.info(msg)
 
     corpus_scores, sents_scores = evaluate(
         candidates=candidates,

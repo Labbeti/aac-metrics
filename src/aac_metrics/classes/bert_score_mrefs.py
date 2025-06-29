@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Optional, Union
+from typing import Optional, Union, get_args
 
 import torch
 from torch import Tensor, nn
@@ -9,9 +9,9 @@ from torch import Tensor, nn
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.bert_score_mrefs import (
     DEFAULT_BERT_SCORE_MODEL,
-    REDUCTIONS,
     BERTScoreMRefsOuts,
     Reduction,
+    ReductionName,
     _load_model_and_tokenizer,
     bert_score_mrefs,
 )
@@ -50,10 +50,9 @@ class BERTScoreMRefs(AACMetric[Union[BERTScoreMRefsOuts, Tensor]]):
         filter_nan: bool = True,
         verbose: int = 0,
     ) -> None:
-        if reduction not in REDUCTIONS:
-            raise ValueError(
-                f"Invalid argument {reduction=}. (expected one of {REDUCTIONS})"
-            )
+        if reduction not in get_args(ReductionName) and not callable(reduction):
+            msg = f"Invalid argument {reduction=}. (expected one of {get_args(ReductionName)} or callable function)"
+            raise ValueError(msg)
 
         device = _get_device(device)
         model, tokenizer = _load_model_and_tokenizer(

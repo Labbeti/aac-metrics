@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, get_args
 
 import torch
 from torch import Tensor
@@ -9,7 +9,6 @@ from torch import Tensor
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.clap_sim import (
     CLAP,
-    CLAP_METHODS,
     DEFAULT_CLAP_SIM_MODEL,
     CLAPMethod,
     CLAPOuts,
@@ -50,8 +49,8 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
         seed: Optional[int] = 42,
         verbose: int = 0,
     ) -> None:
-        if clap_method not in CLAP_METHODS:
-            msg = f"Invalid argument {clap_method=}. (expected one of {CLAP_METHODS})"
+        if clap_method not in get_args(CLAPMethod):
+            msg = f"Invalid argument {clap_method=}. (expected one of {get_args(CLAPMethod)})"
             raise ValueError(msg)
 
         device = _get_device(device)
@@ -120,9 +119,7 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
         elif self._clap_method == "text":
             self._audio_paths += mult_references_or_audio_paths
         else:
-            msg = (
-                f"Invalid value {self._clap_method=}. (expected one of {CLAP_METHODS})"
-            )
+            msg = f"Invalid value {self._clap_method=}. (expected one of {get_args(CLAPMethod)})"
             raise ValueError(msg)
 
     def __getstate__(self) -> Any:

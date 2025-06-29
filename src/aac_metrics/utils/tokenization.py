@@ -10,8 +10,9 @@ import time
 from pathlib import Path
 from typing import Any, Hashable, Iterable, Optional, Union
 
+import pythonwrench as pw
+
 from aac_metrics.utils.checks import check_java_path, is_mono_sents
-from aac_metrics.utils.collections import flat_list_of_list, unflat_list_of_list
 from aac_metrics.utils.globals import _get_cache_path, _get_java_path, _get_tmp_path
 
 pylog = logging.getLogger(__name__)
@@ -245,7 +246,7 @@ def preprocess_mult_sents(
     :param verbose: The verbose level. defaults to 0.
     :returns: The multiple sentences processed by the tokenizer.
     """
-    flatten_sents, sizes = flat_list_of_list(mult_sentences)
+    flatten_sents, sizes = pw.flat_list_of_list(mult_sentences)
     flatten_sents = preprocess_mono_sents(
         sentences=flatten_sents,
         cache_path=cache_path,
@@ -255,5 +256,5 @@ def preprocess_mult_sents(
         normalize_apostrophe=normalize_apostrophe,
         verbose=verbose,
     )
-    mult_sentences = unflat_list_of_list(flatten_sents, sizes)
+    mult_sentences = pw.unflat_list_of_list(flatten_sents, sizes)
     return mult_sentences

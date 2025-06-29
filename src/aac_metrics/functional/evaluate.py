@@ -8,6 +8,7 @@ from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Iterable, Union
 
+import pythonwrench as pw
 import torch
 from torch import Tensor, nn
 
@@ -27,8 +28,6 @@ from aac_metrics.functional.spider_fl import spider_fl
 from aac_metrics.functional.spider_max import spider_max
 from aac_metrics.functional.vocab import vocab
 from aac_metrics.utils.checks import check_metric_inputs
-from aac_metrics.utils.collections import flat_list_of_list, unflat_list_of_list
-from aac_metrics.utils.log_utils import warn_once
 from aac_metrics.utils.tokenization import preprocess_mono_sents
 
 pylog = logging.getLogger(__name__)
@@ -136,9 +135,9 @@ def evaluate(
         )
 
     candidates = preprocess(candidates)
-    mult_references_flat, sizes = flat_list_of_list(mult_references)
+    mult_references_flat, sizes = pw.flat_list_of_list(mult_references)
     mult_references_flat = preprocess(mult_references_flat)
-    mult_references = unflat_list_of_list(mult_references_flat, sizes)
+    mult_references = pw.unflat_list_of_list(mult_references_flat, sizes)
 
     outs_corpus = {}
     outs_sents = {}
@@ -171,10 +170,8 @@ def evaluate(
                 set(outs_sents_i.keys()).intersection(outs_sents.keys())
             )
             if len(corpus_overlap) > 0 or len(sents_overlap) > 0:
-                warn_once(
-                    f"Found overlapping metric outputs names. (found {corpus_overlap=} and {sents_overlap=} at least twice)",
-                    pylog,
-                )
+                msg = f"Found overlapping metric outputs names. (found {corpus_overlap=} and {sents_overlap=} at least twice)"
+                pw.warn_once(msg)
 
         outs_corpus |= outs_corpus_i
         outs_sents |= outs_sents_i
