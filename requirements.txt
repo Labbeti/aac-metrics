@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-msclap @ git+https://github.com/microsoft/CLAP@main
+msclap~=1.3.3
 numpy>=1.21.2
 packaging>=23
 pyyaml>=6.0

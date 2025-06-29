@@ -64,10 +64,11 @@ def check_java_path(java_path: Union[str, Path]) -> bool:
     version = _get_java_version(str(java_path))
     valid = _check_java_version(version, MIN_JAVA_MAJOR_VERSION, MAX_JAVA_MAJOR_VERSION)
     if not valid:
-        pylog.error(
+        msg = (
             f"Using Java version {version} is not officially supported by aac-metrics package and will not work for METEOR and SPICE metrics."
             f"(expected major version in range [{MIN_JAVA_MAJOR_VERSION}, {MAX_JAVA_MAJOR_VERSION}])"
         )
+        pylog.error(msg)
     return valid
 
 
@@ -109,8 +110,9 @@ def _get_java_version(java_path: str) -> str:
         raise ValueError(f"Invalid java path. (from {java_path=} and found {err=})")
 
     except IndexError as err:
+        msg = f"Invalid java version. (from {java_path=} and found {output=} and {err=})"
         raise ValueError(
-            f"Invalid java version. (from {java_path=} and found {output=} and {err=})"
+            msg
         )
 
     return version

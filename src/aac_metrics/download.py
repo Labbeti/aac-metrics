@@ -179,12 +179,14 @@ def _download_ptb_tokenizer(
 
     if not force and osp.isfile(fpath):
         if verbose >= 1:
-            pylog.info(f"Stanford model file '{name}' is already downloaded.")
+            msg = f"Stanford model file '{name}' is already downloaded."
+            pylog.info(msg)
         return None
 
     if verbose >= 1:
+        msg = f"Downloading JAR source for '{name}' in directory {stanford_nlp_dpath}."
         pylog.info(
-            f"Downloading JAR source for '{name}' in directory {stanford_nlp_dpath}."
+            msg
         )
     download_url_to_file(url, fpath, progress=verbose >= 1)
 
