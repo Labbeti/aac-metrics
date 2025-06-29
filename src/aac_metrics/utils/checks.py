@@ -110,10 +110,10 @@ def _get_java_version(java_path: str) -> str:
         raise ValueError(f"Invalid java path. (from {java_path=} and found {err=})")
 
     except IndexError as err:
-        msg = f"Invalid java version. (from {java_path=} and found {output=} and {err=})"
-        raise ValueError(
-            msg
+        msg = (
+            f"Invalid java version. (from {java_path=} and found {output=} and {err=})"
         )
+        raise ValueError(msg)
 
     return version
 

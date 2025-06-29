@@ -185,9 +185,7 @@ def _download_ptb_tokenizer(
 
     if verbose >= 1:
         msg = f"Downloading JAR source for '{name}' in directory {stanford_nlp_dpath}."
-        pylog.info(
-            msg
-        )
+        pylog.info(msg)
     download_url_to_file(url, fpath, progress=verbose >= 1)
 
 
