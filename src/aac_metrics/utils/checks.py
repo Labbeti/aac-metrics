@@ -87,7 +87,8 @@ def is_mult_sents(mult_sents: Any) -> TypeGuard[list[list[str]]]:
 def _get_java_version(java_path: str) -> str:
     """Returns True if the java path is valid."""
     if not isinstance(java_path, str):
-        raise TypeError(f"Invalid argument type {type(java_path)=}. (expected str)")
+        msg = f"Invalid argument type {type(java_path)=}. (expected str)"
+        raise TypeError(msg)
 
     output = "INVALID"
     try:
@@ -119,7 +120,7 @@ def _check_java_version(version_str: str, min_major: int, max_major: int) -> boo
 
     if version.major == 1 and version.minor <= 8:
         # java <= 8 use versioning "1.MAJOR.MINOR" and > 8 use "MAJOR.MINOR.MICRO"
-        version_str = ".".join(map(str, (version.minor, version.micro)))
+        version_str = ".".join(map(str, (version.minor, version.micro, 0)))
         version = Version(version_str)
 
-    return Version(f"{min_major}") <= version < Version(f"{max_major + 1}")
+    return Version(f"{min_major}.0.0") <= version < Version(f"{max_major + 1}.0.0")
