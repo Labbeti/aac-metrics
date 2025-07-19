@@ -24,7 +24,6 @@ classifiers = [
 maintainers = [
     {name = "Étienne Labbé (Labbeti)", email = "labbeti.pub@gmail.com"},
 ]
-# dynamic = ["version", "dependencies", "optional-dependencies"]
 dynamic = ["version"]
 dependencies = [
     "msclap~=1.3.3",
