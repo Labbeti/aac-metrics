@@ -9,9 +9,11 @@ from pathlib import Path
 from typing import Any, Optional, Union
 
 import torch
+import torchwrench as tw
+from torchwrench.types import DeviceLike
 
-_CUDA_IF_AVAILABLE: str = "cuda_if_available"
-CUDA_IF_AVAILABLE: str = _CUDA_IF_AVAILABLE  # for backward compatibility
+_CUDA_IF_AVAILABLE: str = tw.CUDA_IF_AVAILABLE  # for backward compatibility
+CUDA_IF_AVAILABLE: str = tw.CUDA_IF_AVAILABLE  # for backward compatibility
 
 pylog = logging.getLogger(__name__)
 
@@ -67,9 +69,7 @@ def _get_cache_path(cache_path: Union[str, Path, None] = None) -> str:
     return __get_value("cache", cache_path)
 
 
-def _get_device(
-    device: Union[str, torch.device, None] = _CUDA_IF_AVAILABLE,
-) -> Optional[torch.device]:
+def _get_device(device: DeviceLike = tw.CUDA_IF_AVAILABLE) -> Optional[torch.device]:
     value_name = "device"
     process_func = __DEFAULT_GLOBALS[value_name]["process"]
     device = process_func(device)
@@ -100,7 +100,7 @@ def __get_default_value(value_name: str) -> Any:
             return value
 
     pylog.error(f"Values: {values}")
-    msg = f"Invalid default value for value_name={value_name}. (all default values are None)"
+    msg = f"Invalid default value for {value_name=}. (all default values are None)"
     raise RuntimeError(msg)
 
 
@@ -114,10 +114,10 @@ def __set_default_value(
 def __get_value(value_name: str, value: Any = None) -> Any:
     if value is None or value is ...:
         return __get_default_value(value_name)
-    else:
-        process_func = __DEFAULT_GLOBALS[value_name]["process"]
-        value = process_func(value)
-        return value
+
+    process_func = __DEFAULT_GLOBALS[value_name]["process"]
+    value = process_func(value)
+    return value
 
 
 def __process_path(value: Union[str, Path, None]) -> Union[str, None]:
@@ -126,16 +126,6 @@ def __process_path(value: Union[str, Path, None]) -> Union[str, None]:
     value = str(value)
     value = osp.expanduser(value)
     value = osp.expandvars(value)
-    return value
-
-
-def __process_device(value: Union[str, torch.device, None]) -> Optional[torch.device]:
-    if value is None or value is ...:
-        return None
-    if value == _CUDA_IF_AVAILABLE:
-        value = "cuda" if torch.cuda.is_available() else "cpu"
-    if isinstance(value, str):
-        value = torch.device(value)
     return value
 
 
@@ -151,9 +141,9 @@ __DEFAULT_GLOBALS = {
     "device": {
         "values": {
             "env": "AAC_METRICS_DEVICE",
-            "package": _CUDA_IF_AVAILABLE,
+            "package": tw.CUDA_IF_AVAILABLE,
         },
-        "process": __process_device,
+        "process": tw.as_device,
     },
     "java": {
         "values": {

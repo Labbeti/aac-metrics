@@ -3,7 +3,7 @@
 
 import logging
 import random
-from typing import Literal, Optional, TypedDict, Union, get_args
+from typing import Literal, Optional, TypedDict, Union, get_args, overload
 
 import numpy as np
 import torch
@@ -23,6 +23,40 @@ CLAPScores = TypedDict("CLAPScores", {"clap_sim": Tensor})
 CLAPOuts = tuple[CLAPScores, CLAPScores]
 
 
+@overload
+def clap_sim(
+    candidates: list[str],
+    mult_references: Optional[list[list[str]]] = None,
+    audio_paths: Optional[list[str]] = None,
+    return_all_scores: Literal[True] = True,
+    *,
+    clap_method: CLAPMethod = "text",
+    clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
+    device: Union[str, torch.device, None] = "cuda_if_available",
+    batch_size: Optional[int] = 32,
+    reset_state: bool = True,
+    seed: Optional[int] = 42,
+    verbose: int = 0,
+) -> CLAPOuts: ...
+
+
+@overload
+def clap_sim(
+    candidates: list[str],
+    mult_references: Optional[list[list[str]]] = None,
+    audio_paths: Optional[list[str]] = None,
+    *,
+    return_all_scores: Literal[False],
+    clap_method: CLAPMethod = "text",
+    clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
+    device: Union[str, torch.device, None] = "cuda_if_available",
+    batch_size: Optional[int] = 32,
+    reset_state: bool = True,
+    seed: Optional[int] = 42,
+    verbose: int = 0,
+) -> Tensor: ...
+
+
 def clap_sim(
     candidates: list[str],
     mult_references: Optional[list[list[str]]] = None,
@@ -36,7 +70,7 @@ def clap_sim(
     reset_state: bool = True,
     seed: Optional[int] = 42,
     verbose: int = 0,
-) -> Union[Tensor, CLAPOuts]:
+) -> Union[CLAPOuts, Tensor]:
     """Cosine-similarity of the Contrastive Language-Audio Pretraining (CLAP) embeddings.
 
     The implementation is based on the msclap pypi package.

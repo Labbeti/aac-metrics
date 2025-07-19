@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Literal, Optional, TypedDict, Union, get_args
+from typing import Callable, Literal, Optional, TypedDict, Union, get_args, overload
 
 import pythonwrench as pw
 import torch
@@ -31,6 +31,46 @@ BERTScoreMRefsScores = TypedDict(
     },
 )
 BERTScoreMRefsOuts = tuple[BERTScoreMRefsScores, BERTScoreMRefsScores]
+
+
+@overload
+def bert_score_mrefs(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    return_all_scores: Literal[True] = True,
+    *,
+    model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
+    tokenizer: Optional[Callable] = None,
+    device: Union[str, torch.device, None] = "cuda_if_available",
+    batch_size: Optional[int] = 32,
+    num_threads: int = 0,
+    max_length: int = 64,
+    reset_state: bool = True,
+    idf: bool = False,
+    reduction: Reduction = "max",
+    filter_nan: bool = True,
+    verbose: int = 0,
+) -> BERTScoreMRefsOuts: ...
+
+
+@overload
+def bert_score_mrefs(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    return_all_scores: Literal[False],
+    *,
+    model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
+    tokenizer: Optional[Callable] = None,
+    device: Union[str, torch.device, None] = "cuda_if_available",
+    batch_size: Optional[int] = 32,
+    num_threads: int = 0,
+    max_length: int = 64,
+    reset_state: bool = True,
+    idf: bool = False,
+    reduction: Reduction = "max",
+    filter_nan: bool = True,
+    verbose: int = 0,
+) -> Tensor: ...
 
 
 def bert_score_mrefs(
@@ -137,8 +177,9 @@ def bert_score_mrefs(
 
     # sents_scores keys: "precision", "recall", "f1"
     sents_scores = {
-        k: pw.unflat_list_of_list(v, sizes) for k, v in sents_scores.items()
-    }  # type: ignore
+        k: pw.unflat_list_of_list(v, sizes)  # type: ignore
+        for k, v in sents_scores.items()
+    }
 
     if not return_all_scores:
         sents_scores = {"f1": sents_scores["f1"]}
@@ -164,12 +205,12 @@ def bert_score_mrefs(
             # backward compatibility
             sents_scores = {
                 k: reduction_fn(torch.as_tensor(v, dtype=dtype), dim=1)
-                for k, v in sents_scores.items()  # type: ignore
+                for k, v in sents_scores.items()
             }
         else:
             sents_scores = {
-                k: reduction_fn(torch.stack(v), dim=1)
-                for k, v in sents_scores.items()  # type: ignore
+                k: reduction_fn(torch.stack(v), dim=1)  # type: ignore
+                for k, v in sents_scores.items()
             }
     else:
         sents_scores = {

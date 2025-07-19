@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Any, Optional, Union, get_args
+from typing import Any, Generic, Literal, Optional, Union, get_args, overload
 
 import torch
 from torch import Tensor
+from typing_extensions import TypeVar
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.clap_sim import (
@@ -17,8 +18,15 @@ from aac_metrics.functional.clap_sim import (
 )
 from aac_metrics.utils.globals import _get_device
 
+T_CLAPOut = TypeVar(
+    "T_CLAPOut",
+    bound=Union[CLAPOuts, Tensor],
+    covariant=True,
+    default=Union[CLAPOuts, Tensor],
+)
 
-class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
+
+class CLAPSim(Generic[T_CLAPOut], AACMetric[T_CLAPOut]):
     """Cosine-similarity of the Contrastive Language-Audio Pretraining (CLAP) embeddings.
 
     The implementation is based on the msclap pypi package.
@@ -36,6 +44,34 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
 
     min_value = -1.0
     max_value = 1.0
+
+    @overload
+    def __init__(
+        self: "CLAPSim[CLAPOuts]",
+        return_all_scores: Literal[True] = True,
+        *,
+        clap_method: CLAPMethod = "text",
+        clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
+        device: Union[str, torch.device, None] = "cuda_if_available",
+        batch_size: Optional[int] = 32,
+        reset_state: bool = True,
+        seed: Optional[int] = 42,
+        verbose: int = 0,
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self: "CLAPSim[Tensor]",
+        return_all_scores: Literal[False],
+        *,
+        clap_method: CLAPMethod = "text",
+        clap_model: Union[str, CLAP] = DEFAULT_CLAP_SIM_MODEL,
+        device: Union[str, torch.device, None] = "cuda_if_available",
+        batch_size: Optional[int] = 32,
+        reset_state: bool = True,
+        seed: Optional[int] = 42,
+        verbose: int = 0,
+    ) -> None: ...
 
     def __init__(
         self,
@@ -74,8 +110,8 @@ class CLAPSim(AACMetric[Union[CLAPOuts, Tensor]]):
         self._mult_references = []
         self._audio_paths = []
 
-    def compute(self) -> Union[CLAPOuts, Tensor]:
-        return clap_sim(
+    def compute(self) -> T_CLAPOut:
+        return clap_sim(  # type: ignore
             candidates=self._candidates,
             mult_references=self._mult_references,
             audio_paths=self._audio_paths,

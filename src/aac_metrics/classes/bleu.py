@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Union, get_args
+from typing import Callable, Generic, Literal, Union, get_args, overload
 
 from torch import Tensor
+from typing_extensions import TypeVar
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.bleu import (
@@ -13,8 +14,15 @@ from aac_metrics.functional.bleu import (
     _bleu_update,
 )
 
+T_BLEUOut = TypeVar(
+    "T_BLEUOut",
+    bound=Union[BLEUOuts, Tensor],
+    covariant=True,
+    default=Union[BLEUOuts, Tensor],
+)
 
-class BLEU(AACMetric[Union[BLEUOuts, Tensor]]):
+
+class BLEU(Generic[T_BLEUOut], AACMetric[T_BLEUOut]):
     """BiLingual Evaluation Understudy metric class.
 
     - Paper: https://www.aclweb.org/anthology/P02-1040.pdf
@@ -28,6 +36,28 @@ class BLEU(AACMetric[Union[BLEUOuts, Tensor]]):
 
     min_value = 0.0
     max_value = 1.0
+
+    @overload
+    def __init__(
+        self,
+        return_all_scores: Literal[True] = True,
+        *,
+        n: int = 4,
+        option: BleuOption = "closest",
+        verbose: int = 0,
+        tokenizer: Callable[[str], list[str]] = str.split,
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self,
+        return_all_scores: Literal[False],
+        *,
+        n: int = 4,
+        option: BleuOption = "closest",
+        verbose: int = 0,
+        tokenizer: Callable[[str], list[str]] = str.split,
+    ) -> None: ...
 
     def __init__(
         self,
@@ -52,8 +82,8 @@ class BLEU(AACMetric[Union[BLEUOuts, Tensor]]):
         self._cooked_cands = []
         self._cooked_mrefs = []
 
-    def compute(self) -> Union[BLEUOuts, Tensor]:
-        return _bleu_compute(
+    def compute(self) -> T_BLEUOut:
+        return _bleu_compute(  # type: ignore
             cooked_cands=self._cooked_cands,
             cooked_mrefs=self._cooked_mrefs,
             return_all_scores=self._return_all_scores,

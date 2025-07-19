@@ -1,15 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Callable, Union
+from typing import Callable, Generic, Literal, Union, overload
 
 from torch import Tensor
+from typing_extensions import TypeVar
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.cider_d import CIDErDOuts, _cider_d_compute, _cider_d_update
 
+T_CIDErDOut = TypeVar(
+    "T_CIDErDOut",
+    bound=Union[CIDErDOuts, Tensor],
+    covariant=True,
+    default=Union[CIDErDOuts, Tensor],
+)
 
-class CIDErD(AACMetric[Union[CIDErDOuts, Tensor]]):
+
+class CIDErD(Generic[T_CIDErDOut], AACMetric[T_CIDErDOut]):
     """Consensus-based Image Description Evaluation metric class.
 
     - Paper: https://arxiv.org/pdf/1411.5726.pdf
@@ -23,6 +31,30 @@ class CIDErD(AACMetric[Union[CIDErDOuts, Tensor]]):
 
     min_value = 0.0
     max_value = 10.0
+
+    @overload
+    def __init__(
+        self: "CIDErD[CIDErDOuts]",
+        return_all_scores: Literal[True] = True,
+        *,
+        n: int = 4,
+        sigma: float = 6.0,
+        tokenizer: Callable[[str], list[str]] = str.split,
+        return_tfidf: bool = False,
+        scale: float = 10.0,
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self: "CIDErD[Tensor]",
+        return_all_scores: Literal[False],
+        *,
+        n: int = 4,
+        sigma: float = 6.0,
+        tokenizer: Callable[[str], list[str]] = str.split,
+        return_tfidf: bool = False,
+        scale: float = 10.0,
+    ) -> None: ...
 
     def __init__(
         self,
@@ -45,8 +77,8 @@ class CIDErD(AACMetric[Union[CIDErDOuts, Tensor]]):
         self._cooked_cands = []
         self._cooked_mrefs = []
 
-    def compute(self) -> Union[CIDErDOuts, Tensor]:
-        return _cider_d_compute(
+    def compute(self) -> T_CIDErDOut:
+        return _cider_d_compute(  # type: ignore
             cooked_cands=self._cooked_cands,
             cooked_mrefs=self._cooked_mrefs,
             return_all_scores=self._return_all_scores,

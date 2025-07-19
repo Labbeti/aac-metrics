@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Optional, Union, get_args
+from typing import Generic, Literal, Optional, Union, get_args, overload
 
 import torch
 from torch import Tensor, nn
+from typing_extensions import TypeVar
 
 from aac_metrics.classes.base import AACMetric
 from aac_metrics.functional.bert_score_mrefs import (
@@ -17,8 +18,15 @@ from aac_metrics.functional.bert_score_mrefs import (
 )
 from aac_metrics.utils.globals import _get_device
 
+T_BERTScoreMRefsOut = TypeVar(
+    "T_BERTScoreMRefsOut",
+    bound=Union[BERTScoreMRefsOuts, Tensor],
+    covariant=True,
+    default=Union[BERTScoreMRefsOuts, Tensor],
+)
 
-class BERTScoreMRefs(AACMetric[Union[BERTScoreMRefsOuts, Tensor]]):
+
+class BERTScoreMRefs(Generic[T_BERTScoreMRefsOut], AACMetric[T_BERTScoreMRefsOut]):
     """BERTScore metric which supports multiple references.
 
     The implementation is based on the bert_score implementation of torchmetrics.
@@ -34,6 +42,40 @@ class BERTScoreMRefs(AACMetric[Union[BERTScoreMRefsOuts, Tensor]]):
 
     min_value = 0.0
     max_value = 1.0
+
+    @overload
+    def __init__(
+        self: "BERTScoreMRefs[BERTScoreMRefsOuts]",
+        return_all_scores: Literal[True] = True,
+        *,
+        model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
+        device: Union[str, torch.device, None] = "cuda_if_available",
+        batch_size: Optional[int] = 32,
+        num_threads: int = 0,
+        max_length: int = 64,
+        reset_state: bool = True,
+        idf: bool = False,
+        reduction: Reduction = "max",
+        filter_nan: bool = True,
+        verbose: int = 0,
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self: "BERTScoreMRefs[Tensor]",
+        return_all_scores: Literal[False],
+        *,
+        model: Union[str, nn.Module] = DEFAULT_BERT_SCORE_MODEL,
+        device: Union[str, torch.device, None] = "cuda_if_available",
+        batch_size: Optional[int] = 32,
+        num_threads: int = 0,
+        max_length: int = 64,
+        reset_state: bool = True,
+        idf: bool = False,
+        reduction: Reduction = "max",
+        filter_nan: bool = True,
+        verbose: int = 0,
+    ) -> None: ...
 
     def __init__(
         self,
@@ -80,10 +122,8 @@ class BERTScoreMRefs(AACMetric[Union[BERTScoreMRefsOuts, Tensor]]):
         self._candidates = []
         self._mult_references = []
 
-    def compute(
-        self,
-    ) -> Union[BERTScoreMRefsOuts, Tensor]:
-        return bert_score_mrefs(
+    def compute(self) -> T_BERTScoreMRefsOut:
+        return bert_score_mrefs(  # type: ignore
             candidates=self._candidates,
             mult_references=self._mult_references,
             return_all_scores=self._return_all_scores,

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import Counter, defaultdict
-from typing import Callable, Mapping, TypedDict, Union
+from typing import Callable, Literal, Mapping, TypedDict, Union, overload
 
 import numpy as np
 import torch
@@ -12,6 +12,34 @@ from aac_metrics.utils.checks import check_metric_inputs
 
 CIDErDScores = TypedDict("CIDErDScores", {"cider_d": Tensor})
 CIDErDOuts = tuple[CIDErDScores, CIDErDScores]
+
+
+@overload
+def cider_d(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    return_all_scores: Literal[True] = True,
+    *,
+    n: int = 4,
+    sigma: float = 6.0,
+    tokenizer: Callable[[str], list[str]] = str.split,
+    return_tfidf: bool = False,
+    scale: float = 10.0,
+) -> CIDErDOuts: ...
+
+
+@overload
+def cider_d(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    return_all_scores: Literal[False],
+    *,
+    n: int = 4,
+    sigma: float = 6.0,
+    tokenizer: Callable[[str], list[str]] = str.split,
+    return_tfidf: bool = False,
+    scale: float = 10.0,
+) -> Tensor: ...
 
 
 def cider_d(

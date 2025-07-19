@@ -4,7 +4,7 @@
 import logging
 import math
 from collections import Counter
-from typing import Any, Callable, Literal, Optional, Union, get_args
+from typing import Any, Callable, Literal, Optional, Union, get_args, overload
 
 import torch
 from torch import Tensor
@@ -16,6 +16,34 @@ pylog = logging.getLogger(__name__)
 BleuOption = Literal["shortest", "average", "closest"]
 BLEUScores = dict[str, Tensor]
 BLEUOuts = tuple[BLEUScores, BLEUScores]
+
+
+@overload
+def bleu(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    return_all_scores: Literal[True] = True,
+    *,
+    n: int = 4,
+    option: BleuOption = "closest",
+    verbose: int = 0,
+    tokenizer: Callable[[str], list[str]] = str.split,
+    return_1_to_n: bool = False,
+) -> BLEUOuts: ...
+
+
+@overload
+def bleu(
+    candidates: list[str],
+    mult_references: list[list[str]],
+    return_all_scores: Literal[False],
+    *,
+    n: int = 4,
+    option: BleuOption = "closest",
+    verbose: int = 0,
+    tokenizer: Callable[[str], list[str]] = str.split,
+    return_1_to_n: bool = False,
+) -> Tensor: ...
 
 
 def bleu(

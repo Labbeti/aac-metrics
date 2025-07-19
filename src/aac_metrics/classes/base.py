@@ -2,17 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import math
-
 from typing import Any, ClassVar, Generic, Optional, TypeVar, Union
 
-from torch import nn, Tensor
+from torch import Tensor, nn
 
+T_OutType = TypeVar("T_OutType", covariant=True)
 
 DefaultOutType = Union[tuple[dict[str, Tensor], dict[str, Tensor]], Tensor]
-OutType = TypeVar("OutType")
 
 
-class AACMetric(nn.Module, Generic[OutType]):
+class AACMetric(nn.Module, Generic[T_OutType]):
     """Base Metric module for AAC metrics. Similar to torchmetrics.Metric."""
 
     # Global values
@@ -29,10 +28,10 @@ class AACMetric(nn.Module, Generic[OutType]):
         super().__init__(**kwargs)
 
     # Public methods
-    def compute(self) -> OutType:
+    def compute(self) -> T_OutType:
         return None  # type: ignore
 
-    def forward(self, *args: Any, **kwargs: Any) -> OutType:
+    def forward(self, *args: Any, **kwargs: Any) -> T_OutType:
         self.update(*args, **kwargs)
         output = self.compute()
         self.reset()
@@ -45,5 +44,5 @@ class AACMetric(nn.Module, Generic[OutType]):
         pass
 
     # Magic methods
-    def __call__(self, *args: Any, **kwds: Any) -> OutType:
+    def __call__(self, *args: Any, **kwds: Any) -> T_OutType:
         return super().__call__(*args, **kwds)
