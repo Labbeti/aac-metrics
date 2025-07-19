@@ -44,7 +44,7 @@ class METEOR(AACMetric[Union[METEOROuts, Tensor]]):
         self._cache_path = cache_path
         self._java_path = java_path
         self._java_max_memory = java_max_memory
-        self._language = language
+        self._language: Language = language
         self._use_shell = use_shell
         self._params = params
         self._weights = weights
