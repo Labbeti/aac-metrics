@@ -151,7 +151,7 @@ def evaluate(
             name = metric.__class__.__qualname__
 
         if verbose >= 1:
-            pylog.info(f"[{i+1:2d}/{len(metrics):2d}] Computing {name} metric...")
+            pylog.info(f"[{i + 1:2d}/{len(metrics):2d}] Computing {name} metric...")
 
         start = time.perf_counter()
         outs_corpus_i, outs_sents_i = metric(candidates, mult_references)
@@ -159,7 +159,7 @@ def evaluate(
 
         if verbose >= 1:
             pylog.info(
-                f"[{i+1:2d}/{len(metrics):2d}] Metric {name} computed in {end - start:.2f}s."
+                f"[{i + 1:2d}/{len(metrics):2d}] Metric {name} computed in {end - start:.2f}s."
             )
 
         if __debug__:

@@ -136,7 +136,9 @@ def bert_score_mrefs(
         sents_scores = {k: [v] for k, v in sents_scores.items()}
 
     # sents_scores keys: "precision", "recall", "f1"
-    sents_scores = {k: pw.unflat_list_of_list(v, sizes) for k, v in sents_scores.items()}  # type: ignore
+    sents_scores = {
+        k: pw.unflat_list_of_list(v, sizes) for k, v in sents_scores.items()
+    }  # type: ignore
 
     if not return_all_scores:
         sents_scores = {"f1": sents_scores["f1"]}
@@ -161,11 +163,13 @@ def bert_score_mrefs(
         if torchmetrics_version < Version("1.0.0"):
             # backward compatibility
             sents_scores = {
-                k: reduction_fn(torch.as_tensor(v, dtype=dtype), dim=1) for k, v in sents_scores.items()  # type: ignore
+                k: reduction_fn(torch.as_tensor(v, dtype=dtype), dim=1)
+                for k, v in sents_scores.items()  # type: ignore
             }
         else:
             sents_scores = {
-                k: reduction_fn(torch.stack(v), dim=1) for k, v in sents_scores.items()  # type: ignore
+                k: reduction_fn(torch.stack(v), dim=1)
+                for k, v in sents_scores.items()  # type: ignore
             }
     else:
         sents_scores = {

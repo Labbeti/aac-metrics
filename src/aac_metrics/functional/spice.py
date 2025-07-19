@@ -335,7 +335,7 @@ def __run_spice(
 
     except subprocess.TimeoutExpired as err:
         pylog.warning(
-            f"Timeout SPICE java program with {timeout_i=}s (nb timeouts done={i+1}/{len(timeout_lst)})."
+            f"Timeout SPICE java program with {timeout_i=}s (nb timeouts done={i + 1}/{len(timeout_lst)})."
         )
 
         if i < len(timeout_lst) - 1:

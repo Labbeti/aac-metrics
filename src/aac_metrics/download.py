@@ -325,12 +325,12 @@ def _download_spice(
         if osp.exists(tgt_path):
             if verbose >= 1:
                 pylog.info(
-                    f"Target '{tgt_path}' already exists. ({i+1}/{len(to_move)})"
+                    f"Target '{tgt_path}' already exists. ({i + 1}/{len(to_move)})"
                 )
         else:
             if verbose >= 1:
                 pylog.info(
-                    f"Moving '{src_path}' to '{parent_tgt_dpath}'... ({i+1}/{len(to_move)})"
+                    f"Moving '{src_path}' to '{parent_tgt_dpath}'... ({i + 1}/{len(to_move)})"
                 )
             shutil.move(src_path, parent_tgt_dpath)
 

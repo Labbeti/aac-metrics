@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch. """
-
+"""Metrics for evaluating Automated Audio Captioning systems, designed for PyTorch."""
 
 __author__ = "Étienne Labbé (Labbeti)"
 __author_email__ = "labbeti.pub@gmail.com"
