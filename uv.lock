@@ -60,7 +60,7 @@ requires-dist = [
     { name = "sphinx-press-theme", marker = "extra == 'dev'", specifier = ">=0.8.0" },
     { name = "torch", specifier = ">=1.10.1" },
     { name = "torchmetrics", specifier = ">=0.11.4" },
-    { name = "torchwrench", specifier = ">=0.7.3" },
+    { name = "torchwrench", specifier = ">=0.7.3,<0.8.0" },
     { name = "tqdm", specifier = ">=4.64.0" },
     { name = "transformers", specifier = ">=4.53.2" },
     { name = "twine", marker = "extra == 'dev'", specifier = ">=4.0.0" },
