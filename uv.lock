@@ -19,6 +19,7 @@ dependencies = [
     { name = "sentence-transformers" },
     { name = "torch" },
     { name = "torchmetrics" },
+    { name = "torchwrench" },
     { name = "tqdm" },
     { name = "transformers" },
 ]
@@ -59,6 +60,7 @@ requires-dist = [
     { name = "sphinx-press-theme", marker = "extra == 'dev'", specifier = ">=0.8.0" },
     { name = "torch", specifier = ">=1.10.1" },
     { name = "torchmetrics", specifier = ">=0.11.4" },
+    { name = "torchwrench", specifier = ">=0.7.3" },
     { name = "tqdm", specifier = ">=4.64.0" },
     { name = "transformers", specifier = ">=4.53.2" },
     { name = "twine", marker = "extra == 'dev'", specifier = ">=4.0.0" },
@@ -3543,6 +3545,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/96/80/bcf680d3d7de76467
 wheels = [
     { url = "https://files.pythonhosted.org/packages/70/19/2d8db70030d3472dad5d49136770af949f5ed597df2c1a6a509dadc5d57d/torchmetrics-1.7.4-py3-none-any.whl", hash = "sha256:9298ad0e893b0cf2956bee95b0f7eecdc65205ab84ddb4f6762eff157c240518", size = 963504, upload_time = "2025-07-05T12:28:39.827Z" },
 ]
+
+[[package]]
+name = "torchwrench"
+version = "0.7.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pythonwrench" },
+    { name = "torch" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/58/79/243992598ee2e04d5a25c77bd6ba7f3390b8bb4b55591eda0ba3bee5e22f/torchwrench-0.7.3.tar.gz", hash = "sha256:0e87a4da240d54de27c5447d5cac41011590bdee1bf5d075335e5e12cc0b21fc", size = 116079, upload_time = "2025-07-18T22:01:46.307Z" }
 
 [[package]]
 name = "tornado"
