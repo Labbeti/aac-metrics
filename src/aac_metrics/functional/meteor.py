@@ -81,13 +81,11 @@ def meteor(
 
     if __debug__:
         if not osp.isfile(meteor_jar_fpath):
-            raise FileNotFoundError(
-                f"Cannot find JAR file '{meteor_jar_fpath}' for METEOR metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
-            )
+            msg = f"Cannot find JAR file '{meteor_jar_fpath}' for METEOR metric. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
+            raise FileNotFoundError(msg)
         if not check_java_path(java_path):
-            raise RuntimeError(
-                f"Invalid Java executable to compute METEOR score. ({java_path})"
-            )
+            msg = f"Invalid Java executable to compute METEOR score. ({java_path})"
+            raise RuntimeError(msg)
 
     if language not in get_args(Language):
         msg = f"Invalid argument {language=}. (expected one of {get_args(Language)})"

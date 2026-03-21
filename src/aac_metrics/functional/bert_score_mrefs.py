@@ -200,7 +200,7 @@ def bert_score_mrefs(
         reduction_fn = reduction
 
     if len(sizes) > 0 and all(size == sizes[0] for size in sizes):
-        torchmetrics_version = Version(torchmetrics.__version__)
+        torchmetrics_version = Version(torchmetrics.__version__)  # type: ignore
         if torchmetrics_version < Version("1.0.0"):
             # backward compatibility
             sents_scores = {

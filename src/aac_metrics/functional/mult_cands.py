@@ -36,21 +36,19 @@ def mult_cands_metric(
     :returns: A tuple of globals and locals scores or a scalar tensor with the main global score.
     """
     if not is_mult_sents(mult_candidates):
-        error_msg = f"Invalid mult_candidates type. (expected list[list[str]], found {mult_references.__class__.__name__})"
-        raise ValueError(error_msg)
+        msg = f"Invalid mult_candidates type. (expected list[list[str]], found {mult_references.__class__.__name__})"
+        raise ValueError(msg)
 
     if not is_mult_sents(mult_references):
-        error_msg = f"Invalid mult_references type. (expected list[list[str]], found {mult_references.__class__.__name__})"
-        raise ValueError(error_msg)
+        msg = f"Invalid mult_references type. (expected list[list[str]], found {mult_references.__class__.__name__})"
+        raise ValueError(msg)
 
     if len(mult_candidates) <= 0:
-        raise ValueError(
-            f"Cannot compute max metric without at least 1 candidate. (found {len(mult_candidates)=})"
-        )
+        msg = f"Cannot compute max metric without at least 1 candidate. (found {len(mult_candidates)=})"
+        raise ValueError(msg)
     if len(mult_candidates) != len(mult_references):
-        raise ValueError(
-            f"Number of candidate and mult_references are different ({len(mult_candidates)} != {len(mult_references)})."
-        )
+        msg = f"Number of candidate and mult_references are different ({len(mult_candidates)} != {len(mult_references)})."
+        raise ValueError(msg)
 
     if selection not in get_args(Selection):
         msg = f"Invalid argument {selection=}. (expected one of {get_args(Selection)})"

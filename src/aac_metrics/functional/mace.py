@@ -130,11 +130,11 @@ def mace(
         clap_sim_outs_corpus_text, clap_sim_outs_sents_text = clap_sim_outs_text
         clap_sim_outs_corpus_audio, clap_sim_outs_sents_audio = clap_sim_outs_audio
         clap_sim_outs_corpus = _average_dicts(
-            clap_sim_outs_corpus_text,
+            clap_sim_outs_corpus_text,  # type: ignore
             clap_sim_outs_corpus_audio,  # type: ignore
         )
         clap_sim_outs_sents = _average_dicts(
-            clap_sim_outs_sents_text,
+            clap_sim_outs_sents_text,  # type: ignore
             clap_sim_outs_sents_audio,  # type: ignore
         )
         clap_sim_outs: CLAPOuts = clap_sim_outs_corpus, clap_sim_outs_sents  # type: ignore

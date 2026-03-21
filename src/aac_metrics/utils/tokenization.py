@@ -88,28 +88,26 @@ def ptb_tokenize_batch(
     if __debug__:
         newlines_count = sum(sent.count("\n") for sent in sentences)
         if newlines_count > 0:
-            raise ValueError(
-                f"Invalid argument sentences for tokenization. (found {newlines_count} newlines character '\\n')"
-            )
+            msg = f"Invalid argument sentences for tokenization. (found {newlines_count} newlines character '\\n')"
+            raise ValueError(msg)
 
         if not osp.isdir(cache_path):
-            raise RuntimeError(f"Cannot find cache directory at {cache_path=}.")
+            msg = f"Cannot find cache directory at {cache_path=}."
+            raise RuntimeError(msg)
         if not osp.isdir(tmp_path):
-            raise RuntimeError(f"Cannot find tmp directory at {tmp_path=}.")
+            msg = f"Cannot find tmp directory at {tmp_path=}."
+            raise RuntimeError(msg)
         if not osp.isfile(stanford_fpath):
-            raise FileNotFoundError(
-                f"Cannot find JAR file '{stanford_fpath}' for tokenization. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
-            )
+            msg = f"Cannot find JAR file '{stanford_fpath}' for tokenization. Maybe run 'aac-metrics-download' or specify another 'cache_path' directory."
+            raise FileNotFoundError(msg)
         if not check_java_path(java_path):
-            raise RuntimeError(
-                f"Invalid Java executable to tokenize sentences. ({java_path})"
-            )
+            msg = f"Invalid Java executable to tokenize sentences. ({java_path})"
+            raise RuntimeError(msg)
 
     start_time = time.perf_counter()
     if verbose >= 2:
-        pylog.debug(
-            f"Start executing {FNAME_STANFORD_CORENLP_3_4_1_JAR} JAR file for tokenization. ({len(sentences)=})"
-        )
+        msg = f"Start executing {FNAME_STANFORD_CORENLP_3_4_1_JAR} JAR file for tokenization. ({len(sentences)=})"
+        pylog.debug(msg)
 
     cmd = [
         java_path,
