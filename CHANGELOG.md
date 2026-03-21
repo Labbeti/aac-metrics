@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.1] UNRELEASED
+### Changed
+- Update project dependencies versions and move to uv.
+
 ## [0.6.0] 2025-06-29
 ### Changed
 - Constants are replaced by `typing.get_args` from Literal type.
