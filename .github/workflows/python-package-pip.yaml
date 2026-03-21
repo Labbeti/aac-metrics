@@ -30,15 +30,16 @@ jobs:
     steps:
     # --- INSTALLATIONS ---
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+    - name: Install uv and set Python ${{ matrix.python-version }}
+      uses: astral-sh/setup-uv@v5
       with:
         python-version: ${{ matrix.python-version }}
-        cache: 'pip'
+        enable-cache: true
+        cache-dependency-glob: "pyproject.toml"
 
     - name: Set up Java ${{ matrix.java-version }}
       uses: actions/setup-java@v2
@@ -47,10 +48,9 @@ jobs:
         java-version: ${{ matrix.java-version }}
         java-package: jre
 
-    - name: Install package
-      shell: bash
+    - name: Install the project
       run: |
-        python -m pip install ".[dev]"
+        uv sync --all-extras --dev
 
     - name: Load cache of external code and data
       uses: actions/cache@master
@@ -62,35 +62,27 @@ jobs:
           ${{ runner.os }}-
 
     # --- TESTS ---
-    - name: Compile python files
-      run: |
-        python -m compileall src
-
-    - name: Lint with flake8
-      run: |
-        python -m flake8 --config .flake8 --exit-zero --show-source --statistics src
-
-    - name: Check format with Black
-      run: |
-        python -m black --check --diff src
-
     - name: Print install info
       run: |
-        aac-metrics-info
+        uv run aac-metrics-info
 
     - name: Print Java version
       run: |
-        java -version
+        uv run java -version
+
+    - name: Check format with Ruff
+      run: |
+        uv run ruff check
 
     - name: Install external code if needed
       if: steps.cache_external.outputs.cache-hit != 'true'
       run: |
-        aac-metrics-download
+        uv run aac-metrics-download
 
     - name: Test with coverage + pytest
       run: |
-        coverage run -m pytest -v
+        uv run coverage run -m pytest -v
 
     - name: Show coverage results
       run: |
-        coverage report -m
+        uv run coverage report -m
