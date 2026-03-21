@@ -66,8 +66,8 @@ dev = [
     "pytest>=7.1.2",
     "ruff~=0.12.4",
     "scikit-image>=0.19.2",
-    "sphinx>=7.2.6",
-    "sphinx-press-theme>=0.8.0",
+    "sphinx<9.0.0",
+    "sphinx-immaterial>=0.11.14",
     "twine>=4.0.0",
 ]
 

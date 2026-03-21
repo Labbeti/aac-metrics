@@ -3,8 +3,8 @@ aac\_metrics.classes package
 
 .. automodule:: aac_metrics.classes
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
