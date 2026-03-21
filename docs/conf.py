@@ -70,8 +70,8 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "sphinx_immaterial"
 
 html_theme_options = {
-    "repo_url": "https://github.com/Labbeti/pythonwrench",
-    "site_url": "https://pypi.org/project/pythonwrench",
+    "repo_url": "https://github.com/Labbeti/aac-metrics",
+    "site_url": "https://pypi.org/project/aac-metrics",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
