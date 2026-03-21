@@ -25,7 +25,12 @@ from aac_metrics.functional.sbert_sim import (
 from aac_metrics.utils.checks import check_metric_inputs
 
 FENSEScores = TypedDict(
-    "FENSEScores", {"sbert_sim": Tensor, "fer": Tensor, "fense": Tensor}
+    "FENSEScores",
+    {
+        "sbert_sim": Tensor,
+        "fer": Tensor,
+        "fense": Tensor,
+    },
 )
 FENSEOuts = tuple[FENSEScores, FENSEScores]
 

@@ -116,6 +116,9 @@ def _encode_sents_sbert(
     batch_size: Optional[int] = 32,
     verbose: int = 0,
 ) -> Tensor:
+    if batch_size is None:
+        batch_size = len(sents)
+
     return sbert_model.encode(
         sents,
         convert_to_tensor=True,

@@ -220,7 +220,7 @@ def spice(
             "spice": spice_scores,
         }
         spice_outs = spice_outs_corpus, spice_outs_sents
-        return spice_outs
+        return spice_outs  # type: ignore
     else:
         return spice_score
 
